@@ -6,9 +6,9 @@
  * @since 1.0.0
  */
 
-defined( 'ABSPATH' ) || exit;
-
 namespace WPAgent;
+
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Plugin_Loader
@@ -77,6 +77,19 @@ class Plugin_Loader {
 		spl_autoload_register( [ $this, 'autoload' ] );
 
 		add_action( 'plugins_loaded', [ $this, 'load_textdomain' ] );
+		add_action( 'plugins_loaded', [ $this, 'load_admin' ] );
+	}
+
+	/**
+	 * Load admin classes.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function load_admin() {
+		if ( is_admin() ) {
+			Admin\Admin_Loader::get_instance();
+		}
 	}
 
 	/**
