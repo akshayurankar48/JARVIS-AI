@@ -27,6 +27,18 @@ class Assets_Manager {
 	private static $instance = null;
 
 	/**
+	 * Admin page hook suffixes.
+	 *
+	 * @var string[]
+	 */
+	private const PAGE_HOOKS = [
+		'toplevel_page_wp-agent',
+		'wp-agent_page_wp-agent-settings',
+		'wp-agent_page_wp-agent-history',
+		'wp-agent_page_wp-agent-usage',
+	];
+
+	/**
 	 * Initiator
 	 *
 	 * @since 1.0.0
@@ -56,7 +68,7 @@ class Assets_Manager {
 	 * @return void
 	 */
 	public function enqueue_assets( $hook_suffix ) {
-		if ( 'toplevel_page_wp-agent' !== $hook_suffix ) {
+		if ( ! in_array( $hook_suffix, self::PAGE_HOOKS, true ) ) {
 			return;
 		}
 
@@ -97,10 +109,10 @@ class Assets_Manager {
 			]
 		);
 
-		// Hide default admin notices on our page.
+		// Hide default admin notices on our pages.
 		wp_add_inline_style(
 			'wp-agent-admin',
-			'#wp-agent-settings ~ .notice, #wp-agent-settings ~ .updated, #wp-agent-settings ~ .error, .wp-agent-settings .notice, div.notice:not(.wp-agent-notice) { display: none !important; } #wpcontent { padding-left: 0; } #wpbody-content { padding-bottom: 0; }'
+			'.wp-agent-wrap ~ .notice, .wp-agent-wrap ~ .updated, .wp-agent-wrap ~ .error, .wp-agent-wrap .notice, div.notice:not(.wp-agent-notice) { display: none !important; } #wpcontent { padding-left: 0; } #wpbody-content { padding-bottom: 0; }'
 		);
 	}
 }

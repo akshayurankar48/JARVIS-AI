@@ -5,5 +5,6 @@ module.exports = withTW( {
 	corePlugins: {
 		preflight: false,
 	},
-	important: ':is(#wp-agent-settings, [data-floating-ui-portal])',
+	important:
+		':is(#wp-agent-dashboard, #wp-agent-settings, #wp-agent-history, #wp-agent-usage, [data-floating-ui-portal])',
 } );

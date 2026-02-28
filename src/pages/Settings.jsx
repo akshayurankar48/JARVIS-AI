@@ -1,14 +1,14 @@
 import { Container, Title, Badge, Button, Toaster, toast } from '@bsf/force-ui';
 import { Save } from 'lucide-react';
-import ApiKeyForm from './components/ApiKeyForm';
-import ModelSelector from './components/ModelSelector';
-import RolePermissions from './components/RolePermissions';
-import StatusCard from './components/StatusCard';
-import QuickStats from './components/QuickStats';
+import ApiKeyForm from '../components/ApiKeyForm';
+import ModelSelector from '../components/ModelSelector';
+import RolePermissions from '../components/RolePermissions';
+import StatusCard from '../components/StatusCard';
+import QuickStats from '../components/QuickStats';
 
 const { version } = window.wpAgentData || {};
 
-export default function App() {
+export default function Settings() {
 	const handleSave = () => {
 		toast.success( 'Settings saved successfully!', {
 			description: 'Your WP Agent configuration has been updated.',
@@ -28,8 +28,8 @@ export default function App() {
 				>
 					<Container direction="row" align="center" gap="sm">
 						<Title
-							title="WP Agent"
-							description="AI-powered admin assistant for WordPress"
+							title="Settings"
+							description="Configure your WP Agent preferences"
 							size="md"
 							tag="h1"
 						/>
