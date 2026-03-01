@@ -37,7 +37,9 @@ class Read_Blocks implements Action_Interface {
 	 * @return string
 	 */
 	public function get_description(): string {
-		return 'Read and parse the block structure of a post. Returns the block tree with block names, attributes, and inner HTML.';
+		return 'Read and parse the block structure of a post. Returns the block tree with block names, attributes, and inner HTML. '
+			. 'Use this before modifying content to understand the current page structure. '
+			. 'Call this first when the user wants to edit, rearrange, or add to existing page content.';
 	}
 
 	/**

@@ -6,5 +6,5 @@ module.exports = withTW( {
 		preflight: false,
 	},
 	important:
-		':is(#wp-agent-dashboard, #wp-agent-settings, #wp-agent-history, #wp-agent-usage, [data-floating-ui-portal])',
+		':is(#wp-agent-dashboard, #wp-agent-settings, #wp-agent-history, #wp-agent-usage, #wp-agent-sidebar, [data-floating-ui-portal])',
 } );

@@ -37,7 +37,9 @@ class Create_Post implements Action_Interface {
 	 * @return string
 	 */
 	public function get_description(): string {
-		return 'Create a new WordPress post or page. Always creates as draft unless explicitly set.';
+		return 'Create a new WordPress post or page. Always creates as draft unless explicitly set. '
+			. 'This creates the post with a title and optional metadata. '
+			. 'To add content/blocks to the post, use insert_blocks separately after creating it.';
 	}
 
 	/**

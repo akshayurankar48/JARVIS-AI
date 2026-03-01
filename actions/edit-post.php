@@ -36,7 +36,11 @@ class Edit_Post implements Action_Interface {
 	 * @return string
 	 */
 	public function get_description(): string {
-		return 'Update an existing WordPress post or page. Only the fields you provide will be changed.';
+		return 'Update metadata of an existing WordPress post or page (title, status, excerpt, slug, categories, tags). '
+			. 'Only the fields you provide will be changed. '
+			. 'IMPORTANT: Do NOT use this tool to set post_content when the user is in the Gutenberg editor — use insert_blocks instead, '
+			. 'which produces properly structured blocks with styling. '
+			. 'Use edit_post only for metadata changes like publishing a draft, changing the title, or updating the excerpt.';
 	}
 
 	/**
