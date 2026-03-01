@@ -421,7 +421,8 @@ class Prompt_Builder {
 			. "- Always apply consistent spacing — never leave blocks without padding/margin styling.\n"
 			. "- COLOR HARMONY: Before building, choose a palette: 1 primary (#hex), 1 accent (#hex), 1 dark (#hex), 1 light (#hex). Use primary for CTAs and key elements, accent for highlights, dark for hero/footer backgrounds, light for alternating sections. Stay consistent across ALL sections.\n"
 			. "- COPYWRITING: Write real, compelling copy — not placeholder text. Use specific numbers (\"50,000+ customers\"), power verbs (\"Transform\", \"Unleash\", \"Accelerate\"), and benefit-driven language. Headlines: punchy (3-8 words). Subheadings: one-sentence value proposition. Body: concrete and persuasive.\n"
-			. "- IMAGES: Use core/image with url \"https://placehold.co/WIDTHxHEIGHT/BGHEX/TEXTHEX\" (no # in hex). Set descriptive alt text. Example: url: \"https://placehold.co/800x400/1a1a2e/ffffff\", alt: \"Team collaborating in modern office\".\n"
+			. "- IMAGES: ALWAYS call search_media first to find real images from the media library. Use the returned URLs and alt text in core/image, core/cover, and core/media-text blocks. "
+			. "Only fall back to placeholder URLs if the media library has no suitable images. Placeholder syntax: \"https://placehold.co/WIDTHxHEIGHT/BGHEX/TEXTHEX\" (no # in hex).\n"
 			. "- BLOCK VARIETY: Use the right block for the job. core/cover for hero banners with background images, core/media-text for side-by-side image+text, core/quote for testimonials, core/details for FAQ accordions. Don't default to core/columns for everything.\n\n";
 
 		// Few-shot examples.
@@ -640,6 +641,9 @@ class Prompt_Builder {
 			. "- deactivate_plugin: Confirm before deactivating.\n\n"
 			. "ADMIN TOOLS (require confirmation):\n"
 			. "- update_settings, manage_permalinks, install_plugin, activate_plugin, create_user.\n\n"
+			. "MEDIA TOOLS (execute immediately, no confirmation):\n"
+			. "- search_media: Search the media library for real images. Call with a keyword or leave empty for recent uploads. "
+			. "Returns image URLs, IDs, alt text, and dimensions. ALWAYS call this before building pages to use the site's real images.\n\n"
 			. "READ-ONLY TOOLS (respond directly):\n"
 			. "- site_health: Diagnostics. No confirmation needed.\n\n"
 			. "IMPORTANT: When asked to \"build a page\" while in the editor, call insert_blocks with position \"replace\". "
@@ -657,7 +661,7 @@ class Prompt_Builder {
 	 */
 	private function get_reasoning_section() {
 		return "<reasoning>\n"
-			. "For multi-section pages: determine purpose/audience, plan section flow (hero > features > proof > CTA), "
+			. "For multi-section pages: first call search_media to find available images, then determine purpose/audience, plan section flow (hero > features > proof > CTA), "
 			. "pick a cohesive 2-3 color palette, then follow the CHUNKING RULE to split across multiple insert_blocks calls.\n"
 			. "For site diagnostics: read current state first, identify root cause, propose fix, execute after confirmation.\n"
 			. "For bulk operations: confirm scope with user, execute in steps, report progress.\n"
