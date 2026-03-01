@@ -4,6 +4,7 @@ import { Save, Loader2, Check } from 'lucide-react';
 import ApiKeyForm from '../components/ApiKeyForm';
 import ModelSelector from '../components/ModelSelector';
 import RolePermissions from '../components/RolePermissions';
+import BrandPresets from '../components/BrandPresets';
 import PageLayout from '../components/PageLayout';
 
 const { restUrl, nonce } = window.wpAgentData || {};
@@ -20,6 +21,7 @@ export default function Settings() {
 	const [ tavilyKey, setTavilyKey ] = useState( '' );
 	const [ defaultModel, setDefaultModel ] = useState( '' );
 	const [ allowedRoles, setAllowedRoles ] = useState( [ 'administrator' ] );
+	const [ brand, setBrand ] = useState( {} );
 
 	// Fetch settings on mount.
 	const fetchSettings = useCallback( async () => {
@@ -38,6 +40,7 @@ export default function Settings() {
 			setHasTavilyKey( data.has_tavily_key || false );
 			setDefaultModel( data.default_model || '' );
 			setAllowedRoles( data.allowed_roles || [ 'administrator' ] );
+			setBrand( data.brand || {} );
 		} catch ( error ) {
 			toast.error( 'Failed to load settings.', {
 				description: error.message,
@@ -70,6 +73,7 @@ export default function Settings() {
 		}
 
 		payload.allowed_roles = allowedRoles;
+		payload.brand = brand;
 
 		try {
 			const response = await fetch( `${ restUrl }settings`, {
@@ -179,6 +183,7 @@ export default function Settings() {
 							size="md"
 						>
 							<Tabs.Tab slug="general" text="General" />
+							<Tabs.Tab slug="brand" text="Brand" />
 							<Tabs.Tab slug="model" text="AI Model" />
 							<Tabs.Tab
 								slug="permissions"
@@ -195,6 +200,12 @@ export default function Settings() {
 									tavilyKey={ tavilyKey }
 									onTavilyKeyChange={ setTavilyKey }
 									hasTavilyKey={ hasTavilyKey }
+								/>
+							</Tabs.Panel>
+							<Tabs.Panel slug="brand">
+								<BrandPresets
+									brand={ brand }
+									onBrandChange={ setBrand }
 								/>
 							</Tabs.Panel>
 							<Tabs.Panel slug="model">

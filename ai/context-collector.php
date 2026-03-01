@@ -111,6 +111,7 @@ class Context_Collector {
 			'permalink_structure' => sanitize_text_field( get_option( 'permalink_structure', '' ) ),
 			'theme'               => $this->get_theme_info(),
 			'design_tokens'       => $this->get_theme_design_tokens(),
+			'brand'               => $this->get_brand_settings(),
 			'active_plugins'      => $this->get_active_plugins(),
 			'post_type_counts'    => $this->get_post_type_counts(),
 			'user_role'           => $this->get_user_role( $user_id ),
@@ -384,6 +385,35 @@ class Context_Collector {
 		}
 
 		return substr( sanitize_text_field( $user->display_name ? $user->display_name : 'Unknown' ), 0, 60 );
+	}
+
+	/**
+	 * Get brand preset settings from wp_options.
+	 *
+	 * Returns the sanitized brand configuration stored by the user
+	 * in WP Agent > Settings > Brand tab.
+	 *
+	 * @since 1.1.0
+	 * @return array Brand settings (empty array if not configured).
+	 */
+	private function get_brand_settings() {
+		$brand = get_option( 'wp_agent_brand_presets', [] );
+
+		if ( ! is_array( $brand ) || empty( $brand ) ) {
+			return [];
+		}
+
+		// Re-sanitize on read for defense in depth.
+		$sanitized = [];
+		$allowed   = [ 'brand_name', 'tagline', 'primary_color', 'accent_color', 'dark_color', 'light_color', 'tone', 'font_preference' ];
+
+		foreach ( $allowed as $key ) {
+			if ( ! empty( $brand[ $key ] ) ) {
+				$sanitized[ $key ] = sanitize_text_field( $brand[ $key ] );
+			}
+		}
+
+		return $sanitized;
 	}
 
 	/**

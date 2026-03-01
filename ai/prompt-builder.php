@@ -72,6 +72,7 @@ class Prompt_Builder {
 
 		$prompt  = $this->get_identity_section();
 		$prompt .= $this->get_context_section( $context );
+		$prompt .= $this->get_brand_context_section( $context );
 		$prompt .= $this->get_workflow_section();
 		$prompt .= $this->get_safety_section();
 		$prompt .= $this->get_tool_usage_section();
@@ -274,6 +275,71 @@ class Prompt_Builder {
 		}
 
 		$section .= "</site_context>\n\n";
+
+		return $section;
+	}
+
+	/**
+	 * Get the brand context section.
+	 *
+	 * Only included when the admin has configured brand presets in Settings > Brand.
+	 * Provides the AI with brand identity, color palette, writing tone, and font
+	 * preferences so all generated content stays on-brand.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $context Full context array from Context_Collector.
+	 * @return string The brand context section, or empty string if not configured.
+	 */
+	private function get_brand_context_section( array $context ) {
+		if ( empty( $context['brand'] ) || ! is_array( $context['brand'] ) ) {
+			return '';
+		}
+
+		$brand = $context['brand'];
+
+		$section = "<brand_identity>\n";
+		$section .= "The site owner has configured brand presets. ALWAYS use these when generating content, building pages, or selecting colors.\n\n";
+
+		if ( ! empty( $brand['brand_name'] ) ) {
+			$section .= "Brand name: {$brand['brand_name']}\n";
+		}
+
+		if ( ! empty( $brand['tagline'] ) ) {
+			$section .= "Tagline: {$brand['tagline']}\n";
+		}
+
+		// Brand color palette.
+		$colors = [];
+		if ( ! empty( $brand['primary_color'] ) ) {
+			$colors[] = "Primary: {$brand['primary_color']}";
+		}
+		if ( ! empty( $brand['accent_color'] ) ) {
+			$colors[] = "Accent: {$brand['accent_color']}";
+		}
+		if ( ! empty( $brand['dark_color'] ) ) {
+			$colors[] = "Dark: {$brand['dark_color']}";
+		}
+		if ( ! empty( $brand['light_color'] ) ) {
+			$colors[] = "Light: {$brand['light_color']}";
+		}
+
+		if ( ! empty( $colors ) ) {
+			$section .= "\nBrand colors: " . implode( ', ', $colors ) . "\n";
+			$section .= "Use these brand colors instead of random palettes. Map them to block styles: "
+				. "primary for buttons/accents, accent for secondary elements, dark for text/backgrounds, light for backgrounds/cards.\n";
+		}
+
+		if ( ! empty( $brand['tone'] ) ) {
+			$section .= "\nWriting tone: {$brand['tone']}\n";
+			$section .= "Match this tone in all generated text — headings, body copy, CTAs, descriptions.\n";
+		}
+
+		if ( ! empty( $brand['font_preference'] ) ) {
+			$section .= "Font preference: {$brand['font_preference']}\n";
+		}
+
+		$section .= "</brand_identity>\n\n";
 
 		return $section;
 	}

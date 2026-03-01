@@ -60,6 +60,13 @@ class Settings_Controller {
 	const TAVILY_KEY_OPTION = 'wp_agent_tavily_api_key';
 
 	/**
+	 * Option key for brand presets.
+	 *
+	 * @var string
+	 */
+	const BRAND_OPTION = 'wp_agent_brand_presets';
+
+	/**
 	 * Register REST routes.
 	 *
 	 * @since 1.0.0
@@ -124,6 +131,7 @@ class Settings_Controller {
 			'has_tavily_key' => ! empty( get_option( self::TAVILY_KEY_OPTION, '' ) ),
 			'default_model'  => $router->get_default_model(),
 			'allowed_roles'  => get_option( self::ROLES_OPTION, [ 'administrator' ] ),
+			'brand'          => get_option( self::BRAND_OPTION, [] ),
 			'rate_limit'     => (int) get_option( 'wp_agent_rate_limit', Rate_Limiter::DEFAULT_MINUTE_LIMIT ),
 			'daily_limit'    => (int) get_option( 'wp_agent_daily_limit', Rate_Limiter::DEFAULT_DAILY_LIMIT ),
 		] );
@@ -193,6 +201,18 @@ class Settings_Controller {
 			}
 
 			$updated['allowed_roles'] = $roles;
+		}
+
+		// Brand presets — sanitize and store.
+		if ( $request->has_param( 'brand' ) ) {
+			$brand  = $request->get_param( 'brand' );
+			$result = $this->save_brand_settings( $brand );
+
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			$updated['brand'] = true;
 		}
 
 		return rest_ensure_response( [
@@ -322,6 +342,79 @@ class Settings_Controller {
 	}
 
 	/**
+	 * Validate and save brand preset settings.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param mixed $brand Brand data from the request.
+	 * @return true|\WP_Error
+	 */
+	private function save_brand_settings( $brand ) {
+		if ( ! is_array( $brand ) ) {
+			return new \WP_Error(
+				'invalid_brand',
+				__( 'Brand settings must be an object.', 'wp-agent' ),
+				[ 'status' => 400 ]
+			);
+		}
+
+		$allowed_keys = [
+			'brand_name',
+			'tagline',
+			'primary_color',
+			'accent_color',
+			'dark_color',
+			'light_color',
+			'tone',
+			'font_preference',
+		];
+
+		$allowed_tones = [ '', 'professional', 'friendly', 'casual', 'authoritative', 'playful', 'minimal' ];
+		$allowed_fonts = [ '', 'sans-serif', 'serif', 'monospace' ];
+
+		$sanitized = [];
+
+		foreach ( $allowed_keys as $key ) {
+			if ( ! isset( $brand[ $key ] ) ) {
+				continue;
+			}
+
+			$value = sanitize_text_field( $brand[ $key ] );
+
+			// Validate color fields as hex codes.
+			if ( str_ends_with( $key, '_color' ) && ! empty( $value ) ) {
+				if ( ! preg_match( '/^#[0-9a-fA-F]{3,6}$/', $value ) ) {
+					continue; // Skip invalid color values silently.
+				}
+			}
+
+			// Validate enum fields.
+			if ( 'tone' === $key && ! in_array( $value, $allowed_tones, true ) ) {
+				continue;
+			}
+			if ( 'font_preference' === $key && ! in_array( $value, $allowed_fonts, true ) ) {
+				continue;
+			}
+
+			// Limit text lengths.
+			if ( 'brand_name' === $key ) {
+				$value = substr( $value, 0, 100 );
+			}
+			if ( 'tagline' === $key ) {
+				$value = substr( $value, 0, 200 );
+			}
+
+			if ( '' !== $value ) {
+				$sanitized[ $key ] = $value;
+			}
+		}
+
+		update_option( self::BRAND_OPTION, $sanitized );
+
+		return true;
+	}
+
+	/**
 	 * Define argument schema for POST /settings.
 	 *
 	 * @since 1.0.0
@@ -347,6 +440,9 @@ class Settings_Controller {
 				'items' => [
 					'type' => 'string',
 				],
+			],
+			'brand'          => [
+				'type' => 'object',
 			],
 		];
 	}
