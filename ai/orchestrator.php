@@ -15,6 +15,7 @@
 namespace WPAgent\AI;
 
 use WPAgent\Actions\Action_Registry;
+use WPAgent\Core\Checkpoint_Manager;
 use WPAgent\Core\Database;
 
 defined( 'ABSPATH' ) || exit;
@@ -527,6 +528,31 @@ class Orchestrator {
 				continue;
 			}
 
+			// Inject conversation_id for undo_action so it knows which conversation to query.
+			if ( 'undo_action' === $fn_name && ! isset( $params['conversation_id'] ) ) {
+				$params['conversation_id'] = $conversation_id;
+			}
+
+			// Capture checkpoint before reversible actions execute.
+			$checkpoint_id    = 0;
+			$checkpoint_data  = null;
+			$action_obj       = Action_Registry::get_instance()->get_action( $fn_name );
+			$checkpoint_mgr   = Checkpoint_Manager::get_instance();
+
+			if ( $action_obj && $action_obj->is_reversible() ) {
+				$checkpoint_data = $checkpoint_mgr->capture_before( $fn_name, $params );
+				if ( $checkpoint_data ) {
+					$checkpoint_id = $checkpoint_mgr->save_checkpoint(
+						$conversation_id,
+						0,
+						$fn_name,
+						$checkpoint_data['entity_type'],
+						$checkpoint_data['entity_id'],
+						$checkpoint_data['snapshot']
+					);
+				}
+			}
+
 			$result = Action_Registry::get_instance()->dispatch( $fn_name, $params );
 
 			if ( is_wp_error( $result ) ) {
@@ -536,6 +562,20 @@ class Orchestrator {
 				];
 			} else {
 				$tool_result = $result;
+			}
+
+			// For creation actions, update entity_id on success or clean up on failure.
+			if ( $checkpoint_id && ! empty( $checkpoint_data['snapshot']['_creation'] ) ) {
+				if ( ! empty( $tool_result['success'] ) && ! empty( $tool_result['data'] ) ) {
+					$created_id = $this->extract_created_entity_id( $fn_name, $tool_result['data'] );
+					if ( $created_id ) {
+						$checkpoint_mgr->update_entity_id( $checkpoint_id, $created_id );
+					} else {
+						$checkpoint_mgr->delete_checkpoint( $checkpoint_id );
+					}
+				} else {
+					$checkpoint_mgr->delete_checkpoint( $checkpoint_id );
+				}
 			}
 
 			$actions_taken[] = [
@@ -857,5 +897,44 @@ class Orchestrator {
 		}
 
 		return Model_Router::get_instance()->select_model( $user_message, $history );
+	}
+
+	/**
+	 * Extract the created entity ID from a creation action's result data.
+	 *
+	 * Different actions return the ID under different keys. This method
+	 * normalizes the extraction.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $action_name The action that was executed.
+	 * @param array  $data        The result data from the action.
+	 * @return int The entity ID, or 0 if not found.
+	 */
+	private function extract_created_entity_id( $action_name, array $data ) {
+		switch ( $action_name ) {
+			case 'create_post':
+			case 'create_pattern':
+				return isset( $data['post_id'] ) ? absint( $data['post_id'] ) : 0;
+
+			case 'clone_post':
+				return isset( $data['new_post_id'] ) ? absint( $data['new_post_id'] ) : 0;
+
+			case 'create_user':
+				return isset( $data['user_id'] ) ? absint( $data['user_id'] ) : 0;
+
+			case 'import_media':
+				return isset( $data['id'] ) ? absint( $data['id'] ) : 0;
+
+			case 'generate_image':
+				return isset( $data['attachment_id'] ) ? absint( $data['attachment_id'] ) : 0;
+
+			case 'install_plugin':
+				// Plugins don't have a numeric ID — use 0.
+				return 0;
+
+			default:
+				return 0;
+		}
 	}
 }
