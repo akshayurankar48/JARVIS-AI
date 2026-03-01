@@ -154,6 +154,7 @@ class Plugin_Loader {
 
 		// Content intelligence actions.
 		$registry->register( new Actions\Read_Url() );
+		$registry->register( new Actions\Web_Search() );
 		$registry->register( new Actions\Manage_Seo() );
 
 		// Site appearance actions.

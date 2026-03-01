@@ -53,6 +53,13 @@ class Settings_Controller {
 	const ROLES_OPTION = 'wp_agent_allowed_roles';
 
 	/**
+	 * Option key for the encrypted Tavily API key.
+	 *
+	 * @var string
+	 */
+	const TAVILY_KEY_OPTION = 'wp_agent_tavily_api_key';
+
+	/**
 	 * Register REST routes.
 	 *
 	 * @since 1.0.0
@@ -113,11 +120,12 @@ class Settings_Controller {
 		$router = Model_Router::get_instance();
 
 		return rest_ensure_response( [
-			'has_api_key'   => $client->has_api_key(),
-			'default_model' => $router->get_default_model(),
-			'allowed_roles' => get_option( self::ROLES_OPTION, [ 'administrator' ] ),
-			'rate_limit'    => (int) get_option( 'wp_agent_rate_limit', Rate_Limiter::DEFAULT_MINUTE_LIMIT ),
-			'daily_limit'   => (int) get_option( 'wp_agent_daily_limit', Rate_Limiter::DEFAULT_DAILY_LIMIT ),
+			'has_api_key'    => $client->has_api_key(),
+			'has_tavily_key' => ! empty( get_option( self::TAVILY_KEY_OPTION, '' ) ),
+			'default_model'  => $router->get_default_model(),
+			'allowed_roles'  => get_option( self::ROLES_OPTION, [ 'administrator' ] ),
+			'rate_limit'     => (int) get_option( 'wp_agent_rate_limit', Rate_Limiter::DEFAULT_MINUTE_LIMIT ),
+			'daily_limit'    => (int) get_option( 'wp_agent_daily_limit', Rate_Limiter::DEFAULT_DAILY_LIMIT ),
 		] );
 	}
 
@@ -161,6 +169,18 @@ class Settings_Controller {
 
 			update_option( self::MODEL_OPTION, $model );
 			$updated['default_model'] = $model;
+		}
+
+		// Tavily API key — encrypt before storing.
+		if ( $request->has_param( 'tavily_api_key' ) ) {
+			$tavily_key = $request->get_param( 'tavily_api_key' );
+			$result     = $this->save_tavily_key( $tavily_key );
+
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			$updated['tavily_api_key'] = true;
 		}
 
 		// Allowed roles — validate against WordPress roles.
@@ -260,6 +280,48 @@ class Settings_Controller {
 	}
 
 	/**
+	 * Validate and save a Tavily API key.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param string $api_key The plaintext Tavily API key.
+	 * @return true|\WP_Error
+	 */
+	private function save_tavily_key( $api_key ) {
+		$api_key = trim( $api_key );
+
+		if ( empty( $api_key ) ) {
+			// Allow clearing the key.
+			delete_option( self::TAVILY_KEY_OPTION );
+			return true;
+		}
+
+		// Basic format validation — Tavily keys start with "tvly-".
+		if ( 0 !== strpos( $api_key, 'tvly-' ) ) {
+			return new \WP_Error(
+				'invalid_tavily_key',
+				__( 'Invalid Tavily API key format. Keys should start with "tvly-".', 'wp-agent' ),
+				[ 'status' => 400 ]
+			);
+		}
+
+		// Encrypt and store using the same encryption as OpenRouter keys.
+		$encrypted = Open_Router_Client::encrypt_api_key( $api_key );
+
+		if ( false === $encrypted ) {
+			return new \WP_Error(
+				'encryption_failed',
+				__( 'Failed to encrypt the Tavily API key. OpenSSL may not be available.', 'wp-agent' ),
+				[ 'status' => 500 ]
+			);
+		}
+
+		update_option( self::TAVILY_KEY_OPTION, $encrypted );
+
+		return true;
+	}
+
+	/**
 	 * Define argument schema for POST /settings.
 	 *
 	 * @since 1.0.0
@@ -267,16 +329,20 @@ class Settings_Controller {
 	 */
 	private function get_update_args() {
 		return [
-			'api_key'       => [
+			'api_key'        => [
 				'type' => 'string',
 				// No sanitize_callback — API keys contain special characters
 				// that sanitize_text_field would corrupt. Handled in save_api_key().
 			],
-			'default_model' => [
+			'tavily_api_key' => [
+				'type' => 'string',
+				// Same reason as api_key — handled in save_tavily_key().
+			],
+			'default_model'  => [
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			],
-			'allowed_roles' => [
+			'allowed_roles'  => [
 				'type'  => 'array',
 				'items' => [
 					'type' => 'string',

@@ -1,10 +1,17 @@
 import { useState } from '@wordpress/element';
 import { Container, Title, Input, Button, Text, toast } from '@bsf/force-ui';
-import { KeyRound, CheckCircle } from 'lucide-react';
+import { KeyRound, CheckCircle, Search } from 'lucide-react';
 
 const { restUrl, nonce } = window.wpAgentData || {};
 
-export default function ApiKeyForm( { apiKey = '', onApiKeyChange, hasApiKey = false } ) {
+export default function ApiKeyForm( {
+	apiKey = '',
+	onApiKeyChange,
+	hasApiKey = false,
+	tavilyKey = '',
+	onTavilyKeyChange,
+	hasTavilyKey = false,
+} ) {
 	const [ isValidating, setIsValidating ] = useState( false );
 
 	const handleValidate = async () => {
@@ -48,48 +55,100 @@ export default function ApiKeyForm( { apiKey = '', onApiKeyChange, hasApiKey = f
 	};
 
 	return (
-		<Container direction="column" gap="md">
-			<Container direction="row" align="center" gap="sm">
-				<KeyRound size={ 20 } className="text-icon-secondary" />
-				<Title
-					title="OpenRouter API Key"
-					description="Connect to AI models via OpenRouter. Your key is stored securely in the database."
-					size="sm"
-				/>
+		<Container direction="column" gap="lg">
+			{ /* OpenRouter API Key */ }
+			<Container direction="column" gap="md">
+				<Container direction="row" align="center" gap="sm">
+					<KeyRound size={ 20 } className="text-icon-secondary" />
+					<Title
+						title="OpenRouter API Key"
+						description="Connect to AI models via OpenRouter. Your key is stored securely in the database."
+						size="sm"
+					/>
+				</Container>
+
+				<Container direction="row" gap="sm" align="end">
+					<div className="flex-1">
+						<Input
+							type="password"
+							size="md"
+							placeholder={
+								hasApiKey
+									? '••••••••••••••••'
+									: 'sk-or-v1-…'
+							}
+							value={ apiKey }
+							onChange={ ( value ) =>
+								onApiKeyChange?.( value )
+							}
+						/>
+					</div>
+					<Button
+						variant="outline"
+						size="md"
+						icon={ <CheckCircle size={ 16 } /> }
+						onClick={ handleValidate }
+						loading={ isValidating }
+						disabled={ isValidating }
+					>
+						Validate Key
+					</Button>
+				</Container>
+
+				{ hasApiKey && (
+					<Text size="sm" color="success">
+						An API key is already saved. Enter a new one to
+						replace it.
+					</Text>
+				) }
 			</Container>
 
-			<Container direction="row" gap="sm" align="end">
+			{ /* Tavily API Key */ }
+			<Container direction="column" gap="md">
+				<Container direction="row" align="center" gap="sm">
+					<Search size={ 20 } className="text-icon-secondary" />
+					<Title
+						title="Tavily API Key"
+						description="Enable web search for research-driven page building. Free tier includes 1,000 searches/month."
+						size="sm"
+					/>
+				</Container>
+
 				<div className="flex-1">
 					<Input
 						type="password"
 						size="md"
 						placeholder={
-							hasApiKey
+							hasTavilyKey
 								? '••••••••••••••••'
-								: 'sk-or-v1-…'
+								: 'tvly-…'
 						}
-						value={ apiKey }
-						onChange={ ( value ) => onApiKeyChange?.( value ) }
+						value={ tavilyKey }
+						onChange={ ( value ) =>
+							onTavilyKeyChange?.( value )
+						}
 					/>
 				</div>
-				<Button
-					variant="outline"
-					size="md"
-					icon={ <CheckCircle size={ 16 } /> }
-					onClick={ handleValidate }
-					loading={ isValidating }
-					disabled={ isValidating }
-				>
-					Validate Key
-				</Button>
-			</Container>
 
-			{ hasApiKey && (
-				<Text size="sm" color="success">
-					An API key is already saved. Enter a new one to replace
-					it.
-				</Text>
-			) }
+				{ hasTavilyKey ? (
+					<Text size="sm" color="success">
+						Tavily key saved. Web search is enabled. Enter a new
+						key to replace it.
+					</Text>
+				) : (
+					<Text size="sm" className="text-text-tertiary">
+						Get your free API key at{ ' ' }
+						<a
+							href="https://app.tavily.com"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="text-text-primary underline"
+						>
+							app.tavily.com
+						</a>
+					</Text>
+				) }
+			</Container>
 		</Container>
 	);
 }

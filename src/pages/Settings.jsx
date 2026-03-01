@@ -16,6 +16,8 @@ export default function Settings() {
 	// Settings state.
 	const [ hasApiKey, setHasApiKey ] = useState( false );
 	const [ apiKey, setApiKey ] = useState( '' );
+	const [ hasTavilyKey, setHasTavilyKey ] = useState( false );
+	const [ tavilyKey, setTavilyKey ] = useState( '' );
 	const [ defaultModel, setDefaultModel ] = useState( '' );
 	const [ allowedRoles, setAllowedRoles ] = useState( [ 'administrator' ] );
 
@@ -33,6 +35,7 @@ export default function Settings() {
 			const data = await response.json();
 
 			setHasApiKey( data.has_api_key || false );
+			setHasTavilyKey( data.has_tavily_key || false );
 			setDefaultModel( data.default_model || '' );
 			setAllowedRoles( data.allowed_roles || [ 'administrator' ] );
 		} catch ( error ) {
@@ -56,6 +59,10 @@ export default function Settings() {
 
 		if ( apiKey.trim() ) {
 			payload.api_key = apiKey;
+		}
+
+		if ( tavilyKey.trim() ) {
+			payload.tavily_api_key = tavilyKey;
 		}
 
 		if ( defaultModel ) {
@@ -87,6 +94,11 @@ export default function Settings() {
 			if ( data.updated?.api_key ) {
 				setApiKey( '' );
 				setHasApiKey( true );
+			}
+
+			if ( data.updated?.tavily_api_key ) {
+				setTavilyKey( '' );
+				setHasTavilyKey( true );
 			}
 
 			setSaveState( 'saved' );
@@ -180,6 +192,9 @@ export default function Settings() {
 									apiKey={ apiKey }
 									onApiKeyChange={ setApiKey }
 									hasApiKey={ hasApiKey }
+									tavilyKey={ tavilyKey }
+									onTavilyKeyChange={ setTavilyKey }
+									hasTavilyKey={ hasTavilyKey }
 								/>
 							</Tabs.Panel>
 							<Tabs.Panel slug="model">
