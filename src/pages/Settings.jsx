@@ -161,16 +161,17 @@ export default function Settings() {
 						<Tabs.Group
 							activeItem={ activeTab }
 							onChange={ ( { value } ) =>
-								setActiveTab( value )
+								setActiveTab( value?.slug || value )
 							}
 							className="border-b border-solid border-border-subtle px-6 pt-2"
 							size="md"
 						>
-							<Tabs.Tab slug="general">General</Tabs.Tab>
-							<Tabs.Tab slug="model">AI Model</Tabs.Tab>
-							<Tabs.Tab slug="permissions">
-								Permissions
-							</Tabs.Tab>
+							<Tabs.Tab slug="general" text="General" />
+							<Tabs.Tab slug="model" text="AI Model" />
+							<Tabs.Tab
+								slug="permissions"
+								text="Permissions"
+							/>
 						</Tabs.Group>
 
 						<div className="p-6">
