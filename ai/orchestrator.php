@@ -41,7 +41,7 @@ class Orchestrator {
 	 *
 	 * @var int
 	 */
-	const MAX_TOOL_ITERATIONS = 15;
+	const MAX_TOOL_ITERATIONS = 25;
 
 	/**
 	 * Maximum number of history messages to load.

@@ -88,6 +88,9 @@ class Prompt_Builder {
 			$prompt .= $this->get_self_critique_section();
 		}
 
+		$prompt .= $this->get_workflow_templates_section();
+		$prompt .= $this->get_memory_context_section();
+
 		return $prompt;
 	}
 
@@ -793,6 +796,101 @@ class Prompt_Builder {
 			. "Do NOT rebuild the entire page — surgical fixes only.\n"
 			. "Skip self-critique for single-section edits or non-page tasks.\n"
 			. "</self_critique>\n\n";
+	}
+
+	/**
+	 * Get the workflow templates section.
+	 *
+	 * Provides multi-step workflow recipes for common site-building tasks.
+	 *
+	 * @since 1.1.0
+	 * @return string
+	 */
+	private function get_workflow_templates_section() {
+		return "<workflow_templates>\n"
+			. "MULTI-STEP WORKFLOW RECIPES (execute steps in sequence, one tool call per turn):\n\n"
+			. "BUILD COMPLETE LANDING PAGE (8 steps):\n"
+			. "1. set_page_template \"blank\"\n"
+			. "2. search_media for relevant images\n"
+			. "3. list_patterns to find matching sections\n"
+			. "4. get_pattern + insert_blocks for hero (position: replace)\n"
+			. "5. get_pattern + insert_blocks for features/benefits (position: append)\n"
+			. "6. screenshot_page mid-build check\n"
+			. "7. get_pattern + insert_blocks for testimonials + CTA (position: append)\n"
+			. "8. screenshot_page final review + manage_seo\n\n"
+			. "SET UP BLOG (6 steps):\n"
+			. "1. create_post page \"Blog\" as blog listing page\n"
+			. "2. update_settings to set posts page\n"
+			. "3. create_post 3 sample blog posts with content\n"
+			. "4. manage_menus to add Blog to navigation\n"
+			. "5. manage_taxonomies to create relevant categories\n"
+			. "6. manage_seo on blog page\n\n"
+			. "CONFIGURE WOOCOMMERCE STORE (10 steps):\n"
+			. "1. woo_manage_settings general (currency, address)\n"
+			. "2. woo_manage_categories create product categories\n"
+			. "3. woo_manage_products create initial products\n"
+			. "4. woo_manage_shipping set up shipping zones\n"
+			. "5. woo_manage_settings tax configuration\n"
+			. "6. woo_manage_coupons create launch coupon\n"
+			. "7. Build shop landing page with insert_blocks\n"
+			. "8. manage_menus add Shop to navigation\n"
+			. "9. woo_manage_inventory verify stock levels\n"
+			. "10. screenshot_page review storefront\n\n"
+			. "REBRAND SITE (5 steps):\n"
+			. "1. edit_global_styles update colors and typography\n"
+			. "2. add_custom_css for brand-specific styling\n"
+			. "3. bulk_find_replace old brand name with new\n"
+			. "4. manage_menus update navigation labels\n"
+			. "5. screenshot_page verify branding consistency\n\n"
+			. "CONTENT AUDIT (7 steps):\n"
+			. "1. search_posts to inventory all content\n"
+			. "2. audit_accessibility on key pages\n"
+			. "3. optimize_performance analyze\n"
+			. "4. manage_seo get on top pages\n"
+			. "5. Fix accessibility issues found\n"
+			. "6. Update SEO meta on pages missing it\n"
+			. "7. generate_sitemap + ping search engines\n\n"
+			. "BUILD MULTI-PAGE SITE (use generate_full_site):\n"
+			. "1. generate_full_site with business type and page list\n"
+			. "2. For each generated page: insert_blocks with styled content\n"
+			. "3. edit_global_styles for consistent branding\n"
+			. "4. manage_seo on all pages\n"
+			. "5. screenshot_page each page for review\n\n"
+			. "Present multi-step plans to the user before executing. Number each step with expected outcome.\n"
+			. "</workflow_templates>\n\n";
+	}
+
+	/**
+	 * Get the memory context section.
+	 *
+	 * Injects stored memories about the site and user preferences
+	 * so the AI can maintain context across conversations.
+	 *
+	 * @since 1.1.0
+	 * @return string
+	 */
+	private function get_memory_context_section() {
+		$memories = get_option( 'wp_agent_memories', [] );
+		if ( empty( $memories ) || ! is_array( $memories ) ) {
+			return '';
+		}
+
+		$section = "<conversation_memory>\n";
+		$section .= "Things I remember about this site and user:\n";
+
+		$count = 0;
+		foreach ( $memories as $memory ) {
+			if ( $count >= 20 ) break;
+			$key   = isset( $memory['key'] ) ? $memory['key'] : '';
+			$value = isset( $memory['value'] ) ? $memory['value'] : '';
+			if ( ! empty( $key ) && ! empty( $value ) ) {
+				$section .= "- " . esc_html( $key ) . ": " . esc_html( $value ) . "\n";
+				$count++;
+			}
+		}
+
+		$section .= "</conversation_memory>\n\n";
+		return $section;
 	}
 
 	/**

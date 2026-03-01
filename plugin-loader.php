@@ -81,6 +81,16 @@ class Plugin_Loader {
 		add_action( 'admin_init', [ 'WPAgent\Core\Database', 'maybe_upgrade' ] );
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
 		add_action( 'wp_agent_register_actions', [ $this, 'register_core_actions' ] );
+
+		// Process URL redirects on frontend.
+		add_action( 'template_redirect', [ 'WPAgent\Actions\Manage_Redirects', 'process_redirects' ] );
+
+		// Cleanup export files.
+		add_action( 'wp_agent_cleanup_export', function ( $filepath ) {
+			if ( file_exists( $filepath ) ) {
+				wp_delete_file( $filepath );
+			}
+		} );
 	}
 
 	/**
@@ -95,6 +105,7 @@ class Plugin_Loader {
 		( new REST\Stream_Controller() )->register_routes();
 		( new REST\History_Controller() )->register_routes();
 		( new REST\Action_Controller() )->register_routes();
+		( new REST\Ab_Tracking_Controller() )->register_routes();
 	}
 
 	/**
@@ -169,6 +180,77 @@ class Plugin_Loader {
 
 		// Undo/rollback action.
 		$registry->register( new Actions\Undo_Action() );
+
+		// Quick-win actions (Phase 1).
+		$registry->register( new Actions\Export_Site() );
+		$registry->register( new Actions\Manage_Redirects() );
+		$registry->register( new Actions\Manage_Widgets() );
+		$registry->register( new Actions\Manage_Cron() );
+		$registry->register( new Actions\Database_Optimize() );
+		$registry->register( new Actions\Manage_Roles() );
+		$registry->register( new Actions\Bulk_Find_Replace() );
+		$registry->register( new Actions\Generate_Sitemap() );
+		$registry->register( new Actions\Manage_Shortcodes() );
+		$registry->register( new Actions\Manage_Options_Bulk() );
+
+		// Site cloner / reference builder.
+		$registry->register( new Actions\Analyze_Reference_Site() );
+
+		// Scheduled tasks.
+		$registry->register( new Actions\Manage_Scheduled_Tasks() );
+
+		// Conversation memory.
+		$registry->register( new Actions\Manage_Memory() );
+
+		// Accessibility auditor.
+		$registry->register( new Actions\Audit_Accessibility() );
+
+		// Performance optimizer.
+		$registry->register( new Actions\Optimize_Performance() );
+
+		// A/B testing.
+		$registry->register( new Actions\Manage_Ab_Test() );
+
+		// Multi-page site generator.
+		$registry->register( new Actions\Generate_Full_Site() );
+
+		// Plugin recommender.
+		$registry->register( new Actions\Recommend_Plugin() );
+
+		// Content migration.
+		$registry->register( new Actions\Import_Content() );
+
+		// Additional quick wins.
+		$registry->register( new Actions\Manage_Rewrite_Rules() );
+		$registry->register( new Actions\Manage_Transients() );
+
+		// WooCommerce actions (conditional).
+		$this->register_woo_actions( $registry );
+	}
+
+	/**
+	 * Register WooCommerce-specific actions.
+	 *
+	 * Only registers when WooCommerce is active.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param \WPAgent\Actions\Action_Registry $registry The action registry.
+	 * @return void
+	 */
+	private function register_woo_actions( $registry ) {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return;
+		}
+
+		$registry->register( new Actions\Woo_Manage_Products() );
+		$registry->register( new Actions\Woo_Manage_Orders() );
+		$registry->register( new Actions\Woo_Manage_Coupons() );
+		$registry->register( new Actions\Woo_Manage_Categories() );
+		$registry->register( new Actions\Woo_Manage_Shipping() );
+		$registry->register( new Actions\Woo_Manage_Settings() );
+		$registry->register( new Actions\Woo_Analytics() );
+		$registry->register( new Actions\Woo_Manage_Inventory() );
 	}
 
 	/**

@@ -32,7 +32,7 @@ class Database {
 	 *
 	 * @var string
 	 */
-	const SCHEMA_VERSION = '1.0.0';
+	const SCHEMA_VERSION = '1.1.0';
 
 	/**
 	 * Option key that stores the installed schema version.
@@ -89,7 +89,9 @@ class Database {
 		$sql = self::get_conversations_schema( $wpdb->prefix, $charset_collate )
 			. self::get_messages_schema( $wpdb->prefix, $charset_collate )
 			. self::get_checkpoints_schema( $wpdb->prefix, $charset_collate )
-			. self::get_history_schema( $wpdb->prefix, $charset_collate );
+			. self::get_history_schema( $wpdb->prefix, $charset_collate )
+			. self::get_scheduled_tasks_schema( $wpdb->prefix, $charset_collate )
+			. self::get_memory_schema( $wpdb->prefix, $charset_collate );
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
@@ -215,6 +217,60 @@ class Database {
 	}
 
 	/**
+	 * Get the scheduled tasks table schema.
+	 *
+	 * Stores scheduled/recurring action chains for automation.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param string $prefix          The wpdb table prefix.
+	 * @param string $charset_collate The charset collate string.
+	 * @return string SQL statement for dbDelta.
+	 */
+	private static function get_scheduled_tasks_schema( $prefix, $charset_collate ) {
+		return "CREATE TABLE {$prefix}agent_scheduled_tasks (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			name varchar(255) NOT NULL DEFAULT '',
+			action_chain longtext NOT NULL,
+			schedule varchar(50) NOT NULL DEFAULT 'daily',
+			next_run datetime DEFAULT NULL,
+			last_run datetime DEFAULT NULL,
+			status varchar(20) NOT NULL DEFAULT 'active',
+			created_by bigint(20) unsigned NOT NULL,
+			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY  (id),
+			KEY idx_status (status),
+			KEY idx_next_run (next_run)
+		) $charset_collate;\n";
+	}
+
+	/**
+	 * Get the memory table schema.
+	 *
+	 * Stores key-value memory pairs for cross-conversation context.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param string $prefix          The wpdb table prefix.
+	 * @param string $charset_collate The charset collate string.
+	 * @return string SQL statement for dbDelta.
+	 */
+	private static function get_memory_schema( $prefix, $charset_collate ) {
+		return "CREATE TABLE {$prefix}agent_memory (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			memory_key varchar(255) NOT NULL DEFAULT '',
+			memory_value longtext NOT NULL,
+			category varchar(100) NOT NULL DEFAULT 'general',
+			relevance_score float NOT NULL DEFAULT 1.0,
+			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY  (id),
+			UNIQUE KEY idx_memory_key (memory_key),
+			KEY idx_category (category)
+		) $charset_collate;\n";
+	}
+
+	/**
 	 * Drop all custom tables.
 	 *
 	 * Called from uninstall.php for clean removal.
@@ -227,6 +283,8 @@ class Database {
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$tables = [
+			"{$wpdb->prefix}agent_scheduled_tasks",
+			"{$wpdb->prefix}agent_memory",
 			"{$wpdb->prefix}agent_messages",
 			"{$wpdb->prefix}agent_checkpoints",
 			"{$wpdb->prefix}agent_history",
@@ -251,10 +309,12 @@ class Database {
 		global $wpdb;
 
 		return [
-			'conversations' => "{$wpdb->prefix}agent_conversations",
-			'messages'      => "{$wpdb->prefix}agent_messages",
-			'checkpoints'   => "{$wpdb->prefix}agent_checkpoints",
-			'history'       => "{$wpdb->prefix}agent_history",
+			'conversations'   => "{$wpdb->prefix}agent_conversations",
+			'messages'        => "{$wpdb->prefix}agent_messages",
+			'checkpoints'     => "{$wpdb->prefix}agent_checkpoints",
+			'history'         => "{$wpdb->prefix}agent_history",
+			'scheduled_tasks' => "{$wpdb->prefix}agent_scheduled_tasks",
+			'memory'          => "{$wpdb->prefix}agent_memory",
 		];
 	}
 }
