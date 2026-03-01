@@ -85,6 +85,15 @@ class Admin_Menu {
 
 		add_submenu_page(
 			'wp-agent',
+			__( 'Schedules', 'wp-agent' ),
+			__( 'Schedules', 'wp-agent' ),
+			'manage_options',
+			'wp-agent-schedules',
+			[ $this, 'render_schedules' ]
+		);
+
+		add_submenu_page(
+			'wp-agent',
 			__( 'Capabilities', 'wp-agent' ),
 			__( 'Capabilities', 'wp-agent' ),
 			'manage_options',
@@ -123,6 +132,18 @@ class Admin_Menu {
 	public function render_settings() {
 		?>
 		<div id="wp-agent-settings" class="wp-agent-wrap"></div>
+		<?php
+	}
+
+	/**
+	 * Render the Schedules page.
+	 *
+	 * @since 1.1.0
+	 * @return void
+	 */
+	public function render_schedules() {
+		?>
+		<div id="wp-agent-schedules" class="wp-agent-wrap"></div>
 		<?php
 	}
 

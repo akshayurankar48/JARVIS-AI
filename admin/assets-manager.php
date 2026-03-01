@@ -34,6 +34,7 @@ class Assets_Manager {
 	private const PAGE_HOOKS = [
 		'toplevel_page_wp-agent',
 		'wp-agent_page_wp-agent-settings',
+		'wp-agent_page_wp-agent-schedules',
 		'wp-agent_page_wp-agent-capabilities',
 		'wp-agent_page_wp-agent-help',
 	];
@@ -60,6 +61,7 @@ class Assets_Manager {
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ] );
 		add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_editor_assets' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_frontend_animations' ] );
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_ab_testing' ] );
 	}
 
 	/**
@@ -156,6 +158,66 @@ class Assets_Manager {
 			[],
 			WP_AGENT_VER,
 			true
+		);
+	}
+
+	/**
+	 * Enqueue A/B testing script on the frontend when active tests exist.
+	 *
+	 * Only loads the lightweight tracking script when at least one A/B test
+	 * is active, passing test data via wpAgentAB localization.
+	 *
+	 * @since 1.1.0
+	 * @return void
+	 */
+	public function enqueue_ab_testing() {
+		if ( is_admin() ) {
+			return;
+		}
+
+		$tests = get_option( 'wp_agent_ab_tests', [] );
+
+		if ( empty( $tests ) ) {
+			return;
+		}
+
+		// Filter to only active tests.
+		$active_tests = array_values(
+			array_filter(
+				$tests,
+				function ( $test ) {
+					return 'active' === ( $test['status'] ?? '' );
+				}
+			)
+		);
+
+		if ( empty( $active_tests ) ) {
+			return;
+		}
+
+		// Only send minimal data to the frontend.
+		$frontend_tests = array_map(
+			function ( $test ) {
+				return [ 'id' => $test['id'] ];
+			},
+			$active_tests
+		);
+
+		wp_enqueue_script(
+			'wp-agent-ab-testing',
+			WP_AGENT_URL . 'assets/js/ab-testing.js',
+			[],
+			WP_AGENT_VER,
+			true
+		);
+
+		wp_localize_script(
+			'wp-agent-ab-testing',
+			'wpAgentAB',
+			[
+				'restUrl' => rest_url( 'wp-agent/v1/ab-track' ),
+				'tests'   => $frontend_tests,
+			]
 		);
 	}
 

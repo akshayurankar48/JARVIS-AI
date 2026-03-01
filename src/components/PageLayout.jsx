@@ -6,6 +6,7 @@ const { adminUrl, currentPage, version } = window.wpAgentData || {};
 
 const NAV_ITEMS = [
 	{ label: 'Dashboard', slug: 'wp-agent' },
+	{ label: 'Schedules', slug: 'wp-agent-schedules' },
 	{ label: 'Settings', slug: 'wp-agent-settings' },
 	{ label: 'Capabilities', slug: 'wp-agent-capabilities' },
 	{ label: 'Help', slug: 'wp-agent-help' },

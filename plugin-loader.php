@@ -106,6 +106,7 @@ class Plugin_Loader {
 		( new REST\History_Controller() )->register_routes();
 		( new REST\Action_Controller() )->register_routes();
 		( new REST\Ab_Tracking_Controller() )->register_routes();
+		( new REST\Schedules_Controller() )->register_routes();
 	}
 
 	/**

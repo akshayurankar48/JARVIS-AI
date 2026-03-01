@@ -9,6 +9,7 @@ import { useState, useCallback, useRef, useEffect, useMemo } from '@wordpress/el
 import { css } from '@emotion/css';
 import { Send, Square } from 'lucide-react';
 import { colors, radii, spacing, fontSizes, focusRing, fadeIn } from './styles';
+import VoiceInput from './VoiceInput';
 
 /* ── Styles ─────────────────────────────────────────────────────── */
 
@@ -201,6 +202,7 @@ function getChipsForContext( context ) {
 const InputArea = ( { onSend, onStop, isStreaming, disabled, showChips, editorContext } ) => {
 	const [ value, setValue ] = useState( '' );
 	const textareaRef = useRef( null );
+	const voiceBufferRef = useRef( '' );
 
 	const chips = useMemo(
 		() => getChipsForContext( editorContext ),
@@ -216,6 +218,7 @@ const InputArea = ( { onSend, onStop, isStreaming, disabled, showChips, editorCo
 		}
 		onSend( trimmed );
 		setValue( '' );
+		voiceBufferRef.current = '';
 
 		// Reset textarea height.
 		if ( textareaRef.current ) {
@@ -242,6 +245,22 @@ const InputArea = ( { onSend, onStop, isStreaming, disabled, showChips, editorCo
 		},
 		[ onSend, disabled, isStreaming ]
 	);
+
+	// Voice input: stream interim transcript into textarea.
+	const handleVoiceTranscript = useCallback( ( transcript ) => {
+		setValue( ( prev ) => {
+			const base = voiceBufferRef.current;
+			return base ? base + ' ' + transcript : transcript;
+		} );
+	}, [] );
+
+	// Voice input: finalize transcript and accumulate.
+	const handleVoiceFinal = useCallback( ( transcript ) => {
+		voiceBufferRef.current = voiceBufferRef.current
+			? voiceBufferRef.current + ' ' + transcript
+			: transcript;
+		setValue( voiceBufferRef.current );
+	}, [] );
 
 	// Auto-resize textarea.
 	useEffect( () => {
@@ -282,6 +301,11 @@ const InputArea = ( { onSend, onStop, isStreaming, disabled, showChips, editorCo
 					onKeyDown={ handleKeyDown }
 					rows={ 1 }
 					disabled={ disabled }
+				/>
+				<VoiceInput
+					onTranscript={ handleVoiceTranscript }
+					onFinalTranscript={ handleVoiceFinal }
+					disabled={ disabled || isStreaming }
 				/>
 				{ isStreaming ? (
 					<button
