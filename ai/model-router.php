@@ -135,6 +135,13 @@ class Model_Router {
 		'read url',
 		'fetch',
 		'research',
+		'write a blog',
+		'write a post',
+		'write an article',
+		'generate content',
+		'draft a',
+		'product description',
+		'ad copy',
 	];
 
 	/**

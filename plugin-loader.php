@@ -163,6 +163,9 @@ class Plugin_Loader {
 		// Comment management actions.
 		$registry->register( new Actions\Manage_Comments() );
 
+		// Content generation action.
+		$registry->register( new Actions\Generate_Content() );
+
 		// Undo/rollback action.
 		$registry->register( new Actions\Undo_Action() );
 	}
