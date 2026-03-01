@@ -148,25 +148,75 @@ class Import_Media implements Action_Interface {
 			require_once ABSPATH . 'wp-admin/includes/image.php';
 		}
 
-		// Download the file to a temp location first to validate size and type.
-		$temp_file = download_url( $url, 30 );
+		// Download via wp_safe_remote_get (SSRF-safe: validates at connection time,
+		// blocks private IPs, and prevents DNS rebinding / redirect-chain attacks).
+		$response = wp_safe_remote_get( $url, [
+			'timeout'             => 30,
+			'redirection'         => 0,
+			'reject_unsafe_urls'  => true,
+			'limit_response_size' => self::MAX_FILE_SIZE,
+		] );
 
-		if ( is_wp_error( $temp_file ) ) {
+		if ( is_wp_error( $response ) ) {
 			return [
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: error message */
 					__( 'Failed to download image: %s', 'wp-agent' ),
-					$temp_file->get_error_message()
+					$response->get_error_message()
 				),
 			];
 		}
 
+		$response_code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $response_code ) {
+			return [
+				'success' => false,
+				'data'    => null,
+				'message' => sprintf(
+					/* translators: %d: HTTP status code */
+					__( 'Image URL returned HTTP %d.', 'wp-agent' ),
+					$response_code
+				),
+			];
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+		if ( empty( $body ) ) {
+			return [
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'Downloaded file is empty.', 'wp-agent' ),
+			];
+		}
+
+		// Write to a temp file for validation and sideload.
+		$temp_file = wp_tempnam( 'wp-agent-import-' );
+		if ( ! $temp_file ) {
+			return [
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'Could not create temporary file.', 'wp-agent' ),
+			];
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( $temp_file, $body );
+		unset( $body );
+
 		// Validate file size.
 		$file_size = filesize( $temp_file );
+		if ( false === $file_size ) {
+			@unlink( $temp_file );
+			return [
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'Could not read downloaded file.', 'wp-agent' ),
+			];
+		}
 		if ( $file_size > self::MAX_FILE_SIZE ) {
-			unlink( $temp_file );
+			@unlink( $temp_file );
 			return [
 				'success' => false,
 				'data'    => null,
@@ -178,12 +228,23 @@ class Import_Media implements Action_Interface {
 			];
 		}
 
+		// Content-level validation: confirm the file is actually an image.
+		$image_info = @getimagesize( $temp_file );
+		if ( false === $image_info ) {
+			@unlink( $temp_file );
+			return [
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'The downloaded file is not a valid image.', 'wp-agent' ),
+			];
+		}
+
 		// Validate MIME type using WordPress file type check.
 		$file_type = wp_check_filetype_and_ext( $temp_file, basename( wp_parse_url( $url, PHP_URL_PATH ) ) );
 		$mime_type = $file_type['type'];
 
 		if ( ! $mime_type || ! in_array( $mime_type, self::ALLOWED_MIME_TYPES, true ) ) {
-			unlink( $temp_file );
+			@unlink( $temp_file );
 			return [
 				'success' => false,
 				'data'    => null,
@@ -201,7 +262,10 @@ class Import_Media implements Action_Interface {
 		$attachment_id = media_handle_sideload( $file_array, 0 );
 
 		if ( is_wp_error( $attachment_id ) ) {
-			// media_handle_sideload cleans up the temp file on failure.
+			// Explicitly clean up in case sideload left the file behind.
+			if ( file_exists( $temp_file ) ) {
+				@unlink( $temp_file );
+			}
 			return [
 				'success' => false,
 				'data'    => null,
