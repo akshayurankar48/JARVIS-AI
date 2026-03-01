@@ -8,6 +8,7 @@
 import { css } from '@emotion/css';
 import { useChat } from '../hooks/use-chat';
 import { useBlockActions } from '../hooks/use-block-actions';
+import { useEditorContext } from '../hooks/use-editor-context';
 import MessageList from './MessageList';
 import InputArea from './InputArea';
 import WelcomeScreen from './WelcomeScreen';
@@ -132,6 +133,8 @@ const ChatPanel = () => {
 		clearError,
 	} = useChat();
 
+	const editorContext = useEditorContext();
+
 	// Process pending client-side block actions from the AI.
 	useBlockActions();
 
@@ -177,6 +180,7 @@ const ChatPanel = () => {
 				<WelcomeScreen
 					hasApiKey={ hasApiKey }
 					onSendMessage={ sendMessage }
+					editorContext={ editorContext }
 				/>
 			) : (
 				<MessageList
@@ -194,6 +198,8 @@ const ChatPanel = () => {
 					onStop={ stopStreaming }
 					isStreaming={ isStreaming }
 					disabled={ isLoading }
+					showChips={ ! hasMessages }
+					editorContext={ editorContext }
 				/>
 			) }
 		</div>

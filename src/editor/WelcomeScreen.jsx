@@ -1,16 +1,32 @@
 /**
  * Welcome screen — shown when no messages exist.
  *
- * Two states:
- * 1. No API key  -> setup message + settings link.
- * 2. Has key     -> greeting + suggested prompts.
+ * Three states:
+ * 1. No API key     -> setup message + settings link.
+ * 2. Has key (blank) -> build/design prompts based on post type.
+ * 3. Has key (content) -> improve/extend prompts.
  *
  * @package
  * @since 1.0.0
  */
 
+import { useMemo } from '@wordpress/element';
 import { css } from '@emotion/css';
-import { Bot, Settings, FileText, Pencil, LayoutGrid } from 'lucide-react';
+import {
+	Bot,
+	Settings,
+	FileText,
+	Pencil,
+	LayoutGrid,
+	Paintbrush,
+	Globe,
+	Search,
+	Image,
+	Sparkles,
+	PlusCircle,
+	Rocket,
+	Type,
+} from 'lucide-react';
 import { colors, radii, spacing, fontSizes, fadeIn, focusRing } from './styles';
 
 /* ── Styles ─────────────────────────────────────────────────────── */
@@ -123,26 +139,141 @@ const promptLabel = css`
 	font-weight: 450;
 `;
 
-/* ── Data ───────────────────────────────────────────────────────── */
+/* ── Prompt Sets ───────────────────────────────────────────────── */
 
-const SUGGESTED_PROMPTS = [
+const PROMPTS_BLANK_PAGE = [
+	{
+		icon: Rocket,
+		label: 'Build a landing page',
+		message: 'Build a professional landing page with a hero section, features grid, testimonials, and a call-to-action',
+	},
 	{
 		icon: FileText,
 		label: 'Draft a blog post',
 		message: 'Help me draft a blog post about',
 	},
 	{
-		icon: Pencil,
-		label: 'Edit this content',
-		message: 'Review and improve the current post content',
+		icon: LayoutGrid,
+		label: 'Add a hero section',
+		message: 'Add a hero section with a heading, paragraph, and call-to-action button',
+	},
+	{
+		icon: Paintbrush,
+		label: 'Design from a reference',
+		message: 'I want to build a page inspired by a reference site. Let me share the URL.',
+	},
+];
+
+const PROMPTS_BLANK_POST = [
+	{
+		icon: FileText,
+		label: 'Draft a blog post',
+		message: 'Help me draft a blog post about',
+	},
+	{
+		icon: Image,
+		label: 'Post with featured image',
+		message: 'Create a blog post and set a relevant featured image',
+	},
+	{
+		icon: Search,
+		label: 'SEO-optimized article',
+		message: 'Write an SEO-optimized blog post about',
 	},
 	{
 		icon: LayoutGrid,
 		label: 'Add content blocks',
-		message:
-			'Add a hero section with a heading, paragraph, and call-to-action button',
+		message: 'Add a hero section with a heading, paragraph, and call-to-action button',
 	},
 ];
+
+const PROMPTS_HAS_CONTENT = [
+	{
+		icon: Sparkles,
+		label: 'Improve this content',
+		message: 'Review and improve the current content — make it more engaging and polished',
+	},
+	{
+		icon: PlusCircle,
+		label: 'Add a new section',
+		message: 'Add a new section to this page. What would work well with the existing content?',
+	},
+	{
+		icon: Pencil,
+		label: 'Rewrite in a different tone',
+		message: 'Rewrite the current content in a more professional and engaging tone',
+	},
+	{
+		icon: Search,
+		label: 'Optimize for SEO',
+		message: 'Analyze and optimize this content for search engines',
+	},
+];
+
+const PROMPTS_PUBLISHED = [
+	{
+		icon: Sparkles,
+		label: 'Refresh this content',
+		message: 'This is a published post — review it and suggest updates to keep it fresh and relevant',
+	},
+	{
+		icon: PlusCircle,
+		label: 'Extend with new sections',
+		message: 'Add new sections to expand this published content',
+	},
+	{
+		icon: Type,
+		label: 'Improve readability',
+		message: 'Improve the readability and flow of this content while keeping the key message',
+	},
+	{
+		icon: Globe,
+		label: 'Optimize for SEO',
+		message: 'Audit this published content for SEO and make improvements',
+	},
+];
+
+/**
+ * Pick the right prompt set based on editor context.
+ *
+ * @param {Object} context - From useEditorContext().
+ * @return {Array} Prompt objects.
+ */
+function getPromptsForContext( context ) {
+	if ( context.type === 'published' ) {
+		return PROMPTS_PUBLISHED;
+	}
+
+	if ( context.type === 'has-content' ) {
+		return PROMPTS_HAS_CONTENT;
+	}
+
+	// Blank — differentiate by post type.
+	if ( context.postType === 'page' ) {
+		return PROMPTS_BLANK_PAGE;
+	}
+
+	return PROMPTS_BLANK_POST;
+}
+
+/**
+ * Get a contextual greeting subtitle.
+ *
+ * @param {Object} context - From useEditorContext().
+ * @return {string} Subtitle text.
+ */
+function getSubtitle( context ) {
+	if ( context.type === 'published' ) {
+		return 'I can help refresh and improve your published content.';
+	}
+	if ( context.type === 'has-content' ) {
+		return 'I see you have content started. Want me to help improve it?';
+	}
+	if ( context.postType === 'page' ) {
+		return 'Let me help you build a beautiful page.';
+	}
+	return 'Ask me to create content, edit posts, or manage your site.';
+}
 
 /* ── Helpers ────────────────────────────────────────────────────── */
 
@@ -163,7 +294,8 @@ const getSafeSettingsUrl = () => {
 		if ( parsed.origin !== window.location.origin ) {
 			return fallback;
 		}
-		return `${ parsed.href }admin.php?page=wp-agent-settings`;
+		const base = parsed.href.endsWith( '/' ) ? parsed.href : parsed.href + '/';
+		return `${ base }admin.php?page=wp-agent-settings`;
 	} catch {
 		return fallback;
 	}
@@ -171,7 +303,17 @@ const getSafeSettingsUrl = () => {
 
 /* ── Component ──────────────────────────────────────────────────── */
 
-const WelcomeScreen = ( { hasApiKey, onSendMessage } ) => {
+const WelcomeScreen = ( { hasApiKey, onSendMessage, editorContext } ) => {
+	const prompts = useMemo(
+		() => getPromptsForContext( editorContext ),
+		[ editorContext.type, editorContext.postType ]
+	);
+
+	const subtitleText = useMemo(
+		() => getSubtitle( editorContext ),
+		[ editorContext.type, editorContext.postType ]
+	);
+
 	if ( ! hasApiKey ) {
 		return (
 			<div className={ container }>
@@ -201,11 +343,9 @@ const WelcomeScreen = ( { hasApiKey, onSendMessage } ) => {
 				<Bot size={ 28 } />
 			</div>
 			<h3 className={ title }>Hi! I&apos;m JARVIS.</h3>
-			<p className={ subtitle }>
-				Ask me to create content, edit posts, or manage your site.
-			</p>
+			<p className={ subtitle }>{ subtitleText }</p>
 			<div className={ promptList }>
-				{ SUGGESTED_PROMPTS.map( ( prompt ) => (
+				{ prompts.map( ( prompt ) => (
 					<button
 						key={ prompt.label }
 						type="button"

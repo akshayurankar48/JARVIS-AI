@@ -1,14 +1,14 @@
 /**
- * Chat input area with send/stop controls.
+ * Chat input area with send/stop controls and contextual prompt chips.
  *
  * @package
  * @since 1.0.0
  */
 
-import { useState, useCallback, useRef, useEffect } from '@wordpress/element';
+import { useState, useCallback, useRef, useEffect, useMemo } from '@wordpress/element';
 import { css } from '@emotion/css';
 import { Send, Square } from 'lucide-react';
-import { colors, radii, spacing, fontSizes, focusRing } from './styles';
+import { colors, radii, spacing, fontSizes, focusRing, fadeIn } from './styles';
 
 /* ── Styles ─────────────────────────────────────────────────────── */
 
@@ -18,6 +18,43 @@ const wrapper = css`
 	box-shadow: 0 -1px 3px ${ colors.shadow };
 	position: relative;
 	z-index: 2;
+`;
+
+const chipsRow = css`
+	display: flex;
+	gap: 6px;
+	padding-bottom: ${ spacing.sm };
+	overflow-x: auto;
+	scrollbar-width: none;
+	animation: ${ fadeIn } 0.2s ease-out;
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+`;
+
+const chip = css`
+	${ focusRing };
+	flex-shrink: 0;
+	padding: 4px 10px;
+	font-size: 11px;
+	font-weight: 500;
+	color: ${ colors.primary };
+	background: ${ colors.primaryLight };
+	border: 1px solid ${ colors.primaryLighter };
+	border-radius: ${ radii.full };
+	cursor: pointer;
+	white-space: nowrap;
+	transition: all 0.15s ease;
+
+	&:hover {
+		background: ${ colors.primaryLighter };
+		border-color: ${ colors.primary };
+	}
+
+	&:active {
+		transform: scale(0.97);
+	}
 `;
 
 const inputRow = css`
@@ -113,11 +150,64 @@ const hint = css`
 	user-select: none;
 `;
 
+/* ── Prompt Chip Data ──────────────────────────────────────────── */
+
+const CHIPS_BLANK_PAGE = [
+	{ label: 'Landing page', message: 'Build a professional landing page' },
+	{ label: 'About page', message: 'Create an about page for my business' },
+	{ label: 'Contact page', message: 'Build a contact page with a form' },
+	{ label: 'Hero section', message: 'Add a hero section with heading and CTA' },
+];
+
+const CHIPS_BLANK_POST = [
+	{ label: 'Blog post', message: 'Draft a blog post about' },
+	{ label: 'How-to guide', message: 'Write a how-to guide about' },
+	{ label: 'Product review', message: 'Write a product review for' },
+	{ label: 'Listicle', message: 'Write a listicle: Top 10' },
+];
+
+const CHIPS_HAS_CONTENT = [
+	{ label: 'Improve it', message: 'Review and improve the current content' },
+	{ label: 'Add section', message: 'Add a new section below the existing content' },
+	{ label: 'Add images', message: 'Find and add relevant images to this content' },
+	{ label: 'SEO check', message: 'Optimize this content for search engines' },
+];
+
+const CHIPS_PUBLISHED = [
+	{ label: 'Refresh', message: 'Refresh this published content with updates' },
+	{ label: 'Add section', message: 'Extend this published content with a new section' },
+	{ label: 'SEO audit', message: 'Audit the SEO of this published content' },
+	{ label: 'Readability', message: 'Improve the readability of this content' },
+];
+
+function getChipsForContext( context ) {
+	if ( ! context ) {
+		return CHIPS_BLANK_POST;
+	}
+	if ( context.type === 'published' ) {
+		return CHIPS_PUBLISHED;
+	}
+	if ( context.type === 'has-content' ) {
+		return CHIPS_HAS_CONTENT;
+	}
+	if ( context.postType === 'page' ) {
+		return CHIPS_BLANK_PAGE;
+	}
+	return CHIPS_BLANK_POST;
+}
+
 /* ── Component ──────────────────────────────────────────────────── */
 
-const InputArea = ( { onSend, onStop, isStreaming, disabled } ) => {
+const InputArea = ( { onSend, onStop, isStreaming, disabled, showChips, editorContext } ) => {
 	const [ value, setValue ] = useState( '' );
 	const textareaRef = useRef( null );
+
+	const chips = useMemo(
+		() => getChipsForContext( editorContext ),
+		[ editorContext?.type, editorContext?.postType ]
+	);
+
+	const handleChange = useCallback( ( e ) => setValue( e.target.value ), [] );
 
 	const handleSubmit = useCallback( () => {
 		const trimmed = value.trim();
@@ -143,6 +233,16 @@ const InputArea = ( { onSend, onStop, isStreaming, disabled } ) => {
 		[ handleSubmit ]
 	);
 
+	const handleChipClick = useCallback(
+		( message ) => {
+			if ( disabled || isStreaming ) {
+				return;
+			}
+			onSend( message );
+		},
+		[ onSend, disabled, isStreaming ]
+	);
+
 	// Auto-resize textarea.
 	useEffect( () => {
 		const el = textareaRef.current;
@@ -153,8 +253,24 @@ const InputArea = ( { onSend, onStop, isStreaming, disabled } ) => {
 		el.style.height = Math.min( el.scrollHeight, 120 ) + 'px';
 	}, [ value ] );
 
+	const shouldShowChips = showChips && ! isStreaming && ! value.trim();
+
 	return (
 		<div className={ wrapper }>
+			{ shouldShowChips && (
+				<div className={ chipsRow }>
+					{ chips.map( ( c ) => (
+						<button
+							key={ c.label }
+							type="button"
+							className={ chip }
+							onClick={ () => handleChipClick( c.message ) }
+						>
+							{ c.label }
+						</button>
+					) ) }
+				</div>
+			) }
 			<div className={ inputRow }>
 				<textarea
 					ref={ textareaRef }
@@ -162,7 +278,7 @@ const InputArea = ( { onSend, onStop, isStreaming, disabled } ) => {
 					placeholder="Ask JARVIS..."
 					aria-label="Type your message"
 					value={ value }
-					onChange={ ( e ) => setValue( e.target.value ) }
+					onChange={ handleChange }
 					onKeyDown={ handleKeyDown }
 					rows={ 1 }
 					disabled={ disabled }
