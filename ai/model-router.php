@@ -74,7 +74,7 @@ class Model_Router {
 			'id'             => 'anthropic/claude-sonnet-4',
 			'name'           => 'Claude Sonnet 4',
 			'tier'           => self::TIER_POWERFUL,
-			'max_tokens'     => 8192,
+			'max_tokens'     => 16384,
 			'supports_tools' => true,
 		],
 	];
@@ -109,6 +109,17 @@ class Model_Router {
 		'all posts',
 		'every page',
 		'database',
+		'build',
+		'design',
+		'landing page',
+		'hero',
+		'section',
+		'page for',
+		'website',
+		'layout',
+		'columns',
+		'heading',
+		'button',
 	];
 
 	/**

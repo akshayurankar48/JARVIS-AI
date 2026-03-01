@@ -79,14 +79,16 @@ class Open_Router_Client {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array    $messages Formatted messages array.
-	 * @param string   $model    OpenRouter model ID.
-	 * @param array    $tools    Tool definitions (optional).
-	 * @param callable $callback Callback receiving typed chunks:
-	 *                           {type: 'content'|'tool_call'|'error'|'finish'|'done', ...}.
+	 * @param array    $messages    Formatted messages array.
+	 * @param string   $model       OpenRouter model ID.
+	 * @param array    $tools       Tool definitions (optional).
+	 * @param callable $callback    Callback receiving typed chunks:
+	 *                              {type: 'content'|'tool_call'|'error'|'finish'|'done', ...}.
+	 * @param float    $temperature Sampling temperature (0.0–2.0). Lower = more deterministic.
+	 * @param int      $max_tokens  Maximum tokens in the response.
 	 * @return true|\WP_Error True on success, WP_Error on failure.
 	 */
-	public function stream( array $messages, $model, array $tools = [], callable $callback = null ) {
+	public function stream( array $messages, $model, array $tools = [], callable $callback = null, $temperature = 0.7, $max_tokens = 4096 ) {
 		$api_key = $this->get_api_key();
 
 		if ( is_wp_error( $api_key ) ) {
@@ -97,15 +99,29 @@ class Open_Router_Client {
 			'model'                => $model,
 			'messages'             => $messages,
 			'stream'               => true,
+			'max_tokens'           => (int) $max_tokens,
+			'temperature'          => (float) $temperature,
 			'parallel_tool_calls'  => false,
+			'provider'             => [
+				'allow_fallbacks'    => true,
+				'data_collection'    => 'deny',
+			],
 		];
 
 		if ( ! empty( $tools ) ) {
 			$body['tools'] = $tools;
 		}
 
-		$headers = $this->get_request_headers( $api_key );
-		$buffer  = '';
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$tool_count   = count( $tools );
+			$msg_count    = count( $messages );
+			$system_len   = ! empty( $messages[0]['content'] ) ? strlen( $messages[0]['content'] ) : 0;
+			error_log( "WP Agent stream: model={$model}, tools={$tool_count}, messages={$msg_count}, system_prompt_chars={$system_len}, temperature={$temperature}, max_tokens={$max_tokens}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		}
+
+		$headers    = $this->get_request_headers( $api_key );
+		$buffer     = '';
+		$raw_body   = '';
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_init -- cURL required for streaming; wp_remote_post does not support WRITEFUNCTION callbacks.
 		$ch = curl_init();
@@ -118,6 +134,9 @@ class Open_Router_Client {
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, false );
 		curl_setopt( $ch, CURLOPT_TIMEOUT, 120 );
 		curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 10 );
+		curl_setopt( $ch, CURLOPT_TCP_KEEPALIVE, 1 );
+		curl_setopt( $ch, CURLOPT_TCP_KEEPIDLE, 30 );
+		curl_setopt( $ch, CURLOPT_TCP_KEEPINTVL, 15 );
 
 		// SSL verification — respect WP's CA bundle.
 		$ca_bundle = ABSPATH . WPINC . '/certificates/ca-bundle.crt';
@@ -129,8 +148,9 @@ class Open_Router_Client {
 		curl_setopt(
 			$ch,
 			CURLOPT_WRITEFUNCTION,
-			function ( $ch, $data ) use ( &$buffer, $callback ) {
-				$buffer .= $data;
+			function ( $ch, $data ) use ( &$buffer, &$raw_body, $callback ) {
+				$buffer   .= $data;
+				$raw_body .= $data;
 
 				// Process complete SSE lines from the buffer.
 				while ( false !== ( $newline_pos = strpos( $buffer, "\n" ) ) ) {
@@ -139,6 +159,14 @@ class Open_Router_Client {
 					$line   = trim( $line );
 
 					if ( '' === $line ) {
+						continue;
+					}
+
+					// SSE comments (e.g. ": OPENROUTER PROCESSING") — log in debug mode.
+					if ( 0 === strpos( $line, ':' ) ) {
+						if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+							error_log( 'WP Agent SSE comment: ' . trim( substr( $line, 1 ) ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+						}
 						continue;
 					}
 
@@ -210,15 +238,33 @@ class Open_Router_Client {
 		curl_close( $ch );
 
 		if ( $http_code >= 400 ) {
+			// Try to extract the actual error message from the raw response body.
+			$upstream_message = "HTTP {$http_code}";
+			$raw_decoded      = json_decode( trim( $raw_body ), true );
+			if ( ! empty( $raw_decoded['error']['message'] ) ) {
+				$upstream_message = $raw_decoded['error']['message'];
+			}
+
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( "WP Agent stream error: HTTP {$http_code} — {$upstream_message}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'WP Agent stream raw body: ' . substr( $raw_body, 0, 1000 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+
 			return new \WP_Error(
 				'api_error',
 				sprintf(
-					/* translators: %d: HTTP status code */
-					__( 'OpenRouter API returned HTTP %d', 'wp-agent' ),
-					$http_code
+					/* translators: %s: Error message from OpenRouter */
+					__( 'AI request failed: %s', 'wp-agent' ),
+					$upstream_message
 				),
 				[ 'status' => $http_code ]
 			);
+		}
+
+		// Log success details when debugging.
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$body_len = strlen( $raw_body );
+			error_log( "WP Agent stream complete: HTTP {$http_code}, body_length={$body_len}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 
 		return true;
@@ -232,9 +278,11 @@ class Open_Router_Client {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array  $messages Formatted messages array.
-	 * @param string $model    OpenRouter model ID.
-	 * @param array  $tools    Tool definitions (optional).
+	 * @param array  $messages    Formatted messages array.
+	 * @param string $model       OpenRouter model ID.
+	 * @param array  $tools       Tool definitions (optional).
+	 * @param float  $temperature Sampling temperature (0.0–2.0). Lower = more deterministic.
+	 * @param int    $max_tokens  Maximum tokens in the response.
 	 * @return array|\WP_Error Parsed response or WP_Error.
 	 *     @type string $content       Response text content.
 	 *     @type array  $tool_calls    Tool calls from the model (if any).
@@ -242,7 +290,7 @@ class Open_Router_Client {
 	 *     @type array  $usage         Token usage {prompt_tokens, completion_tokens, total_tokens}.
 	 *     @type string $finish_reason Why the model stopped.
 	 */
-	public function chat( array $messages, $model, array $tools = [] ) {
+	public function chat( array $messages, $model, array $tools = [], $temperature = 0.7, $max_tokens = 4096 ) {
 		$api_key = $this->get_api_key();
 
 		if ( is_wp_error( $api_key ) ) {
@@ -253,7 +301,13 @@ class Open_Router_Client {
 			'model'                => $model,
 			'messages'             => $messages,
 			'stream'               => false,
+			'max_tokens'           => (int) $max_tokens,
+			'temperature'          => (float) $temperature,
 			'parallel_tool_calls'  => false,
+			'provider'             => [
+				'allow_fallbacks'    => true,
+				'data_collection'    => 'deny',
+			],
 		];
 
 		if ( ! empty( $tools ) ) {
@@ -280,11 +334,16 @@ class Open_Router_Client {
 		if ( $code >= 400 ) {
 			$upstream_message = isset( $data['error']['message'] ) ? $data['error']['message'] : "HTTP {$code}";
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'WP Agent OpenRouter error: ' . $upstream_message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( "WP Agent chat error: HTTP {$code} — {$upstream_message}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'WP Agent chat raw body: ' . substr( $body, 0, 1000 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 			return new \WP_Error(
 				'api_error',
-				__( 'The AI request failed. Please try again later.', 'wp-agent' ),
+				sprintf(
+					/* translators: %s: Error message from the AI provider */
+					__( 'AI request failed: %s', 'wp-agent' ),
+					$upstream_message
+				),
 				[ 'status' => $code ]
 			);
 		}
@@ -547,6 +606,14 @@ class Open_Router_Client {
 
 		// Finish reason.
 		if ( ! empty( $choice['finish_reason'] ) ) {
+			// Mid-stream error — provider failed after partial output.
+			if ( 'error' === $choice['finish_reason'] ) {
+				$chunks[] = [
+					'type'    => 'error',
+					'message' => 'The AI provider encountered an error mid-response. Please try again.',
+				];
+			}
+
 			$chunks[] = [
 				'type'          => 'finish',
 				'finish_reason' => $choice['finish_reason'],

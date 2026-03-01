@@ -69,6 +69,7 @@ class Context_Collector {
 	 *
 	 * @param int    $user_id    WordPress user ID.
 	 * @param string $admin_page Current admin page slug (optional).
+	 * @param int    $post_id    Current editor post ID (optional).
 	 * @return array {
 	 *     Site context data.
 	 *
@@ -85,16 +86,18 @@ class Context_Collector {
 	 *     @type string $user_role           User's role(s).
 	 *     @type string $user_name           User's display name.
 	 *     @type string $admin_page          Current admin page slug.
+	 *     @type array|null $current_post    Current post being edited {id, title, type, status}.
 	 * }
 	 */
-	public function collect( $user_id, $admin_page = '' ) {
+	public function collect( $user_id, $admin_page = '', $post_id = 0 ) {
 		$user_id   = (int) $user_id;
 		$cache_key = 'wp_agent_ctx_' . $user_id;
 		$cached    = get_transient( $cache_key );
 
 		if ( false !== $cached && is_array( $cached ) ) {
-			// Admin page is request-specific, always override from cache.
-			$cached['admin_page'] = sanitize_text_field( $admin_page );
+			// Admin page and post context are request-specific, always override from cache.
+			$cached['admin_page']   = sanitize_text_field( $admin_page );
+			$cached['current_post'] = $this->get_post_context( $post_id );
 			return $cached;
 		}
 
@@ -107,11 +110,13 @@ class Context_Collector {
 			'timezone'            => $this->get_timezone_string(),
 			'permalink_structure' => sanitize_text_field( get_option( 'permalink_structure', '' ) ),
 			'theme'               => $this->get_theme_info(),
+			'design_tokens'       => $this->get_theme_design_tokens(),
 			'active_plugins'      => $this->get_active_plugins(),
 			'post_type_counts'    => $this->get_post_type_counts(),
 			'user_role'           => $this->get_user_role( $user_id ),
 			'user_name'           => $this->get_user_name( $user_id ),
 			'admin_page'          => sanitize_text_field( $admin_page ),
+			'current_post'        => $this->get_post_context( $post_id ),
 		];
 
 		set_transient( $cache_key, $context, self::CACHE_TTL );
@@ -157,6 +162,140 @@ class Context_Collector {
 			'name'    => sanitize_text_field( $theme->get( 'Name' ) ),
 			'version' => sanitize_text_field( $theme->get( 'Version' ) ),
 		];
+	}
+
+	/**
+	 * Get theme design tokens (colors, gradients, fonts, font sizes).
+	 *
+	 * Reads from theme.json via wp_get_global_settings() for block themes,
+	 * falls back to get_theme_support() for classic themes.
+	 *
+	 * @since 1.0.0
+	 * @return array Design token data for the AI prompt.
+	 */
+	private function get_theme_design_tokens() {
+		$tokens = [];
+
+		// Block themes (WP 5.9+): read from theme.json merged settings.
+		if ( function_exists( 'wp_get_global_settings' ) ) {
+			try {
+				$settings = wp_get_global_settings();
+			} catch ( \Throwable $e ) {
+				return $tokens;
+			}
+
+			if ( ! is_array( $settings ) ) {
+				return $tokens;
+			}
+
+			// Color palette — check theme, then default.
+			$palette = ! empty( $settings['color']['palette']['theme'] )
+				? $settings['color']['palette']['theme']
+				: ( ! empty( $settings['color']['palette']['default'] ) ? $settings['color']['palette']['default'] : [] );
+
+			if ( ! empty( $palette ) ) {
+				$tokens['colors'] = array_values( array_map(
+					function ( $color ) {
+						return [
+							'name'  => sanitize_text_field( $color['name'] ?? '' ),
+							'slug'  => sanitize_text_field( $color['slug'] ?? '' ),
+							'color' => sanitize_text_field( $color['color'] ?? '' ),
+						];
+					},
+					array_slice( $palette, 0, 16 )
+				) );
+			}
+
+			// Gradients.
+			$gradients = ! empty( $settings['color']['gradients']['theme'] )
+				? $settings['color']['gradients']['theme']
+				: ( ! empty( $settings['color']['gradients']['default'] ) ? $settings['color']['gradients']['default'] : [] );
+
+			if ( ! empty( $gradients ) ) {
+				$tokens['gradients'] = array_values( array_map(
+					function ( $g ) {
+						return [
+							'name'     => sanitize_text_field( $g['name'] ?? '' ),
+							'slug'     => sanitize_text_field( $g['slug'] ?? '' ),
+							'gradient' => sanitize_text_field( $g['gradient'] ?? '' ),
+						];
+					},
+					array_slice( $gradients, 0, 8 )
+				) );
+			}
+
+			// Font families.
+			$font_families = ! empty( $settings['typography']['fontFamilies']['theme'] )
+				? $settings['typography']['fontFamilies']['theme']
+				: ( ! empty( $settings['typography']['fontFamilies']['default'] ) ? $settings['typography']['fontFamilies']['default'] : [] );
+
+			if ( ! empty( $font_families ) ) {
+				$tokens['fonts'] = array_values( array_map(
+					function ( $f ) {
+						return [
+							'name'       => sanitize_text_field( $f['name'] ?? '' ),
+							'slug'       => sanitize_text_field( $f['slug'] ?? '' ),
+							'fontFamily' => sanitize_text_field( $f['fontFamily'] ?? '' ),
+						];
+					},
+					array_slice( $font_families, 0, 8 )
+				) );
+			}
+
+			// Font sizes.
+			$font_sizes = ! empty( $settings['typography']['fontSizes']['theme'] )
+				? $settings['typography']['fontSizes']['theme']
+				: ( ! empty( $settings['typography']['fontSizes']['default'] ) ? $settings['typography']['fontSizes']['default'] : [] );
+
+			if ( ! empty( $font_sizes ) ) {
+				$tokens['fontSizes'] = array_values( array_map(
+					function ( $s ) {
+						return [
+							'name' => sanitize_text_field( $s['name'] ?? '' ),
+							'slug' => sanitize_text_field( $s['slug'] ?? '' ),
+							'size' => sanitize_text_field( (string) ( $s['size'] ?? '' ) ),
+						];
+					},
+					array_slice( $font_sizes, 0, 10 )
+				) );
+			}
+		}
+
+		// Fallback for classic themes: editor-color-palette support.
+		if ( empty( $tokens['colors'] ) ) {
+			$palette = get_theme_support( 'editor-color-palette' );
+			if ( ! empty( $palette[0] ) && is_array( $palette[0] ) ) {
+				$tokens['colors'] = array_values( array_map(
+					function ( $color ) {
+						return [
+							'name'  => sanitize_text_field( $color['name'] ?? '' ),
+							'slug'  => sanitize_text_field( $color['slug'] ?? '' ),
+							'color' => sanitize_text_field( $color['color'] ?? '' ),
+						];
+					},
+					array_slice( $palette[0], 0, 16 )
+				) );
+			}
+		}
+
+		// Fallback: editor-font-sizes support.
+		if ( empty( $tokens['fontSizes'] ) ) {
+			$sizes = get_theme_support( 'editor-font-sizes' );
+			if ( ! empty( $sizes[0] ) && is_array( $sizes[0] ) ) {
+				$tokens['fontSizes'] = array_values( array_map(
+					function ( $s ) {
+						return [
+							'name' => sanitize_text_field( $s['name'] ?? '' ),
+							'slug' => sanitize_text_field( $s['slug'] ?? '' ),
+							'size' => sanitize_text_field( (string) ( $s['size'] ?? '' ) ),
+						];
+					},
+					array_slice( $sizes[0], 0, 10 )
+				) );
+			}
+		}
+
+		return $tokens;
 	}
 
 	/**
@@ -245,5 +384,34 @@ class Context_Collector {
 		}
 
 		return substr( sanitize_text_field( $user->display_name ? $user->display_name : 'Unknown' ), 0, 60 );
+	}
+
+	/**
+	 * Get context about the post currently being edited.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param int $post_id Post ID (0 if not in editor).
+	 * @return array|null Post context or null if no post.
+	 */
+	private function get_post_context( $post_id ) {
+		$post_id = (int) $post_id;
+
+		if ( ! $post_id ) {
+			return null;
+		}
+
+		$post = get_post( $post_id );
+
+		if ( ! $post ) {
+			return null;
+		}
+
+		return [
+			'id'     => $post->ID,
+			'title'  => substr( sanitize_text_field( $post->post_title ), 0, 200 ),
+			'type'   => sanitize_text_field( $post->post_type ),
+			'status' => sanitize_text_field( $post->post_status ),
+		];
 	}
 }

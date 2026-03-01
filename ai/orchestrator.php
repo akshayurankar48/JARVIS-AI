@@ -115,7 +115,8 @@ class Orchestrator {
 
 		// 4. Context and tools.
 		$admin_page = isset( $options['admin_page'] ) ? $options['admin_page'] : '';
-		$context    = Context_Collector::get_instance()->collect( $user_id, $admin_page );
+		$post_id    = isset( $options['post_id'] ) ? (int) $options['post_id'] : 0;
+		$context    = Context_Collector::get_instance()->collect( $user_id, $admin_page, $post_id );
 		$actions    = Action_Registry::get_instance()->get_tool_definitions();
 
 		// 5. Select model.
@@ -130,7 +131,22 @@ class Orchestrator {
 		// Save user message to DB.
 		$this->save_message( $conversation_id, 'user', $user_message );
 
-		// 7. AI call with tool loop.
+		// 7. Resolve temperature and max_tokens based on context.
+		$has_tools   = ! empty( $tools );
+		$in_editor   = ! empty( $options['post_id'] );
+		$temperature = $has_tools ? 0.2 : 0.7;
+
+		if ( $in_editor && $has_tools ) {
+			// Editor context: AI generates large block JSON structures.
+			// Needs headroom for multi-section pages with chunked tool calls.
+			$max_tokens = 32768;
+		} elseif ( $has_tools ) {
+			$max_tokens = 8192;
+		} else {
+			$max_tokens = 4096;
+		}
+
+		// 8. AI call with tool loop.
 		$client        = Open_Router_Client::get_instance();
 		$actions_taken = [];
 		$total_usage   = [ 'prompt_tokens' => 0, 'completion_tokens' => 0, 'total_tokens' => 0 ];
@@ -138,13 +154,17 @@ class Orchestrator {
 		$used_model    = $model;
 
 		for ( $iteration = 0; $iteration < self::MAX_TOOL_ITERATIONS; $iteration++ ) {
-			$response = $client->chat( $messages, $model, $tools );
+			// Reset execution timer — each AI call can take 30+ seconds,
+			// and multi-iteration tool loops would exceed PHP's max_execution_time.
+			set_time_limit( 120 );
 
-			// 9. Fallback on API error.
+			$response = $client->chat( $messages, $model, $tools, $temperature, $max_tokens );
+
+			// Fallback on API error.
 			if ( is_wp_error( $response ) && 0 === $iteration ) {
 				$fallback_model = Model_Router::get_instance()->get_fallback( $model );
 				if ( ! empty( $fallback_model ) ) {
-					$response = $client->chat( $messages, $fallback_model, $tools );
+					$response = $client->chat( $messages, $fallback_model, $tools, $temperature, $max_tokens );
 					if ( ! is_wp_error( $response ) ) {
 						$model      = $fallback_model;
 						$used_model = $fallback_model;
@@ -255,7 +275,8 @@ class Orchestrator {
 
 		// 4. Context and tools.
 		$admin_page = isset( $options['admin_page'] ) ? $options['admin_page'] : '';
-		$context    = Context_Collector::get_instance()->collect( $user_id, $admin_page );
+		$post_id    = isset( $options['post_id'] ) ? (int) $options['post_id'] : 0;
+		$context    = Context_Collector::get_instance()->collect( $user_id, $admin_page, $post_id );
 		$actions    = Action_Registry::get_instance()->get_tool_definitions();
 
 		// 5. Select model.
@@ -270,11 +291,30 @@ class Orchestrator {
 		// Save user message to DB.
 		$this->save_message( $conversation_id, 'user', $user_message );
 
-		// 7. Stream loop.
+		// 7. Resolve temperature and max_tokens based on context.
+		$has_tools   = ! empty( $tools );
+		$in_editor   = ! empty( $options['post_id'] );
+		$temperature = $has_tools ? 0.2 : 0.7;
+
+		if ( $in_editor && $has_tools ) {
+			// Editor context: AI generates large block JSON structures.
+			// Needs headroom for multi-section pages with chunked tool calls.
+			$max_tokens = 32768;
+		} elseif ( $has_tools ) {
+			$max_tokens = 8192;
+		} else {
+			$max_tokens = 4096;
+		}
+
+		// 8. Stream loop.
 		$client     = Open_Router_Client::get_instance();
 		$used_model = $model;
 
 		for ( $iteration = 0; $iteration < self::MAX_TOOL_ITERATIONS; $iteration++ ) {
+			// Reset execution timer — each AI call can take 30+ seconds,
+			// and multi-iteration tool loops would exceed PHP's max_execution_time.
+			set_time_limit( 120 );
+
 			$accumulated_content = '';
 			$tool_call_buffer    = [];
 			$finish_reason       = '';
@@ -331,13 +371,13 @@ class Orchestrator {
 				}
 			};
 
-			$result = $client->stream( $messages, $model, $tools, $stream_callback );
+			$result = $client->stream( $messages, $model, $tools, $stream_callback, $temperature, $max_tokens );
 
 			// Fallback on API error (first iteration only).
 			if ( is_wp_error( $result ) && 0 === $iteration ) {
 				$fallback_model = Model_Router::get_instance()->get_fallback( $model );
 				if ( ! empty( $fallback_model ) ) {
-					$result = $client->stream( $messages, $fallback_model, $tools, $stream_callback );
+					$result = $client->stream( $messages, $fallback_model, $tools, $stream_callback, $temperature, $max_tokens );
 					if ( ! is_wp_error( $result ) ) {
 						$model      = $fallback_model;
 						$used_model = $fallback_model;
@@ -371,18 +411,44 @@ class Orchestrator {
 				];
 
 				// Dispatch tool calls via shared method.
-				$this->dispatch_tool_calls(
+				$dispatch_results = $this->dispatch_tool_calls(
 					$tool_calls,
 					$conversation_id,
 					$user_id,
 					$messages
 				);
 
+				// Emit SSE chunks for client-side actions (e.g. insert_blocks).
+				foreach ( $dispatch_results as $action_result ) {
+					if ( ! empty( $action_result['result']['data']['execution'] )
+						&& 'client' === $action_result['result']['data']['execution']
+						&& $callback ) {
+						call_user_func( $callback, [
+							'type'   => 'action',
+							'action' => $action_result['name'],
+							'data'   => $action_result['result']['data'],
+						] );
+					}
+				}
+
 				// Continue loop — AI needs to process tool results.
 				continue;
 			}
 
-			// No tool calls — save final assistant message and finish.
+			// No tool calls — check for empty response.
+			if ( empty( trim( $accumulated_content ) ) ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'WP Agent: AI returned empty response (no content, no tool calls)' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				}
+				if ( $callback ) {
+					call_user_func( $callback, [
+						'type'    => 'error',
+						'message' => 'The AI did not generate a response. Please try again.',
+					] );
+				}
+			}
+
+			// Save final assistant message and finish.
 			$this->save_message( $conversation_id, 'assistant', $accumulated_content, $used_model );
 			$this->update_conversation( $conversation_id, $used_model, 0 );
 
@@ -424,7 +490,41 @@ class Orchestrator {
 			$params  = json_decode( $fn_args, true );
 
 			if ( ! is_array( $params ) ) {
-				$params = [];
+				// Malformed JSON — likely the response was truncated.
+				$result = [
+					'success' => false,
+					'message' => 'Tool call arguments were malformed (possibly truncated). '
+						. 'For complex pages, split into 2-3 smaller insert_blocks calls instead of one large call. '
+						. 'First call: use position "replace" for hero + first 2-3 sections. '
+						. 'Subsequent calls: use position "append" for remaining sections.',
+				];
+
+				$actions_taken[] = [
+					'name'   => $fn_name,
+					'params' => [],
+					'result' => $result,
+				];
+
+				$this->log_action( $user_id, $conversation_id, $fn_name, [], $result );
+
+				$tool_result_json = wp_json_encode( $result );
+
+				$this->save_message(
+					$conversation_id,
+					'tool',
+					$tool_result_json,
+					'',
+					0,
+					[ 'tool_call_id' => $call_id, 'action_name' => $fn_name ]
+				);
+
+				$messages[] = [
+					'role'         => 'tool',
+					'tool_call_id' => $call_id,
+					'content'      => $tool_result_json,
+				];
+
+				continue;
 			}
 
 			$result = Action_Registry::get_instance()->dispatch( $fn_name, $params );

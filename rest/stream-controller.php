@@ -130,8 +130,10 @@ class Stream_Controller {
 			flush();
 
 			// Reset timeout with each chunk to prevent timeout during active streaming.
+			// Use 0 (unlimited) because tool loop iterations may have 30+ second gaps
+			// between API calls, and a fixed timeout would kill the process mid-loop.
 			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- set_time_limit may be disabled.
-			@set_time_limit( 30 );
+			@set_time_limit( 0 );
 		};
 
 		$result = Orchestrator::get_instance()->handle_stream(

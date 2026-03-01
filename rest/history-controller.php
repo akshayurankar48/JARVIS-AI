@@ -126,26 +126,29 @@ class History_Controller {
 		$page     = max( 1, (int) $request->get_param( 'page' ) );
 		$per_page = min( self::MAX_PER_PAGE, max( 1, (int) $request->get_param( 'per_page' ) ?: self::DEFAULT_PER_PAGE ) );
 		$offset   = ( $page - 1 ) * $per_page;
+		$post_id  = $request->get_param( 'post_id' ) ? absint( $request->get_param( 'post_id' ) ) : 0;
+
+		// Build WHERE clause — always scoped to current user, optionally filtered by post.
+		$where  = $wpdb->prepare( 'user_id = %d', $user_id );
+		if ( $post_id ) {
+			$where .= $wpdb->prepare( ' AND post_id = %d', $post_id );
+		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$total = (int) $wpdb->get_var(
-			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT COUNT(*) FROM {$tables['conversations']} WHERE user_id = %d",
-				$user_id
-			)
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+			"SELECT COUNT(*) FROM {$tables['conversations']} WHERE {$where}"
 		);
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$conversations = $wpdb->get_results(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 				"SELECT id, post_id, title, status, model, tokens_used, created_at, updated_at
 				FROM {$tables['conversations']}
-				WHERE user_id = %d
+				WHERE {$where}
 				ORDER BY updated_at DESC
 				LIMIT %d OFFSET %d",
-				$user_id,
 				$per_page,
 				$offset
 			),
@@ -286,6 +289,10 @@ class History_Controller {
 			'per_page' => [
 				'type'              => 'integer',
 				'default'           => self::DEFAULT_PER_PAGE,
+				'sanitize_callback' => 'absint',
+			],
+			'post_id'  => [
+				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
 			],
 		];
