@@ -1,3 +1,5 @@
+import { useState, useEffect } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
 import { Button, Badge } from '@bsf/force-ui';
 import {
 	CheckCircle2,
@@ -10,6 +12,9 @@ import {
 	FileText,
 	Sliders,
 	Sparkles,
+	CalendarClock,
+	Brain,
+	History,
 } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 
@@ -86,6 +91,14 @@ function QuickActionItem( { icon: Icon, label, description, href } ) {
 }
 
 export default function Dashboard() {
+	const [ stats, setStats ] = useState( null );
+
+	useEffect( () => {
+		apiFetch( { path: '/wp-agent/v1/stats' } )
+			.then( setStats )
+			.catch( () => {} );
+	}, [] );
+
 	const settingsUrl = `${ adminUrl }admin.php?page=wp-agent-settings`;
 	const capabilitiesUrl = `${ adminUrl }admin.php?page=wp-agent-capabilities`;
 	const editorUrl = `${ adminUrl }post-new.php`;
@@ -114,16 +127,31 @@ export default function Dashboard() {
 			</div>
 
 			{ /* Stats Row */ }
-			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+			<div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
 				<StatCard
 					icon={ Zap }
-					label="Available Actions"
-					value="12"
+					label="Actions"
+					value={ stats ? String( stats.total_actions ) : '-' }
 				/>
 				<StatCard
 					icon={ MessageSquare }
 					label="Conversations"
-					value="0"
+					value={ stats ? String( stats.conversations ) : '-' }
+				/>
+				<StatCard
+					icon={ History }
+					label="Executed"
+					value={ stats ? String( stats.actions_executed ) : '-' }
+				/>
+				<StatCard
+					icon={ CalendarClock }
+					label="Schedules"
+					value={ stats ? String( stats.schedules_active ) : '-' }
+				/>
+				<StatCard
+					icon={ Brain }
+					label="Memories"
+					value={ stats ? String( stats.memory_entries ) : '-' }
 				/>
 				<StatCard
 					icon={ Wifi }
@@ -230,7 +258,7 @@ export default function Dashboard() {
 						<QuickActionItem
 							icon={ Sparkles }
 							label="Explore capabilities"
-							description="See all 12 actions JARVIS can perform"
+							description={ `See all ${ stats ? stats.total_actions : '69+' } actions JARVIS can perform` }
 							href={ capabilitiesUrl }
 						/>
 					</div>
