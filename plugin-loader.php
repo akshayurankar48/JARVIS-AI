@@ -76,12 +76,18 @@ class Plugin_Loader {
 	public function __construct() {
 		spl_autoload_register( [ $this, 'autoload' ] );
 
+		// Load bundled libraries (SDK, providers, MCP adapter).
+		require_once WP_AGENT_DIR . 'lib/autoload.php';
+
 		add_action( 'plugins_loaded', [ $this, 'load_textdomain' ] );
 		add_action( 'plugins_loaded', [ $this, 'load_admin' ] );
 		add_action( 'plugins_loaded', [ $this, 'load_frontend' ] );
 		add_action( 'admin_init', [ 'WPAgent\Core\Database', 'maybe_upgrade' ] );
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
 		add_action( 'wp_agent_register_actions', [ $this, 'register_core_actions' ] );
+
+		// Ecosystem integrations (conditional — only when APIs available).
+		add_action( 'init', [ $this, 'load_integrations' ] );
 
 		// Process URL redirects on frontend.
 		add_action( 'template_redirect', [ 'WPAgent\Actions\Manage_Redirects', 'process_redirects' ] );
@@ -92,6 +98,27 @@ class Plugin_Loader {
 				wp_delete_file( $filepath );
 			}
 		} );
+	}
+
+	/**
+	 * Load ecosystem integrations.
+	 *
+	 * Conditionally initializes Abilities Bridge and MCP Server
+	 * only when the required WordPress APIs are available.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function load_integrations() {
+		// WordPress Abilities API (WP 6.9+).
+		if ( function_exists( 'wp_register_ability' ) ) {
+			Integrations\Abilities_Bridge::get_instance();
+		}
+
+		// MCP Adapter (WP 7.0+ or bundled).
+		if ( class_exists( 'WP\\MCP\\Core\\McpAdapter' ) ) {
+			Integrations\MCP_Server::get_instance();
+		}
 	}
 
 	/**
