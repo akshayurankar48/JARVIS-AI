@@ -109,7 +109,7 @@ class Stats_Controller extends \WP_REST_Controller {
 		$recent_rows = $wpdb->get_results(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT h.action_name, h.status, h.created_at, h.conversation_id,
+				"SELECT h.action_type AS action_name, h.result_status AS status, h.created_at, h.conversation_id,
 				        c.title AS conversation_title
 				 FROM {$tables['history']} h
 				 LEFT JOIN {$tables['conversations']} c ON c.id = h.conversation_id

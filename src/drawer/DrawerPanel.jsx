@@ -7,7 +7,7 @@
  * @since 1.0.0
  */
 
-import { useEffect, useRef } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { css, keyframes } from '@emotion/css';
 import { useChatAdmin } from '../hooks/use-chat-admin';
 import MessageList from '../editor/MessageList';
@@ -318,7 +318,7 @@ const ADMIN_PROMPTS = [
 
 /* ── Component ─────────────────────────────────────────────────── */
 
-export default function DrawerPanel( { onClose } ) {
+export default function DrawerPanel( { onClose, pendingPromptRef } ) {
 	const {
 		messages,
 		isStreaming,
@@ -336,26 +336,16 @@ export default function DrawerPanel( { onClose } ) {
 		retryLastMessage,
 	} = useChatAdmin();
 
-	const pendingPromptRef = useRef( null );
-
-	// Listen for jarvis-open-drawer events with a prompt payload.
+	// Auto-send pending prompt passed from AdminChatDrawer on mount.
 	useEffect( () => {
-		const handler = ( e ) => {
-			const prompt = e.detail?.prompt;
-			if ( prompt && hasApiKey && ! isStreaming ) {
-				// Small delay to allow panel to render.
-				pendingPromptRef.current = prompt;
-				setTimeout( () => {
-					if ( pendingPromptRef.current ) {
-						sendMessage( pendingPromptRef.current );
-						pendingPromptRef.current = null;
-					}
-				}, 300 );
-			}
-		};
-		document.addEventListener( 'jarvis-open-drawer', handler );
-		return () => document.removeEventListener( 'jarvis-open-drawer', handler );
-	}, [ hasApiKey, isStreaming, sendMessage ] );
+		if ( pendingPromptRef?.current && hasApiKey && ! isStreaming ) {
+			const prompt = pendingPromptRef.current;
+			pendingPromptRef.current = null;
+			// Small delay to let panel fully render.
+			const timer = setTimeout( () => sendMessage( prompt ), 150 );
+			return () => clearTimeout( timer );
+		}
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps -- run once on mount
 
 	const hasMessages = messages.length > 0;
 
