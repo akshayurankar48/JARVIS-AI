@@ -456,7 +456,11 @@ class AI_Client_Adapter {
 					foreach ( $msg['tool_calls'] as $tc ) {
 						$arguments = $tc['function']['arguments'] ?? '{}';
 						if ( is_string( $arguments ) ) {
-							$arguments = json_decode( $arguments, true ) ?? [];
+							$arguments = json_decode( $arguments, true );
+						}
+						// Anthropic requires input to be an object (dict), never array or null.
+						if ( ! is_array( $arguments ) || array_is_list( $arguments ) ) {
+							$arguments = new \stdClass();
 						}
 
 						$content[] = [
@@ -669,7 +673,7 @@ class AI_Client_Adapter {
 					'type'     => 'function',
 					'function' => [
 						'name'      => $block['name'] ?? '',
-						'arguments' => wp_json_encode( $block['input'] ?? [] ),
+						'arguments' => wp_json_encode( ! empty( $block['input'] ) ? $block['input'] : new \stdClass() ),
 					],
 				];
 				++$tc_index;
@@ -1068,7 +1072,7 @@ class AI_Client_Adapter {
 					'id'       => 'call_' . wp_generate_uuid4(),
 					'function' => [
 						'name'      => $part['functionCall']['name'] ?? '',
-						'arguments' => wp_json_encode( $part['functionCall']['args'] ?? [] ),
+						'arguments' => wp_json_encode( ! empty( $part['functionCall']['args'] ) ? $part['functionCall']['args'] : new \stdClass() ),
 					],
 				] );
 			}
@@ -1103,7 +1107,7 @@ class AI_Client_Adapter {
 					'type'     => 'function',
 					'function' => [
 						'name'      => $part['functionCall']['name'] ?? '',
-						'arguments' => wp_json_encode( $part['functionCall']['args'] ?? [] ),
+						'arguments' => wp_json_encode( ! empty( $part['functionCall']['args'] ) ? $part['functionCall']['args'] : new \stdClass() ),
 					],
 				];
 			}
