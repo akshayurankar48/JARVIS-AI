@@ -48,38 +48,38 @@ class Manage_Widgets implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation'  => [
+			'properties' => array(
+				'operation'       => array(
 					'type'        => 'string',
-					'enum'        => [ 'list_areas', 'list_widgets', 'add', 'remove', 'reorder' ],
+					'enum'        => array( 'list_areas', 'list_widgets', 'add', 'remove', 'reorder' ),
 					'description' => 'Operation to perform.',
-				],
-				'sidebar_id' => [
+				),
+				'sidebar_id'      => array(
 					'type'        => 'string',
 					'description' => 'Sidebar/widget area ID. Required for list_widgets, add, remove, reorder.',
-				],
-				'widget_type' => [
+				),
+				'widget_type'     => array(
 					'type'        => 'string',
 					'description' => 'Widget type ID (e.g., "text", "search", "recent-posts"). Required for add.',
-				],
-				'widget_settings' => [
+				),
+				'widget_settings' => array(
 					'type'        => 'object',
 					'description' => 'Widget settings (e.g., {"title": "My Widget", "text": "Hello"}). For add operation.',
-				],
-				'widget_id'  => [
+				),
+				'widget_id'       => array(
 					'type'        => 'string',
 					'description' => 'Full widget ID (e.g., "text-2"). Required for remove.',
-				],
-				'order'      => [
+				),
+				'order'           => array(
 					'type'        => 'array',
-					'items'       => [ 'type' => 'string' ],
+					'items'       => array( 'type' => 'string' ),
 					'description' => 'Array of widget IDs in desired order. Required for reorder.',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -125,11 +125,11 @@ class Manage_Widgets implements Action_Interface {
 			case 'reorder':
 				return $this->reorder_widgets( $params );
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation. Use "list_areas", "list_widgets", "add", "remove", or "reorder".', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -142,28 +142,28 @@ class Manage_Widgets implements Action_Interface {
 	private function list_areas() {
 		global $wp_registered_sidebars;
 
-		$areas = [];
+		$areas = array();
 		foreach ( $wp_registered_sidebars as $id => $sidebar ) {
-			$widgets     = wp_get_sidebars_widgets();
-			$widget_ids  = isset( $widgets[ $id ] ) ? $widgets[ $id ] : [];
+			$widgets    = wp_get_sidebars_widgets();
+			$widget_ids = isset( $widgets[ $id ] ) ? $widgets[ $id ] : array();
 
-			$areas[] = [
+			$areas[] = array(
 				'id'           => $id,
 				'name'         => $sidebar['name'],
 				'description'  => $sidebar['description'] ?? '',
 				'widget_count' => count( $widget_ids ),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'areas' => $areas ],
+			'data'    => array( 'areas' => $areas ),
 			'message' => sprintf(
 				/* translators: %d: area count */
 				__( '%d widget area(s) registered.', 'wp-agent' ),
 				count( $areas )
 			),
-		];
+		);
 	}
 
 	/**
@@ -178,18 +178,18 @@ class Manage_Widgets implements Action_Interface {
 		$sidebar_id = sanitize_text_field( $params['sidebar_id'] ?? '' );
 
 		if ( empty( $sidebar_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'sidebar_id is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$sidebars   = wp_get_sidebars_widgets();
 		$widget_ids = isset( $sidebars[ $sidebar_id ] ) ? $sidebars[ $sidebar_id ] : null;
 
 		if ( null === $widget_ids ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -197,35 +197,35 @@ class Manage_Widgets implements Action_Interface {
 					__( 'Widget area "%s" not found.', 'wp-agent' ),
 					$sidebar_id
 				),
-			];
+			);
 		}
 
 		global $wp_registered_widgets;
 
-		$widgets = [];
+		$widgets = array();
 		foreach ( $widget_ids as $widget_id ) {
-			$widget_info = [
+			$widget_info = array(
 				'id'   => $widget_id,
 				'name' => isset( $wp_registered_widgets[ $widget_id ]['name'] )
 					? $wp_registered_widgets[ $widget_id ]['name']
 					: $widget_id,
-			];
-			$widgets[] = $widget_info;
+			);
+			$widgets[]   = $widget_info;
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'sidebar_id' => $sidebar_id,
 				'widgets'    => $widgets,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: sidebar ID */
 				__( '%1$d widget(s) in "%2$s".', 'wp-agent' ),
 				count( $widgets ),
 				$sidebar_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -241,25 +241,25 @@ class Manage_Widgets implements Action_Interface {
 		$widget_type     = sanitize_text_field( $params['widget_type'] ?? '' );
 		$widget_settings = isset( $params['widget_settings'] ) && is_array( $params['widget_settings'] )
 			? $params['widget_settings']
-			: [];
+			: array();
 
 		if ( empty( $sidebar_id ) || empty( $widget_type ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'sidebar_id and widget_type are required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Get current widget instances for this type.
 		$option_name = 'widget_' . $widget_type;
-		$instances   = get_option( $option_name, [] );
+		$instances   = get_option( $option_name, array() );
 
 		// Find next available instance number.
 		$next_number = empty( $instances ) ? 2 : max( array_keys( $instances ) ) + 1;
 
 		// Sanitize settings.
-		$clean_settings = [];
+		$clean_settings = array();
 		foreach ( $widget_settings as $key => $value ) {
 			$clean_settings[ sanitize_key( $key ) ] = sanitize_text_field( $value );
 		}
@@ -272,26 +272,26 @@ class Manage_Widgets implements Action_Interface {
 		$sidebars  = wp_get_sidebars_widgets();
 
 		if ( ! isset( $sidebars[ $sidebar_id ] ) ) {
-			$sidebars[ $sidebar_id ] = [];
+			$sidebars[ $sidebar_id ] = array();
 		}
 
 		$sidebars[ $sidebar_id ][] = $widget_id;
 		wp_set_sidebars_widgets( $sidebars );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'widget_id'   => $widget_id,
 				'sidebar_id'  => $sidebar_id,
 				'widget_type' => $widget_type,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: widget ID, 2: sidebar ID */
 				__( 'Widget "%1$s" added to "%2$s".', 'wp-agent' ),
 				$widget_id,
 				$sidebar_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -307,11 +307,11 @@ class Manage_Widgets implements Action_Interface {
 		$sidebar_id = sanitize_text_field( $params['sidebar_id'] ?? '' );
 
 		if ( empty( $widget_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'widget_id is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$sidebars = wp_get_sidebars_widgets();
@@ -322,7 +322,7 @@ class Manage_Widgets implements Action_Interface {
 			if ( false !== $key ) {
 				unset( $sidebars[ $sidebar_id ][ $key ] );
 				$sidebars[ $sidebar_id ] = array_values( $sidebars[ $sidebar_id ] );
-				$found = true;
+				$found                   = true;
 			}
 		} else {
 			foreach ( $sidebars as $sid => &$widgets ) {
@@ -339,7 +339,7 @@ class Manage_Widgets implements Action_Interface {
 		}
 
 		if ( ! $found ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -347,24 +347,24 @@ class Manage_Widgets implements Action_Interface {
 					__( 'Widget "%s" not found in any sidebar.', 'wp-agent' ),
 					$widget_id
 				),
-			];
+			);
 		}
 
 		wp_set_sidebars_widgets( $sidebars );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'widget_id'  => $widget_id,
 				'sidebar_id' => $sidebar_id,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: widget ID, 2: sidebar ID */
 				__( 'Widget "%1$s" removed from "%2$s".', 'wp-agent' ),
 				$widget_id,
 				$sidebar_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -377,20 +377,20 @@ class Manage_Widgets implements Action_Interface {
 	 */
 	private function reorder_widgets( array $params ) {
 		$sidebar_id = sanitize_text_field( $params['sidebar_id'] ?? '' );
-		$order      = isset( $params['order'] ) && is_array( $params['order'] ) ? $params['order'] : [];
+		$order      = isset( $params['order'] ) && is_array( $params['order'] ) ? $params['order'] : array();
 
 		if ( empty( $sidebar_id ) || empty( $order ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'sidebar_id and order are required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$sidebars = wp_get_sidebars_widgets();
 
 		if ( ! isset( $sidebars[ $sidebar_id ] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -398,24 +398,24 @@ class Manage_Widgets implements Action_Interface {
 					__( 'Widget area "%s" not found.', 'wp-agent' ),
 					$sidebar_id
 				),
-			];
+			);
 		}
 
-		$sanitized_order = array_map( 'sanitize_text_field', $order );
+		$sanitized_order         = array_map( 'sanitize_text_field', $order );
 		$sidebars[ $sidebar_id ] = $sanitized_order;
 		wp_set_sidebars_widgets( $sidebars );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'sidebar_id' => $sidebar_id,
 				'order'      => $sanitized_order,
-			],
+			),
 			'message' => sprintf(
 				/* translators: %s: sidebar ID */
 				__( 'Widgets reordered in "%s".', 'wp-agent' ),
 				$sidebar_id
 			),
-		];
+		);
 	}
 }

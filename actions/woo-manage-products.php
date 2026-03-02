@@ -22,30 +22,64 @@ class Woo_Manage_Products implements Action_Interface {
 	}
 
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation'   => [
+			'properties' => array(
+				'operation'         => array(
 					'type' => 'string',
-					'enum' => [ 'list', 'create', 'update', 'delete' ],
-				],
-				'product_id'  => [ 'type' => 'integer', 'description' => 'Product ID for update/delete.' ],
-				'name'        => [ 'type' => 'string', 'description' => 'Product name.' ],
-				'type'        => [ 'type' => 'string', 'enum' => [ 'simple', 'variable', 'grouped', 'external' ] ],
-				'price'       => [ 'type' => 'string', 'description' => 'Regular price.' ],
-				'sale_price'  => [ 'type' => 'string', 'description' => 'Sale price.' ],
-				'sku'         => [ 'type' => 'string' ],
-				'stock'       => [ 'type' => 'integer', 'description' => 'Stock quantity.' ],
-				'description' => [ 'type' => 'string', 'description' => 'Product description.' ],
-				'short_description' => [ 'type' => 'string' ],
-				'categories'  => [ 'type' => 'array', 'items' => [ 'type' => 'integer' ], 'description' => 'Category term IDs.' ],
-				'image_url'   => [ 'type' => 'string', 'description' => 'Featured image URL.' ],
-				'status'      => [ 'type' => 'string', 'enum' => [ 'publish', 'draft', 'pending' ] ],
-				'per_page'    => [ 'type' => 'integer', 'description' => 'Products per page for list. Default 20.' ],
-				'page'        => [ 'type' => 'integer' ],
-			],
-			'required'   => [ 'operation' ],
-		];
+					'enum' => array( 'list', 'create', 'update', 'delete' ),
+				),
+				'product_id'        => array(
+					'type'        => 'integer',
+					'description' => 'Product ID for update/delete.',
+				),
+				'name'              => array(
+					'type'        => 'string',
+					'description' => 'Product name.',
+				),
+				'type'              => array(
+					'type' => 'string',
+					'enum' => array( 'simple', 'variable', 'grouped', 'external' ),
+				),
+				'price'             => array(
+					'type'        => 'string',
+					'description' => 'Regular price.',
+				),
+				'sale_price'        => array(
+					'type'        => 'string',
+					'description' => 'Sale price.',
+				),
+				'sku'               => array( 'type' => 'string' ),
+				'stock'             => array(
+					'type'        => 'integer',
+					'description' => 'Stock quantity.',
+				),
+				'description'       => array(
+					'type'        => 'string',
+					'description' => 'Product description.',
+				),
+				'short_description' => array( 'type' => 'string' ),
+				'categories'        => array(
+					'type'        => 'array',
+					'items'       => array( 'type' => 'integer' ),
+					'description' => 'Category term IDs.',
+				),
+				'image_url'         => array(
+					'type'        => 'string',
+					'description' => 'Featured image URL.',
+				),
+				'status'            => array(
+					'type' => 'string',
+					'enum' => array( 'publish', 'draft', 'pending' ),
+				),
+				'per_page'          => array(
+					'type'        => 'integer',
+					'description' => 'Products per page for list. Default 20.',
+				),
+				'page'              => array( 'type' => 'integer' ),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	public function get_capabilities_required(): string {
@@ -69,7 +103,11 @@ class Woo_Manage_Products implements Action_Interface {
 			case 'delete':
 				return $this->delete_product( $params );
 			default:
-				return [ 'success' => false, 'data' => null, 'message' => __( 'Invalid operation.', 'wp-agent' ) ];
+				return array(
+					'success' => false,
+					'data'    => null,
+					'message' => __( 'Invalid operation.', 'wp-agent' ),
+				);
 		}
 	}
 
@@ -77,19 +115,19 @@ class Woo_Manage_Products implements Action_Interface {
 		$per_page = isset( $params['per_page'] ) ? min( absint( $params['per_page'] ), 50 ) : 20;
 		$page     = isset( $params['page'] ) ? absint( $params['page'] ) : 1;
 
-		$args = [
-			'status'   => 'publish',
-			'limit'    => $per_page,
-			'page'     => $page,
-			'orderby'  => 'date',
-			'order'    => 'DESC',
-		];
+		$args = array(
+			'status'  => 'publish',
+			'limit'   => $per_page,
+			'page'    => $page,
+			'orderby' => 'date',
+			'order'   => 'DESC',
+		);
 
 		$products = wc_get_products( $args );
-		$list     = [];
+		$list     = array();
 
 		foreach ( $products as $product ) {
-			$list[] = [
+			$list[] = array(
 				'id'         => $product->get_id(),
 				'name'       => $product->get_name(),
 				'type'       => $product->get_type(),
@@ -98,94 +136,150 @@ class Woo_Manage_Products implements Action_Interface {
 				'sku'        => $product->get_sku(),
 				'stock'      => $product->get_stock_quantity(),
 				'status'     => $product->get_status(),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'products' => $list, 'page' => $page ],
+			'data'    => array(
+				'products' => $list,
+				'page'     => $page,
+			),
 			'message' => sprintf( __( '%d product(s) found.', 'wp-agent' ), count( $list ) ),
-		];
+		);
 	}
 
 	private function create_product( array $params ) {
 		$name = sanitize_text_field( $params['name'] ?? '' );
 		if ( empty( $name ) ) {
-			return [ 'success' => false, 'data' => null, 'message' => __( 'Product name is required.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'Product name is required.', 'wp-agent' ),
+			);
 		}
 
-		$type = sanitize_text_field( $params['type'] ?? 'simple' );
+		$type    = sanitize_text_field( $params['type'] ?? 'simple' );
 		$product = ( 'variable' === $type ) ? new \WC_Product_Variable() : new \WC_Product_Simple();
 
 		$product->set_name( $name );
-		if ( isset( $params['price'] ) ) $product->set_regular_price( sanitize_text_field( $params['price'] ) );
-		if ( isset( $params['sale_price'] ) ) $product->set_sale_price( sanitize_text_field( $params['sale_price'] ) );
-		if ( isset( $params['sku'] ) ) $product->set_sku( sanitize_text_field( $params['sku'] ) );
+		if ( isset( $params['price'] ) ) {
+			$product->set_regular_price( sanitize_text_field( $params['price'] ) );
+		}
+		if ( isset( $params['sale_price'] ) ) {
+			$product->set_sale_price( sanitize_text_field( $params['sale_price'] ) );
+		}
+		if ( isset( $params['sku'] ) ) {
+			$product->set_sku( sanitize_text_field( $params['sku'] ) );
+		}
 		if ( isset( $params['stock'] ) ) {
 			$product->set_manage_stock( true );
 			$product->set_stock_quantity( absint( $params['stock'] ) );
 		}
-		if ( isset( $params['description'] ) ) $product->set_description( wp_kses_post( $params['description'] ) );
-		if ( isset( $params['short_description'] ) ) $product->set_short_description( wp_kses_post( $params['short_description'] ) );
-		if ( isset( $params['categories'] ) ) $product->set_category_ids( array_map( 'absint', $params['categories'] ) );
+		if ( isset( $params['description'] ) ) {
+			$product->set_description( wp_kses_post( $params['description'] ) );
+		}
+		if ( isset( $params['short_description'] ) ) {
+			$product->set_short_description( wp_kses_post( $params['short_description'] ) );
+		}
+		if ( isset( $params['categories'] ) ) {
+			$product->set_category_ids( array_map( 'absint', $params['categories'] ) );
+		}
 		$product->set_status( sanitize_text_field( $params['status'] ?? 'publish' ) );
 
 		$product_id = $product->save();
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'product_id' => $product_id, 'name' => $name ],
-			'message' => sprintf( __( 'Product "%s" created (ID: %d).', 'wp-agent' ), $name, $product_id ),
-		];
+			'data'    => array(
+				'product_id' => $product_id,
+				'name'       => $name,
+			),
+			'message' => sprintf( __( 'Product "%1$s" created (ID: %2$d).', 'wp-agent' ), $name, $product_id ),
+		);
 	}
 
 	private function update_product( array $params ) {
 		$product_id = absint( $params['product_id'] ?? 0 );
 		if ( ! $product_id ) {
-			return [ 'success' => false, 'data' => null, 'message' => __( 'product_id is required.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'product_id is required.', 'wp-agent' ),
+			);
 		}
 
 		$product = wc_get_product( $product_id );
 		if ( ! $product ) {
-			return [ 'success' => false, 'data' => null, 'message' => __( 'Product not found.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'Product not found.', 'wp-agent' ),
+			);
 		}
 
-		$updated = [];
-		if ( isset( $params['name'] ) ) { $product->set_name( sanitize_text_field( $params['name'] ) ); $updated[] = 'name'; }
-		if ( isset( $params['price'] ) ) { $product->set_regular_price( sanitize_text_field( $params['price'] ) ); $updated[] = 'price'; }
-		if ( isset( $params['sale_price'] ) ) { $product->set_sale_price( sanitize_text_field( $params['sale_price'] ) ); $updated[] = 'sale_price'; }
-		if ( isset( $params['sku'] ) ) { $product->set_sku( sanitize_text_field( $params['sku'] ) ); $updated[] = 'sku'; }
-		if ( isset( $params['stock'] ) ) { $product->set_manage_stock( true ); $product->set_stock_quantity( absint( $params['stock'] ) ); $updated[] = 'stock'; }
-		if ( isset( $params['status'] ) ) { $product->set_status( sanitize_text_field( $params['status'] ) ); $updated[] = 'status'; }
-		if ( isset( $params['description'] ) ) { $product->set_description( wp_kses_post( $params['description'] ) ); $updated[] = 'description'; }
+		$updated = array();
+		if ( isset( $params['name'] ) ) {
+			$product->set_name( sanitize_text_field( $params['name'] ) );
+			$updated[] = 'name'; }
+		if ( isset( $params['price'] ) ) {
+			$product->set_regular_price( sanitize_text_field( $params['price'] ) );
+			$updated[] = 'price'; }
+		if ( isset( $params['sale_price'] ) ) {
+			$product->set_sale_price( sanitize_text_field( $params['sale_price'] ) );
+			$updated[] = 'sale_price'; }
+		if ( isset( $params['sku'] ) ) {
+			$product->set_sku( sanitize_text_field( $params['sku'] ) );
+			$updated[] = 'sku'; }
+		if ( isset( $params['stock'] ) ) {
+			$product->set_manage_stock( true );
+			$product->set_stock_quantity( absint( $params['stock'] ) );
+			$updated[] = 'stock'; }
+		if ( isset( $params['status'] ) ) {
+			$product->set_status( sanitize_text_field( $params['status'] ) );
+			$updated[] = 'status'; }
+		if ( isset( $params['description'] ) ) {
+			$product->set_description( wp_kses_post( $params['description'] ) );
+			$updated[] = 'description'; }
 
 		$product->save();
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'product_id' => $product_id, 'updated' => $updated ],
-			'message' => sprintf( __( 'Product #%d updated (%s).', 'wp-agent' ), $product_id, implode( ', ', $updated ) ),
-		];
+			'data'    => array(
+				'product_id' => $product_id,
+				'updated'    => $updated,
+			),
+			'message' => sprintf( __( 'Product #%1$d updated (%2$s).', 'wp-agent' ), $product_id, implode( ', ', $updated ) ),
+		);
 	}
 
 	private function delete_product( array $params ) {
 		$product_id = absint( $params['product_id'] ?? 0 );
 		if ( ! $product_id ) {
-			return [ 'success' => false, 'data' => null, 'message' => __( 'product_id is required.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'product_id is required.', 'wp-agent' ),
+			);
 		}
 
 		$product = wc_get_product( $product_id );
 		if ( ! $product ) {
-			return [ 'success' => false, 'data' => null, 'message' => __( 'Product not found.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'Product not found.', 'wp-agent' ),
+			);
 		}
 
 		$name = $product->get_name();
 		$product->delete( true );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'product_id' => $product_id ],
-			'message' => sprintf( __( 'Product "%s" (#%d) deleted.', 'wp-agent' ), $name, $product_id ),
-		];
+			'data'    => array( 'product_id' => $product_id ),
+			'message' => sprintf( __( 'Product "%1$s" (#%2$d) deleted.', 'wp-agent' ), $name, $product_id ),
+		);
 	}
 }

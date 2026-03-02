@@ -51,30 +51,30 @@ class Audit_Accessibility implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation'   => array(
 					'type'        => 'string',
-					'enum'        => [ 'audit', 'check_element', 'fix' ],
+					'enum'        => array( 'audit', 'check_element', 'fix' ),
 					'description' => 'Operation to perform.',
-				],
-				'post_id'   => [
+				),
+				'post_id'     => array(
 					'type'        => 'integer',
 					'description' => 'Post or page ID to audit.',
-				],
-				'block_index' => [
+				),
+				'block_index' => array(
 					'type'        => 'integer',
 					'description' => 'Block index to check (for "check_element" operation).',
-				],
-				'fix_type'  => [
+				),
+				'fix_type'    => array(
 					'type'        => 'string',
-					'enum'        => [ 'alt_text', 'heading_hierarchy', 'empty_links', 'all' ],
+					'enum'        => array( 'alt_text', 'heading_hierarchy', 'empty_links', 'all' ),
 					'description' => 'Type of fix to apply (for "fix" operation). Defaults to "all".',
-				],
-			],
-			'required'   => [ 'operation', 'post_id' ],
-		];
+				),
+			),
+			'required'   => array( 'operation', 'post_id' ),
+		);
 	}
 
 	/**
@@ -110,20 +110,20 @@ class Audit_Accessibility implements Action_Interface {
 		$post_id   = isset( $params['post_id'] ) ? absint( $params['post_id'] ) : 0;
 
 		if ( ! $post_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Post ID is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Post not found.', 'wp-agent' ),
-			];
+			);
 		}
 
 		switch ( $operation ) {
@@ -139,11 +139,11 @@ class Audit_Accessibility implements Action_Interface {
 				return $this->fix_issues( $post, $fix_type );
 
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation. Use "audit", "check_element", or "fix".', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -157,7 +157,7 @@ class Audit_Accessibility implements Action_Interface {
 	 */
 	private function audit_post( $post ) {
 		$content = $post->post_content;
-		$issues  = [];
+		$issues  = array();
 
 		// Check images without alt text.
 		$issues = array_merge( $issues, $this->check_alt_text( $content ) );
@@ -174,11 +174,11 @@ class Audit_Accessibility implements Action_Interface {
 		// Check color contrast indicators.
 		$issues = array_merge( $issues, $this->check_color_contrast( $content ) );
 
-		$counts = [
+		$counts = array(
 			'critical' => 0,
 			'warning'  => 0,
 			'info'     => 0,
-		];
+		);
 
 		foreach ( $issues as $issue ) {
 			if ( isset( $counts[ $issue['severity'] ] ) ) {
@@ -188,16 +188,16 @@ class Audit_Accessibility implements Action_Interface {
 
 		$total = count( $issues );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'post_id' => $post->ID,
 				'title'   => $post->post_title,
 				'issues'  => $issues,
 				'counts'  => $counts,
 				'total'   => $total,
 				'score'   => $total > 0 ? max( 0, 100 - ( $counts['critical'] * 15 ) - ( $counts['warning'] * 5 ) - ( $counts['info'] * 1 ) ) : 100,
-			],
+			),
 			'message' => 0 === $total
 				? sprintf(
 					/* translators: %s: post title */
@@ -212,7 +212,7 @@ class Audit_Accessibility implements Action_Interface {
 					$counts['warning'],
 					$post->post_title
 				),
-		];
+		);
 	}
 
 	/**
@@ -228,7 +228,7 @@ class Audit_Accessibility implements Action_Interface {
 		$blocks = parse_blocks( $post->post_content );
 
 		if ( ! isset( $blocks[ $block_index ] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -236,32 +236,32 @@ class Audit_Accessibility implements Action_Interface {
 					__( 'Block at index %d not found.', 'wp-agent' ),
 					$block_index
 				),
-			];
+			);
 		}
 
-		$block   = $blocks[ $block_index ];
-		$html    = render_block( $block );
-		$issues  = [];
+		$block  = $blocks[ $block_index ];
+		$html   = render_block( $block );
+		$issues = array();
 
 		$issues = array_merge( $issues, $this->check_alt_text( $html ) );
 		$issues = array_merge( $issues, $this->check_heading_hierarchy( $html ) );
 		$issues = array_merge( $issues, $this->check_empty_links( $html ) );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'block_name'  => $block['blockName'] ?? 'unknown',
 				'block_index' => $block_index,
 				'issues'      => $issues,
 				'total'       => count( $issues ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: issue count, 2: block name */
 				__( 'Found %1$d issue(s) in block "%2$s".', 'wp-agent' ),
 				count( $issues ),
 				$block['blockName'] ?? 'unknown'
 			),
-		];
+		);
 	}
 
 	/**
@@ -277,33 +277,44 @@ class Audit_Accessibility implements Action_Interface {
 		$content       = $post->post_content;
 		$fixes_applied = 0;
 
-		if ( in_array( $fix_type, [ 'alt_text', 'all' ], true ) ) {
+		if ( in_array( $fix_type, array( 'alt_text', 'all' ), true ) ) {
 			// Add placeholder alt text to images missing it.
-			$content = preg_replace_callback( '/<img(?![^>]*\balt=)[^>]*>/i', function ( $match ) use ( &$fixes_applied ) {
-				++$fixes_applied;
-				return str_replace( '<img', '<img alt="' . esc_attr__( 'Image', 'wp-agent' ) . '"', $match[0] );
-			}, $content );
+			$content = preg_replace_callback(
+				'/<img(?![^>]*\balt=)[^>]*>/i',
+				function ( $match ) use ( &$fixes_applied ) {
+					++$fixes_applied;
+					return str_replace( '<img', '<img alt="' . esc_attr__( 'Image', 'wp-agent' ) . '"', $match[0] );
+				},
+				$content
+			);
 		}
 
-		if ( in_array( $fix_type, [ 'empty_links', 'all' ], true ) ) {
+		if ( in_array( $fix_type, array( 'empty_links', 'all' ), true ) ) {
 			// Add aria-label to empty links that have no text.
-			$content = preg_replace_callback( '/<a([^>]*)>\s*<\/a>/i', function ( $match ) use ( &$fixes_applied ) {
-				if ( false === strpos( $match[1], 'aria-label' ) ) {
-					++$fixes_applied;
-					return '<a' . $match[1] . ' aria-label="' . esc_attr__( 'Link', 'wp-agent' ) . '"></a>';
-				}
-				return $match[0];
-			}, $content );
+			$content = preg_replace_callback(
+				'/<a([^>]*)>\s*<\/a>/i',
+				function ( $match ) use ( &$fixes_applied ) {
+					if ( false === strpos( $match[1], 'aria-label' ) ) {
+						++$fixes_applied;
+						return '<a' . $match[1] . ' aria-label="' . esc_attr__( 'Link', 'wp-agent' ) . '"></a>';
+					}
+					return $match[0];
+				},
+				$content
+			);
 		}
 
 		if ( $fixes_applied > 0 ) {
-			$result = wp_update_post( [
-				'ID'           => $post->ID,
-				'post_content' => wp_slash( $content ),
-			], true );
+			$result = wp_update_post(
+				array(
+					'ID'           => $post->ID,
+					'post_content' => wp_slash( $content ),
+				),
+				true
+			);
 
 			if ( is_wp_error( $result ) ) {
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => sprintf(
@@ -311,17 +322,17 @@ class Audit_Accessibility implements Action_Interface {
 						__( 'Failed to save fixes: %s', 'wp-agent' ),
 						$result->get_error_message()
 					),
-				];
+				);
 			}
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'post_id'       => $post->ID,
 				'fixes_applied' => $fixes_applied,
 				'fix_type'      => $fix_type,
-			],
+			),
 			'message' => $fixes_applied > 0
 				? sprintf(
 					/* translators: 1: fix count, 2: post title */
@@ -334,7 +345,7 @@ class Audit_Accessibility implements Action_Interface {
 					__( 'No automatic fixes needed for "%s".', 'wp-agent' ),
 					$post->post_title
 				),
-		];
+		);
 	}
 
 	/**
@@ -346,7 +357,7 @@ class Audit_Accessibility implements Action_Interface {
 	 * @return array Issues found.
 	 */
 	private function check_alt_text( $html ) {
-		$issues = [];
+		$issues = array();
 
 		if ( preg_match_all( '/<img[^>]+>/i', $html, $matches ) ) {
 			foreach ( $matches[0] as $img ) {
@@ -355,7 +366,7 @@ class Audit_Accessibility implements Action_Interface {
 					if ( preg_match( '/src=["\']([^"\']+)["\']/', $img, $src_match ) ) {
 						$src = basename( $src_match[1] );
 					}
-					$issues[] = [
+					$issues[] = array(
 						'type'     => 'missing_alt_text',
 						'severity' => 'critical',
 						'element'  => substr( $img, 0, 120 ),
@@ -365,15 +376,15 @@ class Audit_Accessibility implements Action_Interface {
 							$src
 						),
 						'fix'      => __( 'Add descriptive alt text that conveys the image content.', 'wp-agent' ),
-					];
+					);
 				} elseif ( empty( trim( $alt_match[1] ) ) ) {
-					$issues[] = [
+					$issues[] = array(
 						'type'     => 'empty_alt_text',
 						'severity' => 'warning',
 						'element'  => substr( $img, 0, 120 ),
 						'message'  => __( 'Image has an empty alt attribute. If decorative, this is acceptable.', 'wp-agent' ),
 						'fix'      => __( 'Add descriptive alt text or confirm the image is purely decorative.', 'wp-agent' ),
-					];
+					);
 				}
 			}
 		}
@@ -390,7 +401,7 @@ class Audit_Accessibility implements Action_Interface {
 	 * @return array Issues found.
 	 */
 	private function check_heading_hierarchy( $html ) {
-		$issues = [];
+		$issues = array();
 
 		if ( preg_match_all( '/<h([1-6])[^>]*>(.*?)<\/h\1>/is', $html, $matches, PREG_SET_ORDER ) ) {
 			$last_level = 0;
@@ -401,7 +412,7 @@ class Audit_Accessibility implements Action_Interface {
 
 				// Check for skipped heading levels (e.g., h2 -> h4).
 				if ( $last_level > 0 && $level > $last_level + 1 ) {
-					$issues[] = [
+					$issues[] = array(
 						'type'     => 'heading_skip',
 						'severity' => 'warning',
 						'element'  => sprintf( 'h%d: %s', $level, substr( $text, 0, 80 ) ),
@@ -416,7 +427,7 @@ class Audit_Accessibility implements Action_Interface {
 							__( 'Change to h%d to maintain proper hierarchy.', 'wp-agent' ),
 							$last_level + 1
 						),
-					];
+					);
 				}
 
 				$last_level = $level;
@@ -435,7 +446,7 @@ class Audit_Accessibility implements Action_Interface {
 	 * @return array Issues found.
 	 */
 	private function check_empty_links( $html ) {
-		$issues = [];
+		$issues = array();
 
 		if ( preg_match_all( '/<a([^>]*)>(.*?)<\/a>/is', $html, $matches, PREG_SET_ORDER ) ) {
 			foreach ( $matches as $match ) {
@@ -449,13 +460,13 @@ class Audit_Accessibility implements Action_Interface {
 						continue;
 					}
 
-					$issues[] = [
+					$issues[] = array(
 						'type'     => 'empty_link',
 						'severity' => 'critical',
 						'element'  => substr( $match[0], 0, 120 ),
 						'message'  => __( 'Link has no accessible text content or aria-label.', 'wp-agent' ),
 						'fix'      => __( 'Add descriptive text or an aria-label attribute.', 'wp-agent' ),
-					];
+					);
 				}
 			}
 		}
@@ -472,7 +483,7 @@ class Audit_Accessibility implements Action_Interface {
 	 * @return array Issues found.
 	 */
 	private function check_form_labels( $html ) {
-		$issues = [];
+		$issues = array();
 
 		if ( preg_match_all( '/<input[^>]+>/i', $html, $matches ) ) {
 			foreach ( $matches[0] as $input ) {
@@ -492,13 +503,13 @@ class Audit_Accessibility implements Action_Interface {
 					continue;
 				}
 
-				$issues[] = [
+				$issues[] = array(
 					'type'     => 'missing_label',
 					'severity' => 'critical',
 					'element'  => substr( $input, 0, 120 ),
 					'message'  => __( 'Form input has no associated label, aria-label, or aria-labelledby.', 'wp-agent' ),
 					'fix'      => __( 'Add a <label for="..."> element or aria-label attribute.', 'wp-agent' ),
-				];
+				);
 			}
 		}
 
@@ -514,7 +525,7 @@ class Audit_Accessibility implements Action_Interface {
 	 * @return array Issues found.
 	 */
 	private function check_color_contrast( $html ) {
-		$issues = [];
+		$issues = array();
 
 		// Look for inline styles with light text colors that might be on light backgrounds.
 		if ( preg_match_all( '/style=["\']([^"\']*color\s*:[^"\']+)["\']/i', $html, $matches ) ) {
@@ -531,13 +542,13 @@ class Audit_Accessibility implements Action_Interface {
 
 				// Flag light-on-light or dark-on-dark patterns.
 				if ( $color && $bg && $this->is_low_contrast( $color, $bg ) ) {
-					$issues[] = [
+					$issues[] = array(
 						'type'     => 'low_contrast',
 						'severity' => 'warning',
 						'element'  => sprintf( 'color: %s, background: %s', $color, $bg ),
 						'message'  => __( 'Potential low contrast between text color and background color.', 'wp-agent' ),
 						'fix'      => __( 'Ensure a contrast ratio of at least 4.5:1 for normal text (WCAG AA).', 'wp-agent' ),
-					];
+					);
 				}
 			}
 		}

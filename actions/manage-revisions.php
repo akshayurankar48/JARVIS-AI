@@ -49,29 +49,29 @@ class Manage_Revisions implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation'   => [
+			'properties' => array(
+				'operation'   => array(
 					'type'        => 'string',
-					'enum'        => [ 'list', 'restore', 'compare' ],
+					'enum'        => array( 'list', 'restore', 'compare' ),
 					'description' => 'Operation to perform.',
-				],
-				'post_id'     => [
+				),
+				'post_id'     => array(
 					'type'        => 'integer',
 					'description' => 'The post ID to manage revisions for.',
-				],
-				'revision_id' => [
+				),
+				'revision_id' => array(
 					'type'        => 'integer',
 					'description' => 'Revision ID to restore. Required for "restore" operation.',
-				],
-				'compare_to'  => [
+				),
+				'compare_to'  => array(
 					'type'        => 'integer',
 					'description' => 'Second revision ID for "compare" operation. Compares revision_id against compare_to.',
-				],
-			],
-			'required'   => [ 'operation', 'post_id' ],
-		];
+				),
+			),
+			'required'   => array( 'operation', 'post_id' ),
+		);
 	}
 
 	/**
@@ -108,7 +108,7 @@ class Manage_Revisions implements Action_Interface {
 
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -116,15 +116,15 @@ class Manage_Revisions implements Action_Interface {
 					__( 'Post #%d not found.', 'wp-agent' ),
 					$post_id
 				),
-			];
+			);
 		}
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'You do not have permission to edit this post.', 'wp-agent' ),
-			];
+			);
 		}
 
 		switch ( $operation ) {
@@ -141,11 +141,11 @@ class Manage_Revisions implements Action_Interface {
 				return $this->compare_revisions( $post_id, $revision_id, $compare_to );
 
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation. Use "list", "restore", or "compare".', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -161,41 +161,44 @@ class Manage_Revisions implements Action_Interface {
 		$revisions = wp_get_post_revisions( $post_id );
 
 		if ( empty( $revisions ) ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [ 'total' => 0, 'revisions' => [] ],
+				'data'    => array(
+					'total'     => 0,
+					'revisions' => array(),
+				),
 				'message' => sprintf(
 					/* translators: %d: post ID */
 					__( 'No revisions found for post #%d.', 'wp-agent' ),
 					$post_id
 				),
-			];
+			);
 		}
 
-		$results = [];
+		$results = array();
 		foreach ( $revisions as $revision ) {
-			$results[] = [
+			$results[] = array(
 				'revision_id' => $revision->ID,
 				'author'      => get_the_author_meta( 'display_name', $revision->post_author ),
 				'date'        => $revision->post_date,
 				'title'       => $revision->post_title,
 				'excerpt'     => wp_trim_words( $revision->post_content, 20 ),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'total'     => count( $results ),
 				'revisions' => $results,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: post ID */
 				__( 'Found %1$d revision(s) for post #%2$d.', 'wp-agent' ),
 				count( $results ),
 				$post_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -209,16 +212,16 @@ class Manage_Revisions implements Action_Interface {
 	 */
 	private function restore_revision( $post_id, $revision_id ) {
 		if ( ! $revision_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'revision_id is required for restore operation.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$revision = wp_get_post_revision( $revision_id );
 		if ( ! $revision ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -226,12 +229,12 @@ class Manage_Revisions implements Action_Interface {
 					__( 'Revision #%d not found.', 'wp-agent' ),
 					$revision_id
 				),
-			];
+			);
 		}
 
 		// Verify the revision belongs to the specified post.
 		if ( (int) $revision->post_parent !== $post_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -240,33 +243,33 @@ class Manage_Revisions implements Action_Interface {
 					$revision_id,
 					$post_id
 				),
-			];
+			);
 		}
 
 		$result = wp_restore_post_revision( $revision_id );
 
 		if ( ! $result || is_wp_error( $result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Failed to restore revision.', 'wp-agent' ),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'post_id'     => $post_id,
 				'revision_id' => $revision_id,
 				'restored_to' => $revision->post_date,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: post ID, 2: revision date */
 				__( 'Post #%1$d restored to revision from %2$s.', 'wp-agent' ),
 				$post_id,
 				$revision->post_date
 			),
-		];
+		);
 	}
 
 	/**
@@ -281,72 +284,72 @@ class Manage_Revisions implements Action_Interface {
 	 */
 	private function compare_revisions( $post_id, $revision_id, $compare_to ) {
 		if ( ! $revision_id || ! $compare_to ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Both revision_id and compare_to are required for compare.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$rev_a = wp_get_post_revision( $revision_id );
 		$rev_b = wp_get_post_revision( $compare_to );
 
 		if ( ! $rev_a || ! $rev_b ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'One or both revision IDs not found.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Verify both belong to the same post.
 		if ( (int) $rev_a->post_parent !== $post_id || (int) $rev_b->post_parent !== $post_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Both revisions must belong to the specified post.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$fields = [ 'post_title', 'post_content', 'post_excerpt' ];
-		$diff   = [];
+		$fields = array( 'post_title', 'post_content', 'post_excerpt' );
+		$diff   = array();
 
 		foreach ( $fields as $field ) {
 			$a_val = $rev_a->$field ?? '';
 			$b_val = $rev_b->$field ?? '';
 
 			if ( $a_val !== $b_val ) {
-				$diff[ $field ] = [
+				$diff[ $field ] = array(
 					'revision_a' => wp_trim_words( $a_val, 50 ),
 					'revision_b' => wp_trim_words( $b_val, 50 ),
 					'changed'    => true,
-				];
+				);
 			} else {
-				$diff[ $field ] = [
+				$diff[ $field ] = array(
 					'changed' => false,
-				];
+				);
 			}
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
-				'revision_a' => [
+			'data'    => array(
+				'revision_a' => array(
 					'id'   => $revision_id,
 					'date' => $rev_a->post_date,
-				],
-				'revision_b' => [
+				),
+				'revision_b' => array(
 					'id'   => $compare_to,
 					'date' => $rev_b->post_date,
-				],
+				),
 				'diff'       => $diff,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: revision A ID, 2: revision B ID */
 				__( 'Compared revision #%1$d with revision #%2$d.', 'wp-agent' ),
 				$revision_id,
 				$compare_to
 			),
-		];
+		);
 	}
 }

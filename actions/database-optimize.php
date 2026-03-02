@@ -49,21 +49,21 @@ class Database_Optimize implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation'      => array(
 					'type'        => 'string',
-					'enum'        => [ 'analyze', 'clean_revisions', 'clean_transients', 'clean_spam', 'clean_trash', 'optimize_tables' ],
+					'enum'        => array( 'analyze', 'clean_revisions', 'clean_transients', 'clean_spam', 'clean_trash', 'optimize_tables' ),
 					'description' => 'Operation: "analyze" counts cleanable items, others perform the cleanup.',
-				],
-				'keep_revisions' => [
+				),
+				'keep_revisions' => array(
 					'type'        => 'integer',
 					'description' => 'Number of revisions to keep per post when cleaning. Defaults to 5.',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -111,11 +111,11 @@ class Database_Optimize implements Action_Interface {
 			case 'optimize_tables':
 				return $this->optimize_tables();
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation.', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -158,12 +158,12 @@ class Database_Optimize implements Action_Interface {
 		$db_name = DB_NAME;
 		$tables  = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT table_name AS name,
+				'SELECT table_name AS name,
 					ROUND(data_length / 1024 / 1024, 2) AS data_mb,
 					ROUND(index_length / 1024 / 1024, 2) AS index_mb,
 					ROUND(data_free / 1024 / 1024, 2) AS overhead_mb
 				FROM information_schema.TABLES
-				WHERE table_schema = %s AND table_name LIKE %s",
+				WHERE table_schema = %s AND table_name LIKE %s',
 				$db_name,
 				$wpdb->esc_like( $wpdb->prefix ) . '%'
 			),
@@ -177,9 +177,9 @@ class Database_Optimize implements Action_Interface {
 
 		// phpcs:enable
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'revisions'      => $revisions,
 				'transients'     => $transients,
 				'spam_comments'  => $spam_comments,
@@ -188,7 +188,7 @@ class Database_Optimize implements Action_Interface {
 				'auto_drafts'    => $auto_drafts,
 				'overhead_mb'    => round( $total_overhead, 2 ),
 				'table_count'    => count( $tables ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: revisions, 2: transients, 3: spam, 4: overhead */
 				__( 'Database analysis: %1$d revisions, %2$d expired transients, %3$d spam comments, %4$s MB overhead.', 'wp-agent' ),
@@ -197,7 +197,7 @@ class Database_Optimize implements Action_Interface {
 				$spam_comments,
 				round( $total_overhead, 2 )
 			),
-		];
+		);
 	}
 
 	/**
@@ -238,19 +238,19 @@ class Database_Optimize implements Action_Interface {
 
 		// phpcs:enable
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'deleted' => (int) $deleted,
 				'kept'    => $keep,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: deleted count, 2: kept per post */
 				__( 'Deleted %1$d revision(s), keeping %2$d per post.', 'wp-agent' ),
 				(int) $deleted,
 				$keep
 			),
-		];
+		);
 	}
 
 	/**
@@ -276,20 +276,20 @@ class Database_Optimize implements Action_Interface {
 			$transient_key = str_replace( '_transient_timeout_', '_transient_', $timeout_key );
 			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name = %s", $timeout_key ) );
 			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name = %s", $transient_key ) );
-			$deleted++;
+			++$deleted;
 		}
 
 		// phpcs:enable
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'deleted' => $deleted ],
+			'data'    => array( 'deleted' => $deleted ),
 			'message' => sprintf(
 				/* translators: %d: deleted count */
 				__( 'Deleted %d expired transient(s).', 'wp-agent' ),
 				$deleted
 			),
-		];
+		);
 	}
 
 	/**
@@ -306,15 +306,15 @@ class Database_Optimize implements Action_Interface {
 			$wpdb->prepare( "DELETE FROM {$wpdb->comments} WHERE comment_approved = %s", 'spam' )
 		);
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'deleted' => (int) $deleted ],
+			'data'    => array( 'deleted' => (int) $deleted ),
 			'message' => sprintf(
 				/* translators: %d: deleted count */
 				__( 'Deleted %d spam comment(s).', 'wp-agent' ),
 				(int) $deleted
 			),
-		];
+		);
 	}
 
 	/**
@@ -342,13 +342,13 @@ class Database_Optimize implements Action_Interface {
 
 		// phpcs:enable
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'trash_posts'    => (int) $trash_posts,
 				'trash_comments' => (int) $trash_comments,
 				'auto_drafts'    => (int) $auto_drafts,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: posts, 2: comments, 3: auto-drafts */
 				__( 'Cleaned: %1$d trashed post(s), %2$d trashed comment(s), %3$d auto-draft(s).', 'wp-agent' ),
@@ -356,7 +356,7 @@ class Database_Optimize implements Action_Interface {
 				(int) $trash_comments,
 				(int) $auto_drafts
 			),
-		];
+		);
 	}
 
 	/**
@@ -372,7 +372,7 @@ class Database_Optimize implements Action_Interface {
 
 		$tables = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT table_name FROM information_schema.TABLES WHERE table_schema = %s AND table_name LIKE %s",
+				'SELECT table_name FROM information_schema.TABLES WHERE table_schema = %s AND table_name LIKE %s',
 				DB_NAME,
 				$wpdb->esc_like( $wpdb->prefix ) . '%'
 			)
@@ -382,19 +382,19 @@ class Database_Optimize implements Action_Interface {
 		foreach ( $tables as $table ) {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$wpdb->query( "OPTIMIZE TABLE `{$table}`" );
-			$optimized++;
+			++$optimized;
 		}
 
 		// phpcs:enable
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'tables_optimized' => $optimized ],
+			'data'    => array( 'tables_optimized' => $optimized ),
 			'message' => sprintf(
 				/* translators: %d: table count */
 				__( 'Optimized %d database table(s).', 'wp-agent' ),
 				$optimized
 			),
-		];
+		);
 	}
 }

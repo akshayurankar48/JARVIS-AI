@@ -30,29 +30,29 @@ class Manage_Shortcodes implements Action_Interface {
 	}
 
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation'  => [
+			'properties' => array(
+				'operation'  => array(
 					'type'        => 'string',
-					'enum'        => [ 'list', 'preview', 'find_usage' ],
+					'enum'        => array( 'list', 'preview', 'find_usage' ),
 					'description' => '"list" all shortcodes, "preview" renders one, "find_usage" searches posts.',
-				],
-				'shortcode'  => [
+				),
+				'shortcode'  => array(
 					'type'        => 'string',
 					'description' => 'Shortcode tag name (without brackets). Required for preview and find_usage.',
-				],
-				'attributes' => [
+				),
+				'attributes' => array(
 					'type'        => 'object',
 					'description' => 'Attributes to pass when previewing (e.g., {"id": "123"}).',
-				],
-				'content'    => [
+				),
+				'content'    => array(
 					'type'        => 'string',
 					'description' => 'Content between shortcode tags for preview.',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	public function get_capabilities_required(): string {
@@ -74,18 +74,18 @@ class Manage_Shortcodes implements Action_Interface {
 			case 'find_usage':
 				return $this->find_usage( $params );
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation.', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
 	private function list_shortcodes() {
 		global $shortcode_tags;
 
-		$shortcodes = [];
+		$shortcodes = array();
 		foreach ( $shortcode_tags as $tag => $callback ) {
 			$source = 'unknown';
 			if ( is_string( $callback ) ) {
@@ -94,45 +94,48 @@ class Manage_Shortcodes implements Action_Interface {
 				$source = is_object( $callback[0] ) ? get_class( $callback[0] ) : (string) $callback[0];
 			}
 
-			$shortcodes[] = [
+			$shortcodes[] = array(
 				'tag'    => $tag,
 				'source' => $source,
-			];
+			);
 		}
 
-		usort( $shortcodes, function ( $a, $b ) {
-			return strcmp( $a['tag'], $b['tag'] );
-		} );
+		usort(
+			$shortcodes,
+			function ( $a, $b ) {
+				return strcmp( $a['tag'], $b['tag'] );
+			}
+		);
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'count'      => count( $shortcodes ),
 				'shortcodes' => $shortcodes,
-			],
+			),
 			'message' => sprintf(
 				/* translators: %d: count */
 				__( '%d shortcode(s) registered.', 'wp-agent' ),
 				count( $shortcodes )
 			),
-		];
+		);
 	}
 
 	private function preview_shortcode( array $params ) {
 		$tag        = sanitize_text_field( $params['shortcode'] ?? '' );
-		$attributes = isset( $params['attributes'] ) && is_array( $params['attributes'] ) ? $params['attributes'] : [];
+		$attributes = isset( $params['attributes'] ) && is_array( $params['attributes'] ) ? $params['attributes'] : array();
 		$content    = isset( $params['content'] ) ? sanitize_text_field( $params['content'] ) : '';
 
 		if ( empty( $tag ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'shortcode tag is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( ! shortcode_exists( $tag ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -140,7 +143,7 @@ class Manage_Shortcodes implements Action_Interface {
 					__( 'Shortcode [%s] is not registered.', 'wp-agent' ),
 					$tag
 				),
-			];
+			);
 		}
 
 		// Build shortcode string.
@@ -156,19 +159,19 @@ class Manage_Shortcodes implements Action_Interface {
 
 		$output = do_shortcode( $shortcode );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'shortcode'   => $shortcode,
 				'html_output' => wp_kses_post( $output ),
 				'text_output' => wp_strip_all_tags( $output ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: %s: shortcode */
 				__( 'Preview of %s rendered.', 'wp-agent' ),
 				$shortcode
 			),
-		];
+		);
 	}
 
 	private function find_usage( array $params ) {
@@ -177,11 +180,11 @@ class Manage_Shortcodes implements Action_Interface {
 		$tag = sanitize_text_field( $params['shortcode'] ?? '' );
 
 		if ( empty( $tag ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'shortcode tag is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -198,29 +201,29 @@ class Manage_Shortcodes implements Action_Interface {
 			ARRAY_A
 		);
 
-		$results = [];
+		$results = array();
 		foreach ( $posts as $post ) {
-			$results[] = [
+			$results[] = array(
 				'id'     => (int) $post['ID'],
 				'title'  => $post['post_title'],
 				'type'   => $post['post_type'],
 				'status' => $post['post_status'],
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'shortcode' => $tag,
 				'count'     => count( $results ),
 				'posts'     => $results,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: shortcode */
 				__( 'Found [%2$s] in %1$d post(s).', 'wp-agent' ),
 				count( $results ),
 				$tag
 			),
-		];
+		);
 	}
 }

@@ -34,7 +34,7 @@ class Pattern_Manager {
 	 *
 	 * @var array
 	 */
-	private $cache = [];
+	private $cache = array();
 
 	/**
 	 * Pattern metadata index (keyed by pattern ID).
@@ -48,7 +48,7 @@ class Pattern_Manager {
 	 *
 	 * @var array
 	 */
-	private $blueprints = [];
+	private $blueprints = array();
 
 	/**
 	 * Base path for the pattern library.
@@ -88,7 +88,7 @@ class Pattern_Manager {
 	 * @param array  $overrides Optional variable overrides.
 	 * @return array|null Pattern data with resolved blocks, or null if not found.
 	 */
-	public function get_pattern( $id, array $overrides = [] ) {
+	public function get_pattern( $id, array $overrides = array() ) {
 		$id = sanitize_key( $id );
 
 		if ( isset( $this->cache[ $id ] ) ) {
@@ -102,7 +102,7 @@ class Pattern_Manager {
 		}
 
 		// Merge variable overrides with defaults.
-		$variables = isset( $pattern['variables'] ) ? $pattern['variables'] : [];
+		$variables = isset( $pattern['variables'] ) ? $pattern['variables'] : array();
 		$variables = array_merge( $variables, $overrides );
 
 		// Resolve theme tokens in variables.
@@ -111,14 +111,14 @@ class Pattern_Manager {
 		// Resolve variables in the blocks JSON.
 		$blocks = $this->resolve_variables( $pattern['blocks'], $variables );
 
-		return [
+		return array(
 			'id'          => $pattern['id'],
 			'name'        => $pattern['name'],
 			'category'    => $pattern['category'],
 			'description' => $pattern['description'],
 			'variables'   => $variables,
 			'blocks'      => $blocks,
-		];
+		);
 	}
 
 	/**
@@ -135,7 +135,7 @@ class Pattern_Manager {
 	public function list_patterns( $category = '', $search = '' ) {
 		$this->build_index();
 
-		$results = [];
+		$results = array();
 		foreach ( $this->index as $pattern ) {
 			// Category filter.
 			if ( $category && $pattern['category'] !== $category ) {
@@ -150,12 +150,12 @@ class Pattern_Manager {
 				}
 			}
 
-			$results[] = [
+			$results[] = array(
 				'id'          => $pattern['id'],
 				'name'        => $pattern['name'],
 				'category'    => $pattern['category'],
 				'description' => $pattern['description'],
-			];
+			);
 		}
 
 		return $results;
@@ -191,12 +191,12 @@ class Pattern_Manager {
 			return null;
 		}
 
-		$blueprint = [
+		$blueprint = array(
 			'id'          => sanitize_key( $data['id'] ),
 			'name'        => sanitize_text_field( $data['name'] ?? '' ),
 			'description' => sanitize_text_field( $data['description'] ?? '' ),
 			'sections'    => array_map( 'sanitize_key', $data['sections'] ),
-		];
+		);
 
 		$this->blueprints[ $id ] = $blueprint;
 
@@ -212,7 +212,7 @@ class Pattern_Manager {
 	public function get_categories() {
 		$this->build_index();
 
-		$categories = [];
+		$categories = array();
 		foreach ( $this->index as $pattern ) {
 			$categories[ $pattern['category'] ] = true;
 		}
@@ -230,7 +230,7 @@ class Pattern_Manager {
 			return;
 		}
 
-		$this->index = [];
+		$this->index = array();
 
 		$categories = glob( $this->library_path . '*', GLOB_ONLYDIR );
 		if ( ! $categories ) {
@@ -261,13 +261,13 @@ class Pattern_Manager {
 					continue;
 				}
 
-				$this->index[ $data['id'] ] = [
+				$this->index[ $data['id'] ] = array(
 					'id'          => sanitize_key( $data['id'] ),
 					'name'        => sanitize_text_field( $data['name'] ?? '' ),
 					'category'    => sanitize_key( $data['category'] ?? $cat_name ),
 					'description' => sanitize_text_field( $data['description'] ?? '' ),
 					'file'        => $file,
-				];
+				);
 			}
 		}
 	}
@@ -349,30 +349,30 @@ class Pattern_Manager {
 		}
 
 		// Defaults for when theme tokens are unavailable.
-		$tokens = [
-			'primary'        => '#6366f1',
-			'primary_dark'   => '#0a0a0a',
-			'primary_light'  => '#e0e7ff',
-			'secondary'      => '#a855f7',
-			'accent'         => '#818cf8',
-			'text_dark'      => '#111827',
-			'text_muted'     => '#6b7280',
-			'text_light'     => '#9ca3af',
-			'bg_dark'        => '#0f172a',
-			'bg_light'       => '#f8fafc',
-			'bg_white'       => '#ffffff',
-			'border_light'   => '#e5e7eb',
-		];
+		$tokens = array(
+			'primary'       => '#6366f1',
+			'primary_dark'  => '#0a0a0a',
+			'primary_light' => '#e0e7ff',
+			'secondary'     => '#a855f7',
+			'accent'        => '#818cf8',
+			'text_dark'     => '#111827',
+			'text_muted'    => '#6b7280',
+			'text_light'    => '#9ca3af',
+			'bg_dark'       => '#0f172a',
+			'bg_light'      => '#f8fafc',
+			'bg_white'      => '#ffffff',
+			'border_light'  => '#e5e7eb',
+		);
 
 		// Try to pull real colors from the active theme's global styles.
 		if ( function_exists( 'wp_get_global_settings' ) ) {
-			$settings = wp_get_global_settings( [ 'color', 'palette', 'theme' ] );
+			$settings = wp_get_global_settings( array( 'color', 'palette', 'theme' ) );
 			if ( is_array( $settings ) && ! empty( $settings ) ) {
 				foreach ( $settings as $color ) {
 					if ( empty( $color['slug'] ) || empty( $color['color'] ) ) {
 						continue;
 					}
-					$slug = sanitize_key( str_replace( '-', '_', $color['slug'] ) );
+					$slug            = sanitize_key( str_replace( '-', '_', $color['slug'] ) );
 					$tokens[ $slug ] = sanitize_hex_color( $color['color'] ) ?: $color['color'];
 				}
 			}

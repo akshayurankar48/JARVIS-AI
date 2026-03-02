@@ -57,25 +57,25 @@ class Search_Theme implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'query'    => [
+			'properties' => array(
+				'query'    => array(
 					'type'        => 'string',
 					'description' => 'Search keyword (e.g. "elementor", "minimal blog", "ecommerce").',
-				],
-				'tag'      => [
+				),
+				'tag'      => array(
 					'type'        => 'string',
 					'description' => 'Optional theme feature tag to filter by (e.g. "full-site-editing", '
 						. '"blog", "e-commerce", "one-column", "custom-colors").',
-				],
-				'per_page' => [
+				),
+				'per_page' => array(
 					'type'        => 'integer',
 					'description' => 'Number of results (max 10). Defaults to 5.',
-				],
-			],
-			'required'   => [ 'query' ],
-		];
+				),
+			),
+			'required'   => array( 'query' ),
+		);
 	}
 
 	/**
@@ -110,32 +110,32 @@ class Search_Theme implements Action_Interface {
 		$query = ! empty( $params['query'] ) ? sanitize_text_field( $params['query'] ) : '';
 
 		if ( empty( $query ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Search query is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		require_once ABSPATH . 'wp-admin/includes/theme-install.php';
 
 		$per_page = isset( $params['per_page'] ) ? min( absint( $params['per_page'] ), self::MAX_RESULTS ) : 5;
 
-		$args = [
+		$args = array(
 			'search'   => $query,
 			'per_page' => $per_page,
 			'page'     => 1,
-			'fields'   => [
-				'description'   => true,
-				'sections'      => false,
-				'versions'      => false,
-				'rating'        => true,
-				'num_ratings'   => true,
+			'fields'   => array(
+				'description'     => true,
+				'sections'        => false,
+				'versions'        => false,
+				'rating'          => true,
+				'num_ratings'     => true,
 				'active_installs' => true,
 				'screenshot_url'  => true,
 				'preview_url'     => true,
-			],
-		];
+			),
+		);
 
 		if ( ! empty( $params['tag'] ) ) {
 			$args['tag'] = sanitize_key( $params['tag'] );
@@ -144,7 +144,7 @@ class Search_Theme implements Action_Interface {
 		$api_result = themes_api( 'query_themes', $args );
 
 		if ( is_wp_error( $api_result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -152,12 +152,12 @@ class Search_Theme implements Action_Interface {
 					__( 'Theme search failed: %s', 'wp-agent' ),
 					$api_result->get_error_message()
 				),
-			];
+			);
 		}
 
-		$themes    = $api_result->themes ?? [];
+		$themes    = $api_result->themes ?? array();
 		$installed = wp_get_themes();
-		$results   = [];
+		$results   = array();
 
 		foreach ( $themes as $theme ) {
 			// Results may be arrays or objects depending on WP version.
@@ -165,7 +165,7 @@ class Search_Theme implements Action_Interface {
 			$slug         = $t['slug'] ?? '';
 			$is_installed = isset( $installed[ $slug ] );
 
-			$results[] = [
+			$results[] = array(
 				'name'            => sanitize_text_field( $t['name'] ?? '' ),
 				'slug'            => sanitize_key( $slug ),
 				'rating'          => round( ( $t['rating'] ?? 0 ) / 20, 1 ),
@@ -175,22 +175,22 @@ class Search_Theme implements Action_Interface {
 				'preview_url'     => esc_url( $t['preview_url'] ?? '' ),
 				'screenshot_url'  => esc_url( $t['screenshot_url'] ?? '' ),
 				'is_installed'    => $is_installed,
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'query'  => $query,
 				'themes' => $results,
 				'total'  => count( $results ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: theme count, 2: search query */
 				__( 'Found %1$d theme(s) for "%2$s". Use install_theme with the slug to install.', 'wp-agent' ),
 				count( $results ),
 				$query
 			),
-		];
+		);
 	}
 }

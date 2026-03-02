@@ -64,61 +64,82 @@ class Import_Content implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation'   => [
+			'properties' => array(
+				'operation'   => array(
 					'type'        => 'string',
-					'enum'        => [ 'parse_csv', 'parse_json', 'import' ],
+					'enum'        => array( 'parse_csv', 'parse_json', 'import' ),
 					'description' => 'Operation to perform.',
-				],
-				'file_path'   => [
+				),
+				'file_path'   => array(
 					'type'        => 'string',
 					'description' => 'Path to CSV file in uploads directory (for "parse_csv").',
-				],
-				'json_data'   => [
+				),
+				'json_data'   => array(
 					'type'        => 'string',
 					'description' => 'JSON string of posts array (for "parse_json").',
-				],
-				'column_map'  => [
-					'type'       => 'object',
-					'properties' => [
-						'title'      => [ 'type' => 'string', 'description' => 'CSV column name for post title.' ],
-						'content'    => [ 'type' => 'string', 'description' => 'CSV column name for post content.' ],
-						'excerpt'    => [ 'type' => 'string', 'description' => 'CSV column name for post excerpt.' ],
-						'categories' => [ 'type' => 'string', 'description' => 'CSV column name for categories (comma-separated).' ],
-						'tags'       => [ 'type' => 'string', 'description' => 'CSV column name for tags (comma-separated).' ],
-					],
+				),
+				'column_map'  => array(
+					'type'        => 'object',
+					'properties'  => array(
+						'title'      => array(
+							'type'        => 'string',
+							'description' => 'CSV column name for post title.',
+						),
+						'content'    => array(
+							'type'        => 'string',
+							'description' => 'CSV column name for post content.',
+						),
+						'excerpt'    => array(
+							'type'        => 'string',
+							'description' => 'CSV column name for post excerpt.',
+						),
+						'categories' => array(
+							'type'        => 'string',
+							'description' => 'CSV column name for categories (comma-separated).',
+						),
+						'tags'       => array(
+							'type'        => 'string',
+							'description' => 'CSV column name for tags (comma-separated).',
+						),
+					),
 					'description' => 'Column mapping for CSV (for "parse_csv").',
-				],
-				'posts'       => [
+				),
+				'posts'       => array(
 					'type'        => 'array',
-					'items'       => [
+					'items'       => array(
 						'type'       => 'object',
-						'properties' => [
-							'title'      => [ 'type' => 'string' ],
-							'content'    => [ 'type' => 'string' ],
-							'excerpt'    => [ 'type' => 'string' ],
-							'status'     => [ 'type' => 'string' ],
-							'type'       => [ 'type' => 'string' ],
-							'categories' => [ 'type' => 'array', 'items' => [ 'type' => 'string' ] ],
-							'tags'       => [ 'type' => 'array', 'items' => [ 'type' => 'string' ] ],
-						],
-					],
+						'properties' => array(
+							'title'      => array( 'type' => 'string' ),
+							'content'    => array( 'type' => 'string' ),
+							'excerpt'    => array( 'type' => 'string' ),
+							'status'     => array( 'type' => 'string' ),
+							'type'       => array( 'type' => 'string' ),
+							'categories' => array(
+								'type'  => 'array',
+								'items' => array( 'type' => 'string' ),
+							),
+							'tags'       => array(
+								'type'  => 'array',
+								'items' => array( 'type' => 'string' ),
+							),
+						),
+					),
 					'description' => 'Array of post data to import (for "import").',
-				],
-				'post_type'   => [
+				),
+				'post_type'   => array(
 					'type'        => 'string',
 					'description' => 'Post type for imported content. Defaults to "post".',
-				],
-				'post_status' => [
+				),
+				'post_status' => array(
 					'type'        => 'string',
-					'enum'        => [ 'publish', 'draft', 'pending' ],
+					'enum'        => array( 'publish', 'draft', 'pending' ),
 					'description' => 'Status for imported posts. Defaults to "draft".',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -163,11 +184,11 @@ class Import_Content implements Action_Interface {
 				return $this->import_posts( $params );
 
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation. Use "parse_csv", "parse_json", or "import".', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -183,11 +204,11 @@ class Import_Content implements Action_Interface {
 		$file_path = ! empty( $params['file_path'] ) ? sanitize_text_field( $params['file_path'] ) : '';
 
 		if ( empty( $file_path ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'File path is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Ensure file is within uploads directory.
@@ -196,55 +217,55 @@ class Import_Content implements Action_Interface {
 		$real_path  = realpath( $file_path );
 
 		if ( false === $real_path || 0 !== strpos( $real_path, $base_dir ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'File must be within the WordPress uploads directory.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( ! is_readable( $real_path ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'File is not readable.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$file_size = filesize( $real_path );
 		if ( $file_size > self::MAX_FILE_SIZE ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'File exceeds maximum size of 2 MB.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$column_map = isset( $params['column_map'] ) && is_array( $params['column_map'] ) ? $params['column_map'] : [];
+		$column_map = isset( $params['column_map'] ) && is_array( $params['column_map'] ) ? $params['column_map'] : array();
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 		$handle = fopen( $real_path, 'r' );
 		if ( ! $handle ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Failed to open CSV file.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fgetcsv
 		$headers = fgetcsv( $handle );
 		if ( ! $headers ) {
 			fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'CSV file has no headers.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$headers = array_map( 'trim', $headers );
-		$posts   = [];
+		$posts   = array();
 		$row_num = 0;
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fgetcsv
@@ -264,21 +285,21 @@ class Import_Content implements Action_Interface {
 
 		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'headers'    => $headers,
 				'posts'      => $posts,
 				'row_count'  => count( $posts ),
 				'column_map' => $column_map,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: row count, 2: column count */
 				__( 'Parsed %1$d row(s) from CSV with %2$d columns.', 'wp-agent' ),
 				count( $posts ),
 				count( $headers )
 			),
-		];
+		);
 	}
 
 	/**
@@ -293,63 +314,63 @@ class Import_Content implements Action_Interface {
 		$json_data = $params['json_data'] ?? '';
 
 		if ( empty( $json_data ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'JSON data is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$data = json_decode( $json_data, true );
 
 		if ( null === $data || ! is_array( $data ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Invalid JSON data.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Ensure it's an array of objects.
 		if ( ! isset( $data[0] ) ) {
-			$data = [ $data ];
+			$data = array( $data );
 		}
 
-		$posts = [];
+		$posts = array();
 		foreach ( array_slice( $data, 0, self::MAX_IMPORT ) as $item ) {
 			if ( ! is_array( $item ) ) {
 				continue;
 			}
 
-			$post = [
+			$post = array(
 				'title'      => sanitize_text_field( $item['title'] ?? '' ),
 				'content'    => wp_kses_post( $item['content'] ?? '' ),
 				'excerpt'    => sanitize_textarea_field( $item['excerpt'] ?? '' ),
 				'categories' => isset( $item['categories'] ) && is_array( $item['categories'] )
 					? array_map( 'sanitize_text_field', $item['categories'] )
-					: [],
+					: array(),
 				'tags'       => isset( $item['tags'] ) && is_array( $item['tags'] )
 					? array_map( 'sanitize_text_field', $item['tags'] )
-					: [],
-			];
+					: array(),
+			);
 
 			if ( ! empty( $post['title'] ) ) {
 				$posts[] = $post;
 			}
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'posts'     => $posts,
 				'row_count' => count( $posts ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: %d: post count */
 				__( 'Parsed %d post(s) from JSON data.', 'wp-agent' ),
 				count( $posts )
 			),
-		];
+		);
 	}
 
 	/**
@@ -361,16 +382,16 @@ class Import_Content implements Action_Interface {
 	 * @return array Execution result.
 	 */
 	private function import_posts( array $params ) {
-		$posts       = isset( $params['posts'] ) && is_array( $params['posts'] ) ? $params['posts'] : [];
+		$posts       = isset( $params['posts'] ) && is_array( $params['posts'] ) ? $params['posts'] : array();
 		$post_type   = ! empty( $params['post_type'] ) ? sanitize_key( $params['post_type'] ) : 'post';
 		$post_status = ! empty( $params['post_status'] ) ? sanitize_key( $params['post_status'] ) : 'draft';
 
-		if ( ! in_array( $post_status, [ 'publish', 'draft', 'pending' ], true ) ) {
+		if ( ! in_array( $post_status, array( 'publish', 'draft', 'pending' ), true ) ) {
 			$post_status = 'draft';
 		}
 
 		if ( ! post_type_exists( $post_type ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -378,20 +399,20 @@ class Import_Content implements Action_Interface {
 					__( 'Post type "%s" does not exist.', 'wp-agent' ),
 					$post_type
 				),
-			];
+			);
 		}
 
 		if ( empty( $posts ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'No posts data provided. Use parse_csv or parse_json first.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$posts     = array_slice( $posts, 0, self::MAX_IMPORT );
-		$created   = [];
-		$errors    = [];
+		$posts   = array_slice( $posts, 0, self::MAX_IMPORT );
+		$created = array();
+		$errors  = array();
 
 		foreach ( $posts as $index => $post_data ) {
 			$title = sanitize_text_field( $post_data['title'] ?? '' );
@@ -405,13 +426,13 @@ class Import_Content implements Action_Interface {
 				continue;
 			}
 
-			$insert_data = [
+			$insert_data = array(
 				'post_title'   => $title,
 				'post_content' => wp_kses_post( $post_data['content'] ?? '' ),
 				'post_excerpt' => sanitize_textarea_field( $post_data['excerpt'] ?? '' ),
 				'post_status'  => $post_status,
 				'post_type'    => $post_type,
-			];
+			);
 
 			$post_id = wp_insert_post( $insert_data, true );
 
@@ -427,7 +448,7 @@ class Import_Content implements Action_Interface {
 
 			// Assign categories.
 			if ( ! empty( $post_data['categories'] ) && is_array( $post_data['categories'] ) && 'post' === $post_type ) {
-				$cat_ids = [];
+				$cat_ids = array();
 				foreach ( $post_data['categories'] as $cat_name ) {
 					$cat_name = sanitize_text_field( $cat_name );
 					$term     = term_exists( $cat_name, 'category' );
@@ -448,20 +469,20 @@ class Import_Content implements Action_Interface {
 				wp_set_post_tags( $post_id, array_map( 'sanitize_text_field', $post_data['tags'] ) );
 			}
 
-			$created[] = [
+			$created[] = array(
 				'id'    => $post_id,
 				'title' => $title,
 				'url'   => get_permalink( $post_id ),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => count( $created ) > 0,
-			'data'    => [
+			'data'    => array(
 				'created' => $created,
 				'count'   => count( $created ),
 				'errors'  => $errors,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: created count, 2: total count, 3: error count */
 				__( 'Imported %1$d of %2$d post(s) as %3$s.', 'wp-agent' ),
@@ -469,7 +490,7 @@ class Import_Content implements Action_Interface {
 				count( $posts ),
 				$post_status
 			),
-		];
+		);
 	}
 
 	/**
@@ -488,22 +509,22 @@ class Import_Content implements Action_Interface {
 		$categories_col = ! empty( $column_map['categories'] ) ? $column_map['categories'] : 'categories';
 		$tags_col       = ! empty( $column_map['tags'] ) ? $column_map['tags'] : 'tags';
 
-		$categories = [];
+		$categories = array();
 		if ( ! empty( $row_data[ $categories_col ] ) ) {
 			$categories = array_map( 'trim', explode( ',', $row_data[ $categories_col ] ) );
 		}
 
-		$tags = [];
+		$tags = array();
 		if ( ! empty( $row_data[ $tags_col ] ) ) {
 			$tags = array_map( 'trim', explode( ',', $row_data[ $tags_col ] ) );
 		}
 
-		return [
+		return array(
 			'title'      => sanitize_text_field( $row_data[ $title_col ] ?? '' ),
 			'content'    => wp_kses_post( $row_data[ $content_col ] ?? '' ),
 			'excerpt'    => sanitize_textarea_field( $row_data[ $excerpt_col ] ?? '' ),
 			'categories' => array_map( 'sanitize_text_field', $categories ),
 			'tags'       => array_map( 'sanitize_text_field', $tags ),
-		];
+		);
 	}
 }

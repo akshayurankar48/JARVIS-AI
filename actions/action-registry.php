@@ -35,7 +35,7 @@ class Action_Registry {
 	 *
 	 * @var array<string, Action_Interface>
 	 */
-	private $actions = [];
+	private $actions = array();
 
 	/**
 	 * Whether lazy initialization has fired.
@@ -81,18 +81,18 @@ class Action_Registry {
 	public function get_tool_definitions() {
 		$this->maybe_init();
 
-		$definitions = [];
+		$definitions = array();
 
 		foreach ( $this->actions as $action ) {
 			if ( ! current_user_can( $action->get_capabilities_required() ) ) {
 				continue;
 			}
 
-			$definitions[] = [
+			$definitions[] = array(
 				'name'        => $action->get_name(),
 				'description' => $action->get_description(),
 				'parameters'  => $action->get_parameters(),
-			];
+			);
 		}
 
 		return $definitions;
@@ -136,7 +136,7 @@ class Action_Registry {
 					__( 'You do not have permission to execute: %s', 'wp-agent' ),
 					$name
 				),
-				[ 'status' => 403 ]
+				array( 'status' => 403 )
 			);
 		}
 

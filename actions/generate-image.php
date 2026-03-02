@@ -55,35 +55,35 @@ class Generate_Image implements Action_Interface {
 	 *
 	 * @var string[]
 	 */
-	const ALLOWED_MIME_TYPES = [
+	const ALLOWED_MIME_TYPES = array(
 		'image/png',
 		'image/jpeg',
-	];
+	);
 
 	/**
 	 * Allowed size values.
 	 *
 	 * @var string[]
 	 */
-	const ALLOWED_SIZES = [
+	const ALLOWED_SIZES = array(
 		'1024x1024',
 		'1792x1024',
 		'1024x1792',
-	];
+	);
 
 	/**
 	 * Allowed style values.
 	 *
 	 * @var string[]
 	 */
-	const ALLOWED_STYLES = [ 'vivid', 'natural' ];
+	const ALLOWED_STYLES = array( 'vivid', 'natural' );
 
 	/**
 	 * Allowed quality values.
 	 *
 	 * @var string[]
 	 */
-	const ALLOWED_QUALITIES = [ 'standard', 'hd' ];
+	const ALLOWED_QUALITIES = array( 'standard', 'hd' );
 
 	/**
 	 * Get the action name.
@@ -115,31 +115,31 @@ class Generate_Image implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'prompt'  => [
+			'properties' => array(
+				'prompt'  => array(
 					'type'        => 'string',
 					'description' => 'Detailed description of the image to generate. The more descriptive, the better the result. Maximum 4000 characters.',
-				],
-				'size'    => [
+				),
+				'size'    => array(
 					'type'        => 'string',
 					'enum'        => self::ALLOWED_SIZES,
 					'description' => 'Image dimensions. Use 1792x1024 for landscape (default), 1024x1792 for portrait, 1024x1024 for square.',
-				],
-				'style'   => [
+				),
+				'style'   => array(
 					'type'        => 'string',
 					'enum'        => self::ALLOWED_STYLES,
 					'description' => 'Image style. "vivid" produces hyper-real and dramatic images (default). "natural" produces more photorealistic, less dramatic images.',
-				],
-				'quality' => [
+				),
+				'quality' => array(
 					'type'        => 'string',
 					'enum'        => self::ALLOWED_QUALITIES,
 					'description' => 'Generation quality. "standard" is faster (default). "hd" produces finer details and more consistency across the image.',
-				],
-			],
-			'required'   => [ 'prompt' ],
-		];
+				),
+			),
+			'required'   => array( 'prompt' ),
+		);
 	}
 
 	/**
@@ -177,15 +177,15 @@ class Generate_Image implements Action_Interface {
 		$prompt = isset( $params['prompt'] ) ? trim( $params['prompt'] ) : '';
 
 		if ( empty( $prompt ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'A prompt is required to generate an image.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( mb_strlen( $prompt ) > self::MAX_PROMPT_LENGTH ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -193,7 +193,7 @@ class Generate_Image implements Action_Interface {
 					__( 'Prompt must be %d characters or fewer.', 'wp-agent' ),
 					self::MAX_PROMPT_LENGTH
 				),
-			];
+			);
 		}
 
 		// Sanitize for safe storage and meta usage; keep full fidelity for the API call.
@@ -218,50 +218,52 @@ class Generate_Image implements Action_Interface {
 		$encrypted = get_option( \WPAgent\AI\Open_Router_Client::API_KEY_OPTION, '' );
 
 		if ( empty( $encrypted ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'OpenRouter API key is not configured. Please add your API key in WP Agent settings.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$api_key = \WPAgent\AI\Open_Router_Client::decrypt_api_key( $encrypted );
 
 		if ( false === $api_key || '' === $api_key ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Failed to decrypt API key. You may need to re-enter it in settings.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// --- 4. Call the OpenRouter image generation endpoint --------------------------------.
-		$request_body = wp_json_encode( [
-			'model'           => self::DALLE_MODEL,
-			'prompt'          => $safe_prompt,
-			'size'            => $size,
-			'style'           => $style,
-			'quality'         => $quality,
-			'n'               => 1,
-			'response_format' => 'url',
-		] );
+		$request_body = wp_json_encode(
+			array(
+				'model'           => self::DALLE_MODEL,
+				'prompt'          => $safe_prompt,
+				'size'            => $size,
+				'style'           => $style,
+				'quality'         => $quality,
+				'n'               => 1,
+				'response_format' => 'url',
+			)
+		);
 
 		$api_response = wp_remote_post(
 			self::IMAGE_ENDPOINT,
-			[
-				'headers' => [
+			array(
+				'headers' => array(
 					'Content-Type'  => 'application/json',
 					'Authorization' => 'Bearer ' . $api_key,
 					'HTTP-Referer'  => home_url(),
 					'X-Title'       => 'WP Agent',
-				],
+				),
 				'body'    => $request_body,
 				'timeout' => 120,
-			]
+			)
 		);
 
 		if ( is_wp_error( $api_response ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -269,7 +271,7 @@ class Generate_Image implements Action_Interface {
 					__( 'Image generation request failed: %s', 'wp-agent' ),
 					$api_response->get_error_message()
 				),
-			];
+			);
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $api_response );
@@ -287,7 +289,7 @@ class Generate_Image implements Action_Interface {
 				error_log( 'WP Agent generate_image raw body: ' . substr( $response_body, 0, 1000 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -295,26 +297,26 @@ class Generate_Image implements Action_Interface {
 					__( 'Image generation failed: %s', 'wp-agent' ),
 					$upstream_message
 				),
-			];
+			);
 		}
 
 		// --- 5. Extract the image URL from the response -------------------------------------.
 		if ( empty( $response_data['data'][0]['url'] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Image generation succeeded but returned no image URL.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$image_url = esc_url_raw( $response_data['data'][0]['url'] );
 
 		if ( empty( $image_url ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Image generation returned an invalid URL.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// --- 6. Load media handling functions ------------------------------------------------.
@@ -327,16 +329,16 @@ class Generate_Image implements Action_Interface {
 		// --- 7. Download the image via wp_safe_remote_get (SSRF-safe) -----------------------.
 		$img_response = wp_safe_remote_get(
 			$image_url,
-			[
+			array(
 				'timeout'             => 60,
 				'redirection'         => 3,
 				'reject_unsafe_urls'  => true,
 				'limit_response_size' => self::MAX_IMAGE_SIZE,
-			]
+			)
 		);
 
 		if ( is_wp_error( $img_response ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -344,12 +346,12 @@ class Generate_Image implements Action_Interface {
 					__( 'Failed to download generated image: %s', 'wp-agent' ),
 					$img_response->get_error_message()
 				),
-			];
+			);
 		}
 
 		$img_code = wp_remote_retrieve_response_code( $img_response );
 		if ( 200 !== $img_code ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -357,26 +359,26 @@ class Generate_Image implements Action_Interface {
 					__( 'Generated image URL returned HTTP %d.', 'wp-agent' ),
 					$img_code
 				),
-			];
+			);
 		}
 
 		$image_data = wp_remote_retrieve_body( $img_response );
 		if ( empty( $image_data ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Downloaded image file is empty.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// --- 8. Write to a temp file ---------------------------------------------------------.
 		$temp_file = wp_tempnam( 'wp-agent-dalle-' );
 		if ( ! $temp_file ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Could not create a temporary file for the image.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
@@ -386,17 +388,17 @@ class Generate_Image implements Action_Interface {
 		// --- 9. Validate the downloaded file -------------------------------------------------.
 		$file_size = filesize( $temp_file );
 		if ( false === $file_size ) {
-			@unlink( $temp_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			return [
+			wp_delete_file( $temp_file );
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Could not read the downloaded image file.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( $file_size > self::MAX_IMAGE_SIZE ) {
-			@unlink( $temp_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			return [
+			wp_delete_file( $temp_file );
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -404,18 +406,18 @@ class Generate_Image implements Action_Interface {
 					__( 'Generated image exceeds maximum file size of %s.', 'wp-agent' ),
 					size_format( self::MAX_IMAGE_SIZE )
 				),
-			];
+			);
 		}
 
 		// Content-level validation: confirm the file is actually an image.
-		$image_info = @getimagesize( $temp_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$image_info = wp_getimagesize( $temp_file );
 		if ( false === $image_info ) {
-			@unlink( $temp_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			return [
+			wp_delete_file( $temp_file );
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'The downloaded file is not a valid image.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Determine extension from content-type and WordPress file type check.
@@ -426,31 +428,31 @@ class Generate_Image implements Action_Interface {
 		$mime_type = ! empty( $file_type['type'] ) ? $file_type['type'] : '';
 
 		if ( ! $mime_type || ! in_array( $mime_type, self::ALLOWED_MIME_TYPES, true ) ) {
-			@unlink( $temp_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			return [
+			wp_delete_file( $temp_file );
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Generated image is not a supported format (PNG or JPEG).', 'wp-agent' ),
-			];
+			);
 		}
 
 		$final_ext = ! empty( $file_type['ext'] ) ? $file_type['ext'] : $ext;
 
 		// --- 10. Sideload into the media library --------------------------------------------.
 		$filename   = sanitize_file_name( 'jarvis-' . substr( md5( $safe_prompt ), 0, 8 ) . '.' . $final_ext );
-		$file_array = [
+		$file_array = array(
 			'name'     => $filename,
 			'tmp_name' => $temp_file,
-		];
+		);
 
 		// post_id 0 = unattached; title = sanitized prompt for search discoverability.
 		$attachment_id = media_handle_sideload( $file_array, 0, $safe_prompt );
 
 		if ( is_wp_error( $attachment_id ) ) {
 			if ( file_exists( $temp_file ) ) {
-				@unlink( $temp_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				wp_delete_file( $temp_file );
 			}
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -458,7 +460,7 @@ class Generate_Image implements Action_Interface {
 					__( 'Failed to save generated image to media library: %s', 'wp-agent' ),
 					$attachment_id->get_error_message()
 				),
-			];
+			);
 		}
 
 		// --- 11. Set alt text and retrieve metadata -----------------------------------------.
@@ -467,7 +469,7 @@ class Generate_Image implements Action_Interface {
 		$local_url       = wp_get_attachment_url( $attachment_id );
 		$attachment_meta = wp_get_attachment_metadata( $attachment_id );
 
-		$data = [
+		$data = array(
 			'attachment_id' => $attachment_id,
 			'url'           => esc_url( $local_url ),
 			'alt_text'      => $safe_prompt,
@@ -476,14 +478,14 @@ class Generate_Image implements Action_Interface {
 			'style'         => $style,
 			'quality'       => $quality,
 			'mime'          => $mime_type,
-		];
+		);
 
 		if ( is_array( $attachment_meta ) && ! empty( $attachment_meta['width'] ) ) {
 			$data['width']  = absint( $attachment_meta['width'] );
 			$data['height'] = absint( $attachment_meta['height'] );
 		}
 
-		return [
+		return array(
 			'success' => true,
 			'data'    => $data,
 			'message' => sprintf(
@@ -491,7 +493,7 @@ class Generate_Image implements Action_Interface {
 				__( 'Image generated and saved to media library (ID: %1$d). Use the URL in insert_blocks for core/image, core/cover, or set_featured_image.', 'wp-agent' ),
 				$attachment_id
 			),
-		];
+		);
 	}
 
 	/**

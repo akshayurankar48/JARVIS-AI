@@ -54,8 +54,8 @@ class Plugin_Loader {
 
 		$filename = strtolower(
 			preg_replace(
-				[ '/^' . __NAMESPACE__ . '\\\/', '/([a-z])([A-Z])/', '/_/', '/\\\/' ],
-				[ '', '$1-$2', '-', DIRECTORY_SEPARATOR ],
+				array( '/^' . __NAMESPACE__ . '\\\/', '/([a-z])([A-Z])/', '/_/', '/\\\/' ),
+				array( '', '$1-$2', '-', DIRECTORY_SEPARATOR ),
 				$class_to_load
 			)
 		);
@@ -74,30 +74,33 @@ class Plugin_Loader {
 	 * @since 1.0.0
 	 */
 	public function __construct() {
-		spl_autoload_register( [ $this, 'autoload' ] );
+		spl_autoload_register( array( $this, 'autoload' ) );
 
 		// Load bundled libraries (SDK, providers, MCP adapter).
 		require_once WP_AGENT_DIR . 'lib/autoload.php';
 
-		add_action( 'plugins_loaded', [ $this, 'load_textdomain' ] );
-		add_action( 'plugins_loaded', [ $this, 'load_admin' ] );
-		add_action( 'plugins_loaded', [ $this, 'load_frontend' ] );
-		add_action( 'admin_init', [ 'WPAgent\Core\Database', 'maybe_upgrade' ] );
-		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
-		add_action( 'wp_agent_register_actions', [ $this, 'register_core_actions' ] );
+		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
+		add_action( 'plugins_loaded', array( $this, 'load_admin' ) );
+		add_action( 'plugins_loaded', array( $this, 'load_frontend' ) );
+		add_action( 'admin_init', array( 'WPAgent\Core\Database', 'maybe_upgrade' ) );
+		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		add_action( 'wp_agent_register_actions', array( $this, 'register_core_actions' ) );
 
 		// Ecosystem integrations (conditional — only when APIs available).
-		add_action( 'init', [ $this, 'load_integrations' ] );
+		add_action( 'init', array( $this, 'load_integrations' ) );
 
 		// Process URL redirects on frontend.
-		add_action( 'template_redirect', [ 'WPAgent\Actions\Manage_Redirects', 'process_redirects' ] );
+		add_action( 'template_redirect', array( 'WPAgent\Actions\Manage_Redirects', 'process_redirects' ) );
 
 		// Cleanup export files.
-		add_action( 'wp_agent_cleanup_export', function ( $filepath ) {
-			if ( file_exists( $filepath ) ) {
-				wp_delete_file( $filepath );
+		add_action(
+			'wp_agent_cleanup_export',
+			function ( $filepath ) {
+				if ( file_exists( $filepath ) ) {
+					wp_delete_file( $filepath );
+				}
 			}
-		} );
+		);
 	}
 
 	/**

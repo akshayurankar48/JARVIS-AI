@@ -56,25 +56,25 @@ class Manage_Rewrite_Rules implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation' => array(
 					'type'        => 'string',
-					'enum'        => [ 'list', 'flush', 'test_url' ],
+					'enum'        => array( 'list', 'flush', 'test_url' ),
 					'description' => 'Operation to perform.',
-				],
-				'url'       => [
+				),
+				'url'       => array(
 					'type'        => 'string',
 					'description' => 'URL to test resolution (for "test_url" operation).',
-				],
-				'search'    => [
+				),
+				'search'    => array(
 					'type'        => 'string',
 					'description' => 'Filter rules containing this string (for "list").',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -119,11 +119,11 @@ class Manage_Rewrite_Rules implements Action_Interface {
 				return $this->test_url( $params );
 
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation. Use "list", "flush", or "test_url".', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -142,20 +142,20 @@ class Manage_Rewrite_Rules implements Action_Interface {
 		$search = ! empty( $params['search'] ) ? sanitize_text_field( $params['search'] ) : '';
 
 		if ( empty( $rules ) || ! is_array( $rules ) ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [
-					'rules'      => [],
-					'total'      => 0,
-					'structure'  => get_option( 'permalink_structure', '' ),
-				],
+				'data'    => array(
+					'rules'     => array(),
+					'total'     => 0,
+					'structure' => get_option( 'permalink_structure', '' ),
+				),
 				'message' => __( 'No rewrite rules found. Permalinks may be set to "Plain".', 'wp-agent' ),
-			];
+			);
 		}
 
-		$total       = count( $rules );
-		$formatted   = [];
-		$count       = 0;
+		$total     = count( $rules );
+		$formatted = array();
+		$count     = 0;
 
 		foreach ( $rules as $pattern => $rewrite ) {
 			if ( $count >= self::MAX_RULES ) {
@@ -166,28 +166,28 @@ class Manage_Rewrite_Rules implements Action_Interface {
 				continue;
 			}
 
-			$formatted[] = [
+			$formatted[] = array(
 				'pattern' => $pattern,
 				'rewrite' => $rewrite,
-			];
+			);
 			++$count;
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'rules'     => $formatted,
 				'shown'     => count( $formatted ),
 				'total'     => $total,
 				'structure' => get_option( 'permalink_structure', '' ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: shown count, 2: total count */
 				__( 'Showing %1$d of %2$d rewrite rules.', 'wp-agent' ),
 				count( $formatted ),
 				$total
 			),
-		];
+		);
 	}
 
 	/**
@@ -204,18 +204,18 @@ class Manage_Rewrite_Rules implements Action_Interface {
 		$rules = $wp_rewrite->wp_rewrite_rules();
 		$count = is_array( $rules ) ? count( $rules ) : 0;
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'rule_count' => $count,
 				'structure'  => get_option( 'permalink_structure', '' ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: %d: rule count */
 				__( 'Rewrite rules flushed. %d rule(s) regenerated.', 'wp-agent' ),
 				$count
 			),
-		];
+		);
 	}
 
 	/**
@@ -230,31 +230,31 @@ class Manage_Rewrite_Rules implements Action_Interface {
 		$url = ! empty( $params['url'] ) ? esc_url_raw( trim( $params['url'] ) ) : '';
 
 		if ( empty( $url ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'URL is required for testing.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$post_id = url_to_postid( $url );
 
-		$result = [
+		$result = array(
 			'url'     => $url,
 			'post_id' => $post_id,
-		];
+		);
 
 		if ( $post_id ) {
-			$post              = get_post( $post_id );
-			$result['title']   = $post ? $post->post_title : '';
-			$result['type']    = $post ? $post->post_type : '';
-			$result['status']  = $post ? $post->post_status : '';
+			$post               = get_post( $post_id );
+			$result['title']    = $post ? $post->post_title : '';
+			$result['type']     = $post ? $post->post_type : '';
+			$result['status']   = $post ? $post->post_status : '';
 			$result['resolves'] = true;
 		} else {
 			$result['resolves'] = false;
 		}
 
-		return [
+		return array(
 			'success' => true,
 			'data'    => $result,
 			'message' => $post_id
@@ -270,6 +270,6 @@ class Manage_Rewrite_Rules implements Action_Interface {
 					__( 'URL "%s" does not resolve to any post or page.', 'wp-agent' ),
 					$url
 				),
-		];
+		);
 	}
 }

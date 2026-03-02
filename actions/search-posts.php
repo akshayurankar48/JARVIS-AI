@@ -56,30 +56,30 @@ class Search_Posts implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'search'      => [
+			'properties' => array(
+				'search'      => array(
 					'type'        => 'string',
 					'description' => 'Keyword to search post titles. Leave empty to list recent posts.',
-				],
-				'post_type'   => [
+				),
+				'post_type'   => array(
 					'type'        => 'string',
-					'enum'        => [ 'post', 'page', 'any' ],
+					'enum'        => array( 'post', 'page', 'any' ),
 					'description' => 'Filter by post type. Defaults to "any".',
-				],
-				'post_status' => [
+				),
+				'post_status' => array(
 					'type'        => 'string',
-					'enum'        => [ 'publish', 'draft', 'pending', 'private', 'any' ],
+					'enum'        => array( 'publish', 'draft', 'pending', 'private', 'any' ),
 					'description' => 'Filter by post status. Defaults to "publish". Admins can use "any" or "private".',
-				],
-				'per_page'    => [
+				),
+				'per_page'    => array(
 					'type'        => 'integer',
 					'description' => 'Number of results (1-20). Defaults to 10.',
-				],
-			],
-			'required'   => [],
-		];
+				),
+			),
+			'required'   => array(),
+		);
 	}
 
 	/**
@@ -118,16 +118,16 @@ class Search_Posts implements Action_Interface {
 		$per_page    = max( 1, min( self::MAX_PER_PAGE, $per_page ) );
 
 		// Validate post_type.
-		$allowed_types = [ 'post', 'page', 'any' ];
+		$allowed_types = array( 'post', 'page', 'any' );
 		if ( ! in_array( $post_type, $allowed_types, true ) ) {
 			$post_type = 'any';
 		}
 
 		// Validate post_status — restrict to safe statuses unless user can edit others' posts.
 		if ( current_user_can( 'edit_others_posts' ) ) {
-			$allowed_statuses = [ 'publish', 'draft', 'pending', 'private', 'trash', 'any' ];
+			$allowed_statuses = array( 'publish', 'draft', 'pending', 'private', 'trash', 'any' );
 		} else {
-			$allowed_statuses = [ 'publish', 'draft' ];
+			$allowed_statuses = array( 'publish', 'draft' );
 		}
 		if ( ! in_array( $post_status, $allowed_statuses, true ) ) {
 			$post_status = 'publish';
@@ -136,31 +136,31 @@ class Search_Posts implements Action_Interface {
 		// Map 'any' to explicit safe statuses to avoid leaking private content.
 		if ( 'any' === $post_status ) {
 			$post_status = current_user_can( 'edit_others_posts' )
-				? [ 'publish', 'draft', 'pending', 'private' ]
-				: [ 'publish' ];
+				? array( 'publish', 'draft', 'pending', 'private' )
+				: array( 'publish' );
 		}
 
-		$query_args = [
+		$query_args = array(
 			'post_type'      => $post_type,
 			'post_status'    => $post_status,
 			'posts_per_page' => $per_page,
 			'orderby'        => 'date',
 			'order'          => 'DESC',
-		];
+		);
 
 		if ( ! empty( $search ) ) {
 			$query_args['s'] = $search;
 		}
 
 		$query   = new \WP_Query( $query_args );
-		$results = [];
+		$results = array();
 
 		foreach ( $query->posts as $post ) {
 			if ( ! current_user_can( 'read_post', $post->ID ) ) {
 				continue;
 			}
 
-			$results[] = [
+			$results[] = array(
 				'id'       => $post->ID,
 				'title'    => sanitize_text_field( $post->post_title ),
 				'type'     => $post->post_type,
@@ -168,7 +168,7 @@ class Search_Posts implements Action_Interface {
 				'date'     => $post->post_date,
 				'edit_url' => get_edit_post_link( $post->ID, 'raw' ),
 				'excerpt'  => wp_trim_words( wp_strip_all_tags( $post->post_content ), 30 ),
-			];
+			);
 		}
 
 		wp_reset_postdata();
@@ -178,11 +178,14 @@ class Search_Posts implements Action_Interface {
 				? sprintf( __( 'No posts found matching "%s".', 'wp-agent' ), $search )
 				: __( 'No posts found.', 'wp-agent' );
 
-			return [
+			return array(
 				'success' => true,
-				'data'    => [ 'total' => 0, 'results' => [] ],
+				'data'    => array(
+					'total'   => 0,
+					'results' => array(),
+				),
 				'message' => $message,
-			];
+			);
 		}
 
 		$message = sprintf(
@@ -190,13 +193,13 @@ class Search_Posts implements Action_Interface {
 			count( $results )
 		);
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'total'   => count( $results ),
 				'results' => $results,
-			],
+			),
 			'message' => $message,
-		];
+		);
 	}
 }

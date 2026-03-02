@@ -47,7 +47,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 	 *
 	 * @var string[]
 	 */
-	const ALLOWED_SCHEDULES = [ 'hourly', 'twicedaily', 'daily', 'weekly' ];
+	const ALLOWED_SCHEDULES = array( 'hourly', 'twicedaily', 'daily', 'weekly' );
 
 	/**
 	 * Get the action name.
@@ -78,42 +78,48 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation'    => [
+			'properties' => array(
+				'operation'    => array(
 					'type'        => 'string',
-					'enum'        => [ 'create', 'list', 'delete', 'pause', 'resume' ],
+					'enum'        => array( 'create', 'list', 'delete', 'pause', 'resume' ),
 					'description' => 'Operation to perform.',
-				],
-				'task_id'      => [
+				),
+				'task_id'      => array(
 					'type'        => 'string',
 					'description' => 'Task ID. Required for delete, pause, and resume.',
-				],
-				'name'         => [
+				),
+				'name'         => array(
 					'type'        => 'string',
 					'description' => 'Task name (for "create").',
-				],
-				'action_chain' => [
+				),
+				'action_chain' => array(
 					'type'        => 'array',
-					'items'       => [
+					'items'       => array(
 						'type'       => 'object',
-						'properties' => [
-							'action' => [ 'type' => 'string', 'description' => 'Action name to execute.' ],
-							'params' => [ 'type' => 'object', 'description' => 'Parameters for the action.' ],
-						],
-						'required' => [ 'action' ],
-					],
+						'properties' => array(
+							'action' => array(
+								'type'        => 'string',
+								'description' => 'Action name to execute.',
+							),
+							'params' => array(
+								'type'        => 'object',
+								'description' => 'Parameters for the action.',
+							),
+						),
+						'required'   => array( 'action' ),
+					),
 					'description' => 'Array of actions to execute in order (for "create").',
-				],
-				'schedule'     => [
+				),
+				'schedule'     => array(
 					'type'        => 'string',
-					'enum'        => [ 'hourly', 'twicedaily', 'daily', 'weekly' ],
+					'enum'        => array( 'hourly', 'twicedaily', 'daily', 'weekly' ),
 					'description' => 'Schedule interval (for "create"). Defaults to "daily".',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -164,11 +170,11 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 				return $this->resume_task( $params );
 
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation.', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -182,33 +188,33 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 	 */
 	private function create_task( array $params ) {
 		$name         = ! empty( $params['name'] ) ? sanitize_text_field( $params['name'] ) : '';
-		$action_chain = isset( $params['action_chain'] ) && is_array( $params['action_chain'] ) ? $params['action_chain'] : [];
+		$action_chain = isset( $params['action_chain'] ) && is_array( $params['action_chain'] ) ? $params['action_chain'] : array();
 		$schedule     = ! empty( $params['schedule'] ) ? sanitize_key( $params['schedule'] ) : 'daily';
 
 		if ( empty( $name ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Task name is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( empty( $action_chain ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'At least one action is required in the action chain.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( ! in_array( $schedule, self::ALLOWED_SCHEDULES, true ) ) {
 			$schedule = 'daily';
 		}
 
-		$tasks = get_option( self::OPTION_KEY, [] );
+		$tasks = get_option( self::OPTION_KEY, array() );
 
 		if ( count( $tasks ) >= self::MAX_TASKS ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -216,35 +222,35 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 					__( 'Maximum of %d scheduled tasks reached.', 'wp-agent' ),
 					self::MAX_TASKS
 				),
-			];
+			);
 		}
 
 		$task_id = 'task_' . wp_generate_password( 8, false );
 
 		// Sanitize the action chain.
-		$sanitized_chain = [];
+		$sanitized_chain = array();
 		foreach ( $action_chain as $step ) {
 			if ( empty( $step['action'] ) ) {
 				continue;
 			}
-			$sanitized_chain[] = [
+			$sanitized_chain[] = array(
 				'action' => sanitize_key( $step['action'] ),
-				'params' => isset( $step['params'] ) && is_array( $step['params'] ) ? $step['params'] : [],
-			];
+				'params' => isset( $step['params'] ) && is_array( $step['params'] ) ? $step['params'] : array(),
+			);
 		}
 
 		if ( empty( $sanitized_chain ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'No valid actions in the action chain.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$current_user = wp_get_current_user();
 		$hook_name    = self::HOOK_PREFIX . $task_id;
 
-		$task = [
+		$task = array(
 			'id'           => $task_id,
 			'name'         => $name,
 			'action_chain' => $sanitized_chain,
@@ -254,7 +260,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			'status'       => 'active',
 			'created_by'   => $current_user->ID,
 			'created_at'   => current_time( 'mysql' ),
-		];
+		);
 
 		$tasks[ $task_id ] = $task;
 		update_option( self::OPTION_KEY, $tasks, false );
@@ -264,7 +270,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			wp_schedule_event( time(), $schedule, $hook_name );
 		}
 
-		return [
+		return array(
 			'success' => true,
 			'data'    => $task,
 			'message' => sprintf(
@@ -274,7 +280,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 				$schedule,
 				count( $sanitized_chain )
 			),
-		];
+		);
 	}
 
 	/**
@@ -285,44 +291,49 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 	 * @return array Execution result.
 	 */
 	private function list_tasks() {
-		$tasks  = get_option( self::OPTION_KEY, [] );
-		$result = [];
+		$tasks  = get_option( self::OPTION_KEY, array() );
+		$result = array();
 
 		foreach ( $tasks as $task ) {
-			$hook_name  = self::HOOK_PREFIX . $task['id'];
-			$next_cron  = wp_next_scheduled( $hook_name );
+			$hook_name = self::HOOK_PREFIX . $task['id'];
+			$next_cron = wp_next_scheduled( $hook_name );
 
-			$result[] = [
-				'id'            => $task['id'],
-				'name'          => $task['name'],
-				'schedule'      => $task['schedule'],
-				'action_count'  => count( $task['action_chain'] ),
-				'actions'       => array_column( $task['action_chain'], 'action' ),
-				'status'        => $task['status'],
-				'next_run'      => $next_cron ? gmdate( 'Y-m-d H:i:s', $next_cron ) : null,
-				'last_run'      => $task['last_run'],
-				'created_at'    => $task['created_at'],
-			];
+			$result[] = array(
+				'id'           => $task['id'],
+				'name'         => $task['name'],
+				'schedule'     => $task['schedule'],
+				'action_count' => count( $task['action_chain'] ),
+				'actions'      => array_column( $task['action_chain'], 'action' ),
+				'status'       => $task['status'],
+				'next_run'     => $next_cron ? gmdate( 'Y-m-d H:i:s', $next_cron ) : null,
+				'last_run'     => $task['last_run'],
+				'created_at'   => $task['created_at'],
+			);
 		}
 
-		$active = count( array_filter( $tasks, function ( $t ) {
-			return 'active' === $t['status'];
-		} ) );
+		$active = count(
+			array_filter(
+				$tasks,
+				function ( $t ) {
+					return 'active' === $t['status'];
+				}
+			)
+		);
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'tasks'  => $result,
 				'total'  => count( $result ),
 				'active' => $active,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: total tasks, 2: active tasks */
 				__( '%1$d task(s) total, %2$d active.', 'wp-agent' ),
 				count( $result ),
 				$active
 			),
-		];
+		);
 	}
 
 	/**
@@ -337,21 +348,21 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 		$task_id = ! empty( $params['task_id'] ) ? sanitize_key( $params['task_id'] ) : '';
 
 		if ( empty( $task_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Task ID is required.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$tasks = get_option( self::OPTION_KEY, [] );
+		$tasks = get_option( self::OPTION_KEY, array() );
 
 		if ( ! isset( $tasks[ $task_id ] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Task not found.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$name      = $tasks[ $task_id ]['name'];
@@ -366,15 +377,15 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 		unset( $tasks[ $task_id ] );
 		update_option( self::OPTION_KEY, $tasks, false );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'task_id' => $task_id ],
+			'data'    => array( 'task_id' => $task_id ),
 			'message' => sprintf(
 				/* translators: %s: task name */
 				__( 'Scheduled task "%s" deleted.', 'wp-agent' ),
 				$name
 			),
-		];
+		);
 	}
 
 	/**
@@ -389,29 +400,29 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 		$task_id = ! empty( $params['task_id'] ) ? sanitize_key( $params['task_id'] ) : '';
 
 		if ( empty( $task_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Task ID is required.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$tasks = get_option( self::OPTION_KEY, [] );
+		$tasks = get_option( self::OPTION_KEY, array() );
 
 		if ( ! isset( $tasks[ $task_id ] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Task not found.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( 'paused' === $tasks[ $task_id ]['status'] ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Task is already paused.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Unschedule the cron event.
@@ -424,15 +435,18 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 		$tasks[ $task_id ]['status'] = 'paused';
 		update_option( self::OPTION_KEY, $tasks, false );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'task_id' => $task_id, 'status' => 'paused' ],
+			'data'    => array(
+				'task_id' => $task_id,
+				'status'  => 'paused',
+			),
 			'message' => sprintf(
 				/* translators: %s: task name */
 				__( 'Scheduled task "%s" paused.', 'wp-agent' ),
 				$tasks[ $task_id ]['name']
 			),
-		];
+		);
 	}
 
 	/**
@@ -447,29 +461,29 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 		$task_id = ! empty( $params['task_id'] ) ? sanitize_key( $params['task_id'] ) : '';
 
 		if ( empty( $task_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Task ID is required.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$tasks = get_option( self::OPTION_KEY, [] );
+		$tasks = get_option( self::OPTION_KEY, array() );
 
 		if ( ! isset( $tasks[ $task_id ] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Task not found.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( 'active' === $tasks[ $task_id ]['status'] ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Task is already active.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$hook_name = self::HOOK_PREFIX . $task_id;
@@ -483,14 +497,17 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 		$tasks[ $task_id ]['status'] = 'active';
 		update_option( self::OPTION_KEY, $tasks, false );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'task_id' => $task_id, 'status' => 'active' ],
+			'data'    => array(
+				'task_id' => $task_id,
+				'status'  => 'active',
+			),
 			'message' => sprintf(
 				/* translators: %s: task name */
 				__( 'Scheduled task "%s" resumed.', 'wp-agent' ),
 				$tasks[ $task_id ]['name']
 			),
-		];
+		);
 	}
 }

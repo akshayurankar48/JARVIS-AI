@@ -25,7 +25,7 @@ class Update_Settings implements Action_Interface {
 	 *
 	 * @var string[]
 	 */
-	const ALLOWED_OPTIONS = [
+	const ALLOWED_OPTIONS = array(
 		'blogname',
 		'blogdescription',
 		'admin_email',
@@ -51,7 +51,7 @@ class Update_Settings implements Action_Interface {
 		'thread_comments',
 		'thread_comments_depth',
 		'comments_per_page',
-	];
+	);
 
 	/**
 	 * Get the action name.
@@ -82,21 +82,21 @@ class Update_Settings implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'option_name'  => [
+			'properties' => array(
+				'option_name'  => array(
 					'type'        => 'string',
 					'description' => 'The option name to update. Must be one of the whitelisted options.',
 					'enum'        => self::ALLOWED_OPTIONS,
-				],
-				'option_value' => [
+				),
+				'option_value' => array(
 					'type'        => 'string',
 					'description' => 'The new value for the option. Pass numbers and booleans as strings (e.g. "1", "true").',
-				],
-			],
-			'required'   => [ 'option_name', 'option_value' ],
-		];
+				),
+			),
+			'required'   => array( 'option_name', 'option_value' ),
+		);
 	}
 
 	/**
@@ -131,7 +131,7 @@ class Update_Settings implements Action_Interface {
 		$option_name = sanitize_text_field( $params['option_name'] );
 
 		if ( ! in_array( $option_name, self::ALLOWED_OPTIONS, true ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -139,14 +139,14 @@ class Update_Settings implements Action_Interface {
 					__( 'Option "%s" is not in the allowed whitelist.', 'wp-agent' ),
 					$option_name
 				),
-			];
+			);
 		}
 
 		$old_value = get_option( $option_name );
 		$new_value = $params['option_value'];
 
 		// Sanitize based on expected types.
-		if ( is_numeric( $new_value ) && in_array( $option_name, [ 'posts_per_page', 'posts_per_rss', 'start_of_week', 'gmt_offset', 'page_on_front', 'page_for_posts', 'default_category', 'thread_comments_depth', 'comments_per_page', 'blog_public' ], true ) ) {
+		if ( is_numeric( $new_value ) && in_array( $option_name, array( 'posts_per_page', 'posts_per_rss', 'start_of_week', 'gmt_offset', 'page_on_front', 'page_for_posts', 'default_category', 'thread_comments_depth', 'comments_per_page', 'blog_public' ), true ) ) {
 			$new_value = intval( $new_value );
 		} else {
 			$new_value = sanitize_text_field( (string) $new_value );
@@ -155,7 +155,7 @@ class Update_Settings implements Action_Interface {
 		$updated = update_option( $option_name, $new_value );
 
 		if ( ! $updated && get_option( $option_name ) !== $new_value ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -163,21 +163,21 @@ class Update_Settings implements Action_Interface {
 					__( 'Failed to update option "%s".', 'wp-agent' ),
 					$option_name
 				),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'option_name' => $option_name,
 				'old_value'   => $old_value,
 				'new_value'   => $new_value,
-			],
+			),
 			'message' => sprintf(
 				/* translators: %s: option name */
 				__( 'Updated option "%s" successfully.', 'wp-agent' ),
 				$option_name
 			),
-		];
+		);
 	}
 }

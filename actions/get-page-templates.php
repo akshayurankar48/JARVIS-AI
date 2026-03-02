@@ -54,16 +54,16 @@ class Get_Page_Templates implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'post_type' => [
+			'properties' => array(
+				'post_type' => array(
 					'type'        => 'string',
 					'description' => 'The post type to retrieve templates for. Defaults to "page".',
-				],
-			],
-			'required'   => [],
-		];
+				),
+			),
+			'required'   => array(),
+		);
 	}
 
 	/**
@@ -101,7 +101,7 @@ class Get_Page_Templates implements Action_Interface {
 
 		// Validate that the post type is registered.
 		if ( ! post_type_exists( $post_type ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -109,72 +109,72 @@ class Get_Page_Templates implements Action_Interface {
 					__( 'Post type "%s" does not exist.', 'wp-agent' ),
 					$post_type
 				),
-			];
+			);
 		}
 
-		$templates      = [];
+		$templates      = array();
 		$is_block_theme = wp_is_block_theme();
 
 		// Always include the default template first.
-		$templates[] = [
+		$templates[] = array(
 			'slug'   => 'default',
 			'name'   => __( 'Default Template', 'wp-agent' ),
 			'source' => 'theme',
 			'type'   => 'template',
-		];
+		);
 
 		// Classic page templates from the active theme.
 		$classic_templates = wp_get_theme()->get_page_templates( null, $post_type );
 
 		foreach ( $classic_templates as $file => $name ) {
-			$templates[] = [
+			$templates[] = array(
 				'slug'   => sanitize_text_field( $file ),
 				'name'   => sanitize_text_field( $name ),
 				'source' => 'theme',
 				'type'   => 'template',
-			];
+			);
 		}
 
 		// For block themes, also surface FSE templates and template parts.
 		if ( $is_block_theme ) {
-			$fse_templates = get_block_templates( [], 'wp_template' );
+			$fse_templates = get_block_templates( array(), 'wp_template' );
 
 			foreach ( $fse_templates as $tpl ) {
-				$templates[] = [
+				$templates[] = array(
 					'slug'   => sanitize_text_field( $tpl->slug ),
 					'name'   => sanitize_text_field( $tpl->title ),
 					'source' => sanitize_key( $tpl->source ),
 					'type'   => 'template',
-				];
+				);
 			}
 
-			$template_parts = get_block_templates( [], 'wp_template_part' );
+			$template_parts = get_block_templates( array(), 'wp_template_part' );
 
 			foreach ( $template_parts as $part ) {
-				$templates[] = [
+				$templates[] = array(
 					'slug'   => sanitize_text_field( $part->slug ),
 					'name'   => sanitize_text_field( $part->title ),
 					'source' => sanitize_key( $part->source ),
 					'type'   => 'template_part',
-				];
+				);
 			}
 		}
 
 		$total = count( $templates );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'templates'      => $templates,
 				'is_block_theme' => $is_block_theme,
 				'total'          => $total,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: number of templates, 2: post type slug */
 				__( 'Found %1$d template(s) for post type "%2$s".', 'wp-agent' ),
 				$total,
 				$post_type
 			),
-		];
+		);
 	}
 }

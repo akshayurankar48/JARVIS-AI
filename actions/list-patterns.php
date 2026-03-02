@@ -51,21 +51,21 @@ class List_Patterns implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'category' => [
+			'properties' => array(
+				'category' => array(
 					'type'        => 'string',
-					'enum'        => [ 'heroes', 'features', 'testimonials', 'pricing', 'cta', 'stats', 'content', 'faq', 'footers', 'headers' ],
+					'enum'        => array( 'heroes', 'features', 'testimonials', 'pricing', 'cta', 'stats', 'content', 'faq', 'footers', 'headers' ),
 					'description' => 'Filter patterns by category. Omit to list all patterns.',
-				],
-				'search'   => [
+				),
+				'search'   => array(
 					'type'        => 'string',
 					'description' => 'Optional keyword to search pattern names and descriptions.',
-				],
-			],
-			'required'   => [],
-		];
+				),
+			),
+			'required'   => array(),
+		);
 	}
 
 	/**
@@ -104,8 +104,8 @@ class List_Patterns implements Action_Interface {
 		$patterns = $manager->list_patterns( $category, $search );
 
 		// Also include blueprints metadata.
-		$blueprints = [];
-		$blueprint_ids = [ 'landing-page', 'saas-landing', 'startup-page', 'about-page' ];
+		$blueprints    = array();
+		$blueprint_ids = array( 'landing-page', 'saas-landing', 'startup-page', 'about-page' );
 		foreach ( $blueprint_ids as $bp_id ) {
 			$bp = $manager->get_blueprint( $bp_id );
 			if ( $bp ) {
@@ -118,15 +118,15 @@ class List_Patterns implements Action_Interface {
 				? sprintf( __( 'No patterns found in the "%s" category.', 'wp-agent' ), $category )
 				: __( 'No patterns found.', 'wp-agent' );
 
-			return [
+			return array(
 				'success' => true,
-				'data'    => [
+				'data'    => array(
 					'total'      => 0,
-					'patterns'   => [],
+					'patterns'   => array(),
 					'blueprints' => $blueprints,
-				],
+				),
 				'message' => $message,
-			];
+			);
 		}
 
 		$message = sprintf(
@@ -143,14 +143,14 @@ class List_Patterns implements Action_Interface {
 			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'total'      => count( $patterns ),
 				'patterns'   => $patterns,
 				'blueprints' => $blueprints,
-			],
+			),
 			'message' => $message,
-		];
+		);
 	}
 }

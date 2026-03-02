@@ -52,59 +52,59 @@ class Edit_Post implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'post_id'       => [
+			'properties' => array(
+				'post_id'       => array(
 					'type'        => 'integer',
 					'description' => 'The ID of the post to update.',
-				],
-				'post_title'    => [
+				),
+				'post_title'    => array(
 					'type'        => 'string',
 					'description' => 'New title for the post.',
-				],
-				'post_content'  => [
+				),
+				'post_content'  => array(
 					'type'        => 'string',
 					'description' => 'New content/body for the post (supports HTML and block markup).',
-				],
-				'post_excerpt'  => [
+				),
+				'post_excerpt'  => array(
 					'type'        => 'string',
 					'description' => 'New excerpt/summary for the post.',
-				],
-				'post_status'   => [
+				),
+				'post_status'   => array(
 					'type'        => 'string',
 					'description' => 'New status for the post.',
-					'enum'        => [ 'draft', 'publish', 'pending', 'private', 'future' ],
-				],
-				'post_date'     => [
+					'enum'        => array( 'draft', 'publish', 'pending', 'private', 'future' ),
+				),
+				'post_date'     => array(
 					'type'        => 'string',
 					'description' => 'Post date in "YYYY-MM-DD HH:MM:SS" format. Set to a future date to schedule the post.',
-				],
-				'post_date_gmt' => [
+				),
+				'post_date_gmt' => array(
 					'type'        => 'string',
 					'description' => 'Post date in GMT. If omitted but post_date is set, GMT is calculated automatically.',
-				],
-				'post_name'     => [
+				),
+				'post_name'     => array(
 					'type'        => 'string',
 					'description' => 'New slug (URL-friendly name) for the post.',
-				],
-				'post_parent'   => [
+				),
+				'post_parent'   => array(
 					'type'        => 'integer',
 					'description' => 'New parent post ID (for hierarchical post types).',
-				],
-				'post_category' => [
+				),
+				'post_category' => array(
 					'type'        => 'array',
-					'items'       => [ 'type' => 'integer' ],
+					'items'       => array( 'type' => 'integer' ),
 					'description' => 'Array of category IDs to assign (replaces existing).',
-				],
-				'tags_input'    => [
+				),
+				'tags_input'    => array(
 					'type'        => 'array',
-					'items'       => [ 'type' => 'string' ],
+					'items'       => array( 'type' => 'string' ),
 					'description' => 'Array of tag names to assign (replaces existing).',
-				],
-			],
-			'required'   => [ 'post_id' ],
-		];
+				),
+			),
+			'required'   => array( 'post_id' ),
+		);
 	}
 
 	/**
@@ -140,7 +140,7 @@ class Edit_Post implements Action_Interface {
 		$post    = get_post( $post_id );
 
 		if ( ! $post ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -148,18 +148,18 @@ class Edit_Post implements Action_Interface {
 					__( 'Post #%d not found.', 'wp-agent' ),
 					$post_id
 				),
-			];
+			);
 		}
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'You do not have permission to edit this post.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$args = [ 'ID' => $post_id ];
+		$args = array( 'ID' => $post_id );
 
 		if ( isset( $params['post_title'] ) ) {
 			$args['post_title'] = sanitize_text_field( $params['post_title'] );
@@ -174,7 +174,7 @@ class Edit_Post implements Action_Interface {
 		}
 
 		if ( ! empty( $params['post_status'] ) ) {
-			$allowed_statuses = [ 'draft', 'publish', 'pending', 'private', 'future' ];
+			$allowed_statuses = array( 'draft', 'publish', 'pending', 'private', 'future' );
 			$status           = sanitize_text_field( $params['post_status'] );
 			if ( in_array( $status, $allowed_statuses, true ) ) {
 				$args['post_status'] = $status;
@@ -185,15 +185,15 @@ class Edit_Post implements Action_Interface {
 		if ( ! empty( $params['post_date'] ) ) {
 			$timestamp = strtotime( $params['post_date'] );
 			if ( false === $timestamp ) {
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid post_date format. Use "YYYY-MM-DD HH:MM:SS".', 'wp-agent' ),
-				];
+				);
 			}
 
-			$args['post_date']    = gmdate( 'Y-m-d H:i:s', $timestamp );
-			$args['edit_date']    = true;
+			$args['post_date'] = gmdate( 'Y-m-d H:i:s', $timestamp );
+			$args['edit_date'] = true;
 
 			if ( ! empty( $params['post_date_gmt'] ) ) {
 				$gmt_timestamp         = strtotime( $params['post_date_gmt'] );
@@ -230,24 +230,24 @@ class Edit_Post implements Action_Interface {
 		$result = wp_update_post( $args, true );
 
 		if ( is_wp_error( $result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $result->get_error_message(),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'post_id'  => $result,
 				'edit_url' => get_edit_post_link( $result, 'raw' ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: %d: post ID */
 				__( 'Updated post #%d.', 'wp-agent' ),
 				$result
 			),
-		];
+		);
 	}
 }

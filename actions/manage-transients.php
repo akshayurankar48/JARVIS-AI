@@ -57,25 +57,25 @@ class Manage_Transients implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation' => array(
 					'type'        => 'string',
-					'enum'        => [ 'list', 'get', 'delete', 'delete_expired' ],
+					'enum'        => array( 'list', 'get', 'delete', 'delete_expired' ),
 					'description' => 'Operation to perform.',
-				],
-				'name'      => [
+				),
+				'name'      => array(
 					'type'        => 'string',
 					'description' => 'Transient name (without _transient_ prefix). Required for "get" and "delete".',
-				],
-				'search'    => [
+				),
+				'search'    => array(
 					'type'        => 'string',
 					'description' => 'Filter transients by name pattern (for "list").',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -123,11 +123,11 @@ class Manage_Transients implements Action_Interface {
 				return $this->delete_expired();
 
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation. Use "list", "get", "delete", or "delete_expired".', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -144,31 +144,35 @@ class Manage_Transients implements Action_Interface {
 
 		$search = ! empty( $params['search'] ) ? sanitize_text_field( $params['search'] ) : '';
 
-		$where = "WHERE option_name LIKE %s";
-		$args  = [ $wpdb->esc_like( '_transient_' ) . '%' ];
+		$where = 'WHERE option_name LIKE %s';
+		$args  = array( $wpdb->esc_like( '_transient_' ) . '%' );
 
 		if ( $search ) {
-			$where .= " AND option_name LIKE %s";
+			$where .= ' AND option_name LIKE %s';
 			$args[] = '%' . $wpdb->esc_like( $search ) . '%';
 		}
 
 		// Exclude timeout entries from the main list.
-		$where .= " AND option_name NOT LIKE %s";
+		$where .= ' AND option_name NOT LIKE %s';
 		$args[] = $wpdb->esc_like( '_transient_timeout_' ) . '%';
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$total = (int) $wpdb->get_var( $wpdb->prepare(
-			"SELECT COUNT(*) FROM {$wpdb->options} {$where}",
-			...$args
-		) );
+		$total = (int) $wpdb->get_var(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $where built dynamically with %s placeholders.
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->options} {$where}",
+				...$args
+			)
+		);
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$results = $wpdb->get_results( $wpdb->prepare(
-			"SELECT option_name, option_value FROM {$wpdb->options} {$where} ORDER BY option_name ASC LIMIT %d",
-			...array_merge( $args, [ self::MAX_LIST ] )
-		) );
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT option_name, option_value FROM {$wpdb->options} {$where} ORDER BY option_name ASC LIMIT %d",
+				...array_merge( $args, array( self::MAX_LIST ) )
+			)
+		);
 
-		$transients = [];
+		$transients = array();
 		$now        = time();
 
 		foreach ( $results as $row ) {
@@ -179,28 +183,28 @@ class Manage_Transients implements Action_Interface {
 			$timeout = get_option( '_transient_timeout_' . $name );
 			$expires = $timeout ? (int) $timeout : 0;
 
-			$transients[] = [
-				'name'       => $name,
-				'size'       => strlen( $row->option_value ),
-				'expires'    => $expires > 0 ? gmdate( 'Y-m-d H:i:s', $expires ) : 'never',
-				'expired'    => $expires > 0 && $expires < $now,
-			];
+			$transients[] = array(
+				'name'    => $name,
+				'size'    => strlen( $row->option_value ),
+				'expires' => $expires > 0 ? gmdate( 'Y-m-d H:i:s', $expires ) : 'never',
+				'expired' => $expires > 0 && $expires < $now,
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'transients' => $transients,
 				'shown'      => count( $transients ),
 				'total'      => $total,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: shown count, 2: total count */
 				__( 'Showing %1$d of %2$d transient(s).', 'wp-agent' ),
 				count( $transients ),
 				$total
 			),
-		];
+		);
 	}
 
 	/**
@@ -215,17 +219,17 @@ class Manage_Transients implements Action_Interface {
 		$name = ! empty( $params['name'] ) ? sanitize_key( $params['name'] ) : '';
 
 		if ( empty( $name ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Transient name is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$value = get_transient( $name );
 
 		if ( false === $value ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -233,7 +237,7 @@ class Manage_Transients implements Action_Interface {
 					__( 'Transient "%s" not found or expired.', 'wp-agent' ),
 					$name
 				),
-			];
+			);
 		}
 
 		$timeout = get_option( '_transient_timeout_' . $name );
@@ -251,21 +255,21 @@ class Manage_Transients implements Action_Interface {
 			}
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'name'    => $name,
 				'value'   => $display_value,
 				'type'    => gettype( $value ),
 				'size'    => strlen( maybe_serialize( $value ) ),
 				'expires' => $timeout ? gmdate( 'Y-m-d H:i:s', (int) $timeout ) : 'never',
-			],
+			),
 			'message' => sprintf(
 				/* translators: %s: transient name */
 				__( 'Retrieved transient "%s".', 'wp-agent' ),
 				$name
 			),
-		];
+		);
 	}
 
 	/**
@@ -280,22 +284,22 @@ class Manage_Transients implements Action_Interface {
 		$name = ! empty( $params['name'] ) ? sanitize_key( $params['name'] ) : '';
 
 		if ( empty( $name ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Transient name is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$existed = false !== get_transient( $name );
 		$result  = delete_transient( $name );
 
-		return [
+		return array(
 			'success' => $result || ! $existed,
-			'data'    => [
+			'data'    => array(
 				'name'    => $name,
 				'deleted' => $result,
-			],
+			),
 			'message' => $result
 				? sprintf(
 					/* translators: %s: transient name */
@@ -307,7 +311,7 @@ class Manage_Transients implements Action_Interface {
 					__( 'Transient "%s" not found or already deleted.', 'wp-agent' ),
 					$name
 				),
-		];
+		);
 	}
 
 	/**
@@ -323,12 +327,14 @@ class Manage_Transients implements Action_Interface {
 		$now = time();
 
 		// Find expired transient timeouts.
-		$expired = $wpdb->get_col( $wpdb->prepare(
-			"SELECT option_name FROM {$wpdb->options}
+		$expired = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT option_name FROM {$wpdb->options}
 			WHERE option_name LIKE %s AND option_value < %d",
-			$wpdb->esc_like( '_transient_timeout_' ) . '%',
-			$now
-		) );
+				$wpdb->esc_like( '_transient_timeout_' ) . '%',
+				$now
+			)
+		);
 
 		$deleted = 0;
 
@@ -339,18 +345,18 @@ class Manage_Transients implements Action_Interface {
 			}
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'expired_found' => count( $expired ),
 				'deleted'       => $deleted,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: deleted count, 2: found count */
 				__( 'Deleted %1$d of %2$d expired transient(s).', 'wp-agent' ),
 				$deleted,
 				count( $expired )
 			),
-		];
+		);
 	}
 }

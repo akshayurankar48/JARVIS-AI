@@ -57,52 +57,58 @@ class Generate_Full_Site implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'business_type' => [
+			'properties' => array(
+				'business_type' => array(
 					'type'        => 'string',
 					'description' => 'Type of business (e.g. "restaurant", "law firm", "saas startup").',
-				],
-				'pages'         => [
+				),
+				'pages'         => array(
 					'type'        => 'array',
-					'items'       => [
+					'items'       => array(
 						'type'       => 'object',
-						'properties' => [
-							'title'   => [ 'type' => 'string', 'description' => 'Page title.' ],
-							'type'    => [
-								'type' => 'string',
-								'enum' => [ 'home', 'about', 'services', 'contact', 'blog' ],
+						'properties' => array(
+							'title'   => array(
+								'type'        => 'string',
+								'description' => 'Page title.',
+							),
+							'type'    => array(
+								'type'        => 'string',
+								'enum'        => array( 'home', 'about', 'services', 'contact', 'blog' ),
 								'description' => 'Page type for content scaffolding.',
-							],
-							'content' => [ 'type' => 'string', 'description' => 'Optional page content (block markup).' ],
-						],
-						'required' => [ 'title', 'type' ],
-					],
+							),
+							'content' => array(
+								'type'        => 'string',
+								'description' => 'Optional page content (block markup).',
+							),
+						),
+						'required'   => array( 'title', 'type' ),
+					),
 					'description' => 'Array of pages to create.',
-				],
-				'brand_info'    => [
-					'type'       => 'object',
-					'properties' => [
-						'colors' => [
+				),
+				'brand_info'    => array(
+					'type'        => 'object',
+					'properties'  => array(
+						'colors' => array(
 							'type'        => 'array',
-							'items'       => [ 'type' => 'string' ],
+							'items'       => array( 'type' => 'string' ),
 							'description' => 'Brand colors (hex values).',
-						],
-						'tone'   => [
+						),
+						'tone'   => array(
 							'type'        => 'string',
 							'description' => 'Brand tone (e.g. "professional", "friendly", "luxury").',
-						],
-					],
+						),
+					),
 					'description' => 'Optional brand information for content styling.',
-				],
-				'menu_name'     => [
+				),
+				'menu_name'     => array(
 					'type'        => 'string',
 					'description' => 'Navigation menu name. Defaults to "Main Menu".',
-				],
-			],
-			'required'   => [ 'business_type', 'pages' ],
-		];
+				),
+			),
+			'required'   => array( 'business_type', 'pages' ),
+		);
 	}
 
 	/**
@@ -135,30 +141,30 @@ class Generate_Full_Site implements Action_Interface {
 	 */
 	public function execute( array $params ): array {
 		$business_type = ! empty( $params['business_type'] ) ? sanitize_text_field( $params['business_type'] ) : '';
-		$pages         = isset( $params['pages'] ) && is_array( $params['pages'] ) ? $params['pages'] : [];
+		$pages         = isset( $params['pages'] ) && is_array( $params['pages'] ) ? $params['pages'] : array();
 		$menu_name     = ! empty( $params['menu_name'] ) ? sanitize_text_field( $params['menu_name'] ) : __( 'Main Menu', 'wp-agent' );
 
 		if ( empty( $business_type ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Business type is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( empty( $pages ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'At least one page is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$pages = array_slice( $pages, 0, self::MAX_PAGES );
 
-		$created_pages = [];
+		$created_pages = array();
 		$homepage_id   = 0;
-		$errors        = [];
+		$errors        = array();
 
 		// Create each page.
 		foreach ( $pages as $index => $page_def ) {
@@ -178,16 +184,16 @@ class Generate_Full_Site implements Action_Interface {
 				? wp_kses_post( $page_def['content'] )
 				: $this->get_placeholder_content( $type, $title, $business_type );
 
-			$post_data = [
+			$post_data = array(
 				'post_title'   => $title,
 				'post_content' => $content,
 				'post_status'  => 'publish',
 				'post_type'    => 'page',
-				'meta_input'   => [
+				'meta_input'   => array(
 					'_wp_agent_business_type' => $business_type,
 					'_wp_agent_page_type'     => $type,
-				],
-			];
+				),
+			);
 
 			$page_id = wp_insert_post( $post_data, true );
 
@@ -201,12 +207,12 @@ class Generate_Full_Site implements Action_Interface {
 				continue;
 			}
 
-			$created_pages[] = [
+			$created_pages[] = array(
 				'id'    => $page_id,
 				'title' => $title,
 				'type'  => $type,
 				'url'   => get_permalink( $page_id ),
-			];
+			);
 
 			// First 'home' type becomes the homepage.
 			if ( 'home' === $type && 0 === $homepage_id ) {
@@ -215,11 +221,11 @@ class Generate_Full_Site implements Action_Interface {
 		}
 
 		if ( empty( $created_pages ) ) {
-			return [
+			return array(
 				'success' => false,
-				'data'    => [ 'errors' => $errors ],
+				'data'    => array( 'errors' => $errors ),
 				'message' => __( 'No pages were created.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Set static homepage.
@@ -239,9 +245,9 @@ class Generate_Full_Site implements Action_Interface {
 		// Create navigation menu.
 		$menu_id = $this->create_nav_menu( $menu_name, $created_pages );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'business_type' => $business_type,
 				'pages'         => $created_pages,
 				'page_count'    => count( $created_pages ),
@@ -249,14 +255,14 @@ class Generate_Full_Site implements Action_Interface {
 				'menu_id'       => $menu_id,
 				'menu_name'     => $menu_name,
 				'errors'        => $errors,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: page count, 2: business type */
 				__( 'Created %1$d page(s) for %2$s site with navigation menu.', 'wp-agent' ),
 				count( $created_pages ),
 				$business_type
 			),
-		];
+		);
 	}
 
 	/**
@@ -350,21 +356,25 @@ class Generate_Full_Site implements Action_Interface {
 		$position = 0;
 		foreach ( $created_pages as $page ) {
 			++$position;
-			wp_update_nav_menu_item( $menu_id, 0, [
-				'menu-item-title'     => $page['title'],
-				'menu-item-object'    => 'page',
-				'menu-item-object-id' => $page['id'],
-				'menu-item-type'      => 'post_type',
-				'menu-item-status'    => 'publish',
-				'menu-item-position'  => $position,
-			] );
+			wp_update_nav_menu_item(
+				$menu_id,
+				0,
+				array(
+					'menu-item-title'     => $page['title'],
+					'menu-item-object'    => 'page',
+					'menu-item-object-id' => $page['id'],
+					'menu-item-type'      => 'post_type',
+					'menu-item-status'    => 'publish',
+					'menu-item-position'  => $position,
+				)
+			);
 		}
 
 		// Assign to primary/header menu location if available.
 		$locations = get_registered_nav_menus();
 		if ( ! empty( $locations ) ) {
 			$current_locations = get_nav_menu_locations();
-			$primary_keys      = [ 'primary', 'main', 'header', 'main-menu', 'primary-menu' ];
+			$primary_keys      = array( 'primary', 'main', 'header', 'main-menu', 'primary-menu' );
 
 			foreach ( $primary_keys as $key ) {
 				if ( isset( $locations[ $key ] ) ) {

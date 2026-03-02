@@ -50,20 +50,20 @@ class Set_Page_Template implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'post_id'  => [
+			'properties' => array(
+				'post_id'  => array(
 					'type'        => 'integer',
 					'description' => 'The ID of the post or page to set the template for.',
-				],
-				'template' => [
+				),
+				'template' => array(
 					'type'        => 'string',
 					'description' => 'Template slug to apply. Common values: "default" (theme default), "blank" (blank canvas in block themes), "page-templates/full-width.php" (classic themes), or any slug from get_page_templates. Use "default" or empty string to reset to the theme\'s default template.',
-				],
-			],
-			'required'   => [ 'post_id', 'template' ],
-		];
+				),
+			),
+			'required'   => array( 'post_id', 'template' ),
+		);
 	}
 
 	/**
@@ -99,30 +99,30 @@ class Set_Page_Template implements Action_Interface {
 		$template = sanitize_text_field( $params['template'] ?? '' );
 
 		if ( ! $post_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'A valid post_id is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Verify post exists.
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf( __( 'Post #%d not found.', 'wp-agent' ), $post_id ),
-			];
+			);
 		}
 
 		// Check user can edit this specific post.
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'You do not have permission to edit this post.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Normalise "default" to empty string — WordPress stores '' for the theme default.
@@ -138,11 +138,11 @@ class Set_Page_Template implements Action_Interface {
 			} else {
 				$validation = $this->validate_classic_template( $template, $post );
 				if ( is_wp_error( $validation ) ) {
-					return [
+					return array(
 						'success' => false,
 						'data'    => null,
 						'message' => $validation->get_error_message(),
-					];
+					);
 				}
 				$template_name = $validation;
 			}
@@ -150,14 +150,14 @@ class Set_Page_Template implements Action_Interface {
 
 		update_post_meta( $post_id, '_wp_page_template', $template );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'post_id'       => $post_id,
 				'post_title'    => sanitize_text_field( $post->post_title ),
 				'template'      => '' === $template ? 'default' : $template,
 				'template_name' => $template_name,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: template name, 2: post title, 3: post ID */
 				__( 'Template "%1$s" applied to "%2$s" (Post #%3$d).', 'wp-agent' ),
@@ -165,7 +165,7 @@ class Set_Page_Template implements Action_Interface {
 				sanitize_text_field( $post->post_title ),
 				$post_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -186,7 +186,7 @@ class Set_Page_Template implements Action_Interface {
 			return $slug;
 		}
 
-		$templates = get_block_templates( [ 'slug__in' => [ $slug ] ] );
+		$templates = get_block_templates( array( 'slug__in' => array( $slug ) ) );
 
 		if ( ! empty( $templates ) && isset( $templates[0]->title ) ) {
 			return $templates[0]->title;

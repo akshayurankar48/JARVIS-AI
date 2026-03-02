@@ -282,14 +282,14 @@ class Database {
 		global $wpdb;
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$tables = [
+		$tables = array(
 			"{$wpdb->prefix}agent_scheduled_tasks",
 			"{$wpdb->prefix}agent_memory",
 			"{$wpdb->prefix}agent_messages",
 			"{$wpdb->prefix}agent_checkpoints",
 			"{$wpdb->prefix}agent_history",
 			"{$wpdb->prefix}agent_conversations",
-		];
+		);
 
 		foreach ( $tables as $table ) {
 			$wpdb->query( "DROP TABLE IF EXISTS {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -308,13 +308,13 @@ class Database {
 	public static function get_table_names() {
 		global $wpdb;
 
-		return [
+		return array(
 			'conversations'   => "{$wpdb->prefix}agent_conversations",
 			'messages'        => "{$wpdb->prefix}agent_messages",
 			'checkpoints'     => "{$wpdb->prefix}agent_checkpoints",
 			'history'         => "{$wpdb->prefix}agent_history",
 			'scheduled_tasks' => "{$wpdb->prefix}agent_scheduled_tasks",
 			'memory'          => "{$wpdb->prefix}agent_memory",
-		];
+		);
 	}
 }

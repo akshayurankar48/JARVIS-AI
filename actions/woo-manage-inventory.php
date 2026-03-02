@@ -21,27 +21,36 @@ class Woo_Manage_Inventory implements Action_Interface {
 	}
 
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation'  => [ 'type' => 'string', 'enum' => [ 'check_stock', 'update_stock', 'low_stock_report', 'bulk_update' ] ],
-				'product_id' => [ 'type' => 'integer' ],
-				'quantity'   => [ 'type' => 'integer', 'description' => 'New stock quantity for update_stock.' ],
-				'threshold'  => [ 'type' => 'integer', 'description' => 'Stock threshold for low_stock_report. Default 5.' ],
-				'updates'    => [
-					'type'  => 'array',
-					'items' => [
+			'properties' => array(
+				'operation'  => array(
+					'type' => 'string',
+					'enum' => array( 'check_stock', 'update_stock', 'low_stock_report', 'bulk_update' ),
+				),
+				'product_id' => array( 'type' => 'integer' ),
+				'quantity'   => array(
+					'type'        => 'integer',
+					'description' => 'New stock quantity for update_stock.',
+				),
+				'threshold'  => array(
+					'type'        => 'integer',
+					'description' => 'Stock threshold for low_stock_report. Default 5.',
+				),
+				'updates'    => array(
+					'type'        => 'array',
+					'items'       => array(
 						'type'       => 'object',
-						'properties' => [
-							'product_id' => [ 'type' => 'integer' ],
-							'quantity'   => [ 'type' => 'integer' ],
-						],
-					],
+						'properties' => array(
+							'product_id' => array( 'type' => 'integer' ),
+							'quantity'   => array( 'type' => 'integer' ),
+						),
+					),
 					'description' => 'Array of {product_id, quantity} for bulk_update.',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	public function get_capabilities_required(): string {
@@ -65,33 +74,45 @@ class Woo_Manage_Inventory implements Action_Interface {
 			case 'bulk_update':
 				return $this->bulk_update( $params );
 			default:
-				return [ 'success' => false, 'data' => null, 'message' => __( 'Invalid operation.', 'wp-agent' ) ];
+				return array(
+					'success' => false,
+					'data'    => null,
+					'message' => __( 'Invalid operation.', 'wp-agent' ),
+				);
 		}
 	}
 
 	private function check_stock( array $params ) {
 		$product_id = absint( $params['product_id'] ?? 0 );
 		if ( ! $product_id ) {
-			return [ 'success' => false, 'data' => null, 'message' => __( 'product_id required.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'product_id required.', 'wp-agent' ),
+			);
 		}
 
 		$product = wc_get_product( $product_id );
 		if ( ! $product ) {
-			return [ 'success' => false, 'data' => null, 'message' => __( 'Product not found.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'Product not found.', 'wp-agent' ),
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
-				'product_id'    => $product_id,
-				'name'          => $product->get_name(),
-				'manage_stock'  => $product->get_manage_stock(),
+			'data'    => array(
+				'product_id'     => $product_id,
+				'name'           => $product->get_name(),
+				'manage_stock'   => $product->get_manage_stock(),
 				'stock_quantity' => $product->get_stock_quantity(),
-				'stock_status'  => $product->get_stock_status(),
-				'backorders'    => $product->get_backorders(),
-			],
-			'message' => sprintf( __( '%s: %s (qty: %s).', 'wp-agent' ), $product->get_name(), $product->get_stock_status(), $product->get_stock_quantity() ?? 'N/A' ),
-		];
+				'stock_status'   => $product->get_stock_status(),
+				'backorders'     => $product->get_backorders(),
+			),
+			'message' => sprintf( __( '%1$s: %2$s (qty: %3$s).', 'wp-agent' ), $product->get_name(), $product->get_stock_status(), $product->get_stock_quantity() ?? 'N/A' ),
+		);
 	}
 
 	private function update_stock( array $params ) {
@@ -99,12 +120,20 @@ class Woo_Manage_Inventory implements Action_Interface {
 		$quantity   = isset( $params['quantity'] ) ? (int) $params['quantity'] : null;
 
 		if ( ! $product_id || null === $quantity ) {
-			return [ 'success' => false, 'data' => null, 'message' => __( 'product_id and quantity required.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'product_id and quantity required.', 'wp-agent' ),
+			);
 		}
 
 		$product = wc_get_product( $product_id );
 		if ( ! $product ) {
-			return [ 'success' => false, 'data' => null, 'message' => __( 'Product not found.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'Product not found.', 'wp-agent' ),
+			);
 		}
 
 		$old_qty = $product->get_stock_quantity();
@@ -112,80 +141,94 @@ class Woo_Manage_Inventory implements Action_Interface {
 		$product->set_stock_quantity( $quantity );
 		$product->save();
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'product_id'   => $product_id,
 				'old_quantity' => $old_qty,
 				'new_quantity' => $quantity,
-			],
-			'message' => sprintf( __( '%s stock: %s -> %d.', 'wp-agent' ), $product->get_name(), $old_qty ?? 'N/A', $quantity ),
-		];
+			),
+			'message' => sprintf( __( '%1$s stock: %2$s -> %3$d.', 'wp-agent' ), $product->get_name(), $old_qty ?? 'N/A', $quantity ),
+		);
 	}
 
 	private function low_stock_report( array $params ) {
 		$threshold = isset( $params['threshold'] ) ? absint( $params['threshold'] ) : 5;
 
-		$args = [
+		$args = array(
 			'limit'        => 50,
 			'manage_stock' => true,
 			'stock_status' => 'instock',
 			'orderby'      => 'meta_value_num',
 			'meta_key'     => '_stock', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'order'        => 'ASC',
-		];
+		);
 
 		$products = wc_get_products( $args );
-		$low      = [];
+		$low      = array();
 
 		foreach ( $products as $product ) {
 			$qty = $product->get_stock_quantity();
 			if ( null !== $qty && $qty <= $threshold ) {
-				$low[] = [
-					'id'       => $product->get_id(),
-					'name'     => $product->get_name(),
-					'sku'      => $product->get_sku(),
-					'stock'    => $qty,
-					'status'   => $product->get_stock_status(),
-				];
+				$low[] = array(
+					'id'     => $product->get_id(),
+					'name'   => $product->get_name(),
+					'sku'    => $product->get_sku(),
+					'stock'  => $qty,
+					'status' => $product->get_stock_status(),
+				);
 			}
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'threshold' => $threshold, 'products' => $low ],
-			'message' => sprintf( __( '%d product(s) with stock <= %d.', 'wp-agent' ), count( $low ), $threshold ),
-		];
+			'data'    => array(
+				'threshold' => $threshold,
+				'products'  => $low,
+			),
+			'message' => sprintf( __( '%1$d product(s) with stock <= %2$d.', 'wp-agent' ), count( $low ), $threshold ),
+		);
 	}
 
 	private function bulk_update( array $params ) {
-		$updates = isset( $params['updates'] ) && is_array( $params['updates'] ) ? $params['updates'] : [];
+		$updates = isset( $params['updates'] ) && is_array( $params['updates'] ) ? $params['updates'] : array();
 
 		if ( empty( $updates ) ) {
-			return [ 'success' => false, 'data' => null, 'message' => __( 'updates array required.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'updates array required.', 'wp-agent' ),
+			);
 		}
 
-		$results = [];
+		$results = array();
 		foreach ( array_slice( $updates, 0, 100 ) as $update ) {
 			$pid = absint( $update['product_id'] ?? 0 );
 			$qty = isset( $update['quantity'] ) ? (int) $update['quantity'] : null;
 
-			if ( ! $pid || null === $qty ) continue;
+			if ( ! $pid || null === $qty ) {
+				continue;
+			}
 
 			$product = wc_get_product( $pid );
-			if ( ! $product ) continue;
+			if ( ! $product ) {
+				continue;
+			}
 
 			$product->set_manage_stock( true );
 			$product->set_stock_quantity( $qty );
 			$product->save();
 
-			$results[] = [ 'product_id' => $pid, 'quantity' => $qty ];
+			$results[] = array(
+				'product_id' => $pid,
+				'quantity'   => $qty,
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'updated' => $results ],
+			'data'    => array( 'updated' => $results ),
 			'message' => sprintf( __( 'Updated stock for %d product(s).', 'wp-agent' ), count( $results ) ),
-		];
+		);
 	}
 }

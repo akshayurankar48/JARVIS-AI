@@ -49,19 +49,19 @@ class Update_Plugin implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'plugin'     => [
+			'properties' => array(
+				'plugin'     => array(
 					'type'        => 'string',
 					'description' => 'Plugin file path relative to plugins directory (e.g. "akismet/akismet.php"). Required unless update_all is true.',
-				],
-				'update_all' => [
+				),
+				'update_all' => array(
 					'type'        => 'boolean',
 					'description' => 'Set to true to update all plugins that have updates available.',
-				],
-			],
-		];
+				),
+			),
+		);
 	}
 
 	/**
@@ -101,11 +101,11 @@ class Update_Plugin implements Action_Interface {
 		$plugin     = isset( $params['plugin'] ) ? sanitize_text_field( $params['plugin'] ) : '';
 
 		if ( ! $update_all && empty( $plugin ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Provide a plugin file path or set update_all to true.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Refresh update transient.
@@ -131,26 +131,26 @@ class Update_Plugin implements Action_Interface {
 	private function update_single_plugin( $plugin, $updates ) {
 		// Validate file path.
 		if ( 0 !== validate_file( $plugin ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Invalid plugin file path.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Self-update guard.
 		if ( defined( 'WP_AGENT_BASE' ) && WP_AGENT_BASE === $plugin ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Cannot update WP Agent through its own action system.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Verify plugin is installed.
 		$installed = get_plugins();
 		if ( ! isset( $installed[ $plugin ] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -158,25 +158,25 @@ class Update_Plugin implements Action_Interface {
 					__( 'Plugin "%s" is not installed.', 'wp-agent' ),
 					$plugin
 				),
-			];
+			);
 		}
 
 		// Check if update is available.
 		if ( ! isset( $updates[ $plugin ] ) ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [
+				'data'    => array(
 					'plugin'  => $plugin,
 					'name'    => $installed[ $plugin ]['Name'],
 					'version' => $installed[ $plugin ]['Version'],
-				],
+				),
 				'message' => sprintf(
 					/* translators: 1: plugin name, 2: version */
 					__( '"%1$s" is already at the latest version (%2$s).', 'wp-agent' ),
 					$installed[ $plugin ]['Name'],
 					$installed[ $plugin ]['Version']
 				),
-			];
+			);
 		}
 
 		$old_version = $installed[ $plugin ]['Version'];
@@ -185,23 +185,23 @@ class Update_Plugin implements Action_Interface {
 		$result      = $upgrader->upgrade( $plugin );
 
 		if ( is_wp_error( $result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $result->get_error_message(),
-			];
+			);
 		}
 
 		if ( is_wp_error( $skin->result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $skin->result->get_error_message(),
-			];
+			);
 		}
 
 		if ( false === $result ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -209,7 +209,7 @@ class Update_Plugin implements Action_Interface {
 					__( 'Failed to update "%s". Check filesystem permissions.', 'wp-agent' ),
 					$installed[ $plugin ]['Name']
 				),
-			];
+			);
 		}
 
 		// Re-read to get new version.
@@ -217,14 +217,14 @@ class Update_Plugin implements Action_Interface {
 		$updated_plugins = get_plugins();
 		$new_version     = isset( $updated_plugins[ $plugin ] ) ? $updated_plugins[ $plugin ]['Version'] : 'unknown';
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'plugin'      => $plugin,
 				'name'        => $installed[ $plugin ]['Name'],
 				'old_version' => $old_version,
 				'new_version' => $new_version,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: plugin name, 2: old version, 3: new version */
 				__( 'Updated "%1$s" from v%2$s to v%3$s.', 'wp-agent' ),
@@ -232,7 +232,7 @@ class Update_Plugin implements Action_Interface {
 				$old_version,
 				$new_version
 			),
-		];
+		);
 	}
 
 	/**
@@ -245,11 +245,11 @@ class Update_Plugin implements Action_Interface {
 	 */
 	private function update_all_plugins( $updates ) {
 		if ( empty( $updates ) ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [ 'updated' => 0 ],
+				'data'    => array( 'updated' => 0 ),
 				'message' => __( 'All plugins are up to date.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Remove self from update list.
@@ -258,11 +258,11 @@ class Update_Plugin implements Action_Interface {
 		}
 
 		if ( empty( $updates ) ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [ 'updated' => 0 ],
+				'data'    => array( 'updated' => 0 ),
 				'message' => __( 'All plugins are up to date (WP Agent excluded from self-update).', 'wp-agent' ),
-			];
+			);
 		}
 
 		$plugins_to_update = array_keys( $updates );
@@ -270,8 +270,8 @@ class Update_Plugin implements Action_Interface {
 		$upgrader          = new \Plugin_Upgrader( $skin );
 		$results           = $upgrader->bulk_upgrade( $plugins_to_update );
 
-		$updated = [];
-		$failed  = [];
+		$updated = array();
+		$failed  = array();
 
 		foreach ( $plugins_to_update as $plugin_file ) {
 			if ( ! empty( $results[ $plugin_file ] ) && ! is_wp_error( $results[ $plugin_file ] ) ) {
@@ -283,20 +283,20 @@ class Update_Plugin implements Action_Interface {
 
 		$success = count( $failed ) === 0;
 
-		return [
+		return array(
 			'success' => $success,
-			'data'    => [
+			'data'    => array(
 				'updated'      => count( $updated ),
 				'failed'       => count( $failed ),
 				'updated_list' => $updated,
 				'failed_list'  => $failed,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: updated count, 2: failed count */
 				__( 'Updated %1$d plugin(s). %2$d failed.', 'wp-agent' ),
 				count( $updated ),
 				count( $failed )
 			),
-		];
+		);
 	}
 }

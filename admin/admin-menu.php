@@ -45,7 +45,7 @@ class Admin_Menu {
 	 * @since 1.0.0
 	 */
 	public function __construct() {
-		add_action( 'admin_menu', [ $this, 'register_menu' ] );
+		add_action( 'admin_menu', array( $this, 'register_menu' ) );
 	}
 
 	/**
@@ -60,7 +60,7 @@ class Admin_Menu {
 			__( 'WP Agent', 'wp-agent' ),
 			'manage_options',
 			'wp-agent',
-			[ $this, 'render_dashboard' ],
+			array( $this, 'render_dashboard' ),
 			'dashicons-format-chat',
 			30
 		);
@@ -71,7 +71,7 @@ class Admin_Menu {
 			__( 'Dashboard', 'wp-agent' ),
 			'manage_options',
 			'wp-agent',
-			[ $this, 'render_dashboard' ]
+			array( $this, 'render_dashboard' )
 		);
 
 		add_submenu_page(
@@ -80,7 +80,7 @@ class Admin_Menu {
 			__( 'Settings', 'wp-agent' ),
 			'manage_options',
 			'wp-agent-settings',
-			[ $this, 'render_settings' ]
+			array( $this, 'render_settings' )
 		);
 
 		add_submenu_page(
@@ -89,7 +89,7 @@ class Admin_Menu {
 			__( 'History', 'wp-agent' ),
 			'manage_options',
 			'wp-agent-history',
-			[ $this, 'render_history' ]
+			array( $this, 'render_history' )
 		);
 
 		add_submenu_page(
@@ -98,7 +98,7 @@ class Admin_Menu {
 			__( 'Schedules', 'wp-agent' ),
 			'manage_options',
 			'wp-agent-schedules',
-			[ $this, 'render_schedules' ]
+			array( $this, 'render_schedules' )
 		);
 
 		add_submenu_page(
@@ -107,7 +107,7 @@ class Admin_Menu {
 			__( 'Capabilities', 'wp-agent' ),
 			'manage_options',
 			'wp-agent-capabilities',
-			[ $this, 'render_capabilities' ]
+			array( $this, 'render_capabilities' )
 		);
 
 		add_submenu_page(
@@ -116,7 +116,7 @@ class Admin_Menu {
 			__( 'Help', 'wp-agent' ),
 			'manage_options',
 			'wp-agent-help',
-			[ $this, 'render_help' ]
+			array( $this, 'render_help' )
 		);
 	}
 

@@ -61,47 +61,47 @@ class History_Controller {
 		register_rest_route(
 			self::NAMESPACE,
 			self::ROUTE,
-			[
+			array(
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'list_conversations' ],
-				'permission_callback' => [ $this, 'check_permissions' ],
+				'callback'            => array( $this, 'list_conversations' ),
+				'permission_callback' => array( $this, 'check_permissions' ),
 				'args'                => $this->get_list_args(),
-			]
+			)
 		);
 
 		// GET /history/<id> — single conversation with messages.
 		register_rest_route(
 			self::NAMESPACE,
 			self::ROUTE . '/(?P<id>\d+)',
-			[
+			array(
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'get_conversation' ],
-				'permission_callback' => [ $this, 'check_permissions' ],
-				'args'                => [
-					'id' => [
+				'callback'            => array( $this, 'get_conversation' ),
+				'permission_callback' => array( $this, 'check_permissions' ),
+				'args'                => array(
+					'id' => array(
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
-					],
-				],
-			]
+					),
+				),
+			)
 		);
 
 		// POST /history/<id>/rename — rename a conversation.
 		register_rest_route(
 			self::NAMESPACE,
 			self::ROUTE . '/(?P<id>\d+)/rename',
-			[
+			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => [ $this, 'rename_conversation' ],
-				'permission_callback' => [ $this, 'check_permissions' ],
-				'args'                => [
-					'id'    => [
+				'callback'            => array( $this, 'rename_conversation' ),
+				'permission_callback' => array( $this, 'check_permissions' ),
+				'args'                => array(
+					'id'    => array(
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
-					],
-					'title' => [
+					),
+					'title' => array(
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
@@ -110,14 +110,14 @@ class History_Controller {
 								return new \WP_Error(
 									'empty_title',
 									__( 'Title cannot be empty.', 'wp-agent' ),
-									[ 'status' => 400 ]
+									array( 'status' => 400 )
 								);
 							}
 							return true;
 						},
-					],
-				],
-			]
+					),
+				),
+			)
 		);
 	}
 
@@ -134,7 +134,7 @@ class History_Controller {
 			return new \WP_Error(
 				'rest_forbidden',
 				__( 'You do not have permission to view chat history.', 'wp-agent' ),
-				[ 'status' => 403 ]
+				array( 'status' => 403 )
 			);
 		}
 
@@ -162,7 +162,7 @@ class History_Controller {
 		$post_id  = $request->get_param( 'post_id' ) ? absint( $request->get_param( 'post_id' ) ) : 0;
 
 		// Build WHERE clause — always scoped to current user, optionally filtered by post.
-		$where  = $wpdb->prepare( 'user_id = %d', $user_id );
+		$where = $wpdb->prepare( 'user_id = %d', $user_id );
 		if ( $post_id ) {
 			$where .= $wpdb->prepare( ' AND post_id = %d', $post_id );
 		}
@@ -189,7 +189,7 @@ class History_Controller {
 		);
 
 		if ( null === $conversations ) {
-			$conversations = [];
+			$conversations = array();
 		}
 
 		// Cast numeric fields.
@@ -200,13 +200,15 @@ class History_Controller {
 		}
 		unset( $conv );
 
-		$response = rest_ensure_response( [
-			'conversations' => $conversations,
-			'total'         => $total,
-			'page'          => $page,
-			'per_page'      => $per_page,
-			'total_pages'   => (int) ceil( $total / $per_page ),
-		] );
+		$response = rest_ensure_response(
+			array(
+				'conversations' => $conversations,
+				'total'         => $total,
+				'page'          => $page,
+				'per_page'      => $per_page,
+				'total_pages'   => (int) ceil( $total / $per_page ),
+			)
+		);
 
 		$response->header( 'X-WP-Total', $total );
 		$response->header( 'X-WP-TotalPages', (int) ceil( $total / $per_page ) );
@@ -250,7 +252,7 @@ class History_Controller {
 			return new \WP_Error(
 				'not_found',
 				__( 'Conversation not found.', 'wp-agent' ),
-				[ 'status' => 404 ]
+				array( 'status' => 404 )
 			);
 		}
 
@@ -258,7 +260,7 @@ class History_Controller {
 			return new \WP_Error(
 				'forbidden',
 				__( 'You do not have access to this conversation.', 'wp-agent' ),
-				[ 'status' => 403 ]
+				array( 'status' => 403 )
 			);
 		}
 
@@ -283,7 +285,7 @@ class History_Controller {
 		);
 
 		if ( null === $messages ) {
-			$messages = [];
+			$messages = array();
 		}
 
 		// Parse message metadata and cast fields.
@@ -292,7 +294,7 @@ class History_Controller {
 			$msg['tokens'] = (int) $msg['tokens'];
 
 			if ( ! empty( $msg['metadata'] ) ) {
-				$decoded = json_decode( $msg['metadata'], true );
+				$decoded         = json_decode( $msg['metadata'], true );
 				$msg['metadata'] = is_array( $decoded ) ? $decoded : null;
 			} else {
 				$msg['metadata'] = null;
@@ -300,10 +302,12 @@ class History_Controller {
 		}
 		unset( $msg );
 
-		return rest_ensure_response( [
-			'conversation' => $conversation,
-			'messages'     => $messages,
-		] );
+		return rest_ensure_response(
+			array(
+				'conversation' => $conversation,
+				'messages'     => $messages,
+			)
+		);
 	}
 
 	/**
@@ -338,7 +342,7 @@ class History_Controller {
 			return new \WP_Error(
 				'not_found',
 				__( 'Conversation not found.', 'wp-agent' ),
-				[ 'status' => 404 ]
+				array( 'status' => 404 )
 			);
 		}
 
@@ -346,7 +350,7 @@ class History_Controller {
 			return new \WP_Error(
 				'forbidden',
 				__( 'You do not have access to this conversation.', 'wp-agent' ),
-				[ 'status' => 403 ]
+				array( 'status' => 403 )
 			);
 		}
 
@@ -360,16 +364,18 @@ class History_Controller {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->update(
 			$tables['conversations'],
-			[ 'title' => $title ],
-			[ 'id' => $conversation_id ],
-			[ '%s' ],
-			[ '%d' ]
+			array( 'title' => $title ),
+			array( 'id' => $conversation_id ),
+			array( '%s' ),
+			array( '%d' )
 		);
 
-		return rest_ensure_response( [
-			'id'    => $conversation_id,
-			'title' => $title,
-		] );
+		return rest_ensure_response(
+			array(
+				'id'    => $conversation_id,
+				'title' => $title,
+			)
+		);
 	}
 
 	/**
@@ -379,21 +385,21 @@ class History_Controller {
 	 * @return array
 	 */
 	private function get_list_args() {
-		return [
-			'page'     => [
+		return array(
+			'page'     => array(
 				'type'              => 'integer',
 				'default'           => 1,
 				'sanitize_callback' => 'absint',
-			],
-			'per_page' => [
+			),
+			'per_page' => array(
 				'type'              => 'integer',
 				'default'           => self::DEFAULT_PER_PAGE,
 				'sanitize_callback' => 'absint',
-			],
-			'post_id'  => [
+			),
+			'post_id'  => array(
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
-			],
-		];
+			),
+		);
 	}
 }

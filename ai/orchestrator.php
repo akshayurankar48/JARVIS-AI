@@ -55,13 +55,13 @@ class Orchestrator {
 	 *
 	 * @var string[]
 	 */
-	const RETRYABLE_ERRORS = [
+	const RETRYABLE_ERRORS = array(
 		'http_request_failed',
 		'api_timeout',
 		'rate_limited',
 		'server_error',
 		'connection_reset',
-	];
+	);
 
 	/**
 	 * Maximum number of history messages to load.
@@ -115,7 +115,7 @@ class Orchestrator {
 	 *     @type array  $usage           Token usage.
 	 * }
 	 */
-	public function handle( $user_message, $user_id, $conversation_id = null, array $options = [] ) {
+	public function handle( $user_message, $user_id, $conversation_id = null, array $options = array() ) {
 		// Enforce message length limit.
 		$user_message = $this->truncate_message( $user_message );
 
@@ -170,8 +170,12 @@ class Orchestrator {
 
 		// 8. AI call with tool loop.
 		$client        = $this->get_ai_client();
-		$actions_taken = [];
-		$total_usage   = [ 'prompt_tokens' => 0, 'completion_tokens' => 0, 'total_tokens' => 0 ];
+		$actions_taken = array();
+		$total_usage   = array(
+			'prompt_tokens'     => 0,
+			'completion_tokens' => 0,
+			'total_tokens'      => 0,
+		);
 		$final_content = '';
 		$used_model    = $model;
 
@@ -211,15 +215,15 @@ class Orchestrator {
 					$response['content'],
 					$used_model,
 					0,
-					[ 'tool_calls' => $response['tool_calls'] ]
+					array( 'tool_calls' => $response['tool_calls'] )
 				);
 
 				// Append assistant message to context for next iteration.
-				$messages[] = [
+				$messages[] = array(
 					'role'       => 'assistant',
 					'content'    => $response['content'],
 					'tool_calls' => $response['tool_calls'],
-				];
+				);
 
 				// Dispatch tool calls via shared method.
 				$dispatch_result = $this->dispatch_tool_calls(
@@ -249,13 +253,13 @@ class Orchestrator {
 		// 12. Update conversation.
 		$this->update_conversation( $conversation_id, $used_model, $total_usage['total_tokens'] );
 
-		return [
+		return array(
 			'conversation_id' => $conversation_id,
 			'content'         => $final_content,
 			'actions_taken'   => $actions_taken,
 			'model'           => $used_model,
 			'usage'           => $total_usage,
-		];
+		);
 	}
 
 	/**
@@ -274,7 +278,7 @@ class Orchestrator {
 	 * @param array    $options         Optional overrides (same as handle()).
 	 * @return true|\WP_Error True on success, WP_Error on failure.
 	 */
-	public function handle_stream( $user_message, $user_id, $conversation_id = null, callable $callback = null, array $options = [] ) {
+	public function handle_stream( $user_message, $user_id, $conversation_id = null, callable $callback = null, array $options = array() ) {
 		// Enforce message length limit.
 		$user_message = $this->truncate_message( $user_message );
 
@@ -330,7 +334,11 @@ class Orchestrator {
 		// 8. Stream loop.
 		$client      = $this->get_ai_client();
 		$used_model  = $model;
-		$total_usage = [ 'prompt_tokens' => 0, 'completion_tokens' => 0, 'total_tokens' => 0 ];
+		$total_usage = array(
+			'prompt_tokens'     => 0,
+			'completion_tokens' => 0,
+			'total_tokens'      => 0,
+		);
 
 		for ( $iteration = 0; $iteration < self::MAX_TOOL_ITERATIONS; $iteration++ ) {
 			// Reset execution timer — each AI call can take 30+ seconds,
@@ -338,7 +346,7 @@ class Orchestrator {
 			set_time_limit( 120 );
 
 			$accumulated_content = '';
-			$tool_call_buffer    = [];
+			$tool_call_buffer    = array();
 			$finish_reason       = '';
 
 			// Per-iteration usage tracking. Uses max() because providers vary:
@@ -363,14 +371,14 @@ class Orchestrator {
 						$index = isset( $chunk['index'] ) ? (int) $chunk['index'] : 0;
 
 						if ( ! isset( $tool_call_buffer[ $index ] ) ) {
-							$tool_call_buffer[ $index ] = [
+							$tool_call_buffer[ $index ] = array(
 								'id'       => '',
 								'type'     => 'function',
-								'function' => [
+								'function' => array(
 									'name'      => '',
 									'arguments' => '',
-								],
-							];
+								),
+							);
 						}
 
 						if ( ! empty( $chunk['id'] ) ) {
@@ -424,10 +432,13 @@ class Orchestrator {
 			if ( is_wp_error( $result ) ) {
 				// Emit error to client before returning.
 				if ( $callback ) {
-					call_user_func( $callback, [
-						'type'    => 'error',
-						'message' => $result->get_error_message(),
-					] );
+					call_user_func(
+						$callback,
+						array(
+							'type'    => 'error',
+							'message' => $result->get_error_message(),
+						)
+					);
 				}
 				return $result;
 			}
@@ -443,15 +454,15 @@ class Orchestrator {
 					$accumulated_content,
 					$used_model,
 					0,
-					[ 'tool_calls' => $tool_calls ]
+					array( 'tool_calls' => $tool_calls )
 				);
 
 				// Append assistant message to context.
-				$messages[] = [
+				$messages[] = array(
 					'role'       => 'assistant',
 					'content'    => $accumulated_content,
 					'tool_calls' => $tool_calls,
-				];
+				);
 
 				// Dispatch tool calls via shared method.
 				$dispatch_results = $this->dispatch_tool_calls(
@@ -467,11 +478,14 @@ class Orchestrator {
 					if ( ! empty( $action_result['result']['data']['execution'] )
 						&& 'client' === $action_result['result']['data']['execution']
 						&& $callback ) {
-						call_user_func( $callback, [
-							'type'   => 'action',
-							'action' => $action_result['name'],
-							'data'   => $action_result['result']['data'],
-						] );
+						call_user_func(
+							$callback,
+							array(
+								'type'   => 'action',
+								'action' => $action_result['name'],
+								'data'   => $action_result['result']['data'],
+							)
+						);
 					}
 				}
 
@@ -485,10 +499,13 @@ class Orchestrator {
 					error_log( 'WP Agent: AI returned empty response (no content, no tool calls)' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				}
 				if ( $callback ) {
-					call_user_func( $callback, [
-						'type'    => 'error',
-						'message' => 'The AI did not generate a response. Please try again.',
-					] );
+					call_user_func(
+						$callback,
+						array(
+							'type'    => 'error',
+							'message' => 'The AI did not generate a response. Please try again.',
+						)
+					);
 				}
 			}
 
@@ -499,10 +516,13 @@ class Orchestrator {
 
 			// Signal done to caller.
 			if ( $callback ) {
-				call_user_func( $callback, [
-					'type'            => 'done',
-					'conversation_id' => $conversation_id,
-				] );
+				call_user_func(
+					$callback,
+					array(
+						'type'            => 'done',
+						'conversation_id' => $conversation_id,
+					)
+				);
 			}
 
 			break;
@@ -527,12 +547,12 @@ class Orchestrator {
 	 * @return array Actions taken [{name, params, result}, ...].
 	 */
 	private function dispatch_tool_calls( array $tool_calls, $conversation_id, $user_id, array &$messages, $callback = null ) {
-		$actions_taken = [];
+		$actions_taken = array();
 		$total_calls   = count( $tool_calls );
 		$call_index    = 0;
 
 		foreach ( $tool_calls as $tool_call ) {
-			$call_index++;
+			++$call_index;
 			$fn_name = isset( $tool_call['function']['name'] ) ? $tool_call['function']['name'] : '';
 			$fn_args = isset( $tool_call['function']['arguments'] ) ? $tool_call['function']['arguments'] : '{}';
 			$call_id = isset( $tool_call['id'] ) ? $tool_call['id'] : '';
@@ -540,20 +560,20 @@ class Orchestrator {
 
 			if ( ! is_array( $params ) ) {
 				// Malformed JSON — likely the response was truncated.
-				$result = [
+				$result = array(
 					'success'    => false,
 					'error_code' => 'malformed_arguments',
 					'message'    => 'Tool call arguments were malformed or truncated by the model.',
 					'recovery'   => 'Split the operation into smaller parts. For insert_blocks: use 2-3 sections per call (first call with position "replace", subsequent with "append"). For other tools: simplify the parameters and try again.',
-				];
+				);
 
-				$actions_taken[] = [
+				$actions_taken[] = array(
 					'name'   => $fn_name,
-					'params' => [],
+					'params' => array(),
 					'result' => $result,
-				];
+				);
 
-				$this->log_action( $user_id, $conversation_id, $fn_name, [], $result );
+				$this->log_action( $user_id, $conversation_id, $fn_name, array(), $result );
 
 				$tool_result_json = wp_json_encode( $result );
 
@@ -563,14 +583,17 @@ class Orchestrator {
 					$tool_result_json,
 					'',
 					0,
-					[ 'tool_call_id' => $call_id, 'action_name' => $fn_name ]
+					array(
+						'tool_call_id' => $call_id,
+						'action_name'  => $fn_name,
+					)
 				);
 
-				$messages[] = [
+				$messages[] = array(
 					'role'         => 'tool',
 					'tool_call_id' => $call_id,
 					'content'      => $tool_result_json,
-				];
+				);
 
 				continue;
 			}
@@ -581,10 +604,10 @@ class Orchestrator {
 			}
 
 			// Capture checkpoint before reversible actions execute.
-			$checkpoint_id    = 0;
-			$checkpoint_data  = null;
-			$action_obj       = Action_Registry::get_instance()->get_action( $fn_name );
-			$checkpoint_mgr   = Checkpoint_Manager::get_instance();
+			$checkpoint_id   = 0;
+			$checkpoint_data = null;
+			$action_obj      = Action_Registry::get_instance()->get_action( $fn_name );
+			$checkpoint_mgr  = Checkpoint_Manager::get_instance();
 
 			if ( $action_obj && $action_obj->is_reversible() ) {
 				$checkpoint_data = $checkpoint_mgr->capture_before( $fn_name, $params );
@@ -602,13 +625,16 @@ class Orchestrator {
 
 			// Emit progress event before action execution.
 			if ( $callback ) {
-				call_user_func( $callback, [
-					'type'   => 'progress',
-					'stage'  => 'action_start',
-					'action' => $fn_name,
-					'index'  => $call_index,
-					'total'  => $total_calls,
-				] );
+				call_user_func(
+					$callback,
+					array(
+						'type'   => 'progress',
+						'stage'  => 'action_start',
+						'action' => $fn_name,
+						'index'  => $call_index,
+						'total'  => $total_calls,
+					)
+				);
 			}
 
 			try {
@@ -618,12 +644,12 @@ class Orchestrator {
 					$error_message = $result->get_error_message();
 					$error_code    = $result->get_error_code();
 
-					$tool_result = [
+					$tool_result = array(
 						'success'    => false,
 						'message'    => $error_message,
 						'error_code' => $error_code,
 						'recovery'   => $this->get_recovery_hint( $fn_name, $error_code, $error_message ),
-					];
+					);
 				} else {
 					$tool_result = $result;
 				}
@@ -631,12 +657,12 @@ class Orchestrator {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					error_log( sprintf( 'WP Agent: Action "%s" threw exception: %s', $fn_name, $e->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				}
-				$tool_result = [
+				$tool_result = array(
 					'success'    => false,
 					'message'    => 'Action encountered an unexpected error: ' . $e->getMessage(),
 					'error_code' => 'action_exception',
 					'recovery'   => $this->get_recovery_hint( $fn_name, 'action_exception', $e->getMessage() ),
-				];
+				);
 			}
 
 			// For creation actions, update entity_id on success or clean up on failure.
@@ -656,25 +682,25 @@ class Orchestrator {
 			// Emit progress event after action execution.
 			$action_success = ! empty( $tool_result['success'] );
 			if ( $callback ) {
-				$progress_event = [
+				$progress_event = array(
 					'type'    => 'progress',
 					'stage'   => 'action_complete',
 					'action'  => $fn_name,
 					'index'   => $call_index,
 					'total'   => $total_calls,
 					'success' => $action_success,
-				];
+				);
 				if ( ! $action_success && ! empty( $tool_result['message'] ) ) {
 					$progress_event['error'] = $tool_result['message'];
 				}
 				call_user_func( $callback, $progress_event );
 			}
 
-			$actions_taken[] = [
+			$actions_taken[] = array(
 				'name'   => $fn_name,
 				'params' => $params,
 				'result' => $tool_result,
-			];
+			);
 
 			// Log to history table.
 			$this->log_action( $user_id, $conversation_id, $fn_name, $params, $tool_result );
@@ -688,15 +714,18 @@ class Orchestrator {
 				$tool_result_json,
 				'',
 				0,
-				[ 'tool_call_id' => $call_id, 'action_name' => $fn_name ]
+				array(
+					'tool_call_id' => $call_id,
+					'action_name'  => $fn_name,
+				)
 			);
 
 			// Append tool result to context.
-			$messages[] = [
+			$messages[] = array(
 				'role'         => 'tool',
 				'tool_call_id' => $call_id,
 				'content'      => $tool_result_json,
-			];
+			);
 		}
 
 		return $actions_taken;
@@ -736,7 +765,7 @@ class Orchestrator {
 				return new \WP_Error(
 					'forbidden',
 					__( 'You do not have access to this conversation.', 'wp-agent' ),
-					[ 'status' => 403 ]
+					array( 'status' => 403 )
 				);
 			}
 			return (int) $conversation_id;
@@ -789,14 +818,14 @@ class Orchestrator {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$inserted = $wpdb->insert(
 			$tables['conversations'],
-			[
+			array(
 				'user_id'    => (int) $user_id,
 				'post_id'    => $post_id,
 				'status'     => 'active',
 				'created_at' => current_time( 'mysql', true ),
 				'updated_at' => current_time( 'mysql', true ),
-			],
-			[ '%d', '%d', '%s', '%s', '%s' ]
+			),
+			array( '%d', '%d', '%s', '%s', '%s' )
 		);
 
 		if ( false === $inserted ) {
@@ -834,18 +863,18 @@ class Orchestrator {
 		);
 
 		if ( empty( $rows ) ) {
-			return [];
+			return array();
 		}
 
 		// Reverse to chronological order.
 		$rows = array_reverse( $rows );
 
-		$history = [];
+		$history = array();
 		foreach ( $rows as $row ) {
-			$entry = [
+			$entry = array(
 				'role'    => $row['role'],
 				'content' => $row['content'],
-			];
+			);
 
 			if ( ! empty( $row['metadata'] ) ) {
 				$meta = json_decode( $row['metadata'], true );
@@ -878,7 +907,7 @@ class Orchestrator {
 	 * @param array  $metadata        Additional metadata (optional).
 	 * @return int|false Inserted row ID or false on failure.
 	 */
-	private function save_message( $conversation_id, $role, $content, $model = '', $tokens = 0, array $metadata = [] ) {
+	private function save_message( $conversation_id, $role, $content, $model = '', $tokens = 0, array $metadata = array() ) {
 		global $wpdb;
 
 		$tables = Database::get_table_names();
@@ -888,7 +917,7 @@ class Orchestrator {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->insert(
 			$tables['messages'],
-			[
+			array(
 				'conversation_id' => (int) $conversation_id,
 				'role'            => sanitize_text_field( $role ),
 				'content'         => $content,
@@ -896,8 +925,8 @@ class Orchestrator {
 				'tokens'          => (int) $tokens,
 				'model'           => sanitize_text_field( $model ),
 				'created_at'      => current_time( 'mysql', true ),
-			],
-			[ '%d', '%s', '%s', '%s', '%d', '%s', '%s' ]
+			),
+			array( '%d', '%s', '%s', '%s', '%d', '%s', '%s' )
 		);
 
 		return $wpdb->insert_id ? (int) $wpdb->insert_id : false;
@@ -925,7 +954,7 @@ class Orchestrator {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->insert(
 			$tables['history'],
-			[
+			array(
 				'user_id'         => (int) $user_id,
 				'conversation_id' => (int) $conversation_id,
 				'action_type'     => sanitize_text_field( $action_name ),
@@ -933,8 +962,8 @@ class Orchestrator {
 				'result_status'   => sanitize_text_field( $status ),
 				'result_message'  => sanitize_text_field( $message ),
 				'created_at'      => current_time( 'mysql', true ),
-			],
-			[ '%d', '%d', '%s', '%s', '%s', '%s', '%s' ]
+			),
+			array( '%d', '%d', '%s', '%s', '%s', '%s', '%s' )
 		);
 	}
 
@@ -1014,10 +1043,10 @@ class Orchestrator {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->update(
 			$tables['conversations'],
-			[ 'title' => sanitize_text_field( $title ) ],
-			[ 'id' => (int) $conversation_id ],
-			[ '%s' ],
-			[ '%d' ]
+			array( 'title' => sanitize_text_field( $title ) ),
+			array( 'id' => (int) $conversation_id ),
+			array( '%s' ),
+			array( '%d' )
 		);
 	}
 
@@ -1084,23 +1113,23 @@ class Orchestrator {
 	 */
 	private function get_recovery_hint( $action_name, $error_code, $error_message ) {
 		// Action-specific recovery hints.
-		$action_hints = [
-			'insert_blocks'    => 'If blocks were truncated, split into smaller chunks (2-3 sections per call). If JSON was malformed, simplify the block structure.',
-			'install_plugin'   => 'Verify the plugin slug is correct using list_plugins. The plugin may already be installed or the slug may be misspelled.',
-			'activate_plugin'  => 'Check if the plugin is installed first with list_plugins. It may need to be installed before activation.',
+		$action_hints = array(
+			'insert_blocks'     => 'If blocks were truncated, split into smaller chunks (2-3 sections per call). If JSON was malformed, simplify the block structure.',
+			'install_plugin'    => 'Verify the plugin slug is correct using list_plugins. The plugin may already be installed or the slug may be misspelled.',
+			'activate_plugin'   => 'Check if the plugin is installed first with list_plugins. It may need to be installed before activation.',
 			'deactivate_plugin' => 'Verify the plugin is currently active with list_plugins.',
-			'create_post'      => 'Check if the post type exists and the user has permission to create it.',
-			'edit_post'        => 'Verify the post ID exists by searching for it. The post may have been deleted.',
-			'delete_post'      => 'Confirm the post ID exists and the user has permission to delete it.',
-			'import_media'     => 'The URL may be inaccessible. Try a different image URL or use search_media to find existing images.',
-			'manage_menus'     => 'Check the menu exists first with operation "list". Menu names are case-sensitive.',
-			'update_settings'  => 'Verify the setting key is valid. Use site_health to check current configuration.',
-			'get_pattern'      => 'The pattern slug may be wrong. Call list_patterns first to see available patterns and their exact slugs.',
-			'screenshot_page'  => 'The page may not be published or accessible. Ensure the post is saved and has a permalink.',
-			'manage_seo'       => 'No SEO plugin detected. The native fallback handles basic meta. Suggest installing Yoast or Rank Math for full SEO features.',
-			'generate_image'   => 'Image generation may have failed due to API limits. Try using search_media or import_media as alternatives.',
-			'web_search'       => 'Search may have failed due to API key issues. Check WP Agent > Settings to verify the Tavily API key is configured.',
-		];
+			'create_post'       => 'Check if the post type exists and the user has permission to create it.',
+			'edit_post'         => 'Verify the post ID exists by searching for it. The post may have been deleted.',
+			'delete_post'       => 'Confirm the post ID exists and the user has permission to delete it.',
+			'import_media'      => 'The URL may be inaccessible. Try a different image URL or use search_media to find existing images.',
+			'manage_menus'      => 'Check the menu exists first with operation "list". Menu names are case-sensitive.',
+			'update_settings'   => 'Verify the setting key is valid. Use site_health to check current configuration.',
+			'get_pattern'       => 'The pattern slug may be wrong. Call list_patterns first to see available patterns and their exact slugs.',
+			'screenshot_page'   => 'The page may not be published or accessible. Ensure the post is saved and has a permalink.',
+			'manage_seo'        => 'No SEO plugin detected. The native fallback handles basic meta. Suggest installing Yoast or Rank Math for full SEO features.',
+			'generate_image'    => 'Image generation may have failed due to API limits. Try using search_media or import_media as alternatives.',
+			'web_search'        => 'Search may have failed due to API key issues. Check WP Agent > Settings to verify the Tavily API key is configured.',
+		);
 
 		if ( isset( $action_hints[ $action_name ] ) ) {
 			return $action_hints[ $action_name ];
@@ -1135,8 +1164,8 @@ class Orchestrator {
 		}
 
 		// Check for common transient patterns in the message.
-		$message = strtolower( $error->get_error_message() );
-		$patterns = [ 'timeout', 'rate limit', '429', '502', '503', '504', 'connection' ];
+		$message  = strtolower( $error->get_error_message() );
+		$patterns = array( 'timeout', 'rate limit', '429', '502', '503', '504', 'connection' );
 
 		foreach ( $patterns as $pattern ) {
 			if ( false !== strpos( $message, $pattern ) ) {

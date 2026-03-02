@@ -55,25 +55,25 @@ class List_Users implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'role'     => [
+			'properties' => array(
+				'role'     => array(
 					'type'        => 'string',
-					'enum'        => [ 'administrator', 'editor', 'author', 'contributor', 'subscriber' ],
+					'enum'        => array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' ),
 					'description' => 'Filter by user role. Omit to list all users.',
-				],
-				'search'   => [
+				),
+				'search'   => array(
 					'type'        => 'string',
 					'description' => 'Search by username, email, or display name.',
-				],
-				'per_page' => [
+				),
+				'per_page' => array(
 					'type'        => 'integer',
 					'description' => 'Number of results (1-50). Defaults to 20.',
-				],
-			],
-			'required'   => [],
-		];
+				),
+			),
+			'required'   => array(),
+		);
 	}
 
 	/**
@@ -110,11 +110,11 @@ class List_Users implements Action_Interface {
 		$per_page = isset( $params['per_page'] ) ? absint( $params['per_page'] ) : 20;
 		$per_page = max( 1, min( self::MAX_PER_PAGE, $per_page ) );
 
-		$query_args = [
+		$query_args = array(
 			'number'  => $per_page,
 			'orderby' => 'registered',
 			'order'   => 'DESC',
-		];
+		);
 
 		if ( $role ) {
 			$query_args['role'] = $role;
@@ -122,53 +122,56 @@ class List_Users implements Action_Interface {
 
 		if ( $search ) {
 			$query_args['search']         = '*' . $search . '*';
-			$query_args['search_columns'] = [ 'user_login', 'user_email', 'display_name' ];
+			$query_args['search_columns'] = array( 'user_login', 'user_email', 'display_name' );
 		}
 
 		$user_query = new \WP_User_Query( $query_args );
 		$users      = $user_query->get_results();
-		$results    = [];
+		$results    = array();
 
 		foreach ( $users as $user ) {
 			$roles = $user->roles;
 
 			// Mask email to prevent PII leakage through AI responses.
-			$email       = sanitize_email( $user->user_email );
-			$at_pos      = strpos( $email, '@' );
+			$email        = sanitize_email( $user->user_email );
+			$at_pos       = strpos( $email, '@' );
 			$masked_email = $at_pos > 1
 				? substr( $email, 0, 1 ) . str_repeat( '*', $at_pos - 1 ) . substr( $email, $at_pos )
 				: $email;
 
-			$results[] = [
+			$results[] = array(
 				'id'           => $user->ID,
 				'login'        => sanitize_user( $user->user_login ),
 				'email'        => $masked_email,
 				'display_name' => sanitize_text_field( $user->display_name ),
 				'role'         => ! empty( $roles ) ? sanitize_key( reset( $roles ) ) : 'none',
 				'registered'   => $user->user_registered,
-			];
+			);
 		}
 
 		$total = $user_query->get_total();
 
 		if ( empty( $results ) ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [ 'total' => 0, 'users' => [] ],
+				'data'    => array(
+					'total' => 0,
+					'users' => array(),
+				),
 				'message' => __( 'No users found.', 'wp-agent' ),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'total' => $total,
 				'users' => $results,
-			],
+			),
 			'message' => sprintf(
 				__( 'Found %d user(s).', 'wp-agent' ),
 				$total
 			),
-		];
+		);
 	}
 }

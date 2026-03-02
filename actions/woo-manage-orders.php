@@ -21,25 +21,34 @@ class Woo_Manage_Orders implements Action_Interface {
 	}
 
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation'     => array(
 					'type' => 'string',
-					'enum' => [ 'list', 'get', 'update_status', 'add_note' ],
-				],
-				'order_id'  => [ 'type' => 'integer', 'description' => 'Order ID.' ],
-				'status'    => [
+					'enum' => array( 'list', 'get', 'update_status', 'add_note' ),
+				),
+				'order_id'      => array(
+					'type'        => 'integer',
+					'description' => 'Order ID.',
+				),
+				'status'        => array(
 					'type' => 'string',
-					'enum' => [ 'pending', 'processing', 'on-hold', 'completed', 'cancelled', 'refunded', 'failed' ],
-				],
-				'note'      => [ 'type' => 'string', 'description' => 'Note text for add_note.' ],
-				'per_page'  => [ 'type' => 'integer' ],
-				'page'      => [ 'type' => 'integer' ],
-				'filter_status' => [ 'type' => 'string', 'description' => 'Filter orders by status for list.' ],
-			],
-			'required'   => [ 'operation' ],
-		];
+					'enum' => array( 'pending', 'processing', 'on-hold', 'completed', 'cancelled', 'refunded', 'failed' ),
+				),
+				'note'          => array(
+					'type'        => 'string',
+					'description' => 'Note text for add_note.',
+				),
+				'per_page'      => array( 'type' => 'integer' ),
+				'page'          => array( 'type' => 'integer' ),
+				'filter_status' => array(
+					'type'        => 'string',
+					'description' => 'Filter orders by status for list.',
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	public function get_capabilities_required(): string {
@@ -63,7 +72,11 @@ class Woo_Manage_Orders implements Action_Interface {
 			case 'add_note':
 				return $this->add_note( $params );
 			default:
-				return [ 'success' => false, 'data' => null, 'message' => __( 'Invalid operation.', 'wp-agent' ) ];
+				return array(
+					'success' => false,
+					'data'    => null,
+					'message' => __( 'Invalid operation.', 'wp-agent' ),
+				);
 		}
 	}
 
@@ -71,22 +84,22 @@ class Woo_Manage_Orders implements Action_Interface {
 		$per_page = isset( $params['per_page'] ) ? min( absint( $params['per_page'] ), 50 ) : 20;
 		$page     = isset( $params['page'] ) ? absint( $params['page'] ) : 1;
 
-		$args = [
+		$args = array(
 			'limit'   => $per_page,
 			'page'    => $page,
 			'orderby' => 'date',
 			'order'   => 'DESC',
-		];
+		);
 
 		if ( ! empty( $params['filter_status'] ) ) {
 			$args['status'] = sanitize_text_field( $params['filter_status'] );
 		}
 
 		$orders = wc_get_orders( $args );
-		$list   = [];
+		$list   = array();
 
 		foreach ( $orders as $order ) {
-			$list[] = [
+			$list[] = array(
 				'id'       => $order->get_id(),
 				'status'   => $order->get_status(),
 				'total'    => $order->get_total(),
@@ -94,39 +107,50 @@ class Woo_Manage_Orders implements Action_Interface {
 				'customer' => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
 				'items'    => $order->get_item_count(),
 				'date'     => $order->get_date_created() ? $order->get_date_created()->date( 'Y-m-d H:i:s' ) : '',
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'orders' => $list, 'page' => $page ],
+			'data'    => array(
+				'orders' => $list,
+				'page'   => $page,
+			),
 			'message' => sprintf( __( '%d order(s) found.', 'wp-agent' ), count( $list ) ),
-		];
+		);
 	}
 
 	private function get_order( array $params ) {
 		$order_id = absint( $params['order_id'] ?? 0 );
 		if ( ! $order_id ) {
-			return [ 'success' => false, 'data' => null, 'message' => __( 'order_id is required.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'order_id is required.', 'wp-agent' ),
+			);
 		}
 
 		$order = wc_get_order( $order_id );
 		if ( ! $order ) {
-			return [ 'success' => false, 'data' => null, 'message' => __( 'Order not found.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'Order not found.', 'wp-agent' ),
+			);
 		}
 
-		$items = [];
+		$items = array();
 		foreach ( $order->get_items() as $item ) {
-			$items[] = [
+			$items[] = array(
 				'name'     => $item->get_name(),
 				'quantity' => $item->get_quantity(),
 				'total'    => $item->get_total(),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'id'              => $order->get_id(),
 				'status'          => $order->get_status(),
 				'total'           => $order->get_total(),
@@ -137,9 +161,9 @@ class Woo_Manage_Orders implements Action_Interface {
 				'shipping_method' => $order->get_shipping_method(),
 				'items'           => $items,
 				'date_created'    => $order->get_date_created() ? $order->get_date_created()->date( 'Y-m-d H:i:s' ) : '',
-			],
+			),
 			'message' => sprintf( __( 'Order #%d details.', 'wp-agent' ), $order_id ),
-		];
+		);
 	}
 
 	private function update_status( array $params ) {
@@ -147,22 +171,34 @@ class Woo_Manage_Orders implements Action_Interface {
 		$status   = sanitize_text_field( $params['status'] ?? '' );
 
 		if ( ! $order_id || empty( $status ) ) {
-			return [ 'success' => false, 'data' => null, 'message' => __( 'order_id and status are required.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'order_id and status are required.', 'wp-agent' ),
+			);
 		}
 
 		$order = wc_get_order( $order_id );
 		if ( ! $order ) {
-			return [ 'success' => false, 'data' => null, 'message' => __( 'Order not found.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'Order not found.', 'wp-agent' ),
+			);
 		}
 
 		$old_status = $order->get_status();
 		$order->update_status( $status, __( 'Status updated via WP Agent.', 'wp-agent' ) );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'order_id' => $order_id, 'old_status' => $old_status, 'new_status' => $status ],
-			'message' => sprintf( __( 'Order #%d status: %s -> %s.', 'wp-agent' ), $order_id, $old_status, $status ),
-		];
+			'data'    => array(
+				'order_id'   => $order_id,
+				'old_status' => $old_status,
+				'new_status' => $status,
+			),
+			'message' => sprintf( __( 'Order #%1$d status: %2$s -> %3$s.', 'wp-agent' ), $order_id, $old_status, $status ),
+		);
 	}
 
 	private function add_note( array $params ) {
@@ -170,29 +206,40 @@ class Woo_Manage_Orders implements Action_Interface {
 		$note     = sanitize_textarea_field( $params['note'] ?? '' );
 
 		if ( ! $order_id || empty( $note ) ) {
-			return [ 'success' => false, 'data' => null, 'message' => __( 'order_id and note are required.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'order_id and note are required.', 'wp-agent' ),
+			);
 		}
 
 		$order = wc_get_order( $order_id );
 		if ( ! $order ) {
-			return [ 'success' => false, 'data' => null, 'message' => __( 'Order not found.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'Order not found.', 'wp-agent' ),
+			);
 		}
 
 		$note_id = $order->add_order_note( $note );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'order_id' => $order_id, 'note_id' => $note_id ],
+			'data'    => array(
+				'order_id' => $order_id,
+				'note_id'  => $note_id,
+			),
 			'message' => sprintf( __( 'Note added to order #%d.', 'wp-agent' ), $order_id ),
-		];
+		);
 	}
 
 	private function mask_email( $email ) {
 		if ( empty( $email ) || strpos( $email, '@' ) === false ) {
 			return '***';
 		}
-		$parts = explode( '@', $email );
-		$local = $parts[0];
+		$parts  = explode( '@', $email );
+		$local  = $parts[0];
 		$masked = substr( $local, 0, 2 ) . '***@' . $parts[1];
 		return $masked;
 	}

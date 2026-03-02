@@ -35,42 +35,69 @@ class AI_Client_Adapter {
 	 *
 	 * @var array<string, string>
 	 */
-	const ENDPOINTS = [
+	const ENDPOINTS = array(
 		'anthropic' => 'https://api.anthropic.com/v1/messages',
 		'openai'    => 'https://api.openai.com/v1/chat/completions',
 		'google'    => 'https://generativelanguage.googleapis.com/v1beta/models/',
-	];
+	);
 
 	/**
 	 * Option keys for encrypted API keys.
 	 *
 	 * @var array<string, string>
 	 */
-	const KEY_OPTIONS = [
+	const KEY_OPTIONS = array(
 		'anthropic' => 'wp_agent_anthropic_api_key',
 		'openai'    => 'wp_agent_openai_api_key',
 		'google'    => 'wp_agent_google_api_key',
-	];
+	);
 
 	/**
 	 * Model ID mapping: OpenRouter format -> native provider format.
 	 *
 	 * @var array<string, array{provider: string, model: string}>
 	 */
-	const MODEL_MAP = [
+	const MODEL_MAP = array(
 		// Anthropic models.
-		'anthropic/claude-sonnet-4'        => [ 'provider' => 'anthropic', 'model' => 'claude-sonnet-4-20250514' ],
-		'anthropic/claude-sonnet-4-0514'   => [ 'provider' => 'anthropic', 'model' => 'claude-sonnet-4-20250514' ],
-		'anthropic/claude-haiku-3.5'       => [ 'provider' => 'anthropic', 'model' => 'claude-3-5-haiku-20241022' ],
-		'anthropic/claude-opus-4'          => [ 'provider' => 'anthropic', 'model' => 'claude-opus-4-20250514' ],
+		'anthropic/claude-sonnet-4'      => array(
+			'provider' => 'anthropic',
+			'model'    => 'claude-sonnet-4-20250514',
+		),
+		'anthropic/claude-sonnet-4-0514' => array(
+			'provider' => 'anthropic',
+			'model'    => 'claude-sonnet-4-20250514',
+		),
+		'anthropic/claude-haiku-3.5'     => array(
+			'provider' => 'anthropic',
+			'model'    => 'claude-3-5-haiku-20241022',
+		),
+		'anthropic/claude-opus-4'        => array(
+			'provider' => 'anthropic',
+			'model'    => 'claude-opus-4-20250514',
+		),
 		// OpenAI models.
-		'openai/gpt-4o-mini'               => [ 'provider' => 'openai', 'model' => 'gpt-4o-mini' ],
-		'openai/gpt-4o'                    => [ 'provider' => 'openai', 'model' => 'gpt-4o' ],
-		'openai/gpt-4.1-mini'              => [ 'provider' => 'openai', 'model' => 'gpt-4.1-mini' ],
+		'openai/gpt-4o-mini'             => array(
+			'provider' => 'openai',
+			'model'    => 'gpt-4o-mini',
+		),
+		'openai/gpt-4o'                  => array(
+			'provider' => 'openai',
+			'model'    => 'gpt-4o',
+		),
+		'openai/gpt-4.1-mini'            => array(
+			'provider' => 'openai',
+			'model'    => 'gpt-4.1-mini',
+		),
 		// Google models.
-		'google/gemini-2.0-flash-001'      => [ 'provider' => 'google', 'model' => 'gemini-2.0-flash' ],
-		'google/gemini-2.5-pro-preview'    => [ 'provider' => 'google', 'model' => 'gemini-2.5-pro-preview-05-06' ],
-	];
+		'google/gemini-2.0-flash-001'    => array(
+			'provider' => 'google',
+			'model'    => 'gemini-2.0-flash',
+		),
+		'google/gemini-2.5-pro-preview'  => array(
+			'provider' => 'google',
+			'model'    => 'gemini-2.5-pro-preview-05-06',
+		),
+	);
 
 	/**
 	 * Initiator
@@ -100,14 +127,14 @@ class AI_Client_Adapter {
 	 * @param int      $max_tokens  Maximum tokens in the response.
 	 * @return true|\WP_Error True on success, WP_Error on failure.
 	 */
-	public function stream( array $messages, $model, array $tools = [], callable $callback = null, $temperature = 0.7, $max_tokens = 4096 ) {
+	public function stream( array $messages, $model, array $tools = array(), callable $callback = null, $temperature = 0.7, $max_tokens = 4096 ) {
 		$resolved = $this->resolve_model( $model );
 
 		if ( is_wp_error( $resolved ) ) {
 			return $resolved;
 		}
 
-		$provider    = $resolved['provider'];
+		$provider     = $resolved['provider'];
 		$native_model = $resolved['model'];
 
 		$api_key = $this->get_api_key( $provider );
@@ -147,7 +174,7 @@ class AI_Client_Adapter {
 	 * @param int    $max_tokens  Maximum tokens in the response.
 	 * @return array|\WP_Error Parsed response or WP_Error.
 	 */
-	public function chat( array $messages, $model, array $tools = [], $temperature = 0.7, $max_tokens = 4096 ) {
+	public function chat( array $messages, $model, array $tools = array(), $temperature = 0.7, $max_tokens = 4096 ) {
 		$resolved = $this->resolve_model( $model );
 
 		if ( is_wp_error( $resolved ) ) {
@@ -209,9 +236,9 @@ class AI_Client_Adapter {
 	 * @return array<string, bool>
 	 */
 	public function get_configured_providers() {
-		$providers = [];
+		$providers = array();
 		foreach ( self::KEY_OPTIONS as $provider => $option_key ) {
-			$encrypted = get_option( $option_key, '' );
+			$encrypted              = get_option( $option_key, '' );
 			$providers[ $provider ] = ! empty( $encrypted );
 		}
 		return $providers;
@@ -243,13 +270,22 @@ class AI_Client_Adapter {
 
 		// Try to detect provider from model ID prefix (e.g., "claude-..." = anthropic).
 		if ( 0 === strpos( $model, 'claude-' ) ) {
-			return [ 'provider' => 'anthropic', 'model' => $model ];
+			return array(
+				'provider' => 'anthropic',
+				'model'    => $model,
+			);
 		}
 		if ( 0 === strpos( $model, 'gpt-' ) ) {
-			return [ 'provider' => 'openai', 'model' => $model ];
+			return array(
+				'provider' => 'openai',
+				'model'    => $model,
+			);
 		}
 		if ( 0 === strpos( $model, 'gemini-' ) ) {
-			return [ 'provider' => 'google', 'model' => $model ];
+			return array(
+				'provider' => 'google',
+				'model'    => $model,
+			);
 		}
 
 		return new \WP_Error(
@@ -271,10 +307,10 @@ class AI_Client_Adapter {
 	 * @return array{provider: string, model: string}|\WP_Error
 	 */
 	private function find_fallback_provider( $original_model ) {
-		$preferred_order = get_option( 'wp_agent_preferred_provider', [ 'anthropic', 'openai', 'google' ] );
+		$preferred_order = get_option( 'wp_agent_preferred_provider', array( 'anthropic', 'openai', 'google' ) );
 
 		if ( ! is_array( $preferred_order ) ) {
-			$preferred_order = [ 'anthropic', 'openai', 'google' ];
+			$preferred_order = array( 'anthropic', 'openai', 'google' );
 		}
 
 		foreach ( $preferred_order as $provider ) {
@@ -285,7 +321,10 @@ class AI_Client_Adapter {
 				// Find the best model for this provider.
 				$fallback_model = $this->get_default_model_for_provider( $provider );
 				if ( $fallback_model ) {
-					return [ 'provider' => $provider, 'model' => $fallback_model ];
+					return array(
+						'provider' => $provider,
+						'model'    => $fallback_model,
+					);
 				}
 			}
 		}
@@ -305,11 +344,11 @@ class AI_Client_Adapter {
 	 * @return string|null Native model ID or null.
 	 */
 	private function get_default_model_for_provider( $provider ) {
-		$defaults = [
+		$defaults = array(
 			'anthropic' => 'claude-sonnet-4-20250514',
 			'openai'    => 'gpt-4o-mini',
 			'google'    => 'gemini-2.0-flash',
-		];
+		);
 
 		return $defaults[ $provider ] ?? null;
 	}
@@ -332,13 +371,13 @@ class AI_Client_Adapter {
 	 */
 	private function stream_anthropic( $messages, $native_model, $tools, $callback, $api_key, $temperature, $max_tokens ) {
 		$converted = $this->convert_messages_to_anthropic( $messages );
-		$body      = [
-			'model'      => $native_model,
-			'max_tokens' => (int) $max_tokens,
+		$body      = array(
+			'model'       => $native_model,
+			'max_tokens'  => (int) $max_tokens,
 			'temperature' => (float) $temperature,
-			'stream'     => true,
-			'messages'   => $converted['messages'],
-		];
+			'stream'      => true,
+			'messages'    => $converted['messages'],
+		);
 
 		if ( ! empty( $converted['system'] ) ) {
 			$body['system'] = $converted['system'];
@@ -348,11 +387,11 @@ class AI_Client_Adapter {
 			$body['tools'] = $this->convert_tools_to_anthropic( $tools );
 		}
 
-		$headers = [
+		$headers = array(
 			'Content-Type: application/json',
 			'x-api-key: ' . $api_key,
 			'anthropic-version: 2023-06-01',
-		];
+		);
 
 		return $this->stream_sse(
 			self::ENDPOINTS['anthropic'],
@@ -377,12 +416,12 @@ class AI_Client_Adapter {
 	 */
 	private function chat_anthropic( $messages, $native_model, $tools, $api_key, $temperature, $max_tokens ) {
 		$converted = $this->convert_messages_to_anthropic( $messages );
-		$body      = [
+		$body      = array(
 			'model'       => $native_model,
 			'max_tokens'  => (int) $max_tokens,
 			'temperature' => (float) $temperature,
 			'messages'    => $converted['messages'],
-		];
+		);
 
 		if ( ! empty( $converted['system'] ) ) {
 			$body['system'] = $converted['system'];
@@ -394,15 +433,15 @@ class AI_Client_Adapter {
 
 		$response = wp_remote_post(
 			self::ENDPOINTS['anthropic'],
-			[
-				'headers' => [
+			array(
+				'headers' => array(
 					'Content-Type'      => 'application/json',
 					'x-api-key'         => $api_key,
-					'anthropic-version'  => '2023-06-01',
-				],
+					'anthropic-version' => '2023-06-01',
+				),
 				'body'    => wp_json_encode( $body ),
 				'timeout' => 120,
-			]
+			)
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -414,7 +453,7 @@ class AI_Client_Adapter {
 
 		if ( $code >= 400 ) {
 			$msg = $data['error']['message'] ?? "HTTP {$code}";
-			return new \WP_Error( 'api_error', sprintf( __( 'AI request failed: %s', 'wp-agent' ), $msg ), [ 'status' => $code ] );
+			return new \WP_Error( 'api_error', sprintf( __( 'AI request failed: %s', 'wp-agent' ), $msg ), array( 'status' => $code ) );
 		}
 
 		return $this->normalize_anthropic_response( $data, $native_model );
@@ -429,8 +468,8 @@ class AI_Client_Adapter {
 	 * @return array{system: string, messages: array}
 	 */
 	private function convert_messages_to_anthropic( array $messages ) {
-		$system           = '';
-		$anthropic_msgs   = [];
+		$system         = '';
+		$anthropic_msgs = array();
 
 		foreach ( $messages as $msg ) {
 			$role = $msg['role'] ?? '';
@@ -441,14 +480,14 @@ class AI_Client_Adapter {
 			}
 
 			if ( 'assistant' === $role ) {
-				$content = [];
+				$content = array();
 
 				// Add text content if present.
 				if ( ! empty( $msg['content'] ) ) {
-					$content[] = [
+					$content[] = array(
 						'type' => 'text',
 						'text' => $msg['content'],
-					];
+					);
 				}
 
 				// Convert tool_calls to tool_use blocks.
@@ -463,20 +502,20 @@ class AI_Client_Adapter {
 							$arguments = new \stdClass();
 						}
 
-						$content[] = [
+						$content[] = array(
 							'type'  => 'tool_use',
 							'id'    => $tc['id'] ?? 'toolu_' . wp_generate_uuid4(),
 							'name'  => $tc['function']['name'] ?? '',
 							'input' => $arguments,
-						];
+						);
 					}
 				}
 
 				if ( ! empty( $content ) ) {
-					$anthropic_msgs[] = [
+					$anthropic_msgs[] = array(
 						'role'    => 'assistant',
 						'content' => $content,
-					];
+					);
 				}
 				continue;
 			}
@@ -492,11 +531,11 @@ class AI_Client_Adapter {
 					}
 				}
 
-				$tool_result = [
-					'type'       => 'tool_result',
+				$tool_result = array(
+					'type'        => 'tool_result',
 					'tool_use_id' => $msg['tool_call_id'] ?? '',
-					'content'    => (string) $result_content,
-				];
+					'content'     => (string) $result_content,
+				);
 
 				// Merge consecutive tool results into a single user message.
 				$last_idx = count( $anthropic_msgs ) - 1;
@@ -508,27 +547,27 @@ class AI_Client_Adapter {
 				) {
 					$anthropic_msgs[ $last_idx ]['content'][] = $tool_result;
 				} else {
-					$anthropic_msgs[] = [
+					$anthropic_msgs[] = array(
 						'role'    => 'user',
-						'content' => [ $tool_result ],
-					];
+						'content' => array( $tool_result ),
+					);
 				}
 				continue;
 			}
 
 			if ( 'user' === $role ) {
-				$anthropic_msgs[] = [
+				$anthropic_msgs[] = array(
 					'role'    => 'user',
 					'content' => $msg['content'] ?? '',
-				];
+				);
 				continue;
 			}
 		}
 
-		return [
+		return array(
 			'system'   => $system,
 			'messages' => $anthropic_msgs,
-		];
+		);
 	}
 
 	/**
@@ -538,20 +577,23 @@ class AI_Client_Adapter {
 	 * @return array Tools in Anthropic format.
 	 */
 	private function convert_tools_to_anthropic( array $tools ) {
-		$anthropic_tools = [];
+		$anthropic_tools = array();
 
 		foreach ( $tools as $tool ) {
 			if ( 'function' !== ( $tool['type'] ?? '' ) ) {
 				continue;
 			}
 
-			$fn = $tool['function'] ?? [];
+			$fn = $tool['function'] ?? array();
 
-			$anthropic_tool = [
+			$anthropic_tool = array(
 				'name'         => $fn['name'] ?? '',
 				'description'  => $fn['description'] ?? '',
-				'input_schema' => $fn['parameters'] ?? [ 'type' => 'object', 'properties' => new \stdClass() ],
-			];
+				'input_schema' => $fn['parameters'] ?? array(
+					'type'       => 'object',
+					'properties' => new \stdClass(),
+				),
+			);
 
 			$anthropic_tools[] = $anthropic_tool;
 		}
@@ -575,7 +617,7 @@ class AI_Client_Adapter {
 	 * @param callable $callback   Chunk callback.
 	 */
 	private function parse_anthropic_stream_event( $event_type, $data, $callback ) {
-		static $content_blocks = [];
+		static $content_blocks = array();
 
 		if ( ! $callback ) {
 			return;
@@ -584,59 +626,71 @@ class AI_Client_Adapter {
 		switch ( $event_type ) {
 			case 'message_start':
 				// Anthropic sends input token count at message start.
-				$usage = $data['message']['usage'] ?? [];
+				$usage = $data['message']['usage'] ?? array();
 				if ( ! empty( $usage ) ) {
 					$input  = (int) ( $usage['input_tokens'] ?? 0 );
 					$output = (int) ( $usage['output_tokens'] ?? 0 );
-					call_user_func( $callback, [
-						'type'              => 'usage',
-						'prompt_tokens'     => $input,
-						'completion_tokens' => $output,
-						'total_tokens'      => $input + $output,
-					] );
+					call_user_func(
+						$callback,
+						array(
+							'type'              => 'usage',
+							'prompt_tokens'     => $input,
+							'completion_tokens' => $output,
+							'total_tokens'      => $input + $output,
+						)
+					);
 				}
 				break;
 
 			case 'content_block_start':
 				$index = $data['index'] ?? 0;
-				$block = $data['content_block'] ?? [];
+				$block = $data['content_block'] ?? array();
 
 				$content_blocks[ $index ] = $block;
 
 				// If this is a tool_use block, emit the initial tool_call chunk.
 				if ( 'tool_use' === ( $block['type'] ?? '' ) ) {
-					call_user_func( $callback, [
-						'type'     => 'tool_call',
-						'index'    => $index,
-						'id'       => $block['id'] ?? '',
-						'function' => [
-							'name'      => $block['name'] ?? '',
-							'arguments' => '',
-						],
-					] );
+					call_user_func(
+						$callback,
+						array(
+							'type'     => 'tool_call',
+							'index'    => $index,
+							'id'       => $block['id'] ?? '',
+							'function' => array(
+								'name'      => $block['name'] ?? '',
+								'arguments' => '',
+							),
+						)
+					);
 				}
 				break;
 
 			case 'content_block_delta':
 				$index = $data['index'] ?? 0;
-				$delta = $data['delta'] ?? [];
+				$delta = $data['delta'] ?? array();
 
 				if ( 'text_delta' === ( $delta['type'] ?? '' ) ) {
-					call_user_func( $callback, [
-						'type'    => 'content',
-						'content' => $delta['text'] ?? '',
-					] );
+					call_user_func(
+						$callback,
+						array(
+							'type'    => 'content',
+							'content' => $delta['text'] ?? '',
+						)
+					);
 				} elseif ( 'input_json_delta' === ( $delta['type'] ?? '' ) ) {
 					// Tool call argument fragment.
-					call_user_func( $callback, [
-						'type'     => 'tool_call',
-						'index'    => $index,
-						'id'       => null,
-						'function' => [
-							'name'      => '',
-							'arguments' => $delta['partial_json'] ?? '',
-						],
-					] );
+					call_user_func(
+						$callback,
+						array(
+							'type'     => 'tool_call',
+							'index'    => $index,
+							'id'       => null,
+							'function' => array(
+								'name'      => '',
+								'arguments' => $delta['partial_json'] ?? '',
+							),
+						)
+					);
 				}
 				break;
 
@@ -645,35 +699,44 @@ class AI_Client_Adapter {
 				if ( ! empty( $stop_reason ) ) {
 					// Map Anthropic stop_reason to OpenAI finish_reason.
 					$finish_reason = 'end_turn' === $stop_reason ? 'stop' : $stop_reason;
-					call_user_func( $callback, [
-						'type'          => 'finish',
-						'finish_reason' => $finish_reason,
-					] );
+					call_user_func(
+						$callback,
+						array(
+							'type'          => 'finish',
+							'finish_reason' => $finish_reason,
+						)
+					);
 				}
 
 				// Anthropic sends output token count at message end.
-				$usage = $data['usage'] ?? [];
+				$usage = $data['usage'] ?? array();
 				if ( ! empty( $usage ) ) {
-					call_user_func( $callback, [
-						'type'              => 'usage',
-						'prompt_tokens'     => 0,
-						'completion_tokens' => (int) ( $usage['output_tokens'] ?? 0 ),
-						'total_tokens'      => (int) ( $usage['output_tokens'] ?? 0 ),
-					] );
+					call_user_func(
+						$callback,
+						array(
+							'type'              => 'usage',
+							'prompt_tokens'     => 0,
+							'completion_tokens' => (int) ( $usage['output_tokens'] ?? 0 ),
+							'total_tokens'      => (int) ( $usage['output_tokens'] ?? 0 ),
+						)
+					);
 				}
 				break;
 
 			case 'message_stop':
-				call_user_func( $callback, [ 'type' => 'done' ] );
-				$content_blocks = []; // Reset for next stream.
+				call_user_func( $callback, array( 'type' => 'done' ) );
+				$content_blocks = array(); // Reset for next stream.
 				break;
 
 			case 'error':
 				$error_msg = $data['error']['message'] ?? 'Unknown Anthropic error';
-				call_user_func( $callback, [
-					'type'    => 'error',
-					'message' => $error_msg,
-				] );
+				call_user_func(
+					$callback,
+					array(
+						'type'    => 'error',
+						'message' => $error_msg,
+					)
+				);
 				break;
 		}
 	}
@@ -687,39 +750,39 @@ class AI_Client_Adapter {
 	 */
 	private function normalize_anthropic_response( $data, $native_model ) {
 		$content    = '';
-		$tool_calls = [];
+		$tool_calls = array();
 		$tc_index   = 0;
 
-		foreach ( $data['content'] ?? [] as $block ) {
+		foreach ( $data['content'] ?? array() as $block ) {
 			if ( 'text' === ( $block['type'] ?? '' ) ) {
 				$content .= $block['text'] ?? '';
 			} elseif ( 'tool_use' === ( $block['type'] ?? '' ) ) {
-				$tool_calls[] = [
+				$tool_calls[] = array(
 					'id'       => $block['id'] ?? '',
 					'type'     => 'function',
-					'function' => [
+					'function' => array(
 						'name'      => $block['name'] ?? '',
 						'arguments' => wp_json_encode( ! empty( $block['input'] ) ? $block['input'] : new \stdClass() ),
-					],
-				];
+					),
+				);
 				++$tc_index;
 			}
 		}
 
-		$stop = $data['stop_reason'] ?? '';
+		$stop          = $data['stop_reason'] ?? '';
 		$finish_reason = 'end_turn' === $stop ? 'stop' : $stop;
 
-		return [
+		return array(
 			'content'       => $content,
 			'tool_calls'    => $tool_calls,
 			'model'         => $data['model'] ?? $native_model,
-			'usage'         => [
+			'usage'         => array(
 				'prompt_tokens'     => $data['usage']['input_tokens'] ?? 0,
 				'completion_tokens' => $data['usage']['output_tokens'] ?? 0,
 				'total_tokens'      => ( $data['usage']['input_tokens'] ?? 0 ) + ( $data['usage']['output_tokens'] ?? 0 ),
-			],
+			),
 			'finish_reason' => $finish_reason,
-		];
+		);
 	}
 
 	// =========================================================================
@@ -739,24 +802,24 @@ class AI_Client_Adapter {
 	 * @return true|\WP_Error
 	 */
 	private function stream_openai( $messages, $native_model, $tools, $callback, $api_key, $temperature, $max_tokens ) {
-		$body = [
+		$body = array(
 			'model'               => $native_model,
 			'messages'            => $messages,
 			'stream'              => true,
-			'stream_options'      => [ 'include_usage' => true ],
+			'stream_options'      => array( 'include_usage' => true ),
 			'max_tokens'          => (int) $max_tokens,
 			'temperature'         => (float) $temperature,
 			'parallel_tool_calls' => false,
-		];
+		);
 
 		if ( ! empty( $tools ) ) {
 			$body['tools'] = $tools;
 		}
 
-		$headers = [
+		$headers = array(
 			'Content-Type: application/json',
 			'Authorization: Bearer ' . $api_key,
-		];
+		);
 
 		return $this->stream_sse(
 			self::ENDPOINTS['openai'],
@@ -781,13 +844,13 @@ class AI_Client_Adapter {
 	 * @return array|\WP_Error Normalized response.
 	 */
 	private function chat_openai( $messages, $native_model, $tools, $api_key, $temperature, $max_tokens ) {
-		$body = [
+		$body = array(
 			'model'               => $native_model,
 			'messages'            => $messages,
 			'max_tokens'          => (int) $max_tokens,
 			'temperature'         => (float) $temperature,
 			'parallel_tool_calls' => false,
-		];
+		);
 
 		if ( ! empty( $tools ) ) {
 			$body['tools'] = $tools;
@@ -795,14 +858,14 @@ class AI_Client_Adapter {
 
 		$response = wp_remote_post(
 			self::ENDPOINTS['openai'],
-			[
-				'headers' => [
+			array(
+				'headers' => array(
 					'Content-Type'  => 'application/json',
 					'Authorization' => 'Bearer ' . $api_key,
-				],
+				),
 				'body'    => wp_json_encode( $body ),
 				'timeout' => 120,
-			]
+			)
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -814,18 +877,18 @@ class AI_Client_Adapter {
 
 		if ( $code >= 400 ) {
 			$msg = $data['error']['message'] ?? "HTTP {$code}";
-			return new \WP_Error( 'api_error', sprintf( __( 'AI request failed: %s', 'wp-agent' ), $msg ), [ 'status' => $code ] );
+			return new \WP_Error( 'api_error', sprintf( __( 'AI request failed: %s', 'wp-agent' ), $msg ), array( 'status' => $code ) );
 		}
 
-		$choice = $data['choices'][0] ?? [];
+		$choice = $data['choices'][0] ?? array();
 
-		return [
+		return array(
 			'content'       => $choice['message']['content'] ?? '',
-			'tool_calls'    => $choice['message']['tool_calls'] ?? [],
+			'tool_calls'    => $choice['message']['tool_calls'] ?? array(),
 			'model'         => $data['model'] ?? $native_model,
-			'usage'         => $data['usage'] ?? [],
+			'usage'         => $data['usage'] ?? array(),
 			'finish_reason' => $choice['finish_reason'] ?? '',
-		];
+		);
 	}
 
 	/**
@@ -841,7 +904,13 @@ class AI_Client_Adapter {
 
 		if ( ! empty( $data['error'] ) ) {
 			$msg = is_array( $data['error'] ) ? ( $data['error']['message'] ?? 'Unknown error' ) : $data['error'];
-			call_user_func( $callback, [ 'type' => 'error', 'message' => $msg ] );
+			call_user_func(
+				$callback,
+				array(
+					'type'    => 'error',
+					'message' => $msg,
+				)
+			);
 			return;
 		}
 
@@ -850,35 +919,53 @@ class AI_Client_Adapter {
 		}
 
 		$choice = $data['choices'][0];
-		$delta  = $choice['delta'] ?? [];
+		$delta  = $choice['delta'] ?? array();
 
 		if ( ! empty( $delta['content'] ) ) {
-			call_user_func( $callback, [ 'type' => 'content', 'content' => $delta['content'] ] );
+			call_user_func(
+				$callback,
+				array(
+					'type'    => 'content',
+					'content' => $delta['content'],
+				)
+			);
 		}
 
 		if ( ! empty( $delta['tool_calls'] ) ) {
 			foreach ( $delta['tool_calls'] as $tc ) {
-				call_user_func( $callback, [
-					'type'     => 'tool_call',
-					'index'    => $tc['index'] ?? 0,
-					'id'       => $tc['id'] ?? null,
-					'function' => $tc['function'] ?? [],
-				] );
+				call_user_func(
+					$callback,
+					array(
+						'type'     => 'tool_call',
+						'index'    => $tc['index'] ?? 0,
+						'id'       => $tc['id'] ?? null,
+						'function' => $tc['function'] ?? array(),
+					)
+				);
 			}
 		}
 
 		if ( ! empty( $choice['finish_reason'] ) ) {
-			call_user_func( $callback, [ 'type' => 'finish', 'finish_reason' => $choice['finish_reason'] ] );
+			call_user_func(
+				$callback,
+				array(
+					'type'          => 'finish',
+					'finish_reason' => $choice['finish_reason'],
+				)
+			);
 		}
 
 		// Usage data (sent in the final chunk when stream_options.include_usage is set).
 		if ( ! empty( $data['usage'] ) ) {
-			call_user_func( $callback, [
-				'type'              => 'usage',
-				'prompt_tokens'     => (int) ( $data['usage']['prompt_tokens'] ?? 0 ),
-				'completion_tokens' => (int) ( $data['usage']['completion_tokens'] ?? 0 ),
-				'total_tokens'      => (int) ( $data['usage']['total_tokens'] ?? 0 ),
-			] );
+			call_user_func(
+				$callback,
+				array(
+					'type'              => 'usage',
+					'prompt_tokens'     => (int) ( $data['usage']['prompt_tokens'] ?? 0 ),
+					'completion_tokens' => (int) ( $data['usage']['completion_tokens'] ?? 0 ),
+					'total_tokens'      => (int) ( $data['usage']['total_tokens'] ?? 0 ),
+				)
+			);
 		}
 	}
 
@@ -900,26 +987,26 @@ class AI_Client_Adapter {
 	 */
 	private function stream_google( $messages, $native_model, $tools, $callback, $api_key, $temperature, $max_tokens ) {
 		$converted = $this->convert_messages_to_google( $messages );
-		$body      = [
+		$body      = array(
 			'contents'         => $converted['contents'],
-			'generationConfig' => [
+			'generationConfig' => array(
 				'temperature'     => (float) $temperature,
 				'maxOutputTokens' => (int) $max_tokens,
-			],
-		];
+			),
+		);
 
 		if ( ! empty( $converted['system_instruction'] ) ) {
-			$body['systemInstruction'] = [
-				'parts' => [ [ 'text' => $converted['system_instruction'] ] ],
-			];
+			$body['systemInstruction'] = array(
+				'parts' => array( array( 'text' => $converted['system_instruction'] ) ),
+			);
 		}
 
 		if ( ! empty( $tools ) ) {
-			$body['tools'] = [ [ 'functionDeclarations' => $this->convert_tools_to_google( $tools ) ] ];
+			$body['tools'] = array( array( 'functionDeclarations' => $this->convert_tools_to_google( $tools ) ) );
 		}
 
 		$url     = self::ENDPOINTS['google'] . $native_model . ':streamGenerateContent?alt=sse&key=' . $api_key;
-		$headers = [ 'Content-Type: application/json' ];
+		$headers = array( 'Content-Type: application/json' );
 
 		return $this->stream_sse(
 			$url,
@@ -944,33 +1031,33 @@ class AI_Client_Adapter {
 	 */
 	private function chat_google( $messages, $native_model, $tools, $api_key, $temperature, $max_tokens ) {
 		$converted = $this->convert_messages_to_google( $messages );
-		$body      = [
+		$body      = array(
 			'contents'         => $converted['contents'],
-			'generationConfig' => [
+			'generationConfig' => array(
 				'temperature'     => (float) $temperature,
 				'maxOutputTokens' => (int) $max_tokens,
-			],
-		];
+			),
+		);
 
 		if ( ! empty( $converted['system_instruction'] ) ) {
-			$body['systemInstruction'] = [
-				'parts' => [ [ 'text' => $converted['system_instruction'] ] ],
-			];
+			$body['systemInstruction'] = array(
+				'parts' => array( array( 'text' => $converted['system_instruction'] ) ),
+			);
 		}
 
 		if ( ! empty( $tools ) ) {
-			$body['tools'] = [ [ 'functionDeclarations' => $this->convert_tools_to_google( $tools ) ] ];
+			$body['tools'] = array( array( 'functionDeclarations' => $this->convert_tools_to_google( $tools ) ) );
 		}
 
 		$url = self::ENDPOINTS['google'] . $native_model . ':generateContent?key=' . $api_key;
 
 		$response = wp_remote_post(
 			$url,
-			[
-				'headers' => [ 'Content-Type' => 'application/json' ],
+			array(
+				'headers' => array( 'Content-Type' => 'application/json' ),
 				'body'    => wp_json_encode( $body ),
 				'timeout' => 120,
-			]
+			)
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -982,7 +1069,7 @@ class AI_Client_Adapter {
 
 		if ( $code >= 400 ) {
 			$msg = $data['error']['message'] ?? "HTTP {$code}";
-			return new \WP_Error( 'api_error', sprintf( __( 'AI request failed: %s', 'wp-agent' ), $msg ), [ 'status' => $code ] );
+			return new \WP_Error( 'api_error', sprintf( __( 'AI request failed: %s', 'wp-agent' ), $msg ), array( 'status' => $code ) );
 		}
 
 		return $this->normalize_google_response( $data, $native_model );
@@ -996,7 +1083,7 @@ class AI_Client_Adapter {
 	 */
 	private function convert_messages_to_google( array $messages ) {
 		$system   = '';
-		$contents = [];
+		$contents = array();
 
 		foreach ( $messages as $msg ) {
 			$role = $msg['role'] ?? '';
@@ -1007,60 +1094,63 @@ class AI_Client_Adapter {
 			}
 
 			if ( 'assistant' === $role ) {
-				$parts = [];
+				$parts = array();
 				if ( ! empty( $msg['content'] ) ) {
-					$parts[] = [ 'text' => $msg['content'] ];
+					$parts[] = array( 'text' => $msg['content'] );
 				}
 				if ( ! empty( $msg['tool_calls'] ) ) {
 					foreach ( $msg['tool_calls'] as $tc ) {
 						$args = $tc['function']['arguments'] ?? '{}';
 						if ( is_string( $args ) ) {
-							$args = json_decode( $args, true ) ?? [];
+							$args = json_decode( $args, true ) ?? array();
 						}
-						$parts[] = [
-							'functionCall' => [
+						$parts[] = array(
+							'functionCall' => array(
 								'name' => $tc['function']['name'] ?? '',
 								'args' => $args,
-							],
-						];
+							),
+						);
 					}
 				}
 				if ( ! empty( $parts ) ) {
-					$contents[] = [ 'role' => 'model', 'parts' => $parts ];
+					$contents[] = array(
+						'role'  => 'model',
+						'parts' => $parts,
+					);
 				}
 				continue;
 			}
 
 			if ( 'tool' === $role ) {
 				$result = $msg['content'] ?? '';
-				$parsed = is_string( $result ) ? ( json_decode( $result, true ) ?? [ 'result' => $result ] ) : $result;
+				$parsed = is_string( $result ) ? ( json_decode( $result, true ) ?? array( 'result' => $result ) ) : $result;
 
-				$contents[] = [
+				$contents[] = array(
 					'role'  => 'user',
-					'parts' => [
-						[
-							'functionResponse' => [
+					'parts' => array(
+						array(
+							'functionResponse' => array(
 								'name'     => $msg['name'] ?? 'tool_result',
 								'response' => $parsed,
-							],
-						],
-					],
-				];
+							),
+						),
+					),
+				);
 				continue;
 			}
 
 			if ( 'user' === $role ) {
-				$contents[] = [
+				$contents[] = array(
 					'role'  => 'user',
-					'parts' => [ [ 'text' => $msg['content'] ?? '' ] ],
-				];
+					'parts' => array( array( 'text' => $msg['content'] ?? '' ) ),
+				);
 			}
 		}
 
-		return [
+		return array(
 			'system_instruction' => $system,
 			'contents'           => $contents,
-		];
+		);
 	}
 
 	/**
@@ -1070,17 +1160,20 @@ class AI_Client_Adapter {
 	 * @return array Function declarations.
 	 */
 	private function convert_tools_to_google( array $tools ) {
-		$declarations = [];
+		$declarations = array();
 		foreach ( $tools as $tool ) {
 			if ( 'function' !== ( $tool['type'] ?? '' ) ) {
 				continue;
 			}
-			$fn            = $tool['function'] ?? [];
-			$declarations[] = [
+			$fn             = $tool['function'] ?? array();
+			$declarations[] = array(
 				'name'        => $fn['name'] ?? '',
 				'description' => $fn['description'] ?? '',
-				'parameters'  => $fn['parameters'] ?? [ 'type' => 'object', 'properties' => new \stdClass() ],
-			];
+				'parameters'  => $fn['parameters'] ?? array(
+					'type'       => 'object',
+					'properties' => new \stdClass(),
+				),
+			);
 		}
 		return $declarations;
 	}
@@ -1097,45 +1190,63 @@ class AI_Client_Adapter {
 		}
 
 		$candidate = $data['candidates'][0];
-		$parts     = $candidate['content']['parts'] ?? [];
+		$parts     = $candidate['content']['parts'] ?? array();
 
 		foreach ( $parts as $index => $part ) {
 			if ( isset( $part['text'] ) ) {
-				call_user_func( $callback, [ 'type' => 'content', 'content' => $part['text'] ] );
+				call_user_func(
+					$callback,
+					array(
+						'type'    => 'content',
+						'content' => $part['text'],
+					)
+				);
 			} elseif ( isset( $part['functionCall'] ) ) {
-				call_user_func( $callback, [
-					'type'     => 'tool_call',
-					'index'    => $index,
-					'id'       => 'call_' . wp_generate_uuid4(),
-					'function' => [
-						'name'      => $part['functionCall']['name'] ?? '',
-						'arguments' => wp_json_encode( ! empty( $part['functionCall']['args'] ) ? $part['functionCall']['args'] : new \stdClass() ),
-					],
-				] );
+				call_user_func(
+					$callback,
+					array(
+						'type'     => 'tool_call',
+						'index'    => $index,
+						'id'       => 'call_' . wp_generate_uuid4(),
+						'function' => array(
+							'name'      => $part['functionCall']['name'] ?? '',
+							'arguments' => wp_json_encode( ! empty( $part['functionCall']['args'] ) ? $part['functionCall']['args'] : new \stdClass() ),
+						),
+					)
+				);
 			}
 		}
 
 		$finish_reason = $candidate['finishReason'] ?? '';
 		if ( ! empty( $finish_reason ) ) {
 			$mapped = 'STOP' === $finish_reason ? 'stop' : strtolower( $finish_reason );
-			call_user_func( $callback, [ 'type' => 'finish', 'finish_reason' => $mapped ] );
+			call_user_func(
+				$callback,
+				array(
+					'type'          => 'finish',
+					'finish_reason' => $mapped,
+				)
+			);
 		}
 
 		// Google sends usageMetadata with token counts.
-		$usage = $data['usageMetadata'] ?? [];
+		$usage = $data['usageMetadata'] ?? array();
 		if ( ! empty( $usage ) ) {
 			$prompt     = (int) ( $usage['promptTokenCount'] ?? 0 );
 			$completion = (int) ( $usage['candidatesTokenCount'] ?? 0 );
-			call_user_func( $callback, [
-				'type'              => 'usage',
-				'prompt_tokens'     => $prompt,
-				'completion_tokens' => $completion,
-				'total_tokens'      => (int) ( $usage['totalTokenCount'] ?? ( $prompt + $completion ) ),
-			] );
+			call_user_func(
+				$callback,
+				array(
+					'type'              => 'usage',
+					'prompt_tokens'     => $prompt,
+					'completion_tokens' => $completion,
+					'total_tokens'      => (int) ( $usage['totalTokenCount'] ?? ( $prompt + $completion ) ),
+				)
+			);
 		}
 
 		if ( ! empty( $finish_reason ) ) {
-			call_user_func( $callback, [ 'type' => 'done' ] );
+			call_user_func( $callback, array( 'type' => 'done' ) );
 		}
 	}
 
@@ -1148,40 +1259,40 @@ class AI_Client_Adapter {
 	 */
 	private function normalize_google_response( $data, $native_model ) {
 		$content    = '';
-		$tool_calls = [];
-		$candidate  = $data['candidates'][0] ?? [];
+		$tool_calls = array();
+		$candidate  = $data['candidates'][0] ?? array();
 
-		foreach ( $candidate['content']['parts'] ?? [] as $part ) {
+		foreach ( $candidate['content']['parts'] ?? array() as $part ) {
 			if ( isset( $part['text'] ) ) {
 				$content .= $part['text'];
 			} elseif ( isset( $part['functionCall'] ) ) {
-				$tool_calls[] = [
+				$tool_calls[] = array(
 					'id'       => 'call_' . wp_generate_uuid4(),
 					'type'     => 'function',
-					'function' => [
+					'function' => array(
 						'name'      => $part['functionCall']['name'] ?? '',
 						'arguments' => wp_json_encode( ! empty( $part['functionCall']['args'] ) ? $part['functionCall']['args'] : new \stdClass() ),
-					],
-				];
+					),
+				);
 			}
 		}
 
 		$finish_reason = $candidate['finishReason'] ?? '';
-		$mapped = 'STOP' === $finish_reason ? 'stop' : strtolower( $finish_reason );
+		$mapped        = 'STOP' === $finish_reason ? 'stop' : strtolower( $finish_reason );
 
-		$usage = $data['usageMetadata'] ?? [];
+		$usage = $data['usageMetadata'] ?? array();
 
-		return [
+		return array(
 			'content'       => $content,
 			'tool_calls'    => $tool_calls,
 			'model'         => $native_model,
-			'usage'         => [
+			'usage'         => array(
 				'prompt_tokens'     => $usage['promptTokenCount'] ?? 0,
 				'completion_tokens' => $usage['candidatesTokenCount'] ?? 0,
 				'total_tokens'      => $usage['totalTokenCount'] ?? 0,
-			],
+			),
 			'finish_reason' => $mapped,
-		];
+		);
 	}
 
 	// =========================================================================
@@ -1200,8 +1311,8 @@ class AI_Client_Adapter {
 	 * @return true|\WP_Error
 	 */
 	private function stream_sse( $url, array $headers, array $body, callable $handler ) {
-		$buffer       = '';
-		$raw_body     = '';
+		$buffer        = '';
+		$raw_body      = '';
 		$current_event = 'message'; // Default SSE event type.
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_init -- cURL required for streaming.
@@ -1261,7 +1372,7 @@ class AI_Client_Adapter {
 
 					if ( '[DONE]' === $json_str ) {
 						// OpenAI-style stream termination.
-						call_user_func( $handler, 'done', [] );
+						call_user_func( $handler, 'done', array() );
 						$current_event = 'message';
 						continue;
 					}
@@ -1310,7 +1421,7 @@ class AI_Client_Adapter {
 			return new \WP_Error(
 				'api_error',
 				sprintf( __( 'AI request failed: %s', 'wp-agent' ), $upstream_message ),
-				[ 'status' => $http_code ]
+				array( 'status' => $http_code )
 			);
 		}
 
@@ -1374,19 +1485,26 @@ class AI_Client_Adapter {
 	private function validate_anthropic_key( $key ) {
 		$response = wp_remote_post(
 			self::ENDPOINTS['anthropic'],
-			[
-				'headers' => [
+			array(
+				'headers' => array(
 					'Content-Type'      => 'application/json',
 					'x-api-key'         => $key,
-					'anthropic-version'  => '2023-06-01',
-				],
-				'body'    => wp_json_encode( [
-					'model'      => 'claude-sonnet-4-20250514',
-					'max_tokens' => 1,
-					'messages'   => [ [ 'role' => 'user', 'content' => 'Hi' ] ],
-				] ),
+					'anthropic-version' => '2023-06-01',
+				),
+				'body'    => wp_json_encode(
+					array(
+						'model'      => 'claude-sonnet-4-20250514',
+						'max_tokens' => 1,
+						'messages'   => array(
+							array(
+								'role'    => 'user',
+								'content' => 'Hi',
+							),
+						),
+					)
+				),
 				'timeout' => 15,
-			]
+			)
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -1419,10 +1537,10 @@ class AI_Client_Adapter {
 	private function validate_openai_key( $key ) {
 		$response = wp_remote_get(
 			'https://api.openai.com/v1/models',
-			[
-				'headers' => [ 'Authorization' => 'Bearer ' . $key ],
+			array(
+				'headers' => array( 'Authorization' => 'Bearer ' . $key ),
 				'timeout' => 15,
-			]
+			)
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -1454,7 +1572,7 @@ class AI_Client_Adapter {
 	private function validate_google_key( $key ) {
 		$response = wp_remote_get(
 			self::ENDPOINTS['google'] . '?key=' . $key,
-			[ 'timeout' => 15 ]
+			array( 'timeout' => 15 )
 		);
 
 		if ( is_wp_error( $response ) ) {

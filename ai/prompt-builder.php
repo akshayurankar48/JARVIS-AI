@@ -67,7 +67,7 @@ class Prompt_Builder {
 	 * }
 	 * @return string The assembled system prompt.
 	 */
-	public function build_system_prompt( array $context = [] ) {
+	public function build_system_prompt( array $context = array() ) {
 		$context = wp_parse_args( $context, $this->get_default_context() );
 
 		$prompt  = $this->get_identity_section();
@@ -109,13 +109,13 @@ class Prompt_Builder {
 	 * @return array Formatted messages array for the API.
 	 */
 	public function build_messages( $system_prompt, array $history, $user_message ) {
-		$messages = [];
+		$messages = array();
 
 		// System message first.
-		$messages[] = [
+		$messages[] = array(
 			'role'    => 'system',
 			'content' => $system_prompt,
-		];
+		);
 
 		// Append conversation history.
 		foreach ( $history as $entry ) {
@@ -123,10 +123,10 @@ class Prompt_Builder {
 				continue;
 			}
 
-			$message = [
+			$message = array(
 				'role'    => sanitize_text_field( $entry['role'] ),
 				'content' => $entry['content'],
-			];
+			);
 
 			// Include tool_calls if present (assistant messages).
 			if ( 'assistant' === $entry['role'] && ! empty( $entry['tool_calls'] ) && is_array( $entry['tool_calls'] ) ) {
@@ -142,10 +142,10 @@ class Prompt_Builder {
 		}
 
 		// New user message last.
-		$messages[] = [
+		$messages[] = array(
 			'role'    => 'user',
 			'content' => $user_message,
-		];
+		);
 
 		return $messages;
 	}
@@ -162,7 +162,7 @@ class Prompt_Builder {
 	 * @return array Tool definitions in OpenRouter format.
 	 */
 	public function build_tool_definitions( array $actions ) {
-		$tools = [];
+		$tools = array();
 
 		foreach ( $actions as $action ) {
 			if ( empty( $action['name'] ) ) {
@@ -174,22 +174,22 @@ class Prompt_Builder {
 				continue;
 			}
 
-			$tool = [
+			$tool = array(
 				'type'     => 'function',
-				'function' => [
+				'function' => array(
 					'name'        => $action['name'],
 					'description' => isset( $action['description'] ) ? $action['description'] : '',
-				],
-			];
+				),
+			);
 
 			if ( ! empty( $action['parameters'] ) ) {
 				$tool['function']['parameters'] = $action['parameters'];
 			} else {
 				// Default to empty object schema if no parameters defined.
-				$tool['function']['parameters'] = [
+				$tool['function']['parameters'] = array(
 					'type'       => 'object',
 					'properties' => new \stdClass(),
-				];
+				);
 			}
 
 			$tools[] = $tool;
@@ -206,11 +206,11 @@ class Prompt_Builder {
 	 */
 	private function get_identity_section() {
 		return "<identity>\n"
-			. "You are WP Agent — a senior WordPress engineer and world-class web designer rolled into one. "
+			. 'You are WP Agent — a senior WordPress engineer and world-class web designer rolled into one. '
 			. "You don't just manage WordPress sites; you build stunning, conversion-ready pages that rival "
 			. "professional agencies. Think Stripe-quality landing pages, built in seconds.\n\n"
-			. "PERSONALITY: Confident, efficient, action-oriented. You execute first and explain after. "
-			. "Never apologize, never hedge. When asked to build something, you build it immediately — "
+			. 'PERSONALITY: Confident, efficient, action-oriented. You execute first and explain after. '
+			. 'Never apologize, never hedge. When asked to build something, you build it immediately — '
 			. "no \"sure, I can help with that\" preamble. Just do it and describe the result.\n\n"
 			. "CORE STRENGTHS:\n"
 			. "- Page building: You create pixel-perfect landing pages, hero sections, feature grids, pricing tables, and CTAs using Gutenberg blocks and a curated pattern library.\n"
@@ -232,8 +232,8 @@ class Prompt_Builder {
 			. "1. PLAN: Briefly state what you intend to do.\n"
 			. "2. CONFIRM: Wait for the user to approve before proceeding.\n"
 			. "3. EXECUTE: After approval, execute and report results.\n\n"
-			. "For CONTENT CREATION (insert_blocks, create_post, edit_post), execute immediately — do not ask for confirmation. "
-			. "The user can see changes instantly in the editor and undo with Ctrl+Z. When the user asks you to build a page, "
+			. 'For CONTENT CREATION (insert_blocks, create_post, edit_post), execute immediately — do not ask for confirmation. '
+			. 'The user can see changes instantly in the editor and undo with Ctrl+Z. When the user asks you to build a page, '
 			. "build it right away by calling insert_blocks. Do not describe what you would build — just build it.\n\n"
 			. "For read-only queries (listing posts, checking settings, reading blocks), respond directly.\n"
 			. "</workflow>\n\n";
@@ -310,7 +310,7 @@ class Prompt_Builder {
 
 		$brand = $context['brand'];
 
-		$section = "<brand_identity>\n";
+		$section  = "<brand_identity>\n";
 		$section .= "The site owner has configured brand presets. ALWAYS use these when generating content, building pages, or selecting colors.\n\n";
 
 		if ( ! empty( $brand['brand_name'] ) ) {
@@ -322,7 +322,7 @@ class Prompt_Builder {
 		}
 
 		// Brand color palette.
-		$colors = [];
+		$colors = array();
 		if ( ! empty( $brand['primary_color'] ) ) {
 			$colors[] = "Primary: {$brand['primary_color']}";
 		}
@@ -338,7 +338,7 @@ class Prompt_Builder {
 
 		if ( ! empty( $colors ) ) {
 			$section .= "\nBrand colors: " . implode( ', ', $colors ) . "\n";
-			$section .= "Use these brand colors instead of random palettes. Map them to block styles: "
+			$section .= 'Use these brand colors instead of random palettes. Map them to block styles: '
 				. "primary for buttons/accents, accent for secondary elements, dark for text/backgrounds, light for backgrounds/cards.\n";
 		}
 
@@ -368,7 +368,7 @@ class Prompt_Builder {
 		$output = '';
 
 		if ( ! empty( $tokens['colors'] ) ) {
-			$color_items = [];
+			$color_items = array();
 			foreach ( array_slice( $tokens['colors'], 0, 12 ) as $c ) {
 				if ( ! empty( $c['color'] ) && ! empty( $c['name'] ) ) {
 					$color_items[] = "{$c['name']}: {$c['color']}";
@@ -380,7 +380,7 @@ class Prompt_Builder {
 		}
 
 		if ( ! empty( $tokens['fonts'] ) ) {
-			$font_items = [];
+			$font_items = array();
 			foreach ( array_slice( $tokens['fonts'], 0, 4 ) as $f ) {
 				if ( ! empty( $f['name'] ) ) {
 					$entry = $f['name'];
@@ -396,7 +396,7 @@ class Prompt_Builder {
 		}
 
 		if ( ! empty( $tokens['fontSizes'] ) ) {
-			$size_items = [];
+			$size_items = array();
 			foreach ( array_slice( $tokens['fontSizes'], 0, 6 ) as $s ) {
 				if ( ! empty( $s['name'] ) && ! empty( $s['size'] ) ) {
 					$size_items[] = "{$s['name']}: {$s['size']}";
@@ -408,7 +408,7 @@ class Prompt_Builder {
 		}
 
 		if ( ! empty( $tokens['gradients'] ) ) {
-			$grad_items = [];
+			$grad_items = array();
 			foreach ( array_slice( $tokens['gradients'], 0, 4 ) as $g ) {
 				if ( ! empty( $g['name'] ) ) {
 					$grad_items[] = $g['name'];
@@ -439,10 +439,10 @@ class Prompt_Builder {
 
 		// Context-aware build mode instructions.
 		if ( ! empty( $context['current_post'] ) ) {
-			$section .= "CONTEXT: You are inside the block editor editing post #" . absint( $context['current_post']['id'] ) . ". "
-				. "Use insert_blocks directly — the post_id is " . absint( $context['current_post']['id'] ) . ".\n\n";
+			$section .= 'CONTEXT: You are inside the block editor editing post #' . absint( $context['current_post']['id'] ) . '. '
+				. 'Use insert_blocks directly — the post_id is ' . absint( $context['current_post']['id'] ) . ".\n\n";
 		} else {
-			$section .= "CONTEXT: You are in the admin dashboard (not inside the editor). "
+			$section .= 'CONTEXT: You are in the admin dashboard (not inside the editor). '
 				. "When asked to build a page or landing page:\n"
 				. "1. Call create_post first to create a new page (type: \"page\", status: \"draft\").\n"
 				. "2. Use the post_id returned by create_post for ALL subsequent insert_blocks calls.\n"
@@ -459,15 +459,15 @@ class Prompt_Builder {
 		}
 
 		// Design standards.
-		$section .= "DESIGN STANDARD: Every page you create must look like it was built by a top agency — "
-			. "think Stripe, Linear, Vercel. Clean typography, bold color contrast, generous whitespace, "
+		$section .= 'DESIGN STANDARD: Every page you create must look like it was built by a top agency — '
+			. 'think Stripe, Linear, Vercel. Clean typography, bold color contrast, generous whitespace, '
 			. "professional section composition. Never produce bare unstyled blocks.\n\n";
 
 		// Pattern-first rule (highest priority).
-		$section .= "PATTERN-FIRST RULE (HIGHEST PRIORITY): ALWAYS check the pattern library BEFORE building raw blocks. "
-			. "For any standard section (hero, features, testimonials, pricing, CTA, stats, FAQ, footer), "
-			. "call list_patterns -> get_pattern -> insert_blocks. Patterns are pre-designed, responsive, and polished. "
-			. "Only build raw blocks for truly unique layouts that no pattern covers. "
+		$section .= 'PATTERN-FIRST RULE (HIGHEST PRIORITY): ALWAYS check the pattern library BEFORE building raw blocks. '
+			. 'For any standard section (hero, features, testimonials, pricing, CTA, stats, FAQ, footer), '
+			. 'call list_patterns -> get_pattern -> insert_blocks. Patterns are pre-designed, responsive, and polished. '
+			. 'Only build raw blocks for truly unique layouts that no pattern covers. '
 			. "Building raw blocks when a matching pattern exists is a MISTAKE.\n\n";
 
 		// Tool preference and execution behavior.
@@ -530,8 +530,8 @@ class Prompt_Builder {
 			. "- Luxury: primary #d4af37, accent #1a1a2e, dark #0a0a0a, light #faf9f6\n"
 			. "- Health/Wellness: primary #10b981, accent #f97316, dark #064e3b, light #ecfdf5\n"
 			. "- Minimal/Agency: primary #171717, accent #a3a3a3, dark #000000, light #fafafa\n"
-			. "Use primary for CTAs and key elements, accent for highlights, dark for hero/footer backgrounds, "
-			. "light for alternating sections. Stay consistent across ALL sections. "
+			. 'Use primary for CTAs and key elements, accent for highlights, dark for hero/footer backgrounds, '
+			. 'light for alternating sections. Stay consistent across ALL sections. '
 			. "When theme colors are available, prefer those over presets.\n\n"
 
 			. "SECTION COMPOSITION (pair sections for maximum impact):\n"
@@ -540,7 +540,7 @@ class Prompt_Builder {
 			. "- Product Launch (use blueprint product-launch): hero-aurora > logo-bar-glass > features-glass > stats-gradient > pricing-glass > faq-modern > cta-aurora\n"
 			. "- Landing page: hero > features > social-proof > benefits > pricing > FAQ > CTA\n"
 			. "- About/Story: hero > mission > team/media-text > timeline > values > CTA\n"
-			. "RULES: Never put two similar sections back-to-back (e.g. two feature grids). "
+			. 'RULES: Never put two similar sections back-to-back (e.g. two feature grids). '
 			. "Alternate background colors: dark > light > dark > light. Every page ends with a strong CTA section.\n\n"
 
 			. "ANTI-PATTERNS (never do these):\n"
@@ -551,17 +551,17 @@ class Prompt_Builder {
 			. "- Feature grids without icons or visual anchors (just text columns)\n"
 			. "- More than 4 columns (2-3 is optimal for readability)\n\n"
 
-			. "COPYWRITING: Write real, compelling copy — not placeholder text. Use specific numbers (\"50,000+ customers\"), "
-			. "power verbs (\"Transform\", \"Unleash\", \"Accelerate\"), and benefit-driven language. "
+			. 'COPYWRITING: Write real, compelling copy — not placeholder text. Use specific numbers ("50,000+ customers"), '
+			. 'power verbs ("Transform", "Unleash", "Accelerate"), and benefit-driven language. '
 			. "Headlines: punchy (3-8 words). Subheadings: one-sentence value proposition. Body: concrete and persuasive.\n\n"
 
-			. "IMAGES: ALWAYS call search_media first to find real images from the media library. "
-			. "If the user provides a specific image URL, use import_media to download it first. "
-			. "Only fall back to placeholder URLs if no suitable images exist. "
+			. 'IMAGES: ALWAYS call search_media first to find real images from the media library. '
+			. 'If the user provides a specific image URL, use import_media to download it first. '
+			. 'Only fall back to placeholder URLs if no suitable images exist. '
 			. "Placeholder syntax: \"https://placehold.co/WIDTHxHEIGHT/BGHEX/TEXTHEX\" (no # in hex).\n\n"
 
-			. "BLOCK VARIETY: Use the right block for the job. core/cover for hero banners, "
-			. "core/media-text for side-by-side, core/quote for testimonials, core/details for FAQ. "
+			. 'BLOCK VARIETY: Use the right block for the job. core/cover for hero banners, '
+			. 'core/media-text for side-by-side, core/quote for testimonials, core/details for FAQ. '
 			. "Don't default to core/columns for everything.\n\n";
 
 		// Few-shot examples.
@@ -624,9 +624,9 @@ class Prompt_Builder {
 			. "- add_custom_css: Add custom CSS for animations, effects, and fine-tuning.\n"
 			. "- screenshot_page: Capture a screenshot for visual review after full-page builds.\n\n"
 			. "CONTENT INTELLIGENCE TOOLS (execute immediately):\n"
-			. "- read_url: Fetch and extract content from an external URL (text, headings, meta). "
+			. '- read_url: Fetch and extract content from an external URL (text, headings, meta). '
 			. "Use for research, competitor analysis, or referencing external content.\n"
-			. "- manage_seo: Get or update SEO meta (title, description, Open Graph, robots). "
+			. '- manage_seo: Get or update SEO meta (title, description, Open Graph, robots). '
 			. "Auto-detects Yoast, AIOSEO, Rank Math, or uses native fallback.\n\n"
 			. "SITE APPEARANCE TOOLS (require confirmation for switch):\n"
 			. "- manage_theme: List themes, get active theme info, or switch themes.\n"
@@ -659,9 +659,9 @@ class Prompt_Builder {
 	 */
 	private function get_reasoning_section() {
 		return "<reasoning>\n"
-			. "REFERENCE BUILD: read_url (analyze reference) -> pick palette -> set_page_template \"blank\" -> search_media -> "
+			. 'REFERENCE BUILD: read_url (analyze reference) -> pick palette -> set_page_template "blank" -> search_media -> '
 			. "list_patterns -> get_pattern + insert_blocks per section -> screenshot_page mid-build -> finish + final screenshot.\n"
-			. "FULL PAGE BUILDS: set_page_template \"blank\" -> pick palette -> search_media -> list_patterns -> "
+			. 'FULL PAGE BUILDS: set_page_template "blank" -> pick palette -> search_media -> list_patterns -> '
 			. "get_pattern + insert_blocks per section (replace first, append rest). screenshot_page after first 2-3 sections.\n"
 			. "SINGLE SECTION EDITS: read_blocks -> get_pattern or raw blocks -> insert_blocks with \"append\" or specific position.\n"
 			. "DESIGN CHANGES: edit_global_styles for theme-wide changes, add_custom_css for page-specific effects.\n"
@@ -689,7 +689,7 @@ class Prompt_Builder {
 			. "- Numbered lists (1. step) for sequential steps\n"
 			. "- [Link text](url) for clickable links\n\n"
 			. "RESPONSE RULES:\n"
-			. "- After building content: describe what you built in 2-3 sentences with visual details (colors, layout, sections). "
+			. '- After building content: describe what you built in 2-3 sentences with visual details (colors, layout, sections). '
 			. "Mention the palette and section count. Never dump raw JSON or block code.\n"
 			. "- After admin actions: confirm the result in one sentence. Use bullet lists if multiple things changed.\n"
 			. "- For queries: use bullet lists with **bold labels** for clarity. Example: **Active theme**: flavor flavor flavor flavor flavor.\n"
@@ -710,9 +710,9 @@ class Prompt_Builder {
 	 */
 	private function get_pattern_library_section() {
 		return "<pattern_library>\n"
-			. "You have access to a curated library of 42+ professionally designed patterns across 15 categories, "
+			. 'You have access to a curated library of 42+ professionally designed patterns across 15 categories, '
 			. "plus 7 full-page blueprints (landing-page, saas-landing, startup-page, about-page, modern-saas, agency-portfolio, product-launch).\n\n"
-			. "PATTERN-FIRST RULE: For standard page sections, ALWAYS use get_pattern instead of building raw blocks. "
+			. 'PATTERN-FIRST RULE: For standard page sections, ALWAYS use get_pattern instead of building raw blocks. '
 			. "Patterns are pre-designed, responsive, and visually polished. Use them for:\n"
 			. "- Heroes, features, testimonials, pricing, CTAs, stats, FAQ, footers, headers, content sections.\n\n"
 			. "Pattern workflow:\n"
@@ -754,7 +754,7 @@ class Prompt_Builder {
 			. "   - Write ORIGINAL copy that matches the tone and style.\n"
 			. "   - Use search_media / import_media for images — never hotlink from the reference.\n\n"
 			. "4. BUILD: Follow the page building recipe with the reference palette and structure.\n\n"
-			. "Even WITHOUT a reference URL, you can apply this thinking: when a user says \"build a SaaS landing page\", "
+			. 'Even WITHOUT a reference URL, you can apply this thinking: when a user says "build a SaaS landing page", '
 			. "mentally reference sites like Stripe, Linear, or Vercel for structure and quality.\n"
 			. "</reference_design>\n\n";
 	}
@@ -775,9 +775,9 @@ class Prompt_Builder {
 			. "2. TEMPLATE: set_page_template to \"blank\" for a clean canvas (pass the post_id).\n"
 			. "3. PALETTE: Pick a color palette — from the reference site, theme tokens, user request, or the presets above. Commit to 4 colors (primary, accent, dark, light) and use them everywhere.\n"
 			. "4. MEDIA: search_media to find real site images.\n"
-			. "5. PLAN: Check if a blueprint matches (list_patterns category \"blueprints\"). "
+			. '5. PLAN: Check if a blueprint matches (list_patterns category "blueprints"). '
 			. "Otherwise compose a section sequence using the composition rules above.\n"
-			. "6. BUILD: For each section, call get_pattern with variable overrides, then insert_blocks. "
+			. '6. BUILD: For each section, call get_pattern with variable overrides, then insert_blocks. '
 			. "First section uses position \"replace\", all subsequent use \"append\". One section per tool call.\n"
 			. "7. MID-BUILD CHECK: After the first 2-3 sections, screenshot_page to verify colors and spacing are consistent. Fix issues before continuing.\n"
 			. "8. POLISH: Apply wpa- animation classes to 3-5 below-the-fold sections. Add custom CSS only if needed.\n"
@@ -798,9 +798,9 @@ class Prompt_Builder {
 		return "<animations_and_effects>\n"
 			. "You have a powerful visual effects library. Apply effects via the className attribute on any block.\n\n"
 
-			. "CRITICAL CLASS NAMING RULE: ALL animation/effect classes use the \"wpa-\" prefix. "
-			. "ONLY classes starting with \"wpa-\" will work. Do NOT invent your own class names — "
-			. "classes like \"enhanced-aurora\", \"nike-fade-in\", \"floating-element\", \"glassmorphic\", \"magnetic\" "
+			. 'CRITICAL CLASS NAMING RULE: ALL animation/effect classes use the "wpa-" prefix. '
+			. 'ONLY classes starting with "wpa-" will work. Do NOT invent your own class names — '
+			. 'classes like "enhanced-aurora", "nike-fade-in", "floating-element", "glassmorphic", "magnetic" '
 			. "DO NOT EXIST and produce NO visual effect. ONLY use the exact class names listed below.\n\n"
 
 			. "SCROLL ANIMATIONS (fire once on scroll into view):\n"
@@ -839,10 +839,10 @@ class Prompt_Builder {
 			. "- Duration: wpa-duration-300 (fast), wpa-duration-500, wpa-duration-700, wpa-duration-1000 (slow)\n\n"
 
 			. "COMPLETE LIST OF VALID CLASSES (nothing else works):\n"
-			. "wpa-fade-up, wpa-fade-down, wpa-slide-left, wpa-slide-right, wpa-zoom-in, wpa-stagger-children, "
-			. "wpa-glass, wpa-glass-light, wpa-glow, wpa-glow-accent, wpa-border-glow, wpa-gradient-text, "
-			. "wpa-gradient-border, wpa-aurora, wpa-noise, wpa-blur-bg, wpa-lift, wpa-tilt, wpa-float, wpa-shine, "
-			. "wpa-bento-grid, wpa-delay-100, wpa-delay-200, wpa-delay-300, wpa-delay-400, wpa-delay-500, "
+			. 'wpa-fade-up, wpa-fade-down, wpa-slide-left, wpa-slide-right, wpa-zoom-in, wpa-stagger-children, '
+			. 'wpa-glass, wpa-glass-light, wpa-glow, wpa-glow-accent, wpa-border-glow, wpa-gradient-text, '
+			. 'wpa-gradient-border, wpa-aurora, wpa-noise, wpa-blur-bg, wpa-lift, wpa-tilt, wpa-float, wpa-shine, '
+			. 'wpa-bento-grid, wpa-delay-100, wpa-delay-200, wpa-delay-300, wpa-delay-400, wpa-delay-500, '
 			. "wpa-duration-300, wpa-duration-500, wpa-duration-700, wpa-duration-1000\n\n"
 
 			. "MODERN DESIGN RULES (2026-GRADE):\n"
@@ -855,7 +855,7 @@ class Prompt_Builder {
 			. "- Combine effects: className: \"wpa-glass wpa-lift wpa-border-glow\" for a premium featured card.\n"
 			. "- Do NOT apply scroll animations to hero sections (above the fold).\n"
 			. "- Apply scroll animations to 3-5 below-fold sections. Use wpa-stagger-children on card grids.\n"
-			. "CRITICAL: NEVER use add_custom_css to set opacity:0 on .wp-block-* classes. This hides ALL content site-wide with no JavaScript to reveal it. "
+			. 'CRITICAL: NEVER use add_custom_css to set opacity:0 on .wp-block-* classes. This hides ALL content site-wide with no JavaScript to reveal it. '
 			. "For animations, ONLY use wpa-* className attributes on individual blocks — the IntersectionObserver script handles the rest automatically.\n\n"
 
 			. "ANTI-PATTERN — WRONG CLASS NAMES (these DO NOT WORK):\n"
@@ -904,7 +904,7 @@ class Prompt_Builder {
 			. "- CONTRAST: Can you read every line of text against its background? Light text on dark, dark text on light.\n"
 			. "- CTA: Is the primary call-to-action the most visually dominant element? Bold color, large size, clear label.\n"
 			. "- FLOW: Does the page tell a story? Hook (hero) > Intrigue (features) > Trust (proof) > Action (CTA).\n\n"
-			. "If issues are found: call insert_blocks with the specific position to fix just the broken section. "
+			. 'If issues are found: call insert_blocks with the specific position to fix just the broken section. '
 			. "Do NOT rebuild the entire page — surgical fixes only.\n"
 			. "Skip self-critique for single-section edits or non-page tasks.\n"
 			. "</self_critique>\n\n";
@@ -1004,22 +1004,24 @@ class Prompt_Builder {
 	 * @return string
 	 */
 	private function get_memory_context_section() {
-		$memories = get_option( 'wp_agent_memories', [] );
+		$memories = get_option( 'wp_agent_memories', array() );
 		if ( empty( $memories ) || ! is_array( $memories ) ) {
 			return '';
 		}
 
-		$section = "<conversation_memory>\n";
+		$section  = "<conversation_memory>\n";
 		$section .= "Things I remember about this site and user:\n";
 
 		$count = 0;
 		foreach ( $memories as $memory ) {
-			if ( $count >= 20 ) break;
+			if ( $count >= 20 ) {
+				break;
+			}
 			$key   = isset( $memory['key'] ) ? $memory['key'] : '';
 			$value = isset( $memory['value'] ) ? $memory['value'] : '';
 			if ( ! empty( $key ) && ! empty( $value ) ) {
-				$section .= "- " . esc_html( $key ) . ": " . esc_html( $value ) . "\n";
-				$count++;
+				$section .= '- ' . esc_html( $key ) . ': ' . esc_html( $value ) . "\n";
+				++$count;
 			}
 		}
 
@@ -1037,7 +1039,7 @@ class Prompt_Builder {
 		$current_user = wp_get_current_user();
 		$user_roles   = $current_user->roles;
 
-		return [
+		return array(
 			'site_name'     => substr( sanitize_text_field( get_bloginfo( 'name' ) ), 0, 100 ),
 			'site_url'      => esc_url( home_url() ),
 			'wp_version'    => sanitize_text_field( get_bloginfo( 'version' ) ),
@@ -1045,8 +1047,8 @@ class Prompt_Builder {
 			'user_name'     => substr( sanitize_text_field( $current_user->display_name ? $current_user->display_name : 'Unknown' ), 0, 60 ),
 			'php_version'   => PHP_VERSION,
 			'locale'        => sanitize_text_field( get_locale() ),
-			'theme'         => [],
-			'design_tokens' => [],
-		];
+			'theme'         => array(),
+			'design_tokens' => array(),
+		);
 	}
 }

@@ -51,17 +51,17 @@ class Install_Plugin implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'slug' => [
+			'properties' => array(
+				'slug' => array(
 					'type'        => 'string',
 					'description' => 'The WordPress.org plugin slug (e.g. "contact-form-7") or a search term '
 						. '(e.g. "ultimate addons elementor"). The system will search if the exact slug is not found.',
-				],
-			],
-			'required'   => [ 'slug' ],
-		];
+				),
+			),
+			'required'   => array( 'slug' ),
+		);
 	}
 
 	/**
@@ -96,11 +96,11 @@ class Install_Plugin implements Action_Interface {
 		$slug = sanitize_text_field( $params['slug'] );
 
 		if ( empty( $slug ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Plugin slug or search term is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Load required upgrader files.
@@ -117,7 +117,7 @@ class Install_Plugin implements Action_Interface {
 		// Check if already installed by slug.
 		$existing = $this->find_installed_plugin( $slug_attempt );
 		if ( $existing ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => $existing,
 				'message' => sprintf(
@@ -125,19 +125,19 @@ class Install_Plugin implements Action_Interface {
 					__( 'Plugin "%s" is already installed. Use activate_plugin to activate it.', 'wp-agent' ),
 					$existing['name']
 				),
-			];
+			);
 		}
 
 		// Try exact slug lookup first.
 		$api = plugins_api(
 			'plugin_information',
-			[
+			array(
 				'slug'   => $slug_attempt,
-				'fields' => [
+				'fields' => array(
 					'sections' => false,
 					'versions' => false,
-				],
-			]
+				),
+			)
 		);
 
 		// If exact slug fails, search WordPress.org.
@@ -145,7 +145,7 @@ class Install_Plugin implements Action_Interface {
 			$search_result = $this->search_and_resolve( $normalized_slug );
 
 			if ( is_wp_error( $search_result ) ) {
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => sprintf(
@@ -154,7 +154,7 @@ class Install_Plugin implements Action_Interface {
 						$slug,
 						$search_result->get_error_message()
 					),
-				];
+				);
 			}
 
 			$api = $search_result;
@@ -164,7 +164,7 @@ class Install_Plugin implements Action_Interface {
 		$resolved_slug = $api->slug ?? $slug_attempt;
 		$existing      = $this->find_installed_plugin( $resolved_slug );
 		if ( $existing ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => $existing,
 				'message' => sprintf(
@@ -173,7 +173,7 @@ class Install_Plugin implements Action_Interface {
 					$existing['name'],
 					$slug
 				),
-			];
+			);
 		}
 
 		return $this->install_from_api( $api, $slug );
@@ -190,23 +190,23 @@ class Install_Plugin implements Action_Interface {
 	private function search_and_resolve( $query ) {
 		$search = plugins_api(
 			'query_plugins',
-			[
+			array(
 				'keyword'  => $query,
 				'per_page' => 5,
 				'page'     => 1,
-				'fields'   => [
+				'fields'   => array(
 					'sections'        => false,
 					'versions'        => false,
 					'active_installs' => true,
-				],
-			]
+				),
+			)
 		);
 
 		if ( is_wp_error( $search ) ) {
 			return $search;
 		}
 
-		$plugins = $search->plugins ?? [];
+		$plugins = $search->plugins ?? array();
 
 		if ( empty( $plugins ) ) {
 			return new \WP_Error(
@@ -230,13 +230,13 @@ class Install_Plugin implements Action_Interface {
 		// Fetch full plugin information for the best match.
 		return plugins_api(
 			'plugin_information',
-			[
+			array(
 				'slug'   => $best_slug,
-				'fields' => [
+				'fields' => array(
 					'sections' => false,
 					'versions' => false,
-				],
-			]
+				),
+			)
 		);
 	}
 
@@ -255,23 +255,23 @@ class Install_Plugin implements Action_Interface {
 		$result   = $upgrader->install( $api->download_link );
 
 		if ( is_wp_error( $result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $result->get_error_message(),
-			];
+			);
 		}
 
 		if ( is_wp_error( $skin->result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $skin->result->get_error_message(),
-			];
+			);
 		}
 
 		if ( ! $result ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -279,7 +279,7 @@ class Install_Plugin implements Action_Interface {
 					__( 'Failed to install plugin "%s". Check filesystem permissions.', 'wp-agent' ),
 					$api->slug ?? $original_slug
 				),
-			];
+			);
 		}
 
 		// Find the installed plugin file.
@@ -287,17 +287,17 @@ class Install_Plugin implements Action_Interface {
 
 		// Re-read plugins to get the installed plugin data.
 		$all_plugins = get_plugins();
-		$plugin_data = isset( $all_plugins[ $plugin_file ] ) ? $all_plugins[ $plugin_file ] : [];
+		$plugin_data = isset( $all_plugins[ $plugin_file ] ) ? $all_plugins[ $plugin_file ] : array();
 
 		$name    = isset( $plugin_data['Name'] ) ? $plugin_data['Name'] : ( $api->name ?? $original_slug );
 		$version = isset( $plugin_data['Version'] ) ? $plugin_data['Version'] : '';
 
-		$data = [
+		$data = array(
 			'slug'        => $api->slug ?? $original_slug,
 			'name'        => $name,
 			'version'     => $version,
 			'plugin_file' => $plugin_file,
-		];
+		);
 
 		// Note if we resolved from a different slug.
 		$resolved_slug = $api->slug ?? '';
@@ -318,11 +318,11 @@ class Install_Plugin implements Action_Interface {
 			);
 		}
 
-		return [
+		return array(
 			'success' => true,
 			'data'    => $data,
 			'message' => $message,
-		];
+		);
 	}
 
 	/**
@@ -338,11 +338,11 @@ class Install_Plugin implements Action_Interface {
 
 		foreach ( $installed_plugins as $plugin_file => $plugin_data ) {
 			if ( 0 === strpos( $plugin_file, $slug . '/' ) ) {
-				return [
+				return array(
 					'slug'        => $slug,
 					'name'        => $plugin_data['Name'],
 					'plugin_file' => $plugin_file,
-				];
+				);
 			}
 		}
 

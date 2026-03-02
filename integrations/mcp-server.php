@@ -27,7 +27,7 @@ class MCP_Server {
 	}
 
 	public function __construct() {
-		add_action( 'mcp_adapter_init', [ $this, 'register_mcp_server' ] );
+		add_action( 'mcp_adapter_init', array( $this, 'register_mcp_server' ) );
 	}
 
 	public function register_mcp_server() {
@@ -39,9 +39,9 @@ class MCP_Server {
 			$adapter = \WP\MCP\Core\McpAdapter::instance();
 
 			// Collect ability names registered by Abilities_Bridge (wp-agent/{action}).
-			$registry     = Action_Registry::get_instance();
-			$actions      = $registry->get_all_actions();
-			$ability_names = [];
+			$registry      = Action_Registry::get_instance();
+			$actions       = $registry->get_all_actions();
+			$ability_names = array();
 			foreach ( $actions as $name => $action ) {
 				$ability_names[] = "wp-agent/{$name}";
 			}
@@ -55,7 +55,7 @@ class MCP_Server {
 				'WP Agent (JARVIS)',                                                 // server_name
 				'AI-powered WordPress management — 70+ actions available as tools.', // server_description
 				$version,                                                            // server_version
-				[ \WP\MCP\Transport\HttpTransport::class ],                         // mcp_transports
+				array( \WP\MCP\Transport\HttpTransport::class ),                         // mcp_transports
 				null,                                                                // error_handler (null = default)
 				null,                                                                // observability_handler (null = default)
 				$ability_names                                                       // tools (ability name strings)

@@ -95,40 +95,40 @@ class Web_Search implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'query'           => [
+			'properties' => array(
+				'query'           => array(
 					'type'        => 'string',
 					'description' => 'The search query. Be specific for better results.',
-				],
-				'search_depth'    => [
+				),
+				'search_depth'    => array(
 					'type'        => 'string',
-					'enum'        => [ 'basic', 'advanced' ],
+					'enum'        => array( 'basic', 'advanced' ),
 					'description' => 'Search depth. "basic" is faster, "advanced" extracts more content from each result. Defaults to "basic".',
-				],
-				'max_results'     => [
+				),
+				'max_results'     => array(
 					'type'        => 'integer',
 					'description' => 'Number of results to return (1-10). Defaults to 5.',
-				],
-				'include_domains' => [
+				),
+				'include_domains' => array(
 					'type'        => 'array',
-					'items'       => [ 'type' => 'string' ],
+					'items'       => array( 'type' => 'string' ),
 					'description' => 'Only search these domains (e.g. ["wordpress.org", "developer.mozilla.org"]).',
-				],
-				'exclude_domains' => [
+				),
+				'exclude_domains' => array(
 					'type'        => 'array',
-					'items'       => [ 'type' => 'string' ],
+					'items'       => array( 'type' => 'string' ),
 					'description' => 'Skip these domains from results.',
-				],
-				'topic'           => [
+				),
+				'topic'           => array(
 					'type'        => 'string',
-					'enum'        => [ 'general', 'news' ],
+					'enum'        => array( 'general', 'news' ),
 					'description' => 'Search category. "news" focuses on recent articles. Defaults to "general".',
-				],
-			],
-			'required'   => [ 'query' ],
-		];
+				),
+			),
+			'required'   => array( 'query' ),
+		);
 	}
 
 	/**
@@ -164,39 +164,42 @@ class Web_Search implements Action_Interface {
 		$api_key = $this->get_api_key();
 
 		if ( is_wp_error( $api_key ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $api_key->get_error_message(),
-			];
+			);
 		}
 
 		// Validate and sanitize query.
 		$query = $this->validate_query( $params['query'] ?? '' );
 
 		if ( is_wp_error( $query ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $query->get_error_message(),
-			];
+			);
 		}
 
 		// Build request body.
 		$body = $this->build_request_body( $query, $params );
 
 		// Make the API request.
-		$response = wp_remote_post( self::API_ENDPOINT, [
-			'timeout' => self::REQUEST_TIMEOUT,
-			'headers' => [
-				'Content-Type'  => 'application/json',
-				'Authorization' => 'Bearer ' . $api_key,
-			],
-			'body'    => wp_json_encode( $body ),
-		] );
+		$response = wp_remote_post(
+			self::API_ENDPOINT,
+			array(
+				'timeout' => self::REQUEST_TIMEOUT,
+				'headers' => array(
+					'Content-Type'  => 'application/json',
+					'Authorization' => 'Bearer ' . $api_key,
+				),
+				'body'    => wp_json_encode( $body ),
+			)
+		);
 
 		if ( is_wp_error( $response ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -204,7 +207,7 @@ class Web_Search implements Action_Interface {
 					__( 'Web search request failed: %s', 'wp-agent' ),
 					$response->get_error_message()
 				),
-			];
+			);
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $response );
@@ -218,7 +221,7 @@ class Web_Search implements Action_Interface {
 				$error_message = __( 'Invalid Tavily API key. Please check your key in WP Agent > Settings.', 'wp-agent' );
 			}
 
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -226,28 +229,28 @@ class Web_Search implements Action_Interface {
 					__( 'Web search failed: %s', 'wp-agent' ),
 					$error_message
 				),
-			];
+			);
 		}
 
 		if ( empty( $data ) || ! is_array( $data ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Web search returned an invalid response.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Parse and format the results.
 		$results      = $this->parse_results( $data );
 		$result_count = count( $results );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'query'        => $query,
 				'results'      => $results,
 				'result_count' => $result_count,
-			],
+			),
 			'message' => $result_count > 0
 				? sprintf(
 					/* translators: 1: result count, 2: search query */
@@ -260,7 +263,7 @@ class Web_Search implements Action_Interface {
 					__( 'No results found for "%s". Try a different query.', 'wp-agent' ),
 					$query
 				),
-		];
+		);
 	}
 
 	/**
@@ -338,12 +341,12 @@ class Web_Search implements Action_Interface {
 			? 'news'
 			: 'general';
 
-		$body = [
+		$body = array(
 			'query'        => $query,
 			'search_depth' => $search_depth,
 			'max_results'  => $max_results,
 			'topic'        => $topic,
-		];
+		);
 
 		// Domain filters.
 		if ( ! empty( $params['include_domains'] ) && is_array( $params['include_domains'] ) ) {
@@ -367,10 +370,10 @@ class Web_Search implements Action_Interface {
 	 */
 	private function parse_results( $data ) {
 		if ( empty( $data['results'] ) || ! is_array( $data['results'] ) ) {
-			return [];
+			return array();
 		}
 
-		$results       = [];
+		$results       = array();
 		$total_content = 0;
 
 		foreach ( $data['results'] as $item ) {
@@ -396,12 +399,12 @@ class Web_Search implements Action_Interface {
 				$total_content += strlen( $content );
 			}
 
-			$results[] = [
+			$results[] = array(
 				'title'   => $title,
 				'url'     => $url,
 				'content' => $content,
 				'score'   => $score,
-			];
+			);
 		}
 
 		return $results;

@@ -51,17 +51,17 @@ class Install_Theme implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'slug' => [
+			'properties' => array(
+				'slug' => array(
 					'type'        => 'string',
 					'description' => 'The WordPress.org theme slug (e.g. "hello-elementor", "astra") or a search '
 						. 'term (e.g. "elementor theme", "flavor theme"). The system will search if the exact slug is not found.',
-				],
-			],
-			'required'   => [ 'slug' ],
-		];
+				),
+			),
+			'required'   => array( 'slug' ),
+		);
 	}
 
 	/**
@@ -96,11 +96,11 @@ class Install_Theme implements Action_Interface {
 		$slug = sanitize_text_field( $params['slug'] );
 
 		if ( empty( $slug ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Theme slug or search term is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Load required files.
@@ -109,7 +109,7 @@ class Install_Theme implements Action_Interface {
 		require_once ABSPATH . 'wp-admin/includes/theme.php';
 
 		// Normalize: lowercase, trim, convert spaces to hyphens for slug attempt.
-		$normalized = strtolower( trim( $slug ) );
+		$normalized   = strtolower( trim( $slug ) );
 		$slug_attempt = preg_replace( '/[^a-z0-9\-]/', '-', $normalized );
 		$slug_attempt = preg_replace( '/-+/', '-', $slug_attempt );
 		$slug_attempt = trim( $slug_attempt, '-' );
@@ -118,31 +118,31 @@ class Install_Theme implements Action_Interface {
 		$installed_themes = wp_get_themes();
 		if ( isset( $installed_themes[ $slug_attempt ] ) ) {
 			$theme = $installed_themes[ $slug_attempt ];
-			return [
+			return array(
 				'success' => false,
-				'data'    => [
+				'data'    => array(
 					'slug'    => $slug_attempt,
 					'name'    => $theme->get( 'Name' ),
 					'version' => $theme->get( 'Version' ),
-				],
+				),
 				'message' => sprintf(
 					/* translators: %s: theme name */
 					__( 'Theme "%s" is already installed. Use manage_theme with operation "switch" to activate it.', 'wp-agent' ),
 					$theme->get( 'Name' )
 				),
-			];
+			);
 		}
 
 		// Try exact slug lookup first.
 		$api = themes_api(
 			'theme_information',
-			[
+			array(
 				'slug'   => $slug_attempt,
-				'fields' => [
+				'fields' => array(
 					'sections' => false,
 					'versions' => false,
-				],
-			]
+				),
+			)
 		);
 
 		// If exact slug fails, search WordPress.org.
@@ -150,7 +150,7 @@ class Install_Theme implements Action_Interface {
 			$search_result = $this->search_and_resolve( $normalized );
 
 			if ( is_wp_error( $search_result ) ) {
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => sprintf(
@@ -159,7 +159,7 @@ class Install_Theme implements Action_Interface {
 						$slug,
 						$search_result->get_error_message()
 					),
-				];
+				);
 			}
 
 			$api = $search_result;
@@ -169,20 +169,20 @@ class Install_Theme implements Action_Interface {
 		$resolved_slug = $api->slug ?? $slug_attempt;
 		if ( isset( $installed_themes[ $resolved_slug ] ) ) {
 			$theme = $installed_themes[ $resolved_slug ];
-			return [
+			return array(
 				'success' => false,
-				'data'    => [
+				'data'    => array(
 					'slug'    => $resolved_slug,
 					'name'    => $theme->get( 'Name' ),
 					'version' => $theme->get( 'Version' ),
-				],
+				),
 				'message' => sprintf(
 					/* translators: 1: theme name, 2: original search */
 					__( 'Theme "%1$s" (matched from "%2$s") is already installed. Use manage_theme with operation "switch" to activate it.', 'wp-agent' ),
 					$theme->get( 'Name' ),
 					$slug
 				),
-			];
+			);
 		}
 
 		return $this->install_from_api( $api, $slug );
@@ -199,22 +199,22 @@ class Install_Theme implements Action_Interface {
 	private function search_and_resolve( $query ) {
 		$search = themes_api(
 			'query_themes',
-			[
+			array(
 				'search'   => $query,
 				'per_page' => 5,
 				'page'     => 1,
-				'fields'   => [
+				'fields'   => array(
 					'sections' => false,
 					'versions' => false,
-				],
-			]
+				),
+			)
 		);
 
 		if ( is_wp_error( $search ) ) {
 			return $search;
 		}
 
-		$themes = $search->themes ?? [];
+		$themes = $search->themes ?? array();
 
 		if ( empty( $themes ) ) {
 			return new \WP_Error(
@@ -237,13 +237,13 @@ class Install_Theme implements Action_Interface {
 		// Fetch full theme information.
 		return themes_api(
 			'theme_information',
-			[
+			array(
 				'slug'   => $best_slug,
-				'fields' => [
+				'fields' => array(
 					'sections' => false,
 					'versions' => false,
-				],
-			]
+				),
+			)
 		);
 	}
 
@@ -262,23 +262,23 @@ class Install_Theme implements Action_Interface {
 		$result   = $upgrader->install( $api->download_link );
 
 		if ( is_wp_error( $result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $result->get_error_message(),
-			];
+			);
 		}
 
 		if ( is_wp_error( $skin->result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $skin->result->get_error_message(),
-			];
+			);
 		}
 
 		if ( ! $result ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -286,7 +286,7 @@ class Install_Theme implements Action_Interface {
 					__( 'Failed to install theme "%s". Check filesystem permissions.', 'wp-agent' ),
 					$api->slug ?? $original_slug
 				),
-			];
+			);
 		}
 
 		// Get the installed theme info.
@@ -297,12 +297,12 @@ class Install_Theme implements Action_Interface {
 		$name    = $theme->exists() ? $theme->get( 'Name' ) : ( $api->name ?? $original_slug );
 		$version = $theme->exists() ? $theme->get( 'Version' ) : '';
 
-		$data = [
+		$data = array(
 			'slug'           => $stylesheet,
 			'name'           => $name,
 			'version'        => $version,
 			'is_block_theme' => $theme->exists() ? $theme->is_block_theme() : false,
-		];
+		);
 
 		$resolved_slug = $api->slug ?? '';
 		$message       = sprintf(
@@ -322,10 +322,10 @@ class Install_Theme implements Action_Interface {
 			);
 		}
 
-		return [
+		return array(
 			'success' => true,
 			'data'    => $data,
 			'message' => $message,
-		];
+		);
 	}
 }

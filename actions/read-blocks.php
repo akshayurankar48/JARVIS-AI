@@ -49,16 +49,16 @@ class Read_Blocks implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'post_id' => [
+			'properties' => array(
+				'post_id' => array(
 					'type'        => 'integer',
 					'description' => 'The ID of the post to read blocks from.',
-				],
-			],
-			'required'   => [ 'post_id' ],
-		];
+				),
+			),
+			'required'   => array( 'post_id' ),
+		);
 	}
 
 	/**
@@ -94,7 +94,7 @@ class Read_Blocks implements Action_Interface {
 		$post    = get_post( $post_id );
 
 		if ( ! $post ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -102,69 +102,69 @@ class Read_Blocks implements Action_Interface {
 					__( 'Post #%d not found.', 'wp-agent' ),
 					$post_id
 				),
-			];
+			);
 		}
 
 		if ( ! current_user_can( 'read_post', $post_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'You do not have permission to read this post.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$content = $post->post_content;
 
 		if ( empty( $content ) ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [
-					'post_id' => $post_id,
-					'blocks'  => [],
+				'data'    => array(
+					'post_id'    => $post_id,
+					'blocks'     => array(),
 					'is_classic' => false,
-				],
+				),
 				'message' => sprintf(
 					/* translators: %d: post ID */
 					__( 'Post #%d has no content.', 'wp-agent' ),
 					$post_id
 				),
-			];
+			);
 		}
 
 		if ( ! has_blocks( $content ) ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [
+				'data'    => array(
 					'post_id'    => $post_id,
-					'blocks'     => [],
+					'blocks'     => array(),
 					'is_classic' => true,
 					'content'    => wp_strip_all_tags( $content ),
-				],
+				),
 				'message' => sprintf(
 					/* translators: %d: post ID */
 					__( 'Post #%d uses classic content (no blocks).', 'wp-agent' ),
 					$post_id
 				),
-			];
+			);
 		}
 
 		$raw_blocks = parse_blocks( $content );
 		$simplified = $this->simplify_blocks( $raw_blocks );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
-				'post_id' => $post_id,
-				'blocks'  => $simplified,
+			'data'    => array(
+				'post_id'    => $post_id,
+				'blocks'     => $simplified,
 				'is_classic' => false,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: block count, 2: post ID */
 				__( 'Found %1$d block(s) in post #%2$d.', 'wp-agent' ),
 				count( $simplified ),
 				$post_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -179,7 +179,7 @@ class Read_Blocks implements Action_Interface {
 	 * @return array Simplified block tree.
 	 */
 	private function simplify_blocks( array $blocks ): array {
-		$simplified = [];
+		$simplified = array();
 
 		foreach ( $blocks as $block ) {
 			// Skip empty freeform blocks (null blockName, whitespace only).
@@ -187,11 +187,11 @@ class Read_Blocks implements Action_Interface {
 				continue;
 			}
 
-			$simple = [
+			$simple = array(
 				'blockName' => $block['blockName'],
 				'attrs'     => ! empty( $block['attrs'] ) ? $block['attrs'] : new \stdClass(),
 				'innerHTML' => isset( $block['innerHTML'] ) ? trim( $block['innerHTML'] ) : '',
-			];
+			);
 
 			if ( ! empty( $block['innerBlocks'] ) ) {
 				$simple['innerBlocks'] = $this->simplify_blocks( $block['innerBlocks'] );

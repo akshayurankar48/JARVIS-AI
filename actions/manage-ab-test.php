@@ -64,44 +64,50 @@ class Manage_Ab_Test implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation'  => [
+			'properties' => array(
+				'operation' => array(
 					'type'        => 'string',
-					'enum'        => [ 'create', 'list', 'results', 'end_test', 'declare_winner' ],
+					'enum'        => array( 'create', 'list', 'results', 'end_test', 'declare_winner' ),
 					'description' => 'Operation to perform.',
-				],
-				'test_id'    => [
+				),
+				'test_id'   => array(
 					'type'        => 'string',
 					'description' => 'Test ID. Required for results, end_test, and declare_winner.',
-				],
-				'name'       => [
+				),
+				'name'      => array(
 					'type'        => 'string',
 					'description' => 'Test name (for "create" operation).',
-				],
-				'post_id'    => [
+				),
+				'post_id'   => array(
 					'type'        => 'integer',
 					'description' => 'Post ID to test (for "create" operation).',
-				],
-				'variants'   => [
+				),
+				'variants'  => array(
 					'type'        => 'array',
-					'items'       => [
+					'items'       => array(
 						'type'       => 'object',
-						'properties' => [
-							'id'           => [ 'type' => 'string', 'description' => 'Variant identifier (e.g. "a", "b").' ],
-							'content_hash' => [ 'type' => 'string', 'description' => 'Hash or label for this variant\'s content.' ],
-						],
-					],
+						'properties' => array(
+							'id'           => array(
+								'type'        => 'string',
+								'description' => 'Variant identifier (e.g. "a", "b").',
+							),
+							'content_hash' => array(
+								'type'        => 'string',
+								'description' => 'Hash or label for this variant\'s content.',
+							),
+						),
+					),
 					'description' => 'Array of variants for "create" (min 2).',
-				],
-				'winner_id'  => [
+				),
+				'winner_id' => array(
 					'type'        => 'string',
 					'description' => 'Winning variant ID (for "declare_winner").',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -152,11 +158,11 @@ class Manage_Ab_Test implements Action_Interface {
 				return $this->declare_winner( $params );
 
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation.', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -173,34 +179,34 @@ class Manage_Ab_Test implements Action_Interface {
 		$post_id = isset( $params['post_id'] ) ? absint( $params['post_id'] ) : 0;
 
 		if ( empty( $name ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Test name is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( ! $post_id || ! get_post( $post_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'A valid post ID is required.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$variants = isset( $params['variants'] ) && is_array( $params['variants'] ) ? $params['variants'] : [];
+		$variants = isset( $params['variants'] ) && is_array( $params['variants'] ) ? $params['variants'] : array();
 		if ( count( $variants ) < 2 ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'At least 2 variants are required for an A/B test.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$tests = get_option( self::OPTION_KEY, [] );
+		$tests = get_option( self::OPTION_KEY, array() );
 
 		if ( count( $tests ) >= self::MAX_TESTS ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -208,22 +214,22 @@ class Manage_Ab_Test implements Action_Interface {
 					__( 'Maximum of %d tests reached. End existing tests first.', 'wp-agent' ),
 					self::MAX_TESTS
 				),
-			];
+			);
 		}
 
 		$test_id = 'test_' . wp_generate_password( 8, false );
 
-		$sanitized_variants = [];
+		$sanitized_variants = array();
 		foreach ( $variants as $variant ) {
-			$sanitized_variants[] = [
+			$sanitized_variants[] = array(
 				'id'           => sanitize_key( $variant['id'] ?? wp_generate_password( 4, false ) ),
 				'content_hash' => sanitize_text_field( $variant['content_hash'] ?? '' ),
 				'impressions'  => 0,
 				'clicks'       => 0,
-			];
+			);
 		}
 
-		$test = [
+		$test = array(
 			'id'         => $test_id,
 			'name'       => $name,
 			'post_id'    => $post_id,
@@ -232,12 +238,12 @@ class Manage_Ab_Test implements Action_Interface {
 			'created_at' => current_time( 'mysql' ),
 			'ended_at'   => null,
 			'winner'     => null,
-		];
+		);
 
 		$tests[ $test_id ] = $test;
 		update_option( self::OPTION_KEY, $tests, false );
 
-		return [
+		return array(
 			'success' => true,
 			'data'    => $test,
 			'message' => sprintf(
@@ -246,7 +252,7 @@ class Manage_Ab_Test implements Action_Interface {
 				$name,
 				count( $sanitized_variants )
 			),
-		];
+		);
 	}
 
 	/**
@@ -257,11 +263,11 @@ class Manage_Ab_Test implements Action_Interface {
 	 * @return array Execution result.
 	 */
 	private function list_tests() {
-		$tests  = get_option( self::OPTION_KEY, [] );
-		$result = [];
+		$tests  = get_option( self::OPTION_KEY, array() );
+		$result = array();
 
 		foreach ( $tests as $test ) {
-			$result[] = [
+			$result[] = array(
 				'id'         => $test['id'],
 				'name'       => $test['name'],
 				'post_id'    => $test['post_id'],
@@ -270,27 +276,32 @@ class Manage_Ab_Test implements Action_Interface {
 				'status'     => $test['status'],
 				'created_at' => $test['created_at'],
 				'winner'     => $test['winner'],
-			];
+			);
 		}
 
-		$active = count( array_filter( $tests, function ( $t ) {
-			return 'active' === $t['status'];
-		} ) );
+		$active = count(
+			array_filter(
+				$tests,
+				function ( $t ) {
+					return 'active' === $t['status'];
+				}
+			)
+		);
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'tests'  => $result,
 				'total'  => count( $result ),
 				'active' => $active,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: total tests, 2: active tests */
 				__( '%1$d test(s) total, %2$d active.', 'wp-agent' ),
 				count( $result ),
 				$active
 			),
-		];
+		);
 	}
 
 	/**
@@ -305,54 +316,54 @@ class Manage_Ab_Test implements Action_Interface {
 		$test_id = ! empty( $params['test_id'] ) ? sanitize_key( $params['test_id'] ) : '';
 
 		if ( empty( $test_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Test ID is required.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$tests = get_option( self::OPTION_KEY, [] );
+		$tests = get_option( self::OPTION_KEY, array() );
 
 		if ( ! isset( $tests[ $test_id ] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Test not found.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$test    = $tests[ $test_id ];
-		$results = [];
+		$results = array();
 
 		foreach ( $test['variants'] as $variant ) {
-			$ctr       = $variant['impressions'] > 0
+			$ctr = $variant['impressions'] > 0
 				? round( ( $variant['clicks'] / $variant['impressions'] ) * 100, 2 )
 				: 0;
 
-			$results[] = [
+			$results[] = array(
 				'id'          => $variant['id'],
 				'impressions' => $variant['impressions'],
 				'clicks'      => $variant['clicks'],
 				'ctr'         => $ctr,
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'test_id'  => $test_id,
 				'name'     => $test['name'],
 				'status'   => $test['status'],
 				'variants' => $results,
 				'winner'   => $test['winner'],
-			],
+			),
 			'message' => sprintf(
 				/* translators: %s: test name */
 				__( 'Results for A/B test "%s".', 'wp-agent' ),
 				$test['name']
 			),
-		];
+		);
 	}
 
 	/**
@@ -367,47 +378,47 @@ class Manage_Ab_Test implements Action_Interface {
 		$test_id = ! empty( $params['test_id'] ) ? sanitize_key( $params['test_id'] ) : '';
 
 		if ( empty( $test_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Test ID is required.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$tests = get_option( self::OPTION_KEY, [] );
+		$tests = get_option( self::OPTION_KEY, array() );
 
 		if ( ! isset( $tests[ $test_id ] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Test not found.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( 'ended' === $tests[ $test_id ]['status'] ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Test has already ended.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$tests[ $test_id ]['status']   = 'ended';
 		$tests[ $test_id ]['ended_at'] = current_time( 'mysql' );
 		update_option( self::OPTION_KEY, $tests, false );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'test_id' => $test_id,
 				'status'  => 'ended',
-			],
+			),
 			'message' => sprintf(
 				/* translators: %s: test name */
 				__( 'A/B test "%s" ended.', 'wp-agent' ),
 				$tests[ $test_id ]['name']
 			),
-		];
+		);
 	}
 
 	/**
@@ -423,21 +434,21 @@ class Manage_Ab_Test implements Action_Interface {
 		$winner_id = ! empty( $params['winner_id'] ) ? sanitize_key( $params['winner_id'] ) : '';
 
 		if ( empty( $test_id ) || empty( $winner_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Test ID and winner ID are required.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$tests = get_option( self::OPTION_KEY, [] );
+		$tests = get_option( self::OPTION_KEY, array() );
 
 		if ( ! isset( $tests[ $test_id ] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Test not found.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Verify winner_id is a valid variant.
@@ -450,11 +461,11 @@ class Manage_Ab_Test implements Action_Interface {
 		}
 
 		if ( ! $valid_variant ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Winner ID does not match any variant in this test.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$tests[ $test_id ]['status']   = 'ended';
@@ -462,18 +473,18 @@ class Manage_Ab_Test implements Action_Interface {
 		$tests[ $test_id ]['ended_at'] = current_time( 'mysql' );
 		update_option( self::OPTION_KEY, $tests, false );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'test_id'   => $test_id,
 				'winner_id' => $winner_id,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: winner ID, 2: test name */
 				__( 'Variant "%1$s" declared winner of test "%2$s".', 'wp-agent' ),
 				$winner_id,
 				$tests[ $test_id ]['name']
 			),
-		];
+		);
 	}
 }

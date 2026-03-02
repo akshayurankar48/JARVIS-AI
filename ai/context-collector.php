@@ -101,7 +101,7 @@ class Context_Collector {
 			return $cached;
 		}
 
-		$context = [
+		$context = array(
 			'site_name'           => substr( sanitize_text_field( get_bloginfo( 'name' ) ), 0, 100 ),
 			'site_url'            => esc_url( home_url() ),
 			'wp_version'          => sanitize_text_field( get_bloginfo( 'version' ) ),
@@ -118,7 +118,7 @@ class Context_Collector {
 			'user_name'           => $this->get_user_name( $user_id ),
 			'admin_page'          => sanitize_text_field( $admin_page ),
 			'current_post'        => $this->get_post_context( $post_id ),
-		];
+		);
 
 		set_transient( $cache_key, $context, self::CACHE_TTL );
 
@@ -159,10 +159,10 @@ class Context_Collector {
 	private function get_theme_info() {
 		$theme = wp_get_theme();
 
-		return [
+		return array(
 			'name'    => sanitize_text_field( $theme->get( 'Name' ) ),
 			'version' => sanitize_text_field( $theme->get( 'Version' ) ),
-		];
+		);
 	}
 
 	/**
@@ -175,7 +175,7 @@ class Context_Collector {
 	 * @return array Design token data for the AI prompt.
 	 */
 	private function get_theme_design_tokens() {
-		$tokens = [];
+		$tokens = array();
 
 		// Block themes (WP 5.9+): read from theme.json merged settings.
 		if ( function_exists( 'wp_get_global_settings' ) ) {
@@ -192,73 +192,81 @@ class Context_Collector {
 			// Color palette — check theme, then default.
 			$palette = ! empty( $settings['color']['palette']['theme'] )
 				? $settings['color']['palette']['theme']
-				: ( ! empty( $settings['color']['palette']['default'] ) ? $settings['color']['palette']['default'] : [] );
+				: ( ! empty( $settings['color']['palette']['default'] ) ? $settings['color']['palette']['default'] : array() );
 
 			if ( ! empty( $palette ) ) {
-				$tokens['colors'] = array_values( array_map(
-					function ( $color ) {
-						return [
-							'name'  => sanitize_text_field( $color['name'] ?? '' ),
-							'slug'  => sanitize_text_field( $color['slug'] ?? '' ),
-							'color' => sanitize_text_field( $color['color'] ?? '' ),
-						];
-					},
-					array_slice( $palette, 0, 16 )
-				) );
+				$tokens['colors'] = array_values(
+					array_map(
+						function ( $color ) {
+							return array(
+								'name'  => sanitize_text_field( $color['name'] ?? '' ),
+								'slug'  => sanitize_text_field( $color['slug'] ?? '' ),
+								'color' => sanitize_text_field( $color['color'] ?? '' ),
+							);
+						},
+						array_slice( $palette, 0, 16 )
+					)
+				);
 			}
 
 			// Gradients.
 			$gradients = ! empty( $settings['color']['gradients']['theme'] )
 				? $settings['color']['gradients']['theme']
-				: ( ! empty( $settings['color']['gradients']['default'] ) ? $settings['color']['gradients']['default'] : [] );
+				: ( ! empty( $settings['color']['gradients']['default'] ) ? $settings['color']['gradients']['default'] : array() );
 
 			if ( ! empty( $gradients ) ) {
-				$tokens['gradients'] = array_values( array_map(
-					function ( $g ) {
-						return [
-							'name'     => sanitize_text_field( $g['name'] ?? '' ),
-							'slug'     => sanitize_text_field( $g['slug'] ?? '' ),
-							'gradient' => sanitize_text_field( $g['gradient'] ?? '' ),
-						];
-					},
-					array_slice( $gradients, 0, 8 )
-				) );
+				$tokens['gradients'] = array_values(
+					array_map(
+						function ( $g ) {
+							return array(
+								'name'     => sanitize_text_field( $g['name'] ?? '' ),
+								'slug'     => sanitize_text_field( $g['slug'] ?? '' ),
+								'gradient' => sanitize_text_field( $g['gradient'] ?? '' ),
+							);
+						},
+						array_slice( $gradients, 0, 8 )
+					)
+				);
 			}
 
 			// Font families.
 			$font_families = ! empty( $settings['typography']['fontFamilies']['theme'] )
 				? $settings['typography']['fontFamilies']['theme']
-				: ( ! empty( $settings['typography']['fontFamilies']['default'] ) ? $settings['typography']['fontFamilies']['default'] : [] );
+				: ( ! empty( $settings['typography']['fontFamilies']['default'] ) ? $settings['typography']['fontFamilies']['default'] : array() );
 
 			if ( ! empty( $font_families ) ) {
-				$tokens['fonts'] = array_values( array_map(
-					function ( $f ) {
-						return [
-							'name'       => sanitize_text_field( $f['name'] ?? '' ),
-							'slug'       => sanitize_text_field( $f['slug'] ?? '' ),
-							'fontFamily' => sanitize_text_field( $f['fontFamily'] ?? '' ),
-						];
-					},
-					array_slice( $font_families, 0, 8 )
-				) );
+				$tokens['fonts'] = array_values(
+					array_map(
+						function ( $f ) {
+							return array(
+								'name'       => sanitize_text_field( $f['name'] ?? '' ),
+								'slug'       => sanitize_text_field( $f['slug'] ?? '' ),
+								'fontFamily' => sanitize_text_field( $f['fontFamily'] ?? '' ),
+							);
+						},
+						array_slice( $font_families, 0, 8 )
+					)
+				);
 			}
 
 			// Font sizes.
 			$font_sizes = ! empty( $settings['typography']['fontSizes']['theme'] )
 				? $settings['typography']['fontSizes']['theme']
-				: ( ! empty( $settings['typography']['fontSizes']['default'] ) ? $settings['typography']['fontSizes']['default'] : [] );
+				: ( ! empty( $settings['typography']['fontSizes']['default'] ) ? $settings['typography']['fontSizes']['default'] : array() );
 
 			if ( ! empty( $font_sizes ) ) {
-				$tokens['fontSizes'] = array_values( array_map(
-					function ( $s ) {
-						return [
-							'name' => sanitize_text_field( $s['name'] ?? '' ),
-							'slug' => sanitize_text_field( $s['slug'] ?? '' ),
-							'size' => sanitize_text_field( (string) ( $s['size'] ?? '' ) ),
-						];
-					},
-					array_slice( $font_sizes, 0, 10 )
-				) );
+				$tokens['fontSizes'] = array_values(
+					array_map(
+						function ( $s ) {
+							return array(
+								'name' => sanitize_text_field( $s['name'] ?? '' ),
+								'slug' => sanitize_text_field( $s['slug'] ?? '' ),
+								'size' => sanitize_text_field( (string) ( $s['size'] ?? '' ) ),
+							);
+						},
+						array_slice( $font_sizes, 0, 10 )
+					)
+				);
 			}
 		}
 
@@ -266,16 +274,18 @@ class Context_Collector {
 		if ( empty( $tokens['colors'] ) ) {
 			$palette = get_theme_support( 'editor-color-palette' );
 			if ( ! empty( $palette[0] ) && is_array( $palette[0] ) ) {
-				$tokens['colors'] = array_values( array_map(
-					function ( $color ) {
-						return [
-							'name'  => sanitize_text_field( $color['name'] ?? '' ),
-							'slug'  => sanitize_text_field( $color['slug'] ?? '' ),
-							'color' => sanitize_text_field( $color['color'] ?? '' ),
-						];
-					},
-					array_slice( $palette[0], 0, 16 )
-				) );
+				$tokens['colors'] = array_values(
+					array_map(
+						function ( $color ) {
+							return array(
+								'name'  => sanitize_text_field( $color['name'] ?? '' ),
+								'slug'  => sanitize_text_field( $color['slug'] ?? '' ),
+								'color' => sanitize_text_field( $color['color'] ?? '' ),
+							);
+						},
+						array_slice( $palette[0], 0, 16 )
+					)
+				);
 			}
 		}
 
@@ -283,16 +293,18 @@ class Context_Collector {
 		if ( empty( $tokens['fontSizes'] ) ) {
 			$sizes = get_theme_support( 'editor-font-sizes' );
 			if ( ! empty( $sizes[0] ) && is_array( $sizes[0] ) ) {
-				$tokens['fontSizes'] = array_values( array_map(
-					function ( $s ) {
-						return [
-							'name' => sanitize_text_field( $s['name'] ?? '' ),
-							'slug' => sanitize_text_field( $s['slug'] ?? '' ),
-							'size' => sanitize_text_field( (string) ( $s['size'] ?? '' ) ),
-						];
-					},
-					array_slice( $sizes[0], 0, 10 )
-				) );
+				$tokens['fontSizes'] = array_values(
+					array_map(
+						function ( $s ) {
+							return array(
+								'name' => sanitize_text_field( $s['name'] ?? '' ),
+								'slug' => sanitize_text_field( $s['slug'] ?? '' ),
+								'size' => sanitize_text_field( (string) ( $s['size'] ?? '' ) ),
+							);
+						},
+						array_slice( $sizes[0], 0, 10 )
+					)
+				);
 			}
 		}
 
@@ -311,8 +323,8 @@ class Context_Collector {
 		}
 
 		$all_plugins    = get_plugins();
-		$active_plugins = get_option( 'active_plugins', [] );
-		$result         = [];
+		$active_plugins = get_option( 'active_plugins', array() );
+		$result         = array();
 
 		foreach ( $active_plugins as $plugin_file ) {
 			if ( count( $result ) >= self::MAX_PLUGINS ) {
@@ -324,10 +336,10 @@ class Context_Collector {
 			}
 
 			$plugin   = $all_plugins[ $plugin_file ];
-			$result[] = [
+			$result[] = array(
 				'name'    => sanitize_text_field( $plugin['Name'] ),
 				'version' => sanitize_text_field( $plugin['Version'] ),
-			];
+			);
 		}
 
 		return $result;
@@ -340,11 +352,11 @@ class Context_Collector {
 	 * @return array<string, int> Post type slug => count.
 	 */
 	private function get_post_type_counts() {
-		$post_types = get_post_types( [ 'public' => true ], 'names' );
-		$counts     = [];
+		$post_types = get_post_types( array( 'public' => true ), 'names' );
+		$counts     = array();
 
 		foreach ( $post_types as $post_type ) {
-			$count_obj = wp_count_posts( $post_type );
+			$count_obj            = wp_count_posts( $post_type );
 			$counts[ $post_type ] = isset( $count_obj->publish ) ? (int) $count_obj->publish : 0;
 		}
 
@@ -397,15 +409,15 @@ class Context_Collector {
 	 * @return array Brand settings (empty array if not configured).
 	 */
 	private function get_brand_settings() {
-		$brand = get_option( 'wp_agent_brand_presets', [] );
+		$brand = get_option( 'wp_agent_brand_presets', array() );
 
 		if ( ! is_array( $brand ) || empty( $brand ) ) {
-			return [];
+			return array();
 		}
 
 		// Re-sanitize on read for defense in depth.
-		$sanitized = [];
-		$allowed   = [ 'brand_name', 'tagline', 'primary_color', 'accent_color', 'dark_color', 'light_color', 'tone', 'font_preference' ];
+		$sanitized = array();
+		$allowed   = array( 'brand_name', 'tagline', 'primary_color', 'accent_color', 'dark_color', 'light_color', 'tone', 'font_preference' );
 
 		foreach ( $allowed as $key ) {
 			if ( ! empty( $brand[ $key ] ) ) {
@@ -437,11 +449,11 @@ class Context_Collector {
 			return null;
 		}
 
-		return [
+		return array(
 			'id'     => $post->ID,
 			'title'  => substr( sanitize_text_field( $post->post_title ), 0, 200 ),
 			'type'   => sanitize_text_field( $post->post_type ),
 			'status' => sanitize_text_field( $post->post_status ),
-		];
+		);
 	}
 }

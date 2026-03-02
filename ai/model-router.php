@@ -55,47 +55,47 @@ class Model_Router {
 	 *
 	 * @var array<string, array{id: string, name: string, tier: string, max_tokens: int, supports_tools: bool}>
 	 */
-	private static $models = [
-		self::TIER_FAST      => [
+	private static $models = array(
+		self::TIER_FAST     => array(
 			'id'             => 'google/gemini-2.0-flash-001',
 			'name'           => 'Gemini 2.0 Flash',
 			'tier'           => self::TIER_FAST,
 			'max_tokens'     => 8192,
 			'supports_tools' => true,
-		],
-		self::TIER_BALANCED  => [
+		),
+		self::TIER_BALANCED => array(
 			'id'             => 'openai/gpt-4o-mini',
 			'name'           => 'GPT-4o Mini',
 			'tier'           => self::TIER_BALANCED,
 			'max_tokens'     => 16384,
 			'supports_tools' => true,
-		],
-		self::TIER_POWERFUL  => [
+		),
+		self::TIER_POWERFUL => array(
 			'id'             => 'anthropic/claude-sonnet-4',
 			'name'           => 'Claude Sonnet 4',
 			'tier'           => self::TIER_POWERFUL,
 			'max_tokens'     => 16384,
 			'supports_tools' => true,
-		],
-	];
+		),
+	);
 
 	/**
 	 * Fallback chain: powerful -> balanced -> fast -> none.
 	 *
 	 * @var array<string, string>
 	 */
-	private static $fallback_chain = [
-		'anthropic/claude-sonnet-4'    => 'openai/gpt-4o-mini',
-		'openai/gpt-4o-mini'           => 'google/gemini-2.0-flash-001',
-		'google/gemini-2.0-flash-001'  => '',
-	];
+	private static $fallback_chain = array(
+		'anthropic/claude-sonnet-4'   => 'openai/gpt-4o-mini',
+		'openai/gpt-4o-mini'          => 'google/gemini-2.0-flash-001',
+		'google/gemini-2.0-flash-001' => '',
+	);
 
 	/**
 	 * Keywords that indicate complex actions needing a powerful model.
 	 *
 	 * @var string[]
 	 */
-	private static $action_keywords = [
+	private static $action_keywords = array(
 		'delete',
 		'remove',
 		'update',
@@ -142,7 +142,7 @@ class Model_Router {
 		'draft a',
 		'product description',
 		'ad copy',
-	];
+	);
 
 	/**
 	 * Initiator
@@ -169,7 +169,7 @@ class Model_Router {
 	 * @param array  $history Conversation history (array of message arrays).
 	 * @return string OpenRouter model ID.
 	 */
-	public function select_model( $message, array $history = [] ) {
+	public function select_model( $message, array $history = array() ) {
 		$score = $this->compute_complexity_score( $message, $history );
 
 		if ( $score >= 7 ) {

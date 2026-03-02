@@ -63,30 +63,30 @@ class Manage_Redirects implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation'  => [
+			'properties' => array(
+				'operation'   => array(
 					'type'        => 'string',
-					'enum'        => [ 'add', 'list', 'delete', 'test' ],
+					'enum'        => array( 'add', 'list', 'delete', 'test' ),
 					'description' => 'Operation: "add" a redirect, "list" all, "delete" by source path, "test" a URL.',
-				],
-				'source'     => [
+				),
+				'source'      => array(
 					'type'        => 'string',
 					'description' => 'Source URL path (e.g., "/old-page"). Required for add, delete, test.',
-				],
-				'target'     => [
+				),
+				'target'      => array(
 					'type'        => 'string',
 					'description' => 'Target URL (e.g., "/new-page" or full URL). Required for add.',
-				],
-				'status_code' => [
+				),
+				'status_code' => array(
 					'type'        => 'integer',
-					'enum'        => [ 301, 302 ],
+					'enum'        => array( 301, 302 ),
 					'description' => 'HTTP status code. 301 = permanent, 302 = temporary. Defaults to 301.',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -130,11 +130,11 @@ class Manage_Redirects implements Action_Interface {
 			case 'test':
 				return $this->test_redirect( $params );
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation. Use "add", "list", "delete", or "test".', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -152,31 +152,31 @@ class Manage_Redirects implements Action_Interface {
 		$status_code = isset( $params['status_code'] ) ? absint( $params['status_code'] ) : 301;
 
 		if ( empty( $source ) || empty( $target ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Both source and target are required.', 'wp-agent' ),
-			];
+			);
 		}
 
-		if ( ! in_array( $status_code, [ 301, 302 ], true ) ) {
+		if ( ! in_array( $status_code, array( 301, 302 ), true ) ) {
 			$status_code = 301;
 		}
 
 		// Normalize source to path only.
 		$source = wp_parse_url( $source, PHP_URL_PATH );
 		if ( empty( $source ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Invalid source URL path.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$redirects = get_option( self::OPTION_KEY, [] );
+		$redirects = get_option( self::OPTION_KEY, array() );
 
 		if ( count( $redirects ) >= self::MAX_REDIRECTS ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -184,24 +184,24 @@ class Manage_Redirects implements Action_Interface {
 					__( 'Maximum of %d redirects reached.', 'wp-agent' ),
 					self::MAX_REDIRECTS
 				),
-			];
+			);
 		}
 
-		$redirects[ $source ] = [
+		$redirects[ $source ] = array(
 			'target'      => $target,
 			'status_code' => $status_code,
 			'created_at'  => current_time( 'mysql', true ),
-		];
+		);
 
 		update_option( self::OPTION_KEY, $redirects );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'source'      => $source,
 				'target'      => $target,
 				'status_code' => $status_code,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: source, 2: target, 3: status code */
 				__( 'Redirect added: %1$s -> %2$s (%3$d).', 'wp-agent' ),
@@ -209,7 +209,7 @@ class Manage_Redirects implements Action_Interface {
 				$target,
 				$status_code
 			),
-		];
+		);
 	}
 
 	/**
@@ -219,30 +219,30 @@ class Manage_Redirects implements Action_Interface {
 	 * @return array Result.
 	 */
 	private function list_redirects() {
-		$redirects = get_option( self::OPTION_KEY, [] );
+		$redirects = get_option( self::OPTION_KEY, array() );
 
-		$list = [];
+		$list = array();
 		foreach ( $redirects as $source => $data ) {
-			$list[] = [
+			$list[] = array(
 				'source'      => $source,
 				'target'      => $data['target'],
 				'status_code' => $data['status_code'],
 				'created_at'  => $data['created_at'] ?? '',
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'count'     => count( $list ),
 				'redirects' => $list,
-			],
+			),
 			'message' => sprintf(
 				/* translators: %d: redirect count */
 				__( '%d redirect(s) configured.', 'wp-agent' ),
 				count( $list )
 			),
-		];
+		);
 	}
 
 	/**
@@ -257,18 +257,18 @@ class Manage_Redirects implements Action_Interface {
 		$source = isset( $params['source'] ) ? sanitize_text_field( wp_unslash( $params['source'] ) ) : '';
 
 		if ( empty( $source ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Source path is required for delete.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$source    = wp_parse_url( $source, PHP_URL_PATH );
-		$redirects = get_option( self::OPTION_KEY, [] );
+		$redirects = get_option( self::OPTION_KEY, array() );
 
 		if ( ! isset( $redirects[ $source ] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -276,21 +276,21 @@ class Manage_Redirects implements Action_Interface {
 					__( 'No redirect found for "%s".', 'wp-agent' ),
 					$source
 				),
-			];
+			);
 		}
 
 		unset( $redirects[ $source ] );
 		update_option( self::OPTION_KEY, $redirects );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'deleted_source' => $source ],
+			'data'    => array( 'deleted_source' => $source ),
 			'message' => sprintf(
 				/* translators: %s: source path */
 				__( 'Redirect for "%s" deleted.', 'wp-agent' ),
 				$source
 			),
-		];
+		);
 	}
 
 	/**
@@ -305,25 +305,25 @@ class Manage_Redirects implements Action_Interface {
 		$source = isset( $params['source'] ) ? sanitize_text_field( wp_unslash( $params['source'] ) ) : '';
 
 		if ( empty( $source ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Source path is required for test.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$source    = wp_parse_url( $source, PHP_URL_PATH );
-		$redirects = get_option( self::OPTION_KEY, [] );
+		$redirects = get_option( self::OPTION_KEY, array() );
 
 		if ( isset( $redirects[ $source ] ) ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [
+				'data'    => array(
 					'match'       => true,
 					'source'      => $source,
 					'target'      => $redirects[ $source ]['target'],
 					'status_code' => $redirects[ $source ]['status_code'],
-				],
+				),
 				'message' => sprintf(
 					/* translators: 1: source, 2: target, 3: status code */
 					__( 'Match found: %1$s -> %2$s (%3$d).', 'wp-agent' ),
@@ -331,21 +331,21 @@ class Manage_Redirects implements Action_Interface {
 					$redirects[ $source ]['target'],
 					$redirects[ $source ]['status_code']
 				),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'match'  => false,
 				'source' => $source,
-			],
+			),
 			'message' => sprintf(
 				/* translators: %s: source path */
 				__( 'No redirect matches "%s".', 'wp-agent' ),
 				$source
 			),
-		];
+		);
 	}
 
 	/**
@@ -361,7 +361,7 @@ class Manage_Redirects implements Action_Interface {
 			return;
 		}
 
-		$redirects = get_option( self::OPTION_KEY, [] );
+		$redirects = get_option( self::OPTION_KEY, array() );
 
 		if ( empty( $redirects ) ) {
 			return;

@@ -47,16 +47,16 @@ class Delete_Post implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'post_id' => [
+			'properties' => array(
+				'post_id' => array(
 					'type'        => 'integer',
 					'description' => 'The ID of the post to move to trash.',
-				],
-			],
-			'required'   => [ 'post_id' ],
-		];
+				),
+			),
+			'required'   => array( 'post_id' ),
+		);
 	}
 
 	/**
@@ -92,7 +92,7 @@ class Delete_Post implements Action_Interface {
 		$post    = get_post( $post_id );
 
 		if ( ! $post ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -100,19 +100,19 @@ class Delete_Post implements Action_Interface {
 					__( 'Post #%d not found.', 'wp-agent' ),
 					$post_id
 				),
-			];
+			);
 		}
 
 		if ( ! current_user_can( 'delete_post', $post_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'You do not have permission to delete this post.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( 'trash' === $post->post_status ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -120,13 +120,13 @@ class Delete_Post implements Action_Interface {
 					__( 'Post #%d is already in trash.', 'wp-agent' ),
 					$post_id
 				),
-			];
+			);
 		}
 
 		$result = wp_trash_post( $post_id );
 
 		if ( ! $result ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -134,20 +134,20 @@ class Delete_Post implements Action_Interface {
 					__( 'Failed to trash post #%d.', 'wp-agent' ),
 					$post_id
 				),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'post_id' => $post_id,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: post title, 2: post ID */
 				__( 'Moved "%1$s" (post #%2$d) to trash.', 'wp-agent' ),
 				$post->post_title,
 				$post_id
 			),
-		];
+		);
 	}
 }

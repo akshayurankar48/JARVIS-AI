@@ -50,16 +50,16 @@ class Manage_Permalinks implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'structure' => [
+			'properties' => array(
+				'structure' => array(
 					'type'        => 'string',
 					'description' => 'The permalink structure string (e.g. "/%postname%/", "/%year%/%monthnum%/%postname%/"). Use empty string for plain permalinks.',
-				],
-			],
-			'required'   => [ 'structure' ],
-		];
+				),
+			),
+			'required'   => array( 'structure' ),
+		);
 	}
 
 	/**
@@ -95,7 +95,7 @@ class Manage_Permalinks implements Action_Interface {
 
 		// Allow empty string for "plain" permalinks, but validate non-empty strings.
 		if ( '' !== $structure ) {
-			$valid_tags = [
+			$valid_tags = array(
 				'%year%',
 				'%monthnum%',
 				'%day%',
@@ -106,7 +106,7 @@ class Manage_Permalinks implements Action_Interface {
 				'%postname%',
 				'%category%',
 				'%author%',
-			];
+			);
 
 			$has_tag = false;
 			foreach ( $valid_tags as $tag ) {
@@ -117,11 +117,11 @@ class Manage_Permalinks implements Action_Interface {
 			}
 
 			if ( ! $has_tag ) {
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Permalink structure must contain at least one rewrite tag (e.g. %postname%, %post_id%).', 'wp-agent' ),
-				];
+				);
 			}
 		}
 
@@ -130,18 +130,18 @@ class Manage_Permalinks implements Action_Interface {
 		update_option( 'permalink_structure', $structure );
 		flush_rewrite_rules();
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'old_structure' => $old_structure,
 				'new_structure' => $structure,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: old permalink structure, 2: new permalink structure */
 				__( 'Permalink structure updated from "%1$s" to "%2$s". Rewrite rules flushed.', 'wp-agent' ),
 				$old_structure,
 				$structure
 			),
-		];
+		);
 	}
 }

@@ -52,60 +52,60 @@ class Manage_Menus implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation' => array(
 					'type'        => 'string',
-					'enum'        => [ 'list', 'create', 'add_item', 'remove_item', 'assign_location' ],
+					'enum'        => array( 'list', 'create', 'add_item', 'remove_item', 'assign_location' ),
 					'description' => 'The menu operation to perform: list all menus, create a menu, add items to a menu, remove an item, or assign a menu to a theme location.',
-				],
-				'menu_name' => [
+				),
+				'menu_name' => array(
 					'type'        => 'string',
 					'description' => 'Name for the new menu. Required for the "create" operation.',
-				],
-				'menu_id'   => [
+				),
+				'menu_id'   => array(
 					'type'        => 'integer',
 					'description' => 'Target menu ID. Required for "add_item", "remove_item", and "assign_location" operations.',
-				],
-				'items'     => [
+				),
+				'items'     => array(
 					'type'        => 'array',
 					'description' => 'Array of items to add to the menu. Required for the "add_item" operation.',
-					'items'       => [
+					'items'       => array(
 						'type'       => 'object',
-						'properties' => [
-							'type'      => [
+						'properties' => array(
+							'type'      => array(
 								'type'        => 'string',
-								'enum'        => [ 'page', 'post', 'custom', 'category' ],
+								'enum'        => array( 'page', 'post', 'custom', 'category' ),
 								'description' => 'Menu item type.',
-							],
-							'object_id' => [
+							),
+							'object_id' => array(
 								'type'        => 'integer',
 								'description' => 'WordPress object ID. Required for page, post, and category types.',
-							],
-							'title'     => [
+							),
+							'title'     => array(
 								'type'        => 'string',
 								'description' => 'Custom title override for the menu item. Optional.',
-							],
-							'url'       => [
+							),
+							'url'       => array(
 								'type'        => 'string',
 								'description' => 'URL for custom link items. Required when type is "custom".',
-							],
-						],
-						'required'   => [ 'type' ],
-					],
-				],
-				'item_id'   => [
+							),
+						),
+						'required'   => array( 'type' ),
+					),
+				),
+				'item_id'   => array(
 					'type'        => 'integer',
 					'description' => 'Menu item post ID to remove. Required for the "remove_item" operation.',
-				],
-				'location'  => [
+				),
+				'location'  => array(
 					'type'        => 'string',
 					'description' => 'Theme location slug to assign the menu to. Required for the "assign_location" operation.',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -156,11 +156,11 @@ class Manage_Menus implements Action_Interface {
 				return $this->assign_location( $params );
 
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation. Must be one of: list, create, add_item, remove_item, assign_location.', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -171,67 +171,67 @@ class Manage_Menus implements Action_Interface {
 	 * @return array Execution result.
 	 */
 	private function list_menus(): array {
-		$menus             = wp_get_nav_menus();
-		$registered_locs   = get_registered_nav_menus();
-		$assigned_locs     = get_nav_menu_locations();
+		$menus           = wp_get_nav_menus();
+		$registered_locs = get_registered_nav_menus();
+		$assigned_locs   = get_nav_menu_locations();
 
 		// Build a map of menu ID => assigned location slugs.
-		$menu_locations = [];
+		$menu_locations = array();
 		foreach ( $assigned_locs as $location_slug => $menu_id ) {
 			if ( $menu_id ) {
 				$menu_locations[ $menu_id ][] = $location_slug;
 			}
 		}
 
-		$menu_list = [];
+		$menu_list = array();
 		foreach ( $menus as $menu ) {
 			$items      = wp_get_nav_menu_items( $menu->term_id );
 			$item_count = is_array( $items ) ? count( $items ) : 0;
 
-			$menu_list[] = [
-				'id'         => $menu->term_id,
-				'name'       => sanitize_text_field( $menu->name ),
-				'slug'       => $menu->slug,
-				'count'      => $item_count,
-				'locations'  => $menu_locations[ $menu->term_id ] ?? [],
-			];
+			$menu_list[] = array(
+				'id'        => $menu->term_id,
+				'name'      => sanitize_text_field( $menu->name ),
+				'slug'      => $menu->slug,
+				'count'     => $item_count,
+				'locations' => $menu_locations[ $menu->term_id ] ?? array(),
+			);
 		}
 
 		// Build available theme locations list.
-		$locations_list = [];
+		$locations_list = array();
 		foreach ( $registered_locs as $slug => $label ) {
-			$locations_list[] = [
+			$locations_list[] = array(
 				'slug'        => sanitize_key( $slug ),
 				'label'       => sanitize_text_field( $label ),
 				'assigned_id' => $assigned_locs[ $slug ] ?? 0,
-			];
+			);
 		}
 
 		if ( empty( $menu_list ) ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [
+				'data'    => array(
 					'total'     => 0,
-					'menus'     => [],
+					'menus'     => array(),
 					'locations' => $locations_list,
-				],
+				),
 				'message' => __( 'No navigation menus found.', 'wp-agent' ),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'total'     => count( $menu_list ),
 				'menus'     => $menu_list,
 				'locations' => $locations_list,
-			],
+			),
 			'message' => sprintf(
 				/* translators: %d: number of menus */
 				__( 'Found %d navigation menu(s).', 'wp-agent' ),
 				count( $menu_list )
 			),
-		];
+		);
 	}
 
 	/**
@@ -246,40 +246,40 @@ class Manage_Menus implements Action_Interface {
 		$menu_name = sanitize_text_field( $params['menu_name'] ?? '' );
 
 		if ( empty( $menu_name ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'menu_name is required for the "create" operation.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$menu_id = wp_create_nav_menu( $menu_name );
 
 		if ( is_wp_error( $menu_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $menu_id->get_error_message(),
-			];
+			);
 		}
 
 		$menu = wp_get_nav_menu_object( $menu_id );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
-				'menu_id'   => (int) $menu_id,
-				'term_id'   => $menu ? (int) $menu->term_id : (int) $menu_id,
-				'name'      => $menu_name,
-				'slug'      => $menu ? $menu->slug : '',
-			],
+			'data'    => array(
+				'menu_id' => (int) $menu_id,
+				'term_id' => $menu ? (int) $menu->term_id : (int) $menu_id,
+				'name'    => $menu_name,
+				'slug'    => $menu ? $menu->slug : '',
+			),
 			'message' => sprintf(
 				/* translators: 1: menu name, 2: menu ID */
 				__( 'Navigation menu "%1$s" created (ID: %2$d).', 'wp-agent' ),
 				$menu_name,
 				(int) $menu_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -294,15 +294,15 @@ class Manage_Menus implements Action_Interface {
 		$menu_id = absint( $params['menu_id'] ?? 0 );
 
 		if ( ! $menu_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'menu_id is required for the "add_item" operation.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( ! is_nav_menu( $menu_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -310,22 +310,22 @@ class Manage_Menus implements Action_Interface {
 					__( 'Menu #%d not found.', 'wp-agent' ),
 					$menu_id
 				),
-			];
+			);
 		}
 
-		$items = $params['items'] ?? [];
+		$items = $params['items'] ?? array();
 
 		if ( empty( $items ) || ! is_array( $items ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'items array is required and must not be empty for the "add_item" operation.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$added       = [];
-		$failed      = [];
-		$valid_types = [ 'page', 'post', 'custom', 'category' ];
+		$added       = array();
+		$failed      = array();
+		$valid_types = array( 'page', 'post', 'custom', 'category' );
 
 		foreach ( $items as $index => $item ) {
 			$type      = sanitize_key( $item['type'] ?? '' );
@@ -334,37 +334,37 @@ class Manage_Menus implements Action_Interface {
 			$url       = esc_url_raw( $item['url'] ?? '' );
 
 			if ( ! in_array( $type, $valid_types, true ) ) {
-				$failed[] = [
+				$failed[] = array(
 					'index'  => $index,
 					'reason' => sprintf(
 						/* translators: %s: provided type */
 						__( 'Invalid type "%s". Must be one of: page, post, custom, category.', 'wp-agent' ),
 						$type
 					),
-				];
+				);
 				continue;
 			}
 
-			$menu_item_args = [ 'menu-item-status' => 'publish' ];
+			$menu_item_args = array( 'menu-item-status' => 'publish' );
 
 			switch ( $type ) {
 				case 'page':
 				case 'post':
 					if ( ! $object_id ) {
-						$failed[] = [
+						$failed[] = array(
 							'index'  => $index,
 							'reason' => sprintf(
 								/* translators: %s: item type */
 								__( 'object_id is required for type "%s".', 'wp-agent' ),
 								$type
 							),
-						];
+						);
 						continue 2;
 					}
 
 					$post = get_post( $object_id );
 					if ( ! $post ) {
-						$failed[] = [
+						$failed[] = array(
 							'index'  => $index,
 							'reason' => sprintf(
 								/* translators: 1: type, 2: object ID */
@@ -372,7 +372,7 @@ class Manage_Menus implements Action_Interface {
 								ucfirst( $type ),
 								$object_id
 							),
-						];
+						);
 						continue 2;
 					}
 
@@ -387,18 +387,18 @@ class Manage_Menus implements Action_Interface {
 
 				case 'custom':
 					if ( empty( $url ) ) {
-						$failed[] = [
+						$failed[] = array(
 							'index'  => $index,
 							'reason' => __( 'url is required for type "custom".', 'wp-agent' ),
-						];
+						);
 						continue 2;
 					}
 
 					if ( empty( $title ) ) {
-						$failed[] = [
+						$failed[] = array(
 							'index'  => $index,
 							'reason' => __( 'title is required for type "custom".', 'wp-agent' ),
-						];
+						);
 						continue 2;
 					}
 
@@ -409,23 +409,23 @@ class Manage_Menus implements Action_Interface {
 
 				case 'category':
 					if ( ! $object_id ) {
-						$failed[] = [
+						$failed[] = array(
 							'index'  => $index,
 							'reason' => __( 'object_id is required for type "category".', 'wp-agent' ),
-						];
+						);
 						continue 2;
 					}
 
 					$term = get_term( $object_id, 'category' );
 					if ( ! $term || is_wp_error( $term ) ) {
-						$failed[] = [
+						$failed[] = array(
 							'index'  => $index,
 							'reason' => sprintf(
 								/* translators: %d: category ID */
 								__( 'Category #%d not found.', 'wp-agent' ),
 								$object_id
 							),
-						];
+						);
 						continue 2;
 					}
 
@@ -442,34 +442,37 @@ class Manage_Menus implements Action_Interface {
 			$item_id = wp_update_nav_menu_item( $menu_id, 0, $menu_item_args );
 
 			if ( is_wp_error( $item_id ) ) {
-				$failed[] = [
+				$failed[] = array(
 					'index'  => $index,
 					'reason' => $item_id->get_error_message(),
-				];
+				);
 				continue;
 			}
 
-			$added[] = [
+			$added[] = array(
 				'item_id'   => (int) $item_id,
 				'type'      => $type,
 				'object_id' => $object_id ?: null,
 				'title'     => sanitize_text_field( $menu_item_args['menu-item-title'] ?? '' ),
-			];
+			);
 		}
 
 		$added_count  = count( $added );
 		$failed_count = count( $failed );
 
 		if ( 0 === $added_count && $failed_count > 0 ) {
-			return [
+			return array(
 				'success' => false,
-				'data'    => [ 'added' => [], 'failed' => $failed ],
+				'data'    => array(
+					'added'  => array(),
+					'failed' => $failed,
+				),
 				'message' => sprintf(
 					/* translators: %d: number of failed items */
 					__( 'Failed to add %d item(s) to the menu.', 'wp-agent' ),
 					$failed_count
 				),
-			];
+			);
 		}
 
 		$message = sprintf(
@@ -487,15 +490,15 @@ class Manage_Menus implements Action_Interface {
 			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'menu_id' => $menu_id,
 				'added'   => $added,
 				'failed'  => $failed,
-			],
+			),
 			'message' => $message,
-		];
+		);
 	}
 
 	/**
@@ -510,18 +513,18 @@ class Manage_Menus implements Action_Interface {
 		$item_id = absint( $params['item_id'] ?? 0 );
 
 		if ( ! $item_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'item_id is required for the "remove_item" operation.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Verify the post exists and is actually a nav_menu_item.
 		$item = get_post( $item_id );
 
 		if ( ! $item || 'nav_menu_item' !== $item->post_type ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -529,14 +532,14 @@ class Manage_Menus implements Action_Interface {
 					__( 'Menu item #%d not found.', 'wp-agent' ),
 					$item_id
 				),
-			];
+			);
 		}
 
 		$item_title = sanitize_text_field( $item->post_title );
 		$deleted    = wp_delete_post( $item_id, true );
 
 		if ( ! $deleted ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -544,21 +547,21 @@ class Manage_Menus implements Action_Interface {
 					__( 'Failed to remove menu item #%d.', 'wp-agent' ),
 					$item_id
 				),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'item_id' => $item_id,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: item title, 2: item ID */
 				__( 'Menu item "%1$s" (ID: %2$d) removed successfully.', 'wp-agent' ),
 				$item_title,
 				$item_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -574,24 +577,24 @@ class Manage_Menus implements Action_Interface {
 		$location = sanitize_key( $params['location'] ?? '' );
 
 		if ( ! $menu_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'menu_id is required for the "assign_location" operation.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( empty( $location ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'location is required for the "assign_location" operation.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Verify menu exists.
 		if ( ! is_nav_menu( $menu_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -599,14 +602,14 @@ class Manage_Menus implements Action_Interface {
 					__( 'Menu #%d not found.', 'wp-agent' ),
 					$menu_id
 				),
-			];
+			);
 		}
 
 		// Validate that the location is registered by the active theme.
 		$registered_locations = get_registered_nav_menus();
 		if ( ! array_key_exists( $location, $registered_locations ) ) {
 			$available = implode( ', ', array_keys( $registered_locations ) );
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -615,7 +618,7 @@ class Manage_Menus implements Action_Interface {
 					$location,
 					$available ?: __( 'none', 'wp-agent' )
 				),
-			];
+			);
 		}
 
 		// Merge with existing assignments to avoid clearing other locations.
@@ -624,24 +627,24 @@ class Manage_Menus implements Action_Interface {
 
 		set_theme_mod( 'nav_menu_locations', $current_assignments );
 
-		$menu        = wp_get_nav_menu_object( $menu_id );
-		$menu_name   = $menu ? sanitize_text_field( $menu->name ) : '#' . $menu_id;
+		$menu           = wp_get_nav_menu_object( $menu_id );
+		$menu_name      = $menu ? sanitize_text_field( $menu->name ) : '#' . $menu_id;
 		$location_label = sanitize_text_field( $registered_locations[ $location ] );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'menu_id'        => $menu_id,
 				'menu_name'      => $menu_name,
 				'location'       => $location,
 				'location_label' => $location_label,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: menu name, 2: location label */
 				__( 'Menu "%1$s" assigned to theme location "%2$s".', 'wp-agent' ),
 				$menu_name,
 				$location_label
 			),
-		];
+		);
 	}
 }

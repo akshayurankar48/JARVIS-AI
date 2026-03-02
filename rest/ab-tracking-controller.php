@@ -22,32 +22,32 @@ class Ab_Tracking_Controller extends \WP_REST_Controller {
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
-			[
-				[
+			array(
+				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
-					'callback'            => [ $this, 'track_event' ],
+					'callback'            => array( $this, 'track_event' ),
 					'permission_callback' => '__return_true',
-					'args'                => [
-						'test_id' => [
+					'args'                => array(
+						'test_id' => array(
 							'required'          => true,
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_text_field',
-						],
-						'event'   => [
+						),
+						'event'   => array(
 							'required'          => true,
 							'type'              => 'string',
-							'enum'              => [ 'impression', 'click' ],
+							'enum'              => array( 'impression', 'click' ),
 							'sanitize_callback' => 'sanitize_text_field',
-						],
-						'variant' => [
+						),
+						'variant' => array(
 							'required'          => true,
 							'type'              => 'string',
-							'enum'              => [ 'a', 'b' ],
+							'enum'              => array( 'a', 'b' ),
 							'sanitize_callback' => 'sanitize_text_field',
-						],
-					],
-				],
-			]
+						),
+					),
+				),
+			)
 		);
 	}
 
@@ -62,13 +62,13 @@ class Ab_Tracking_Controller extends \WP_REST_Controller {
 		$count         = (int) get_transient( $transient_key );
 
 		if ( $count >= 100 ) {
-			return new \WP_REST_Response( [ 'success' => false ], 429 );
+			return new \WP_REST_Response( array( 'success' => false ), 429 );
 		}
 
 		set_transient( $transient_key, $count + 1, MINUTE_IN_SECONDS );
 
 		// Update test data.
-		$tests = get_option( 'wp_agent_ab_tests', [] );
+		$tests = get_option( 'wp_agent_ab_tests', array() );
 
 		foreach ( $tests as &$test ) {
 			if ( (string) $test['id'] !== $test_id ) {
@@ -82,13 +82,13 @@ class Ab_Tracking_Controller extends \WP_REST_Controller {
 			if ( ! isset( $test[ $key ] ) ) {
 				$test[ $key ] = 0;
 			}
-			$test[ $key ]++;
+			++$test[ $key ];
 			break;
 		}
 		unset( $test );
 
 		update_option( 'wp_agent_ab_tests', $tests );
 
-		return new \WP_REST_Response( [ 'success' => true ], 200 );
+		return new \WP_REST_Response( array( 'success' => true ), 200 );
 	}
 }

@@ -69,27 +69,27 @@ class Insert_Blocks implements Action_Interface {
 	public function get_parameters(): array {
 		$block_schema = $this->get_block_schema();
 
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'post_id'  => [
+			'properties' => array(
+				'post_id'  => array(
 					'type'        => 'integer',
 					'description' => 'The ID of the post to insert blocks into.',
-				],
-				'blocks'   => [
+				),
+				'blocks'   => array(
 					'type'        => 'array',
 					'description' => 'Array of blocks to insert. Each block can contain innerBlocks for nesting.',
 					'items'       => $block_schema,
-				],
-				'position' => [
+				),
+				'position' => array(
 					'type'        => 'string',
 					'description' => 'Where to insert blocks. Use "append" to add after existing content, "prepend" to add before, or "replace" to clear the editor and start fresh (ideal for building full pages).',
-					'enum'        => [ 'append', 'prepend', 'replace' ],
+					'enum'        => array( 'append', 'prepend', 'replace' ),
 					'default'     => 'append',
-				],
-			],
-			'required'   => [ 'post_id', 'blocks' ],
-		];
+				),
+			),
+			'required'   => array( 'post_id', 'blocks' ),
+		);
 	}
 
 	/**
@@ -102,42 +102,42 @@ class Insert_Blocks implements Action_Interface {
 	 * @return array
 	 */
 	private function get_block_schema(): array {
-		$inner_block = [
+		$inner_block = array(
 			'type'       => 'object',
-			'properties' => [
-				'blockName'   => [
+			'properties' => array(
+				'blockName'   => array(
 					'type'        => 'string',
 					'description' => 'Block type name (e.g. "core/paragraph", "core/heading", "core/button").',
-				],
-				'attrs'       => [
+				),
+				'attrs'       => array(
 					'type'        => 'object',
 					'description' => 'Block attributes for styling and configuration. Use style.color, style.typography, style.spacing, style.border for custom design.',
-				],
-				'innerHTML'   => [
+				),
+				'innerHTML'   => array(
 					'type'        => 'string',
 					'description' => 'Text/HTML content for the block (e.g. heading text, paragraph text, button label).',
-				],
-				'innerBlocks' => [
+				),
+				'innerBlocks' => array(
 					'type'        => 'array',
 					'description' => 'Nested child blocks (same structure). Used for grouping content inside layout blocks.',
-					'items'       => [
+					'items'       => array(
 						'type' => 'object',
-					],
-				],
-			],
-			'required'   => [ 'blockName' ],
-		];
+					),
+				),
+			),
+			'required'   => array( 'blockName' ),
+		);
 
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'blockName'   => [
+			'properties' => array(
+				'blockName'   => array(
 					'type'        => 'string',
 					'description' => 'Block type name. Layout blocks: "core/group", "core/columns", "core/column", "core/cover", "core/buttons". '
 						. 'Content blocks: "core/heading", "core/paragraph", "core/image", "core/button", "core/list", "core/quote". '
 						. 'Utility blocks: "core/spacer", "core/separator".',
-				],
-				'attrs'       => [
+				),
+				'attrs'       => array(
 					'type'        => 'object',
 					'description' => 'Block attributes. Key patterns: '
 						. '{"align":"full"} for full-width, '
@@ -146,19 +146,19 @@ class Insert_Blocks implements Action_Interface {
 						. '{"style":{"spacing":{"padding":{"top":"80px","bottom":"80px","left":"40px","right":"40px"}}}} for spacing, '
 						. '{"style":{"border":{"radius":"8px"}}} for borders, '
 						. '{"layout":{"type":"constrained"}} or {"layout":{"type":"flex","justifyContent":"center"}} for layout.',
-				],
-				'innerHTML'   => [
+				),
+				'innerHTML'   => array(
 					'type'        => 'string',
 					'description' => 'Text/HTML content for leaf blocks. For core/heading: the heading text. For core/paragraph: the paragraph text (may include <strong>, <em>). For core/button: the button label.',
-				],
-				'innerBlocks' => [
+				),
+				'innerBlocks' => array(
 					'type'        => 'array',
 					'description' => 'Nested child blocks. core/group, core/columns, core/cover, and core/buttons MUST use innerBlocks for their children instead of innerHTML.',
 					'items'       => $inner_block,
-				],
-			],
-			'required'   => [ 'blockName' ],
-		];
+				),
+			),
+			'required'   => array( 'blockName' ),
+		);
 	}
 
 	/**
@@ -198,14 +198,14 @@ class Insert_Blocks implements Action_Interface {
 		$blocks   = $params['blocks'];
 		$position = ! empty( $params['position'] ) ? sanitize_text_field( $params['position'] ) : 'append';
 
-		if ( ! in_array( $position, [ 'append', 'prepend', 'replace' ], true ) ) {
+		if ( ! in_array( $position, array( 'append', 'prepend', 'replace' ), true ) ) {
 			$position = 'append';
 		}
 
 		$post = get_post( $post_id );
 
 		if ( ! $post ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -213,27 +213,27 @@ class Insert_Blocks implements Action_Interface {
 					__( 'Post #%d not found. Verify the post_id is correct.', 'wp-agent' ),
 					$post_id
 				),
-			];
+			);
 		}
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'You do not have permission to edit this post.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( empty( $blocks ) || ! is_array( $blocks ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'No blocks provided. Provide at least one block with a blockName.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Recursively sanitize the block tree.
-		$sanitized_blocks = [];
+		$sanitized_blocks = array();
 		foreach ( $blocks as $block ) {
 			$sanitized = $this->sanitize_block( $block, 0 );
 			if ( $sanitized ) {
@@ -242,11 +242,11 @@ class Insert_Blocks implements Action_Interface {
 		}
 
 		if ( empty( $sanitized_blocks ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'No valid blocks after sanitization. Ensure each block has a blockName.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$block_count = $this->count_blocks( $sanitized_blocks );
@@ -258,23 +258,23 @@ class Insert_Blocks implements Action_Interface {
 		$save_result = $this->save_to_post( $post_id, $serialized, $position );
 
 		if ( is_wp_error( $save_result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $save_result->get_error_message(),
-			];
+			);
 		}
 
 		// Also return client-side data — the editor's useBlockActions hook uses
 		// this for live block insertion without requiring a page reload.
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'post_id'   => $post_id,
 				'blocks'    => $sanitized_blocks,
 				'position'  => $position,
 				'execution' => 'client',
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: total block count, 2: position, 3: post ID */
 				__( 'Inserted %1$d block(s) into post #%3$d (%2$s). Content saved.', 'wp-agent' ),
@@ -282,7 +282,7 @@ class Insert_Blocks implements Action_Interface {
 				$position,
 				$post_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -303,14 +303,14 @@ class Insert_Blocks implements Action_Interface {
 			return null;
 		}
 
-		$sanitized = [
+		$sanitized = array(
 			'blockName'   => sanitize_text_field( $block['blockName'] ),
 			'attrs'       => ! empty( $block['attrs'] ) && is_array( $block['attrs'] )
 				? $this->sanitize_attrs( $block['attrs'] )
 				: new \stdClass(),
 			'innerHTML'   => isset( $block['innerHTML'] ) ? wp_kses_post( $block['innerHTML'] ) : '',
-			'innerBlocks' => [],
-		];
+			'innerBlocks' => array(),
+		);
 
 		// Auto-correct AI-invented CSS class names to valid wpa-* equivalents.
 		if ( is_array( $sanitized['attrs'] ) && ! empty( $sanitized['attrs']['className'] ) ) {
@@ -347,94 +347,94 @@ class Insert_Blocks implements Action_Interface {
 	 */
 	private function autocorrect_animation_classes( string $class_string ): string {
 		// Direct replacements: wrong class name => correct wpa-* class.
-		$class_map = [
+		$class_map = array(
 			// Aurora/background effects.
-			'enhanced-aurora'    => 'wpa-aurora',
-			'aurora-bg'          => 'wpa-aurora',
-			'aurora-gradient'    => 'wpa-aurora',
-			'aurora'             => 'wpa-aurora',
-			'enhanced-noise'     => 'wpa-noise',
-			'noise-bg'           => 'wpa-noise',
-			'grain'              => 'wpa-noise',
-			'grain-texture'      => 'wpa-noise',
-			'blur-bg'            => 'wpa-blur-bg',
-			'blur-orb'           => 'wpa-blur-bg',
+			'enhanced-aurora'   => 'wpa-aurora',
+			'aurora-bg'         => 'wpa-aurora',
+			'aurora-gradient'   => 'wpa-aurora',
+			'aurora'            => 'wpa-aurora',
+			'enhanced-noise'    => 'wpa-noise',
+			'noise-bg'          => 'wpa-noise',
+			'grain'             => 'wpa-noise',
+			'grain-texture'     => 'wpa-noise',
+			'blur-bg'           => 'wpa-blur-bg',
+			'blur-orb'          => 'wpa-blur-bg',
 
 			// Glass effects.
-			'enhanced-glass'     => 'wpa-glass',
-			'glassmorphism'      => 'wpa-glass',
-			'glassmorphic'       => 'wpa-glass',
-			'glass-card'         => 'wpa-glass',
-			'glass-panel'        => 'wpa-glass',
-			'frosted-glass'      => 'wpa-glass',
-			'glass-light'        => 'wpa-glass-light',
+			'enhanced-glass'    => 'wpa-glass',
+			'glassmorphism'     => 'wpa-glass',
+			'glassmorphic'      => 'wpa-glass',
+			'glass-card'        => 'wpa-glass',
+			'glass-panel'       => 'wpa-glass',
+			'frosted-glass'     => 'wpa-glass',
+			'glass-light'       => 'wpa-glass-light',
 
 			// Glow effects.
-			'enhanced-glow'      => 'wpa-glow',
-			'glow-effect'        => 'wpa-glow',
-			'neon-glow'          => 'wpa-glow',
-			'button-glow'        => 'wpa-glow',
-			'border-glow'        => 'wpa-border-glow',
-			'glow-border'        => 'wpa-border-glow',
+			'enhanced-glow'     => 'wpa-glow',
+			'glow-effect'       => 'wpa-glow',
+			'neon-glow'         => 'wpa-glow',
+			'button-glow'       => 'wpa-glow',
+			'border-glow'       => 'wpa-border-glow',
+			'glow-border'       => 'wpa-border-glow',
 
 			// Gradient text.
-			'gradient-text'      => 'wpa-gradient-text',
-			'text-gradient'      => 'wpa-gradient-text',
-			'gradient-heading'   => 'wpa-gradient-text',
-			'gradient-border'    => 'wpa-gradient-border',
+			'gradient-text'     => 'wpa-gradient-text',
+			'text-gradient'     => 'wpa-gradient-text',
+			'gradient-heading'  => 'wpa-gradient-text',
+			'gradient-border'   => 'wpa-gradient-border',
 
 			// Scroll animations.
-			'nike-fade-in'       => 'wpa-fade-up',
-			'fade-in'            => 'wpa-fade-up',
-			'fade-up'            => 'wpa-fade-up',
-			'fade-in-up'         => 'wpa-fade-up',
-			'scroll-fade'        => 'wpa-fade-up',
-			'animate-fade-up'    => 'wpa-fade-up',
-			'fade-down'          => 'wpa-fade-down',
-			'fade-in-down'       => 'wpa-fade-down',
-			'slide-in-left'      => 'wpa-slide-left',
-			'slide-left'         => 'wpa-slide-left',
-			'slide-in-right'     => 'wpa-slide-right',
-			'slide-right'        => 'wpa-slide-right',
-			'zoom-in'            => 'wpa-zoom-in',
-			'scale-up'           => 'wpa-zoom-in',
-			'animate-zoom'       => 'wpa-zoom-in',
+			'nike-fade-in'      => 'wpa-fade-up',
+			'fade-in'           => 'wpa-fade-up',
+			'fade-up'           => 'wpa-fade-up',
+			'fade-in-up'        => 'wpa-fade-up',
+			'scroll-fade'       => 'wpa-fade-up',
+			'animate-fade-up'   => 'wpa-fade-up',
+			'fade-down'         => 'wpa-fade-down',
+			'fade-in-down'      => 'wpa-fade-down',
+			'slide-in-left'     => 'wpa-slide-left',
+			'slide-left'        => 'wpa-slide-left',
+			'slide-in-right'    => 'wpa-slide-right',
+			'slide-right'       => 'wpa-slide-right',
+			'zoom-in'           => 'wpa-zoom-in',
+			'scale-up'          => 'wpa-zoom-in',
+			'animate-zoom'      => 'wpa-zoom-in',
 
 			// Stagger.
-			'nike-stagger'       => 'wpa-stagger-children',
-			'stagger'            => 'wpa-stagger-children',
-			'stagger-animation'  => 'wpa-stagger-children',
-			'stagger-fade'       => 'wpa-stagger-children',
+			'nike-stagger'      => 'wpa-stagger-children',
+			'stagger'           => 'wpa-stagger-children',
+			'stagger-animation' => 'wpa-stagger-children',
+			'stagger-fade'      => 'wpa-stagger-children',
 
 			// Interactive.
-			'floating-element'   => 'wpa-float',
-			'float-animation'    => 'wpa-float',
-			'floating'           => 'wpa-float',
-			'magnetic'           => 'wpa-tilt',
-			'tilt-effect'        => 'wpa-tilt',
-			'hover-tilt'         => 'wpa-tilt',
-			'hover-lift'         => 'wpa-lift',
-			'card-lift'          => 'wpa-lift',
-			'lift-effect'        => 'wpa-lift',
-			'shimmer'            => 'wpa-shine',
-			'shine-effect'       => 'wpa-shine',
+			'floating-element'  => 'wpa-float',
+			'float-animation'   => 'wpa-float',
+			'floating'          => 'wpa-float',
+			'magnetic'          => 'wpa-tilt',
+			'tilt-effect'       => 'wpa-tilt',
+			'hover-tilt'        => 'wpa-tilt',
+			'hover-lift'        => 'wpa-lift',
+			'card-lift'         => 'wpa-lift',
+			'lift-effect'       => 'wpa-lift',
+			'shimmer'           => 'wpa-shine',
+			'shine-effect'      => 'wpa-shine',
 
 			// Layout.
-			'bento'              => 'wpa-bento-grid',
-			'bento-layout'       => 'wpa-bento-grid',
-			'bento-grid'         => 'wpa-bento-grid',
-		];
+			'bento'             => 'wpa-bento-grid',
+			'bento-layout'      => 'wpa-bento-grid',
+			'bento-grid'        => 'wpa-bento-grid',
+		);
 
 		// Regex patterns for prefixed wrong names.
-		$prefix_patterns = [
-			'/\bnike-button\b/'   => 'wpa-glow',
-			'/\bnike-card\b/'     => 'wpa-glass wpa-lift',
-			'/\bnike-hero\b/'     => 'wpa-aurora wpa-noise',
-		];
+		$prefix_patterns = array(
+			'/\bnike-button\b/' => 'wpa-glow',
+			'/\bnike-card\b/'   => 'wpa-glass wpa-lift',
+			'/\bnike-hero\b/'   => 'wpa-aurora wpa-noise',
+		);
 
 		$classes = explode( ' ', $class_string );
-		$result  = [];
-		$seen    = [];
+		$result  = array();
+		$seen    = array();
 
 		foreach ( $classes as $class ) {
 			$class = trim( $class );
@@ -448,7 +448,7 @@ class Insert_Blocks implements Action_Interface {
 				// Mapped value might contain multiple classes.
 				foreach ( explode( ' ', $mapped ) as $mc ) {
 					if ( ! isset( $seen[ $mc ] ) ) {
-						$result[] = $mc;
+						$result[]    = $mc;
 						$seen[ $mc ] = true;
 					}
 				}
@@ -457,7 +457,7 @@ class Insert_Blocks implements Action_Interface {
 
 			// Keep valid classes (wpa-*, wp-*, is-*, has-*, align*).
 			if ( ! isset( $seen[ $class ] ) ) {
-				$result[]      = $class;
+				$result[]       = $class;
 				$seen[ $class ] = true;
 			}
 		}
@@ -502,10 +502,10 @@ class Insert_Blocks implements Action_Interface {
 	 * @return array Sanitized attributes.
 	 */
 	private function sanitize_attrs( array $attrs ): array {
-		$clean = [];
+		$clean = array();
 
 		// Keys whose values are URLs — sanitize with esc_url_raw instead of sanitize_text_field.
-		$url_keys = [ 'url', 'href', 'src', 'mediaLink' ];
+		$url_keys = array( 'url', 'href', 'src', 'mediaLink' );
 
 		foreach ( $attrs as $key => $value ) {
 			$key = sanitize_text_field( $key );
@@ -594,12 +594,15 @@ class Insert_Blocks implements Action_Interface {
 	 * @return array Filtered attributes.
 	 */
 	private function filter_comment_attrs( array $attrs ): array {
-		return array_filter( $attrs, function ( $v ) {
-			if ( is_array( $v ) ) {
-				return ! empty( $v );
+		return array_filter(
+			$attrs,
+			function ( $v ) {
+				if ( is_array( $v ) ) {
+					return ! empty( $v );
+				}
+				return '' !== $v && null !== $v;
 			}
-			return '' !== $v && null !== $v;
-		} );
+		);
 	}
 
 	/**
@@ -659,23 +662,23 @@ class Insert_Blocks implements Action_Interface {
 
 			case 'core/button':
 				// Button has a wrapper div and an inner <a> tag.
-				$link_classes = [ 'wp-block-button__link', 'wp-element-button' ];
+				$link_classes = array( 'wp-block-button__link', 'wp-element-button' );
 				if ( $this->get_nested_attr( $attrs, 'style', 'color', 'background' ) || ! empty( $attrs['backgroundColor'] ) ) {
 					$link_classes[] = 'has-background';
 				}
 				if ( $this->get_nested_attr( $attrs, 'style', 'color', 'text' ) || ! empty( $attrs['textColor'] ) ) {
 					$link_classes[] = 'has-text-color';
 				}
-				$link_styles    = $this->build_style_string( $attrs );
-				$border_radius  = $this->get_nested_attr( $attrs, 'style', 'border', 'radius' );
+				$link_styles   = $this->build_style_string( $attrs );
+				$border_radius = $this->get_nested_attr( $attrs, 'style', 'border', 'radius' );
 				if ( $border_radius ) {
 					$link_styles .= ( $link_styles ? ';' : '' ) . "border-radius:{$border_radius}";
 				}
-				$link_class_str = implode( ' ', $link_classes );
+				$link_class_str  = implode( ' ', $link_classes );
 				$link_style_attr = $link_styles ? ' style="' . esc_attr( $link_styles ) . '"' : '';
-				$url       = isset( $attrs['url'] ) ? esc_url( $attrs['url'] ) : '';
-				$href_attr = $url ? ' href="' . $url . '"' : '';
-				$outer_class = 'wp-block-button';
+				$url             = isset( $attrs['url'] ) ? esc_url( $attrs['url'] ) : '';
+				$href_attr       = $url ? ' href="' . $url . '"' : '';
+				$outer_class     = 'wp-block-button';
 				if ( ! empty( $attrs['className'] ) ) {
 					$outer_class .= ' ' . $this->sanitize_class_names( $attrs['className'] );
 				}
@@ -738,10 +741,10 @@ class Insert_Blocks implements Action_Interface {
 	 * @return string Space-separated class string.
 	 */
 	private function build_class_string( string $block_name, array $attrs ): string {
-		$classes = [];
+		$classes = array();
 
 		// Block-specific base class.
-		$base_classes = [
+		$base_classes = array(
 			'core/heading'   => 'wp-block-heading',
 			'core/group'     => 'wp-block-group',
 			'core/columns'   => 'wp-block-columns',
@@ -752,7 +755,7 @@ class Insert_Blocks implements Action_Interface {
 			'core/spacer'    => 'wp-block-spacer',
 			'core/separator' => 'wp-block-separator',
 			'core/quote'     => 'wp-block-quote',
-		];
+		);
 
 		if ( isset( $base_classes[ $block_name ] ) ) {
 			$classes[] = $base_classes[ $block_name ];
@@ -800,7 +803,7 @@ class Insert_Blocks implements Action_Interface {
 	 * @return string Semicolon-separated CSS declarations.
 	 */
 	private function build_style_string( array $attrs ): string {
-		$styles = [];
+		$styles = array();
 
 		// Colors.
 		$text_color = $this->get_nested_attr( $attrs, 'style', 'color', 'text' );
@@ -819,14 +822,14 @@ class Insert_Blocks implements Action_Interface {
 		}
 
 		// Typography.
-		$typo_map = [
+		$typo_map = array(
 			'fontSize'      => 'font-size',
 			'fontWeight'    => 'font-weight',
 			'lineHeight'    => 'line-height',
 			'letterSpacing' => 'letter-spacing',
 			'textTransform' => 'text-transform',
 			'fontStyle'     => 'font-style',
-		];
+		);
 		foreach ( $typo_map as $attr_key => $css_prop ) {
 			$val = $this->get_nested_attr( $attrs, 'style', 'typography', $attr_key );
 			if ( $val ) {
@@ -837,7 +840,7 @@ class Insert_Blocks implements Action_Interface {
 		// Spacing — padding.
 		$padding = $this->get_nested_attr( $attrs, 'style', 'spacing', 'padding' );
 		if ( is_array( $padding ) ) {
-			foreach ( [ 'top', 'right', 'bottom', 'left' ] as $side ) {
+			foreach ( array( 'top', 'right', 'bottom', 'left' ) as $side ) {
 				if ( ! empty( $padding[ $side ] ) ) {
 					$styles[] = "padding-{$side}:{$padding[ $side ]}";
 				}
@@ -847,7 +850,7 @@ class Insert_Blocks implements Action_Interface {
 		// Spacing — margin.
 		$margin = $this->get_nested_attr( $attrs, 'style', 'spacing', 'margin' );
 		if ( is_array( $margin ) ) {
-			foreach ( [ 'top', 'right', 'bottom', 'left' ] as $side ) {
+			foreach ( array( 'top', 'right', 'bottom', 'left' ) as $side ) {
 				if ( ! empty( $margin[ $side ] ) ) {
 					$styles[] = "margin-{$side}:{$margin[ $side ]}";
 				}
@@ -855,12 +858,12 @@ class Insert_Blocks implements Action_Interface {
 		}
 
 		// Border.
-		$border_map = [
+		$border_map = array(
 			'radius' => 'border-radius',
 			'width'  => 'border-width',
 			'color'  => 'border-color',
 			'style'  => 'border-style',
-		];
+		);
 		foreach ( $border_map as $attr_key => $css_prop ) {
 			$val = $this->get_nested_attr( $attrs, 'style', 'border', $attr_key );
 			if ( $val ) {
@@ -883,7 +886,7 @@ class Insert_Blocks implements Action_Interface {
 		if ( empty( $attrs['align'] ) ) {
 			return '';
 		}
-		$valid = [ 'full', 'wide', 'center', 'left', 'right' ];
+		$valid = array( 'full', 'wide', 'center', 'left', 'right' );
 		$align = sanitize_text_field( $attrs['align'] );
 		return in_array( $align, $valid, true ) ? "align{$align}" : '';
 	}
@@ -959,10 +962,10 @@ class Insert_Blocks implements Action_Interface {
 		}
 
 		$result = wp_update_post(
-			[
+			array(
 				'ID'           => $post_id,
 				'post_content' => $new_content,
-			],
+			),
 			true
 		);
 

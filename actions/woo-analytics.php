@@ -21,16 +21,28 @@ class Woo_Analytics implements Action_Interface {
 	}
 
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation'  => [ 'type' => 'string', 'enum' => [ 'sales_summary', 'top_products', 'order_stats', 'customer_stats' ] ],
-				'date_from'  => [ 'type' => 'string', 'description' => 'Start date (YYYY-MM-DD). Defaults to 30 days ago.' ],
-				'date_to'    => [ 'type' => 'string', 'description' => 'End date (YYYY-MM-DD). Defaults to today.' ],
-				'limit'      => [ 'type' => 'integer', 'description' => 'Number of results for top_products. Default 10.' ],
-			],
-			'required'   => [ 'operation' ],
-		];
+			'properties' => array(
+				'operation' => array(
+					'type' => 'string',
+					'enum' => array( 'sales_summary', 'top_products', 'order_stats', 'customer_stats' ),
+				),
+				'date_from' => array(
+					'type'        => 'string',
+					'description' => 'Start date (YYYY-MM-DD). Defaults to 30 days ago.',
+				),
+				'date_to'   => array(
+					'type'        => 'string',
+					'description' => 'End date (YYYY-MM-DD). Defaults to today.',
+				),
+				'limit'     => array(
+					'type'        => 'integer',
+					'description' => 'Number of results for top_products. Default 10.',
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	public function get_capabilities_required(): string {
@@ -57,7 +69,11 @@ class Woo_Analytics implements Action_Interface {
 			case 'customer_stats':
 				return $this->customer_stats();
 			default:
-				return [ 'success' => false, 'data' => null, 'message' => __( 'Invalid operation.', 'wp-agent' ) ];
+				return array(
+					'success' => false,
+					'data'    => null,
+					'message' => __( 'Invalid operation.', 'wp-agent' ),
+				);
 		}
 	}
 
@@ -100,9 +116,9 @@ class Woo_Analytics implements Action_Interface {
 
 		// phpcs:enable
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'period'          => "$from to $to",
 				'order_count'     => (int) ( $results['order_count'] ?? 0 ),
 				'total_sales'     => round( (float) ( $results['total_sales'] ?? 0 ), 2 ),
@@ -110,9 +126,9 @@ class Woo_Analytics implements Action_Interface {
 				'total_refunds'   => round( (float) $refunds, 2 ),
 				'net_sales'       => round( (float) ( $results['total_sales'] ?? 0 ) - (float) $refunds, 2 ),
 				'currency'        => get_woocommerce_currency(),
-			],
-			'message' => sprintf( __( 'Sales summary for %s to %s.', 'wp-agent' ), $from, $to ),
-		];
+			),
+			'message' => sprintf( __( 'Sales summary for %1$s to %2$s.', 'wp-agent' ), $from, $to ),
+		);
 	}
 
 	private function top_products( string $from, string $to, int $limit ) {
@@ -142,20 +158,23 @@ class Woo_Analytics implements Action_Interface {
 			ARRAY_A
 		);
 
-		$list = [];
+		$list = array();
 		foreach ( $products as $p ) {
-			$list[] = [
+			$list[] = array(
 				'name'     => $p['name'],
 				'quantity' => (int) $p['total_qty'],
 				'revenue'  => round( (float) $p['total_revenue'], 2 ),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'top_products' => $list, 'period' => "$from to $to" ],
+			'data'    => array(
+				'top_products' => $list,
+				'period'       => "$from to $to",
+			),
 			'message' => sprintf( __( 'Top %d products by revenue.', 'wp-agent' ), count( $list ) ),
-		];
+		);
 	}
 
 	private function order_stats( string $from, string $to ) {
@@ -175,21 +194,31 @@ class Woo_Analytics implements Action_Interface {
 			ARRAY_A
 		);
 
-		$status_map = [];
+		$status_map = array();
 		foreach ( $stats as $row ) {
-			$label = str_replace( 'wc-', '', $row['status'] );
+			$label                = str_replace( 'wc-', '', $row['status'] );
 			$status_map[ $label ] = (int) $row['count'];
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'order_stats' => $status_map, 'period' => "$from to $to" ],
+			'data'    => array(
+				'order_stats' => $status_map,
+				'period'      => "$from to $to",
+			),
 			'message' => __( 'Order statistics by status.', 'wp-agent' ),
-		];
+		);
 	}
 
 	private function customer_stats() {
-		$total_customers = count( get_users( [ 'role' => 'customer', 'fields' => 'ID' ] ) );
+		$total_customers = count(
+			get_users(
+				array(
+					'role'   => 'customer',
+					'fields' => 'ID',
+				)
+			)
+		);
 
 		global $wpdb;
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -201,13 +230,13 @@ class Woo_Analytics implements Action_Interface {
 			GROUP BY pm.meta_value HAVING COUNT(*) > 1"
 		);
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'total_customers'  => $total_customers,
 				'repeat_customers' => (int) $repeat,
-			],
-			'message' => sprintf( __( '%d total customers, %d repeat.', 'wp-agent' ), $total_customers, (int) $repeat ),
-		];
+			),
+			'message' => sprintf( __( '%1$d total customers, %2$d repeat.', 'wp-agent' ), $total_customers, (int) $repeat ),
+		);
 	}
 }

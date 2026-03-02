@@ -48,22 +48,22 @@ class Export_Site implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'content_type' => [
+			'properties' => array(
+				'content_type' => array(
 					'type'        => 'string',
-					'enum'        => [ 'all', 'post', 'page', 'media' ],
+					'enum'        => array( 'all', 'post', 'page', 'media' ),
 					'description' => 'Content type to export. Defaults to "all".',
-				],
-				'status'       => [
+				),
+				'status'       => array(
 					'type'        => 'string',
-					'enum'        => [ 'all', 'publish', 'draft', 'private' ],
+					'enum'        => array( 'all', 'publish', 'draft', 'private' ),
 					'description' => 'Post status filter. Defaults to "all".',
-				],
-			],
-			'required'   => [],
-		];
+				),
+			),
+			'required'   => array(),
+		);
 	}
 
 	/**
@@ -107,9 +107,9 @@ class Export_Site implements Action_Interface {
 		$filepath   = trailingslashit( $upload_dir['basedir'] ) . $filename;
 		$file_url   = trailingslashit( $upload_dir['baseurl'] ) . $filename;
 
-		$args = [
+		$args = array(
 			'content' => 'all' === $content_type ? 'all' : $content_type,
-		];
+		);
 
 		if ( 'all' !== $status ) {
 			$args['status'] = $status;
@@ -121,41 +121,41 @@ class Export_Site implements Action_Interface {
 		$xml_content = ob_get_clean();
 
 		if ( empty( $xml_content ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Export generated no content.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		$written = file_put_contents( $filepath, $xml_content );
 
 		if ( false === $written ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Failed to write export file.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Schedule cleanup after 1 hour.
-		wp_schedule_single_event( time() + HOUR_IN_SECONDS, 'wp_agent_cleanup_export', [ $filepath ] );
+		wp_schedule_single_event( time() + HOUR_IN_SECONDS, 'wp_agent_cleanup_export', array( $filepath ) );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'download_url' => $file_url,
 				'filename'     => $filename,
 				'size'         => size_format( $written ),
 				'content_type' => $content_type,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: file size, 2: content type */
 				__( 'Site export complete (%1$s, content: %2$s). Download link is valid for 1 hour.', 'wp-agent' ),
 				size_format( $written ),
 				$content_type
 			),
-		];
+		);
 	}
 }

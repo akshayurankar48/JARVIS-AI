@@ -49,16 +49,16 @@ class Deactivate_Plugin implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'plugin' => [
+			'properties' => array(
+				'plugin' => array(
 					'type'        => 'string',
 					'description' => 'The plugin file path relative to the plugins directory (e.g. "akismet/akismet.php").',
-				],
-			],
-			'required'   => [ 'plugin' ],
-		];
+				),
+			),
+			'required'   => array( 'plugin' ),
+		);
 	}
 
 	/**
@@ -94,20 +94,20 @@ class Deactivate_Plugin implements Action_Interface {
 
 		// Validate the file path is safe.
 		if ( 0 !== validate_file( $plugin ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Invalid plugin file path.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Self-deactivation guard: prevent deactivating WP Agent itself.
 		if ( defined( 'WP_AGENT_BASE' ) && WP_AGENT_BASE === $plugin ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Cannot deactivate WP Agent through its own action system.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Load plugin functions if not already available.
@@ -119,7 +119,7 @@ class Deactivate_Plugin implements Action_Interface {
 		$installed_plugins = get_plugins();
 
 		if ( ! isset( $installed_plugins[ $plugin ] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -127,12 +127,12 @@ class Deactivate_Plugin implements Action_Interface {
 					__( 'Plugin "%s" is not installed.', 'wp-agent' ),
 					$plugin
 				),
-			];
+			);
 		}
 
 		// Check if already inactive.
 		if ( ! is_plugin_active( $plugin ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -140,15 +140,15 @@ class Deactivate_Plugin implements Action_Interface {
 					__( 'Plugin "%s" is already inactive.', 'wp-agent' ),
 					$installed_plugins[ $plugin ]['Name']
 				),
-			];
+			);
 		}
 
 		// Deactivate the plugin.
-		deactivate_plugins( [ $plugin ] );
+		deactivate_plugins( array( $plugin ) );
 
 		// Verify deactivation succeeded.
 		if ( is_plugin_active( $plugin ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -156,20 +156,20 @@ class Deactivate_Plugin implements Action_Interface {
 					__( 'Failed to deactivate "%s".', 'wp-agent' ),
 					$installed_plugins[ $plugin ]['Name']
 				),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'plugin' => $plugin,
 				'name'   => $installed_plugins[ $plugin ]['Name'],
-			],
+			),
 			'message' => sprintf(
 				/* translators: %s: plugin name */
 				__( 'Deactivated plugin "%s" successfully.', 'wp-agent' ),
 				$installed_plugins[ $plugin ]['Name']
 			),
-		];
+		);
 	}
 }

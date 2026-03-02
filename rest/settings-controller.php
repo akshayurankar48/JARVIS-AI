@@ -77,40 +77,40 @@ class Settings_Controller {
 		register_rest_route(
 			self::NAMESPACE,
 			self::ROUTE,
-			[
-				[
+			array(
+				array(
 					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => [ $this, 'get_settings' ],
-					'permission_callback' => [ $this, 'check_permissions' ],
-				],
-				[
+					'callback'            => array( $this, 'get_settings' ),
+					'permission_callback' => array( $this, 'check_permissions' ),
+				),
+				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
-					'callback'            => [ $this, 'update_settings' ],
-					'permission_callback' => [ $this, 'check_permissions' ],
+					'callback'            => array( $this, 'update_settings' ),
+					'permission_callback' => array( $this, 'check_permissions' ),
 					'args'                => $this->get_update_args(),
-				],
-			]
+				),
+			)
 		);
 
 		register_rest_route(
 			self::NAMESPACE,
 			'/verify-provider',
-			[
+			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => [ $this, 'verify_provider' ],
-				'permission_callback' => [ $this, 'check_permissions' ],
-				'args'                => [
-					'provider' => [
+				'callback'            => array( $this, 'verify_provider' ),
+				'permission_callback' => array( $this, 'check_permissions' ),
+				'args'                => array(
+					'provider' => array(
 						'type'     => 'string',
 						'required' => true,
-						'enum'     => [ 'anthropic', 'openai', 'google' ],
-					],
-					'api_key'  => [
+						'enum'     => array( 'anthropic', 'openai', 'google' ),
+					),
+					'api_key'  => array(
 						'type'     => 'string',
 						'required' => true,
-					],
-				],
-			]
+					),
+				),
+			)
 		);
 	}
 
@@ -127,7 +127,7 @@ class Settings_Controller {
 			return new \WP_Error(
 				'rest_forbidden',
 				__( 'You do not have permission to manage settings.', 'wp-agent' ),
-				[ 'status' => 403 ]
+				array( 'status' => 403 )
 			);
 		}
 
@@ -149,18 +149,20 @@ class Settings_Controller {
 		$adapter = AI_Client_Adapter::get_instance();
 		$router  = Model_Router::get_instance();
 
-		return rest_ensure_response( [
-			'has_api_key'          => $client->has_api_key(),
-			'has_tavily_key'       => ! empty( get_option( self::TAVILY_KEY_OPTION, '' ) ),
-			'default_model'        => $router->get_default_model(),
-			'allowed_roles'        => get_option( self::ROLES_OPTION, [ 'administrator' ] ),
-			'brand'                => get_option( self::BRAND_OPTION, [] ),
-			'rate_limit'           => (int) get_option( 'wp_agent_rate_limit', Rate_Limiter::DEFAULT_MINUTE_LIMIT ),
-			'daily_limit'          => (int) get_option( 'wp_agent_daily_limit', Rate_Limiter::DEFAULT_DAILY_LIMIT ),
-			'ai_backend'           => get_option( 'wp_agent_ai_backend', 'openrouter' ),
-			'configured_providers' => $adapter->get_configured_providers(),
-			'preferred_provider'   => get_option( 'wp_agent_preferred_provider', [ 'anthropic', 'openai', 'google' ] ),
-		] );
+		return rest_ensure_response(
+			array(
+				'has_api_key'          => $client->has_api_key(),
+				'has_tavily_key'       => ! empty( get_option( self::TAVILY_KEY_OPTION, '' ) ),
+				'default_model'        => $router->get_default_model(),
+				'allowed_roles'        => get_option( self::ROLES_OPTION, array( 'administrator' ) ),
+				'brand'                => get_option( self::BRAND_OPTION, array() ),
+				'rate_limit'           => (int) get_option( 'wp_agent_rate_limit', Rate_Limiter::DEFAULT_MINUTE_LIMIT ),
+				'daily_limit'          => (int) get_option( 'wp_agent_daily_limit', Rate_Limiter::DEFAULT_DAILY_LIMIT ),
+				'ai_backend'           => get_option( 'wp_agent_ai_backend', 'openrouter' ),
+				'configured_providers' => $adapter->get_configured_providers(),
+				'preferred_provider'   => get_option( 'wp_agent_preferred_provider', array( 'anthropic', 'openai', 'google' ) ),
+			)
+		);
 	}
 
 	/**
@@ -174,7 +176,7 @@ class Settings_Controller {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function update_settings( $request ) {
-		$updated = [];
+		$updated = array();
 
 		// API key — validate and encrypt before storing.
 		if ( $request->has_param( 'api_key' ) ) {
@@ -197,7 +199,7 @@ class Settings_Controller {
 				return new \WP_Error(
 					'invalid_model',
 					__( 'The specified model is not available.', 'wp-agent' ),
-					[ 'status' => 400 ]
+					array( 'status' => 400 )
 				);
 			}
 
@@ -244,14 +246,14 @@ class Settings_Controller {
 		// AI backend selection.
 		if ( $request->has_param( 'ai_backend' ) ) {
 			$backend = sanitize_text_field( $request->get_param( 'ai_backend' ) );
-			if ( in_array( $backend, [ 'openrouter', 'providers' ], true ) ) {
+			if ( in_array( $backend, array( 'openrouter', 'providers' ), true ) ) {
 				update_option( 'wp_agent_ai_backend', $backend );
 				$updated['ai_backend'] = $backend;
 			}
 		}
 
 		// Provider API keys — validate, encrypt, store.
-		foreach ( [ 'anthropic', 'openai', 'google' ] as $provider ) {
+		foreach ( array( 'anthropic', 'openai', 'google' ) as $provider ) {
 			$param_name = $provider . '_api_key';
 			if ( $request->has_param( $param_name ) ) {
 				$result = $this->save_provider_key( $provider, $request->get_param( $param_name ) );
@@ -266,7 +268,7 @@ class Settings_Controller {
 		if ( $request->has_param( 'preferred_provider' ) ) {
 			$order = $request->get_param( 'preferred_provider' );
 			if ( is_array( $order ) ) {
-				$valid    = [ 'anthropic', 'openai', 'google' ];
+				$valid    = array( 'anthropic', 'openai', 'google' );
 				$filtered = array_values( array_intersect( $order, $valid ) );
 				if ( ! empty( $filtered ) ) {
 					update_option( 'wp_agent_preferred_provider', $filtered );
@@ -275,10 +277,12 @@ class Settings_Controller {
 			}
 		}
 
-		return rest_ensure_response( [
-			'success' => true,
-			'updated' => $updated,
-		] );
+		return rest_ensure_response(
+			array(
+				'success' => true,
+				'updated' => $updated,
+			)
+		);
 	}
 
 	/**
@@ -302,15 +306,17 @@ class Settings_Controller {
 			return $validation;
 		}
 
-		return rest_ensure_response( [
-			'success'  => true,
-			'provider' => $provider,
-			'message'  => sprintf(
+		return rest_ensure_response(
+			array(
+				'success'  => true,
+				'provider' => $provider,
+				'message'  => sprintf(
 				/* translators: %s: Provider name */
-				__( '%s API key is valid.', 'wp-agent' ),
-				ucfirst( $provider )
-			),
-		] );
+					__( '%s API key is valid.', 'wp-agent' ),
+					ucfirst( $provider )
+				),
+			)
+		);
 	}
 
 	/**
@@ -345,7 +351,7 @@ class Settings_Controller {
 			return new \WP_Error(
 				'encryption_failed',
 				__( 'Failed to encrypt the API key. OpenSSL may not be available.', 'wp-agent' ),
-				[ 'status' => 500 ]
+				array( 'status' => 500 )
 			);
 		}
 
@@ -367,12 +373,12 @@ class Settings_Controller {
 			return new \WP_Error(
 				'invalid_roles',
 				__( 'Allowed roles must be an array.', 'wp-agent' ),
-				[ 'status' => 400 ]
+				array( 'status' => 400 )
 			);
 		}
 
 		$valid_roles = array_keys( wp_roles()->get_names() );
-		$sanitized   = [];
+		$sanitized   = array();
 
 		foreach ( $roles as $role ) {
 			$role = sanitize_text_field( $role );
@@ -413,7 +419,7 @@ class Settings_Controller {
 			return new \WP_Error(
 				'invalid_tavily_key',
 				__( 'Invalid Tavily API key format. Keys should start with "tvly-".', 'wp-agent' ),
-				[ 'status' => 400 ]
+				array( 'status' => 400 )
 			);
 		}
 
@@ -424,7 +430,7 @@ class Settings_Controller {
 			return new \WP_Error(
 				'encryption_failed',
 				__( 'Failed to encrypt the Tavily API key. OpenSSL may not be available.', 'wp-agent' ),
-				[ 'status' => 500 ]
+				array( 'status' => 500 )
 			);
 		}
 
@@ -446,11 +452,11 @@ class Settings_Controller {
 			return new \WP_Error(
 				'invalid_brand',
 				__( 'Brand settings must be an object.', 'wp-agent' ),
-				[ 'status' => 400 ]
+				array( 'status' => 400 )
 			);
 		}
 
-		$allowed_keys = [
+		$allowed_keys = array(
 			'brand_name',
 			'tagline',
 			'primary_color',
@@ -459,12 +465,12 @@ class Settings_Controller {
 			'light_color',
 			'tone',
 			'font_preference',
-		];
+		);
 
-		$allowed_tones = [ '', 'professional', 'friendly', 'casual', 'authoritative', 'playful', 'minimal' ];
-		$allowed_fonts = [ '', 'sans-serif', 'serif', 'monospace' ];
+		$allowed_tones = array( '', 'professional', 'friendly', 'casual', 'authoritative', 'playful', 'minimal' );
+		$allowed_fonts = array( '', 'sans-serif', 'serif', 'monospace' );
 
-		$sanitized = [];
+		$sanitized = array();
 
 		foreach ( $allowed_keys as $key ) {
 			if ( ! isset( $brand[ $key ] ) ) {
@@ -526,7 +532,7 @@ class Settings_Controller {
 		$option  = AI_Client_Adapter::KEY_OPTIONS[ $provider ] ?? '';
 
 		if ( empty( $option ) ) {
-			return new \WP_Error( 'invalid_provider', __( 'Unknown provider.', 'wp-agent' ), [ 'status' => 400 ] );
+			return new \WP_Error( 'invalid_provider', __( 'Unknown provider.', 'wp-agent' ), array( 'status' => 400 ) );
 		}
 
 		if ( empty( $api_key ) ) {
@@ -549,7 +555,7 @@ class Settings_Controller {
 			return new \WP_Error(
 				'encryption_failed',
 				__( 'Failed to encrypt the API key. OpenSSL may not be available.', 'wp-agent' ),
-				[ 'status' => 500 ]
+				array( 'status' => 500 )
 			);
 		}
 
@@ -559,41 +565,41 @@ class Settings_Controller {
 	}
 
 	private function get_update_args() {
-		return [
-			'api_key'             => [
+		return array(
+			'api_key'            => array(
 				'type' => 'string',
-			],
-			'tavily_api_key'      => [
+			),
+			'tavily_api_key'     => array(
 				'type' => 'string',
-			],
-			'default_model'       => [
+			),
+			'default_model'      => array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
-			],
-			'allowed_roles'       => [
+			),
+			'allowed_roles'      => array(
 				'type'  => 'array',
-				'items' => [ 'type' => 'string' ],
-			],
-			'brand'               => [
+				'items' => array( 'type' => 'string' ),
+			),
+			'brand'              => array(
 				'type' => 'object',
-			],
-			'ai_backend'          => [
+			),
+			'ai_backend'         => array(
 				'type' => 'string',
-				'enum' => [ 'openrouter', 'providers' ],
-			],
-			'anthropic_api_key'   => [
+				'enum' => array( 'openrouter', 'providers' ),
+			),
+			'anthropic_api_key'  => array(
 				'type' => 'string',
-			],
-			'openai_api_key'      => [
+			),
+			'openai_api_key'     => array(
 				'type' => 'string',
-			],
-			'google_api_key'      => [
+			),
+			'google_api_key'     => array(
 				'type' => 'string',
-			],
-			'preferred_provider'  => [
+			),
+			'preferred_provider' => array(
 				'type'  => 'array',
-				'items' => [ 'type' => 'string' ],
-			],
-		];
+				'items' => array( 'type' => 'string' ),
+			),
+		);
 	}
 }

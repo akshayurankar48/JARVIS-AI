@@ -50,21 +50,21 @@ class Manage_Sessions implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation' => array(
 					'type'        => 'string',
-					'enum'        => [ 'list', 'destroy_all', 'destroy_others' ],
+					'enum'        => array( 'list', 'destroy_all', 'destroy_others' ),
 					'description' => 'Operation to perform.',
-				],
-				'user_id'   => [
+				),
+				'user_id'   => array(
 					'type'        => 'integer',
 					'description' => 'User ID to manage sessions for. Defaults to the current user.',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -100,16 +100,16 @@ class Manage_Sessions implements Action_Interface {
 		$user_id   = absint( $params['user_id'] ?? get_current_user_id() );
 
 		if ( ! $user_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Invalid user ID.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$user = get_userdata( $user_id );
 		if ( ! $user ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -117,7 +117,7 @@ class Manage_Sessions implements Action_Interface {
 					__( 'User #%d not found.', 'wp-agent' ),
 					$user_id
 				),
-			];
+			);
 		}
 
 		$manager = \WP_Session_Tokens::get_instance( $user_id );
@@ -133,11 +133,11 @@ class Manage_Sessions implements Action_Interface {
 				return $this->destroy_other_sessions( $user_id, $user, $manager );
 
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation. Use "list", "destroy_all", or "destroy_others".', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -155,42 +155,45 @@ class Manage_Sessions implements Action_Interface {
 		$sessions = $manager->get_all();
 
 		if ( empty( $sessions ) ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [ 'total' => 0, 'sessions' => [] ],
+				'data'    => array(
+					'total'    => 0,
+					'sessions' => array(),
+				),
 				'message' => sprintf(
 					/* translators: %s: username */
 					__( 'No active sessions for "%s".', 'wp-agent' ),
 					$user->display_name
 				),
-			];
+			);
 		}
 
-		$results = [];
+		$results = array();
 		foreach ( $sessions as $token_hash => $session ) {
-			$results[] = [
+			$results[] = array(
 				'ip'         => $session['ip'] ?? 'unknown',
 				'user_agent' => isset( $session['ua'] ) ? wp_trim_words( $session['ua'], 10 ) : 'unknown',
 				'login_time' => isset( $session['login'] ) ? gmdate( 'Y-m-d H:i:s', $session['login'] ) : 'unknown',
 				'expiration' => isset( $session['expiration'] ) ? gmdate( 'Y-m-d H:i:s', $session['expiration'] ) : 'unknown',
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'user'     => $user->display_name,
 				'user_id'  => $user_id,
 				'total'    => count( $results ),
 				'sessions' => $results,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: username */
 				__( 'Found %1$d active session(s) for "%2$s".', 'wp-agent' ),
 				count( $results ),
 				$user->display_name
 			),
-		];
+		);
 	}
 
 	/**
@@ -207,20 +210,20 @@ class Manage_Sessions implements Action_Interface {
 		$count = count( $manager->get_all() );
 		$manager->destroy_all();
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'user'      => $user->display_name,
 				'user_id'   => $user_id,
 				'destroyed' => $count,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: username */
 				__( 'Destroyed %1$d session(s) for "%2$s". User must log in again.', 'wp-agent' ),
 				$count,
 				$user->display_name
 			),
-		];
+		);
 	}
 
 	/**
@@ -247,14 +250,14 @@ class Manage_Sessions implements Action_Interface {
 		$remaining = count( $manager->get_all() );
 		$destroyed = $count - $remaining;
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'user'      => $user->display_name,
 				'user_id'   => $user_id,
 				'destroyed' => $destroyed,
 				'remaining' => $remaining,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: destroyed count, 2: username, 3: remaining */
 				__( 'Destroyed %1$d other session(s) for "%2$s". %3$d session(s) remaining.', 'wp-agent' ),
@@ -262,6 +265,6 @@ class Manage_Sessions implements Action_Interface {
 				$user->display_name,
 				$remaining
 			),
-		];
+		);
 	}
 }

@@ -37,10 +37,10 @@ class REST_Permissions {
 			return false;
 		}
 
-		$allowed_roles = get_option( Settings_Controller::ROLES_OPTION, [ 'administrator' ] );
+		$allowed_roles = get_option( Settings_Controller::ROLES_OPTION, array( 'administrator' ) );
 
 		if ( ! is_array( $allowed_roles ) || empty( $allowed_roles ) ) {
-			$allowed_roles = [ 'administrator' ];
+			$allowed_roles = array( 'administrator' );
 		}
 
 		return ! empty( array_intersect( $user->roles, $allowed_roles ) );

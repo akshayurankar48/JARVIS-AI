@@ -52,20 +52,20 @@ class Get_Pattern implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'pattern_id' => [
+			'properties' => array(
+				'pattern_id' => array(
 					'type'        => 'string',
 					'description' => 'The pattern ID to retrieve (e.g. "hero-dark", "features-3col", "cta-gradient").',
-				],
-				'variables'  => [
+				),
+				'variables'  => array(
 					'type'        => 'object',
 					'description' => 'Optional variable overrides. Keys are variable names (e.g. "heading", "cta_primary", "bg_color"), values are the custom text or colors to use.',
-				],
-			],
-			'required'   => [ 'pattern_id' ],
-		];
+				),
+			),
+			'required'   => array( 'pattern_id' ),
+		);
 	}
 
 	/**
@@ -99,14 +99,14 @@ class Get_Pattern implements Action_Interface {
 	public function execute( array $params ): array {
 		$pattern_id = sanitize_key( $params['pattern_id'] ?? '' );
 		if ( empty( $pattern_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Pattern ID is required.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$overrides = [];
+		$overrides = array();
 		if ( ! empty( $params['variables'] ) && is_array( $params['variables'] ) ) {
 			foreach ( $params['variables'] as $key => $value ) {
 				$overrides[ sanitize_key( $key ) ] = is_string( $value ) ? sanitize_text_field( $value ) : $value;
@@ -117,7 +117,7 @@ class Get_Pattern implements Action_Interface {
 		$pattern = $manager->get_pattern( $pattern_id, $overrides );
 
 		if ( ! $pattern ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -125,24 +125,24 @@ class Get_Pattern implements Action_Interface {
 					__( 'Pattern "%s" not found. Call list_patterns to see available patterns.', 'wp-agent' ),
 					$pattern_id
 				),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'id'          => $pattern['id'],
 				'name'        => $pattern['name'],
 				'category'    => $pattern['category'],
 				'description' => $pattern['description'],
 				'blocks'      => $pattern['blocks'],
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: pattern name, 2: block count */
 				__( 'Loaded pattern "%1$s" with %2$d block(s). Pass these blocks to insert_blocks.', 'wp-agent' ),
 				$pattern['name'],
 				count( $pattern['blocks'] )
 			),
-		];
+		);
 	}
 }

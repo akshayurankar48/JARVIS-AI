@@ -33,37 +33,37 @@ class Bulk_Find_Replace implements Action_Interface {
 	}
 
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation' => array(
 					'type'        => 'string',
-					'enum'        => [ 'preview', 'execute' ],
+					'enum'        => array( 'preview', 'execute' ),
 					'description' => '"preview" for dry run, "execute" to apply changes.',
-				],
-				'find'      => [
+				),
+				'find'      => array(
 					'type'        => 'string',
 					'description' => 'Text to find. Required.',
-				],
-				'replace'   => [
+				),
+				'replace'   => array(
 					'type'        => 'string',
 					'description' => 'Replacement text. Required.',
-				],
-				'scope'     => [
+				),
+				'scope'     => array(
 					'type'        => 'array',
-					'items'       => [
+					'items'       => array(
 						'type' => 'string',
-						'enum' => [ 'post_content', 'post_title', 'post_excerpt', 'meta' ],
-					],
+						'enum' => array( 'post_content', 'post_title', 'post_excerpt', 'meta' ),
+					),
 					'description' => 'Where to search. Defaults to ["post_content"].',
-				],
-				'post_type' => [
+				),
+				'post_type' => array(
 					'type'        => 'string',
 					'description' => 'Limit to a specific post type. Defaults to all public types.',
-				],
-			],
-			'required'   => [ 'operation', 'find', 'replace' ],
-		];
+				),
+			),
+			'required'   => array( 'operation', 'find', 'replace' ),
+		);
 	}
 
 	public function get_capabilities_required(): string {
@@ -78,23 +78,23 @@ class Bulk_Find_Replace implements Action_Interface {
 		$operation = $params['operation'] ?? '';
 		$find      = $params['find'] ?? '';
 		$replace   = $params['replace'] ?? '';
-		$scope     = isset( $params['scope'] ) && is_array( $params['scope'] ) ? $params['scope'] : [ 'post_content' ];
+		$scope     = isset( $params['scope'] ) && is_array( $params['scope'] ) ? $params['scope'] : array( 'post_content' );
 		$post_type = isset( $params['post_type'] ) ? sanitize_text_field( $params['post_type'] ) : '';
 
 		if ( empty( $find ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'find text is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( $find === $replace ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'find and replace texts are identical.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$dry_run = 'preview' === $operation;
@@ -105,25 +105,25 @@ class Bulk_Find_Replace implements Action_Interface {
 	private function find_and_replace( string $find, string $replace, array $scope, string $post_type, bool $dry_run ) {
 		global $wpdb;
 
-		$post_types = [];
+		$post_types = array();
 		if ( ! empty( $post_type ) ) {
-			$post_types = [ $post_type ];
+			$post_types = array( $post_type );
 		} else {
-			$post_types = get_post_types( [ 'public' => true ] );
+			$post_types = get_post_types( array( 'public' => true ) );
 		}
 
 		$type_placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
-		$affected  = [];
-		$total     = 0;
+		$affected = array();
+		$total    = 0;
 
 		// Search in post fields.
-		$post_fields = array_intersect( $scope, [ 'post_content', 'post_title', 'post_excerpt' ] );
+		$post_fields = array_intersect( $scope, array( 'post_content', 'post_title', 'post_excerpt' ) );
 
 		if ( ! empty( $post_fields ) ) {
-			$conditions = [];
+			$conditions = array();
 			foreach ( $post_fields as $field ) {
 				$safe_field   = sanitize_key( $field );
 				$conditions[] = $wpdb->prepare( "{$safe_field} LIKE %s", '%' . $wpdb->esc_like( $find ) . '%' );
@@ -138,18 +138,18 @@ class Bulk_Find_Replace implements Action_Interface {
 					AND post_status IN ('publish', 'draft', 'private', 'pending')
 					AND ({$where_conditions})
 					LIMIT %d",
-					...array_merge( $post_types, [ self::MAX_POSTS ] )
+					...array_merge( $post_types, array( self::MAX_POSTS ) )
 				),
 				ARRAY_A
 			);
 
 			if ( ! empty( $posts ) ) {
 				foreach ( $posts as $post ) {
-					$affected[] = [
+					$affected[] = array(
 						'id'    => (int) $post['ID'],
 						'title' => $post['post_title'],
 						'type'  => $post['post_type'],
-					];
+					);
 
 					if ( ! $dry_run ) {
 						foreach ( $post_fields as $field ) {
@@ -173,6 +173,7 @@ class Bulk_Find_Replace implements Action_Interface {
 		// Search in meta.
 		if ( in_array( 'meta', $scope, true ) ) {
 			$meta_posts = $wpdb->get_results(
+				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic IN() placeholders built from $post_types.
 				$wpdb->prepare(
 					"SELECT DISTINCT p.ID, p.post_title, p.post_type
 					FROM {$wpdb->postmeta} pm
@@ -180,7 +181,7 @@ class Bulk_Find_Replace implements Action_Interface {
 					WHERE p.post_type IN ({$type_placeholders})
 					AND pm.meta_value LIKE %s
 					LIMIT %d",
-					...array_merge( $post_types, [ '%' . $wpdb->esc_like( $find ) . '%', self::MAX_POSTS ] )
+					...array_merge( $post_types, array( '%' . $wpdb->esc_like( $find ) . '%', self::MAX_POSTS ) )
 				),
 				ARRAY_A
 			);
@@ -195,11 +196,11 @@ class Bulk_Find_Replace implements Action_Interface {
 						}
 					}
 					if ( ! $already ) {
-						$affected[] = [
+						$affected[] = array(
 							'id'    => (int) $post['ID'],
 							'title' => $post['post_title'],
 							'type'  => $post['post_type'],
-						];
+						);
 					}
 
 					if ( ! $dry_run ) {
@@ -222,16 +223,16 @@ class Bulk_Find_Replace implements Action_Interface {
 
 		$mode = $dry_run ? 'Preview' : 'Executed';
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
-				'mode'          => $dry_run ? 'preview' : 'executed',
-				'find'          => $find,
-				'replace'       => $replace,
-				'scope'         => $scope,
+			'data'    => array(
+				'mode'           => $dry_run ? 'preview' : 'executed',
+				'find'           => $find,
+				'replace'        => $replace,
+				'scope'          => $scope,
 				'affected_count' => count( $affected ),
 				'affected_posts' => array_slice( $affected, 0, 50 ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: mode, 2: count, 3: find, 4: replace */
 				__( '%1$s: %2$d post(s) affected. Find: "%3$s" -> Replace: "%4$s".', 'wp-agent' ),
@@ -240,6 +241,6 @@ class Bulk_Find_Replace implements Action_Interface {
 				$find,
 				$replace
 			),
-		];
+		);
 	}
 }

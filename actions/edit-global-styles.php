@@ -50,95 +50,116 @@ class Edit_Global_Styles implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation' => array(
 					'type'        => 'string',
-					'enum'        => [ 'get', 'update' ],
+					'enum'        => array( 'get', 'update' ),
 					'description' => 'Read current styles ("get") or update them ("update").',
-				],
-				'styles'    => [
+				),
+				'styles'    => array(
 					'type'        => 'object',
 					'description' => 'Nested style object to MERGE into existing global styles. Only required for "update". Structure mirrors theme.json styles.',
-					'properties'  => [
-						'color'      => [
+					'properties'  => array(
+						'color'      => array(
 							'type'        => 'object',
 							'description' => 'Site-wide color settings.',
-							'properties'  => [
-								'palette'    => [
+							'properties'  => array(
+								'palette'    => array(
 									'type'        => 'array',
 									'description' => 'Custom color palette entries. Each item: { slug, color, name }.',
-									'items'       => [
+									'items'       => array(
 										'type'       => 'object',
-										'properties' => [
-											'slug'  => [ 'type' => 'string', 'description' => 'Machine-readable color identifier.' ],
-											'color' => [ 'type' => 'string', 'description' => 'Hex color value (e.g. "#6366f1").' ],
-											'name'  => [ 'type' => 'string', 'description' => 'Human-readable color name.' ],
-										],
-									],
-								],
-								'background' => [
+										'properties' => array(
+											'slug'  => array(
+												'type' => 'string',
+												'description' => 'Machine-readable color identifier.',
+											),
+											'color' => array(
+												'type' => 'string',
+												'description' => 'Hex color value (e.g. "#6366f1").',
+											),
+											'name'  => array(
+												'type' => 'string',
+												'description' => 'Human-readable color name.',
+											),
+										),
+									),
+								),
+								'background' => array(
 									'type'        => 'string',
 									'description' => 'Site background color (hex, e.g. "#ffffff").',
-								],
-								'text'       => [
+								),
+								'text'       => array(
 									'type'        => 'string',
 									'description' => 'Default text color (hex, e.g. "#111111").',
-								],
-							],
-						],
-						'typography' => [
+								),
+							),
+						),
+						'typography' => array(
 							'type'        => 'object',
 							'description' => 'Site-wide typography defaults.',
-							'properties'  => [
-								'fontFamily' => [
+							'properties'  => array(
+								'fontFamily' => array(
 									'type'        => 'string',
 									'description' => 'Default body font family (e.g. "Inter, sans-serif").',
-								],
-								'fontSize'   => [
+								),
+								'fontSize'   => array(
 									'type'        => 'string',
 									'description' => 'Default body font size (e.g. "16px" or "1rem").',
-								],
-								'lineHeight' => [
+								),
+								'lineHeight' => array(
 									'type'        => 'string',
 									'description' => 'Default line height (e.g. "1.6").',
-								],
-							],
-						],
-						'spacing'    => [
+								),
+							),
+						),
+						'spacing'    => array(
 							'type'        => 'object',
 							'description' => 'Site-wide spacing defaults.',
-							'properties'  => [
-								'blockGap' => [
+							'properties'  => array(
+								'blockGap' => array(
 									'type'        => 'string',
 									'description' => 'Gap between blocks (e.g. "24px").',
-								],
-								'padding'  => [
+								),
+								'padding'  => array(
 									'type'        => 'object',
 									'description' => 'Site-wide padding.',
-									'properties'  => [
-										'top'    => [ 'type' => 'string', 'description' => 'Top padding (e.g. "0px").' ],
-										'right'  => [ 'type' => 'string', 'description' => 'Right padding (e.g. "var(--wp--preset--spacing--30)").' ],
-										'bottom' => [ 'type' => 'string', 'description' => 'Bottom padding (e.g. "0px").' ],
-										'left'   => [ 'type' => 'string', 'description' => 'Left padding (e.g. "var(--wp--preset--spacing--30)").' ],
-									],
-								],
-							],
-						],
-						'elements'   => [
+									'properties'  => array(
+										'top'    => array(
+											'type'        => 'string',
+											'description' => 'Top padding (e.g. "0px").',
+										),
+										'right'  => array(
+											'type'        => 'string',
+											'description' => 'Right padding (e.g. "var(--wp--preset--spacing--30)").',
+										),
+										'bottom' => array(
+											'type'        => 'string',
+											'description' => 'Bottom padding (e.g. "0px").',
+										),
+										'left'   => array(
+											'type'        => 'string',
+											'description' => 'Left padding (e.g. "var(--wp--preset--spacing--30)").',
+										),
+									),
+								),
+							),
+						),
+						'elements'   => array(
 							'type'        => 'object',
 							'description' => 'Style overrides for specific HTML elements: link, button, heading, h1–h6.',
-						],
-						'blocks'     => [
+						),
+						'blocks'     => array(
 							'type'        => 'object',
 							'description' => 'Per-block style overrides keyed by block name (e.g. "core/group", "core/button").',
-						],
-					],
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+						),
+					),
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -172,12 +193,12 @@ class Edit_Global_Styles implements Action_Interface {
 	public function execute( array $params ): array {
 		$operation = sanitize_key( $params['operation'] ?? '' );
 
-		if ( ! in_array( $operation, [ 'get', 'update' ], true ) ) {
-			return [
+		if ( ! in_array( $operation, array( 'get', 'update' ), true ) ) {
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Invalid operation. Must be "get" or "update".', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( 'get' === $operation ) {
@@ -207,15 +228,15 @@ class Edit_Global_Styles implements Action_Interface {
 			? __( 'Global styles retrieved successfully.', 'wp-agent' )
 			: __( 'Global styles retrieved. Note: this is not a block theme — some styles may have limited effect.', 'wp-agent' );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'is_block_theme' => $is_block_theme,
 				'styles'         => $styles,
 				'settings'       => $settings,
-			],
+			),
 			'message' => $message,
-		];
+		);
 	}
 
 	/**
@@ -228,11 +249,11 @@ class Edit_Global_Styles implements Action_Interface {
 	 */
 	private function handle_update( array $params ): array {
 		if ( empty( $params['styles'] ) || ! is_array( $params['styles'] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'The "styles" parameter is required and must be an object for the update operation.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$incoming = $params['styles'];
@@ -243,37 +264,37 @@ class Edit_Global_Styles implements Action_Interface {
 		// Find the existing user global styles post.
 		$stylesheet = get_stylesheet();
 		$query      = new \WP_Query(
-			[
+			array(
 				'post_type'      => 'wp_global_styles',
-				'post_status'    => [ 'publish', 'draft' ],
+				'post_status'    => array( 'publish', 'draft' ),
 				'name'           => 'wp-global-styles-' . urlencode( $stylesheet ),
 				'posts_per_page' => 1,
 				'no_found_rows'  => true,
-			]
+			)
 		);
 
 		wp_reset_postdata();
 
 		// Decode existing JSON or start from a minimal scaffold.
 		if ( $query->have_posts() ) {
-			$existing_post   = $query->posts[0];
-			$existing_json   = json_decode( $existing_post->post_content, true );
-			$existing_json   = is_array( $existing_json ) ? $existing_json : [];
+			$existing_post    = $query->posts[0];
+			$existing_json    = json_decode( $existing_post->post_content, true );
+			$existing_json    = is_array( $existing_json ) ? $existing_json : array();
 			$existing_post_id = (int) $existing_post->ID;
 		} else {
-			$existing_json    = [
+			$existing_json    = array(
 				'version'                     => 3,
-				'isGlobalStylesUserThemeJSON'  => true,
-			];
+				'isGlobalStylesUserThemeJSON' => true,
+			);
 			$existing_post_id = 0;
 		}
 
 		// Ensure the scaffold keys exist.
 		if ( ! isset( $existing_json['styles'] ) ) {
-			$existing_json['styles'] = [];
+			$existing_json['styles'] = array();
 		}
 		if ( ! isset( $existing_json['settings'] ) ) {
-			$existing_json['settings'] = [];
+			$existing_json['settings'] = array();
 		}
 
 		// Separate palette from the rest — palette lives under settings, not styles.
@@ -298,13 +319,13 @@ class Edit_Global_Styles implements Action_Interface {
 			$safe_palette = $this->sanitize_palette( $palette );
 			if ( ! empty( $safe_palette ) ) {
 				if ( ! isset( $existing_json['settings']['color'] ) ) {
-					$existing_json['settings']['color'] = [];
+					$existing_json['settings']['color'] = array();
 				}
 				if ( ! isset( $existing_json['settings']['color']['palette'] ) ) {
-					$existing_json['settings']['color']['palette'] = [];
+					$existing_json['settings']['color']['palette'] = array();
 				}
 				if ( ! isset( $existing_json['settings']['color']['palette']['custom'] ) ) {
-					$existing_json['settings']['color']['palette']['custom'] = [];
+					$existing_json['settings']['color']['palette']['custom'] = array();
 				}
 				// Replace existing custom palette entirely so callers set a clean palette.
 				$existing_json['settings']['color']['palette']['custom'] = $safe_palette;
@@ -315,31 +336,31 @@ class Edit_Global_Styles implements Action_Interface {
 
 		if ( $existing_post_id > 0 ) {
 			$result = wp_update_post(
-				[
+				array(
 					'ID'           => $existing_post_id,
 					'post_content' => $new_content,
-				],
+				),
 				true
 			);
 		} else {
 			$result = wp_insert_post(
-				[
+				array(
 					'post_type'    => 'wp_global_styles',
 					'post_title'   => 'Custom Styles',
 					'post_name'    => 'wp-global-styles-' . urlencode( $stylesheet ),
 					'post_status'  => 'publish',
 					'post_content' => $new_content,
-				],
+				),
 				true
 			);
 		}
 
 		if ( is_wp_error( $result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $result->get_error_message(),
-			];
+			);
 		}
 
 		// Bust the global styles cache so changes take effect immediately.
@@ -351,16 +372,16 @@ class Edit_Global_Styles implements Action_Interface {
 			? __( 'Global styles updated successfully.', 'wp-agent' )
 			: __( 'Global styles updated. Note: this is not a block theme — some styles may have limited effect.', 'wp-agent' );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'post_id'        => (int) $result,
 				'is_block_theme' => $is_block_theme,
 				'styles'         => $existing_json['styles'],
 				'settings'       => $existing_json['settings'],
-			],
+			),
 			'message' => $message,
-		];
+		);
 	}
 
 	// -------------------------------------------------------------------------
@@ -381,8 +402,8 @@ class Edit_Global_Styles implements Action_Interface {
 	 * @return array Sanitized styles array.
 	 */
 	private function sanitize_styles( array $styles, string $parent_key = '' ): array {
-		$color_keys = [ 'color', 'background', 'text', 'fill', 'stroke', 'gradient' ];
-		$sanitized  = [];
+		$color_keys = array( 'color', 'background', 'text', 'fill', 'stroke', 'gradient' );
+		$sanitized  = array();
 
 		foreach ( $styles as $key => $value ) {
 			$safe_key = sanitize_key( $key );
@@ -392,7 +413,7 @@ class Edit_Global_Styles implements Action_Interface {
 			} elseif ( is_string( $value ) ) {
 				// Attempt hex sanitization for color-context keys; fall back to text field.
 				if ( in_array( $parent_key, $color_keys, true ) || in_array( $safe_key, $color_keys, true ) ) {
-					$hex = sanitize_hex_color( $value );
+					$hex                    = sanitize_hex_color( $value );
 					$sanitized[ $safe_key ] = $hex ? $hex : sanitize_text_field( $value );
 				} else {
 					$sanitized[ $safe_key ] = sanitize_text_field( $value );
@@ -419,7 +440,7 @@ class Edit_Global_Styles implements Action_Interface {
 	 * @return array Sanitized palette entries.
 	 */
 	private function sanitize_palette( array $palette ): array {
-		$safe = [];
+		$safe = array();
 
 		foreach ( $palette as $entry ) {
 			if ( ! is_array( $entry ) ) {
@@ -438,11 +459,11 @@ class Edit_Global_Styles implements Action_Interface {
 				continue;
 			}
 
-			$safe[] = [
+			$safe[] = array(
 				'slug'  => $slug,
 				'color' => $color,
 				'name'  => $name,
-			];
+			);
 		}
 
 		return $safe;

@@ -148,11 +148,11 @@ class Checkpoint_Manager {
 			case 'import_media':
 			case 'generate_image':
 			case 'install_plugin':
-				return [
+				return array(
 					'entity_type' => $this->get_creation_entity_type( $action_name ),
 					'entity_id'   => 0,
-					'snapshot'    => [ '_creation' => true ],
-				];
+					'snapshot'    => array( '_creation' => true ),
+				);
 
 			default:
 				return null;
@@ -183,7 +183,7 @@ class Checkpoint_Manager {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$inserted = $wpdb->insert(
 			$tables['checkpoints'],
-			[
+			array(
 				'conversation_id' => (int) $conversation_id,
 				'message_id'      => (int) $message_id,
 				'action_type'     => sanitize_text_field( $action_type ),
@@ -192,8 +192,8 @@ class Checkpoint_Manager {
 				'snapshot_before' => wp_json_encode( $snapshot_before ),
 				'is_restored'     => 0,
 				'created_at'      => current_time( 'mysql', true ),
-			],
-			[ '%d', '%d', '%s', '%s', '%d', '%s', '%d', '%s' ]
+			),
+			array( '%d', '%d', '%s', '%s', '%d', '%s', '%d', '%s' )
 		);
 
 		return false !== $inserted ? (int) $wpdb->insert_id : false;
@@ -218,10 +218,10 @@ class Checkpoint_Manager {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->update(
 			$tables['checkpoints'],
-			[ 'entity_id' => (int) $entity_id ],
-			[ 'id' => (int) $checkpoint_id ],
-			[ '%d' ],
-			[ '%d' ]
+			array( 'entity_id' => (int) $entity_id ),
+			array( 'id' => (int) $checkpoint_id ),
+			array( '%d' ),
+			array( '%d' )
 		);
 	}
 
@@ -292,34 +292,34 @@ class Checkpoint_Manager {
 		);
 
 		if ( ! $checkpoint ) {
-			return [
+			return array(
 				'success' => false,
 				'message' => __( 'Checkpoint not found or does not belong to this conversation.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( ! empty( $checkpoint['is_restored'] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'message' => __( 'This checkpoint has already been restored.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Verify the current user has permission for the original action.
 		$action_obj = \WPAgent\Actions\Action_Registry::get_instance()->get_action( $checkpoint['action_type'] );
 		if ( $action_obj && ! current_user_can( $action_obj->get_capabilities_required() ) ) {
-			return [
+			return array(
 				'success' => false,
 				'message' => __( 'You do not have permission to undo this action.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$snapshot = json_decode( $checkpoint['snapshot_before'], true );
 		if ( ! is_array( $snapshot ) ) {
-			return [
+			return array(
 				'success' => false,
 				'message' => __( 'Snapshot data is corrupt.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$entity_type = $checkpoint['entity_type'];
@@ -338,10 +338,10 @@ class Checkpoint_Manager {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->update(
 				$tables['checkpoints'],
-				[ 'is_restored' => 1 ],
-				[ 'id' => (int) $checkpoint_id ],
-				[ '%d' ],
-				[ '%d' ]
+				array( 'is_restored' => 1 ),
+				array( 'id' => (int) $checkpoint_id ),
+				array( '%d' ),
+				array( '%d' )
 			);
 		}
 
@@ -364,8 +364,8 @@ class Checkpoint_Manager {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->delete(
 			$tables['checkpoints'],
-			[ 'id' => (int) $checkpoint_id ],
-			[ '%d' ]
+			array( 'id' => (int) $checkpoint_id ),
+			array( '%d' )
 		);
 	}
 
@@ -388,15 +388,15 @@ class Checkpoint_Manager {
 		$meta         = get_post_meta( $post_id );
 		$thumbnail_id = get_post_thumbnail_id( $post_id );
 
-		return [
+		return array(
 			'entity_type' => 'post',
 			'entity_id'   => $post_id,
-			'snapshot'    => [
+			'snapshot'    => array(
 				'post'         => $post,
 				'meta'         => $meta,
 				'thumbnail_id' => $thumbnail_id ? (int) $thumbnail_id : 0,
-			],
-		];
+			),
+		);
 	}
 
 	/**
@@ -407,35 +407,38 @@ class Checkpoint_Manager {
 	private function snapshot_global_styles() {
 		$stylesheet = get_stylesheet();
 		$query      = new \WP_Query(
-			[
+			array(
 				'post_type'      => 'wp_global_styles',
-				'post_status'    => [ 'publish', 'draft' ],
+				'post_status'    => array( 'publish', 'draft' ),
 				'name'           => 'wp-global-styles-' . urlencode( $stylesheet ),
 				'posts_per_page' => 1,
 				'no_found_rows'  => true,
-			]
+			)
 		);
 
 		wp_reset_postdata();
 
 		if ( ! $query->have_posts() ) {
-			return [
+			return array(
 				'entity_type' => 'global_styles',
 				'entity_id'   => 0,
-				'snapshot'    => [ 'content' => null, 'exists' => false ],
-			];
+				'snapshot'    => array(
+					'content' => null,
+					'exists'  => false,
+				),
+			);
 		}
 
 		$post = $query->posts[0];
 
-		return [
+		return array(
 			'entity_type' => 'global_styles',
 			'entity_id'   => (int) $post->ID,
-			'snapshot'    => [
+			'snapshot'    => array(
 				'content' => $post->post_content,
 				'exists'  => true,
-			],
-		];
+			),
+		);
 	}
 
 	/**
@@ -444,13 +447,13 @@ class Checkpoint_Manager {
 	 * @return array Snapshot data.
 	 */
 	private function snapshot_custom_css() {
-		return [
+		return array(
 			'entity_type' => 'custom_css',
 			'entity_id'   => 0,
-			'snapshot'    => [
+			'snapshot'    => array(
 				'css' => wp_get_custom_css(),
-			],
-		];
+			),
+		);
 	}
 
 	/**
@@ -472,13 +475,13 @@ class Checkpoint_Manager {
 			return null;
 		}
 
-		return [
+		return array(
 			'entity_type' => 'option',
 			'entity_id'   => 0,
-			'snapshot'    => [
+			'snapshot'    => array(
 				$option_name => get_option( $option_name ),
-			],
-		];
+			),
+		);
 	}
 
 	/**
@@ -487,13 +490,13 @@ class Checkpoint_Manager {
 	 * @return array Snapshot data.
 	 */
 	private function snapshot_permalinks() {
-		return [
+		return array(
 			'entity_type' => 'option',
 			'entity_id'   => 0,
-			'snapshot'    => [
+			'snapshot'    => array(
 				'permalink_structure' => get_option( 'permalink_structure' ),
-			],
-		];
+			),
+		);
 	}
 
 	/**
@@ -502,13 +505,13 @@ class Checkpoint_Manager {
 	 * @return array Snapshot data.
 	 */
 	private function snapshot_active_plugins() {
-		return [
+		return array(
 			'entity_type' => 'plugin',
 			'entity_id'   => 0,
-			'snapshot'    => [
-				'active_plugins' => get_option( 'active_plugins', [] ),
-			],
-		];
+			'snapshot'    => array(
+				'active_plugins' => get_option( 'active_plugins', array() ),
+			),
+		);
 	}
 
 	/**
@@ -517,14 +520,14 @@ class Checkpoint_Manager {
 	 * @return array Snapshot data.
 	 */
 	private function snapshot_active_theme() {
-		return [
+		return array(
 			'entity_type' => 'theme',
 			'entity_id'   => 0,
-			'snapshot'    => [
+			'snapshot'    => array(
 				'stylesheet' => get_option( 'stylesheet' ),
 				'template'   => get_option( 'template' ),
-			],
-		];
+			),
+		);
 	}
 
 	/**
@@ -538,13 +541,13 @@ class Checkpoint_Manager {
 
 		if ( ! $menu_id ) {
 			// No specific menu to snapshot — capture menu locations.
-			return [
+			return array(
 				'entity_type' => 'menu',
 				'entity_id'   => 0,
-				'snapshot'    => [
+				'snapshot'    => array(
 					'locations' => get_nav_menu_locations(),
-				],
-			];
+				),
+			);
 		}
 
 		$menu = wp_get_nav_menu_object( $menu_id );
@@ -552,21 +555,24 @@ class Checkpoint_Manager {
 			return null;
 		}
 
-		$items = wp_get_nav_menu_items( $menu_id, [ 'update_post_term_cache' => false ] );
+		$items = wp_get_nav_menu_items( $menu_id, array( 'update_post_term_cache' => false ) );
 
-		return [
+		return array(
 			'entity_type' => 'menu',
 			'entity_id'   => $menu_id,
-			'snapshot'    => [
-				'menu'  => [
+			'snapshot'    => array(
+				'menu'  => array(
 					'name'        => $menu->name,
 					'description' => $menu->description,
-				],
-				'items' => $items ? array_map( function ( $item ) {
-					return get_object_vars( $item );
-				}, $items ) : [],
-			],
-		];
+				),
+				'items' => $items ? array_map(
+					function ( $item ) {
+						return get_object_vars( $item );
+					},
+					$items
+				) : array(),
+			),
+		);
 	}
 
 	/**
@@ -587,13 +593,13 @@ class Checkpoint_Manager {
 			return null;
 		}
 
-		return [
+		return array(
 			'entity_type' => 'taxonomy',
 			'entity_id'   => $term_id,
-			'snapshot'    => [
+			'snapshot'    => array(
 				'term' => get_object_vars( $term ),
-			],
-		];
+			),
+		);
 	}
 
 	/**
@@ -614,13 +620,13 @@ class Checkpoint_Manager {
 			return null;
 		}
 
-		return [
+		return array(
 			'entity_type' => 'comment',
 			'entity_id'   => $comment_id,
-			'snapshot'    => [
+			'snapshot'    => array(
 				'comment' => $comment,
-			],
-		];
+			),
+		);
 	}
 
 	/**
@@ -635,7 +641,7 @@ class Checkpoint_Manager {
 			return null;
 		}
 
-		$seo_keys = [
+		$seo_keys = array(
 			'_yoast_wpseo_title',
 			'_yoast_wpseo_metadesc',
 			'_yoast_wpseo_focuskw',
@@ -644,9 +650,9 @@ class Checkpoint_Manager {
 			'rank_math_focus_keyword',
 			'_aioseo_title',
 			'_aioseo_description',
-		];
+		);
 
-		$meta = [];
+		$meta = array();
 		foreach ( $seo_keys as $key ) {
 			$value = get_post_meta( $post_id, $key, true );
 			if ( '' !== $value ) {
@@ -654,13 +660,13 @@ class Checkpoint_Manager {
 			}
 		}
 
-		return [
+		return array(
 			'entity_type' => 'seo',
 			'entity_id'   => $post_id,
-			'snapshot'    => [
+			'snapshot'    => array(
 				'meta' => $meta,
-			],
-		];
+			),
+		);
 	}
 
 	/**
@@ -678,13 +684,13 @@ class Checkpoint_Manager {
 
 		// Look up the template part post.
 		$query = new \WP_Query(
-			[
+			array(
 				'post_type'      => 'wp_template_part',
-				'post_status'    => [ 'publish', 'draft' ],
+				'post_status'    => array( 'publish', 'draft' ),
 				'name'           => $slug,
 				'posts_per_page' => 1,
 				'no_found_rows'  => true,
-			]
+			)
 		);
 
 		wp_reset_postdata();
@@ -695,15 +701,15 @@ class Checkpoint_Manager {
 
 		$post = $query->posts[0];
 
-		return [
+		return array(
 			'entity_type' => 'template_part',
 			'entity_id'   => (int) $post->ID,
-			'snapshot'    => [
+			'snapshot'    => array(
 				'post_content' => $post->post_content,
 				'post_title'   => $post->post_title,
 				'slug'         => $slug,
-			],
-		];
+			),
+		);
 	}
 
 	// -------------------------------------------------------------------------
@@ -754,14 +760,14 @@ class Checkpoint_Manager {
 				return $this->restore_template_part( $entity_id, $snapshot );
 
 			default:
-				return [
+				return array(
 					'success' => false,
 					'message' => sprintf(
 						/* translators: %s: entity type */
 						__( 'Unknown entity type for restore: %s', 'wp-agent' ),
 						$entity_type
 					),
-				];
+				);
 		}
 	}
 
@@ -774,7 +780,10 @@ class Checkpoint_Manager {
 	 */
 	private function restore_post( $post_id, array $snapshot ) {
 		if ( empty( $snapshot['post'] ) ) {
-			return [ 'success' => false, 'message' => __( 'No post data in snapshot.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'message' => __( 'No post data in snapshot.', 'wp-agent' ),
+			);
 		}
 
 		$post_data = $snapshot['post'];
@@ -786,25 +795,28 @@ class Checkpoint_Manager {
 		}
 
 		// Restore post fields.
-		$update_args = [
-			'ID'            => $post_id,
-			'post_title'    => $post_data['post_title'] ?? '',
-			'post_content'  => $post_data['post_content'] ?? '',
-			'post_excerpt'  => $post_data['post_excerpt'] ?? '',
-			'post_status'   => $post_data['post_status'] ?? 'draft',
-			'post_name'     => $post_data['post_name'] ?? '',
-			'post_parent'   => $post_data['post_parent'] ?? 0,
-		];
+		$update_args = array(
+			'ID'           => $post_id,
+			'post_title'   => $post_data['post_title'] ?? '',
+			'post_content' => $post_data['post_content'] ?? '',
+			'post_excerpt' => $post_data['post_excerpt'] ?? '',
+			'post_status'  => $post_data['post_status'] ?? 'draft',
+			'post_name'    => $post_data['post_name'] ?? '',
+			'post_parent'  => $post_data['post_parent'] ?? 0,
+		);
 
 		$result = wp_update_post( $update_args, true );
 
 		if ( is_wp_error( $result ) ) {
-			return [ 'success' => false, 'message' => $result->get_error_message() ];
+			return array(
+				'success' => false,
+				'message' => $result->get_error_message(),
+			);
 		}
 
 		// Restore post meta.
 		if ( ! empty( $snapshot['meta'] ) && is_array( $snapshot['meta'] ) ) {
-			$protected_keys = [ '_edit_lock', '_edit_last' ];
+			$protected_keys = array( '_edit_lock', '_edit_last' );
 			foreach ( $snapshot['meta'] as $meta_key => $meta_values ) {
 				if ( in_array( $meta_key, $protected_keys, true ) ) {
 					continue;
@@ -825,14 +837,14 @@ class Checkpoint_Manager {
 			}
 		}
 
-		return [
+		return array(
 			'success' => true,
 			'message' => sprintf(
 				/* translators: %d: post ID */
 				__( 'Restored post #%d to its previous state.', 'wp-agent' ),
 				$post_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -851,23 +863,26 @@ class Checkpoint_Manager {
 			if ( function_exists( 'wp_clean_theme_json_cache' ) ) {
 				wp_clean_theme_json_cache();
 			}
-			return [
+			return array(
 				'success' => true,
 				'message' => __( 'Restored global styles (removed custom overrides).', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( $post_id > 0 ) {
 			$result = wp_update_post(
-				[
+				array(
 					'ID'           => $post_id,
 					'post_content' => $snapshot['content'],
-				],
+				),
 				true
 			);
 
 			if ( is_wp_error( $result ) ) {
-				return [ 'success' => false, 'message' => $result->get_error_message() ];
+				return array(
+					'success' => false,
+					'message' => $result->get_error_message(),
+				);
 			}
 		}
 
@@ -875,10 +890,10 @@ class Checkpoint_Manager {
 			wp_clean_theme_json_cache();
 		}
 
-		return [
+		return array(
 			'success' => true,
 			'message' => __( 'Restored global styles to their previous state.', 'wp-agent' ),
-		];
+		);
 	}
 
 	/**
@@ -892,13 +907,16 @@ class Checkpoint_Manager {
 		$result = wp_update_custom_css_post( $css );
 
 		if ( is_wp_error( $result ) ) {
-			return [ 'success' => false, 'message' => $result->get_error_message() ];
+			return array(
+				'success' => false,
+				'message' => $result->get_error_message(),
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
 			'message' => __( 'Restored custom CSS to its previous state.', 'wp-agent' ),
-		];
+		);
 	}
 
 	/**
@@ -922,14 +940,14 @@ class Checkpoint_Manager {
 			++$restored;
 		}
 
-		return [
+		return array(
 			'success' => true,
 			'message' => sprintf(
 				/* translators: %d: number of options restored */
 				__( 'Restored %d option(s) to their previous values.', 'wp-agent' ),
 				$restored
 			),
-		];
+		);
 	}
 
 	/**
@@ -943,18 +961,24 @@ class Checkpoint_Manager {
 	 */
 	private function restore_active_plugins( array $snapshot ) {
 		if ( ! isset( $snapshot['active_plugins'] ) || ! is_array( $snapshot['active_plugins'] ) ) {
-			return [ 'success' => false, 'message' => __( 'No plugin data in snapshot.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'message' => __( 'No plugin data in snapshot.', 'wp-agent' ),
+			);
 		}
 
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 		$target  = array_map( 'sanitize_text_field', $snapshot['active_plugins'] );
-		$current = get_option( 'active_plugins', [] );
+		$current = get_option( 'active_plugins', array() );
 
 		// Validate each slug looks like a valid plugin file path.
-		$target = array_filter( $target, static function ( $slug ) {
-			return (bool) preg_match( '#^[a-z0-9_\-]+/[a-z0-9_\-]+\.php$#i', $slug );
-		} );
+		$target = array_filter(
+			$target,
+			static function ( $slug ) {
+				return (bool) preg_match( '#^[a-z0-9_\-]+/[a-z0-9_\-]+\.php$#i', $slug );
+			}
+		);
 
 		$to_deactivate = array_diff( $current, $target );
 		$to_activate   = array_diff( $target, $current );
@@ -966,10 +990,10 @@ class Checkpoint_Manager {
 			activate_plugins( array_values( $to_activate ) );
 		}
 
-		return [
+		return array(
 			'success' => true,
 			'message' => __( 'Restored active plugins to their previous state.', 'wp-agent' ),
-		];
+		);
 	}
 
 	/**
@@ -980,19 +1004,22 @@ class Checkpoint_Manager {
 	 */
 	private function restore_theme( array $snapshot ) {
 		if ( empty( $snapshot['stylesheet'] ) ) {
-			return [ 'success' => false, 'message' => __( 'No theme data in snapshot.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'message' => __( 'No theme data in snapshot.', 'wp-agent' ),
+			);
 		}
 
 		switch_theme( $snapshot['stylesheet'] );
 
-		return [
+		return array(
 			'success' => true,
 			'message' => sprintf(
 				/* translators: %s: theme stylesheet */
 				__( 'Restored theme to "%s".', 'wp-agent' ),
 				$snapshot['stylesheet']
 			),
-		];
+		);
 	}
 
 	/**
@@ -1006,24 +1033,24 @@ class Checkpoint_Manager {
 		// Restore menu locations if that's what was captured.
 		if ( isset( $snapshot['locations'] ) && ! $menu_id ) {
 			set_theme_mod( 'nav_menu_locations', $snapshot['locations'] );
-			return [
+			return array(
 				'success' => true,
 				'message' => __( 'Restored menu locations to their previous state.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( isset( $snapshot['menu'] ) && $menu_id ) {
 			wp_update_nav_menu_object( $menu_id, $snapshot['menu'] );
 		}
 
-		return [
+		return array(
 			'success' => true,
 			'message' => sprintf(
 				/* translators: %d: menu ID */
 				__( 'Restored menu #%d to its previous state.', 'wp-agent' ),
 				$menu_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -1035,7 +1062,10 @@ class Checkpoint_Manager {
 	 */
 	private function restore_taxonomy( $term_id, array $snapshot ) {
 		if ( empty( $snapshot['term'] ) ) {
-			return [ 'success' => false, 'message' => __( 'No term data in snapshot.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'message' => __( 'No term data in snapshot.', 'wp-agent' ),
+			);
 		}
 
 		$term_data = $snapshot['term'];
@@ -1044,22 +1074,22 @@ class Checkpoint_Manager {
 		wp_update_term(
 			$term_id,
 			$taxonomy,
-			[
+			array(
 				'name'        => $term_data['name'] ?? '',
 				'slug'        => $term_data['slug'] ?? '',
 				'description' => $term_data['description'] ?? '',
 				'parent'      => $term_data['parent'] ?? 0,
-			]
+			)
 		);
 
-		return [
+		return array(
 			'success' => true,
 			'message' => sprintf(
 				/* translators: %d: term ID */
 				__( 'Restored term #%d to its previous state.', 'wp-agent' ),
 				$term_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -1071,23 +1101,29 @@ class Checkpoint_Manager {
 	 */
 	private function restore_comment( $comment_id, array $snapshot ) {
 		if ( empty( $snapshot['comment'] ) ) {
-			return [ 'success' => false, 'message' => __( 'No comment data in snapshot.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'message' => __( 'No comment data in snapshot.', 'wp-agent' ),
+			);
 		}
 
 		$result = wp_update_comment( $snapshot['comment'] );
 
 		if ( is_wp_error( $result ) ) {
-			return [ 'success' => false, 'message' => $result->get_error_message() ];
+			return array(
+				'success' => false,
+				'message' => $result->get_error_message(),
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
 			'message' => sprintf(
 				/* translators: %d: comment ID */
 				__( 'Restored comment #%d to its previous state.', 'wp-agent' ),
 				$comment_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -1099,21 +1135,24 @@ class Checkpoint_Manager {
 	 */
 	private function restore_seo( $post_id, array $snapshot ) {
 		if ( ! isset( $snapshot['meta'] ) ) {
-			return [ 'success' => false, 'message' => __( 'No SEO meta in snapshot.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'message' => __( 'No SEO meta in snapshot.', 'wp-agent' ),
+			);
 		}
 
 		foreach ( $snapshot['meta'] as $key => $value ) {
 			update_post_meta( $post_id, sanitize_key( $key ), $value );
 		}
 
-		return [
+		return array(
 			'success' => true,
 			'message' => sprintf(
 				/* translators: %d: post ID */
 				__( 'Restored SEO meta for post #%d.', 'wp-agent' ),
 				$post_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -1125,30 +1164,36 @@ class Checkpoint_Manager {
 	 */
 	private function restore_template_part( $post_id, array $snapshot ) {
 		if ( ! isset( $snapshot['post_content'] ) ) {
-			return [ 'success' => false, 'message' => __( 'No template part content in snapshot.', 'wp-agent' ) ];
+			return array(
+				'success' => false,
+				'message' => __( 'No template part content in snapshot.', 'wp-agent' ),
+			);
 		}
 
 		$result = wp_update_post(
-			[
+			array(
 				'ID'           => $post_id,
 				'post_content' => $snapshot['post_content'],
 				'post_title'   => $snapshot['post_title'] ?? '',
-			],
+			),
 			true
 		);
 
 		if ( is_wp_error( $result ) ) {
-			return [ 'success' => false, 'message' => $result->get_error_message() ];
+			return array(
+				'success' => false,
+				'message' => $result->get_error_message(),
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
 			'message' => sprintf(
 				/* translators: %s: template part slug */
 				__( 'Restored template part "%s" to its previous state.', 'wp-agent' ),
 				$snapshot['slug'] ?? $post_id
 			),
-		];
+		);
 	}
 
 	// -------------------------------------------------------------------------
@@ -1164,10 +1209,10 @@ class Checkpoint_Manager {
 	 */
 	private function undo_creation( $action_type, $entity_id ) {
 		if ( ! $entity_id ) {
-			return [
+			return array(
 				'success' => false,
 				'message' => __( 'Cannot undo creation: entity ID is unknown.', 'wp-agent' ),
-			];
+			);
 		}
 
 		switch ( $action_type ) {
@@ -1175,74 +1220,86 @@ class Checkpoint_Manager {
 			case 'clone_post':
 				$result = wp_trash_post( $entity_id );
 				return $result
-					? [
+					? array(
 						'success' => true,
 						'message' => sprintf(
 							/* translators: %d: post ID */
 							__( 'Moved created post #%d to trash.', 'wp-agent' ),
 							$entity_id
 						),
-					]
-					: [ 'success' => false, 'message' => __( 'Failed to trash the created post.', 'wp-agent' ) ];
+					)
+					: array(
+						'success' => false,
+						'message' => __( 'Failed to trash the created post.', 'wp-agent' ),
+					);
 
 			case 'create_pattern':
 				$result = wp_delete_post( $entity_id, true );
 				return $result
-					? [
+					? array(
 						'success' => true,
 						'message' => sprintf(
 							/* translators: %d: pattern post ID */
 							__( 'Deleted created pattern #%d.', 'wp-agent' ),
 							$entity_id
 						),
-					]
-					: [ 'success' => false, 'message' => __( 'Failed to delete the created pattern.', 'wp-agent' ) ];
+					)
+					: array(
+						'success' => false,
+						'message' => __( 'Failed to delete the created pattern.', 'wp-agent' ),
+					);
 
 			case 'import_media':
 			case 'generate_image':
 				$result = wp_delete_attachment( $entity_id, true );
 				return $result
-					? [
+					? array(
 						'success' => true,
 						'message' => sprintf(
 							/* translators: %d: attachment ID */
 							__( 'Deleted created media #%d.', 'wp-agent' ),
 							$entity_id
 						),
-					]
-					: [ 'success' => false, 'message' => __( 'Failed to delete the created media.', 'wp-agent' ) ];
+					)
+					: array(
+						'success' => false,
+						'message' => __( 'Failed to delete the created media.', 'wp-agent' ),
+					);
 
 			case 'create_user':
 				// Reassign content to the current user before deletion.
 				$reassign = get_current_user_id();
 				$result   = wp_delete_user( $entity_id, $reassign );
 				return $result
-					? [
+					? array(
 						'success' => true,
 						'message' => sprintf(
 							/* translators: %d: user ID */
 							__( 'Deleted created user #%d.', 'wp-agent' ),
 							$entity_id
 						),
-					]
-					: [ 'success' => false, 'message' => __( 'Failed to delete the created user.', 'wp-agent' ) ];
+					)
+					: array(
+						'success' => false,
+						'message' => __( 'Failed to delete the created user.', 'wp-agent' ),
+					);
 
 			case 'install_plugin':
 				// Cannot safely uninstall — just report.
-				return [
+				return array(
 					'success' => false,
 					'message' => __( 'Cannot automatically uninstall a plugin. Please remove it manually via Plugins > Installed Plugins.', 'wp-agent' ),
-				];
+				);
 
 			default:
-				return [
+				return array(
 					'success' => false,
 					'message' => sprintf(
 						/* translators: %s: action type */
 						__( 'Undo not supported for creation action: %s', 'wp-agent' ),
 						$action_type
 					),
-				];
+				);
 		}
 	}
 
@@ -1257,7 +1314,7 @@ class Checkpoint_Manager {
 	 * @return string Entity type identifier.
 	 */
 	private function get_creation_entity_type( $action_name ) {
-		$map = [
+		$map = array(
 			'create_post'    => 'post',
 			'clone_post'     => 'post',
 			'create_pattern' => 'pattern',
@@ -1265,7 +1322,7 @@ class Checkpoint_Manager {
 			'import_media'   => 'attachment',
 			'generate_image' => 'attachment',
 			'install_plugin' => 'plugin',
-		];
+		);
 
 		return isset( $map[ $action_name ] ) ? $map[ $action_name ] : 'unknown';
 	}

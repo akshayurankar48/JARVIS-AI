@@ -24,15 +24,15 @@ class Stats_Controller extends \WP_REST_Controller {
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
-			[
-				[
+			array(
+				array(
 					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => [ $this, 'get_stats' ],
+					'callback'            => array( $this, 'get_stats' ),
 					'permission_callback' => function () {
 						return current_user_can( 'manage_options' );
 					},
-				],
-			]
+				),
+			)
 		);
 	}
 
@@ -65,17 +65,22 @@ class Stats_Controller extends \WP_REST_Controller {
 		// Scheduled tasks.
 		$active_schedules = 0;
 		if ( class_exists( Manage_Scheduled_Tasks::class ) ) {
-			$scheduled        = get_option( Manage_Scheduled_Tasks::OPTION_KEY, [] );
-			$active_schedules = count( array_filter( $scheduled, function ( $t ) {
-				return 'active' === ( $t['status'] ?? '' );
-			} ) );
+			$scheduled        = get_option( Manage_Scheduled_Tasks::OPTION_KEY, array() );
+			$active_schedules = count(
+				array_filter(
+					$scheduled,
+					function ( $t ) {
+						return 'active' === ( $t['status'] ?? '' );
+					}
+				)
+			);
 		}
 
 		// Memory entries (stored in wp_options).
-		$memory_entries = count( get_option( 'wp_agent_memories', [] ) );
+		$memory_entries = count( get_option( 'wp_agent_memories', array() ) );
 
 		// Total registered actions.
-		$registry = \WPAgent\Actions\Action_Registry::get_instance();
+		$registry      = \WPAgent\Actions\Action_Registry::get_instance();
 		$total_actions = count( $registry->get_tool_definitions() );
 
 		// Token usage stats.
@@ -120,28 +125,30 @@ class Stats_Controller extends \WP_REST_Controller {
 			)
 		);
 
-		$recent_activity = [];
+		$recent_activity = array();
 		if ( $recent_rows ) {
 			foreach ( $recent_rows as $row ) {
-				$recent_activity[] = [
+				$recent_activity[] = array(
 					'action'             => $row->action_name,
 					'status'             => $row->status,
 					'created_at'         => $row->created_at,
 					'conversation_id'    => (int) $row->conversation_id,
 					'conversation_title' => $row->conversation_title ?: '',
-				];
+				);
 			}
 		}
 
-		return rest_ensure_response( [
-			'total_actions'    => $total_actions,
-			'conversations'    => $conversations,
-			'actions_executed' => $actions_executed,
-			'schedules_active' => $active_schedules,
-			'memory_entries'   => $memory_entries,
-			'total_tokens'     => (int) ( $token_stats->total_tokens ?? 0 ),
-			'requests_today'   => $requests_today,
-			'recent_activity'  => $recent_activity,
-		] );
+		return rest_ensure_response(
+			array(
+				'total_actions'    => $total_actions,
+				'conversations'    => $conversations,
+				'actions_executed' => $actions_executed,
+				'schedules_active' => $active_schedules,
+				'memory_entries'   => $memory_entries,
+				'total_tokens'     => (int) ( $token_stats->total_tokens ?? 0 ),
+				'requests_today'   => $requests_today,
+				'recent_activity'  => $recent_activity,
+			)
+		);
 	}
 }

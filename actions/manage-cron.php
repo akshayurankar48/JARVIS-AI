@@ -47,35 +47,35 @@ class Manage_Cron implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation' => array(
 					'type'        => 'string',
-					'enum'        => [ 'list', 'add', 'delete', 'run_now' ],
+					'enum'        => array( 'list', 'add', 'delete', 'run_now' ),
 					'description' => 'Operation to perform.',
-				],
-				'hook'      => [
+				),
+				'hook'      => array(
 					'type'        => 'string',
 					'description' => 'Cron hook name. Required for add, delete, run_now.',
-				],
-				'schedule'  => [
+				),
+				'schedule'  => array(
 					'type'        => 'string',
-					'enum'        => [ 'hourly', 'twicedaily', 'daily', 'weekly' ],
+					'enum'        => array( 'hourly', 'twicedaily', 'daily', 'weekly' ),
 					'description' => 'Recurrence schedule. Required for add.',
-				],
-				'args'      => [
+				),
+				'args'      => array(
 					'type'        => 'array',
-					'items'       => [ 'type' => 'string' ],
+					'items'       => array( 'type' => 'string' ),
 					'description' => 'Arguments to pass to the cron hook callback.',
-				],
-				'timestamp' => [
+				),
+				'timestamp' => array(
 					'type'        => 'integer',
 					'description' => 'Unix timestamp for the event. Used in delete to identify specific event.',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -119,11 +119,11 @@ class Manage_Cron implements Action_Interface {
 			case 'run_now':
 				return $this->run_cron_event( $params );
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation. Use "list", "add", "delete", or "run_now".', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -137,20 +137,23 @@ class Manage_Cron implements Action_Interface {
 		$cron_array = _get_cron_array();
 
 		if ( empty( $cron_array ) ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [ 'events' => [], 'count' => 0 ],
+				'data'    => array(
+					'events' => array(),
+					'count'  => 0,
+				),
 				'message' => __( 'No cron events scheduled.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$events = [];
+		$events = array();
 		$now    = time();
 
 		foreach ( $cron_array as $timestamp => $hooks ) {
 			foreach ( $hooks as $hook => $event_list ) {
 				foreach ( $event_list as $key => $event ) {
-					$events[] = [
+					$events[] = array(
 						'hook'      => $hook,
 						'timestamp' => $timestamp,
 						'next_run'  => gmdate( 'Y-m-d H:i:s', $timestamp ),
@@ -158,28 +161,31 @@ class Manage_Cron implements Action_Interface {
 						'interval'  => isset( $event['interval'] ) ? $event['interval'] : null,
 						'overdue'   => $timestamp < $now,
 						'args'      => $event['args'],
-					];
+					);
 				}
 			}
 		}
 
 		// Sort by timestamp.
-		usort( $events, function ( $a, $b ) {
-			return $a['timestamp'] - $b['timestamp'];
-		} );
+		usort(
+			$events,
+			function ( $a, $b ) {
+				return $a['timestamp'] - $b['timestamp'];
+			}
+		);
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'count'  => count( $events ),
 				'events' => array_slice( $events, 0, 100 ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: %d: event count */
 				__( '%d cron event(s) scheduled.', 'wp-agent' ),
 				count( $events )
 			),
-		];
+		);
 	}
 
 	/**
@@ -193,19 +199,19 @@ class Manage_Cron implements Action_Interface {
 	private function add_cron_event( array $params ) {
 		$hook     = sanitize_text_field( $params['hook'] ?? '' );
 		$schedule = sanitize_text_field( $params['schedule'] ?? '' );
-		$args     = isset( $params['args'] ) && is_array( $params['args'] ) ? $params['args'] : [];
+		$args     = isset( $params['args'] ) && is_array( $params['args'] ) ? $params['args'] : array();
 
 		if ( empty( $hook ) || empty( $schedule ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'hook and schedule are required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$schedules = wp_get_schedules();
 		if ( ! isset( $schedules[ $schedule ] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -214,32 +220,32 @@ class Manage_Cron implements Action_Interface {
 					$schedule,
 					implode( ', ', array_keys( $schedules ) )
 				),
-			];
+			);
 		}
 
 		$result = wp_schedule_event( time(), $schedule, $hook, $args );
 
 		if ( false === $result || is_wp_error( $result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Failed to schedule cron event.', 'wp-agent' ),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'hook'     => $hook,
 				'schedule' => $schedule,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: hook name, 2: schedule */
 				__( 'Cron event "%1$s" scheduled (%2$s).', 'wp-agent' ),
 				$hook,
 				$schedule
 			),
-		];
+		);
 	}
 
 	/**
@@ -253,14 +259,14 @@ class Manage_Cron implements Action_Interface {
 	private function delete_cron_event( array $params ) {
 		$hook      = sanitize_text_field( $params['hook'] ?? '' );
 		$timestamp = isset( $params['timestamp'] ) ? absint( $params['timestamp'] ) : 0;
-		$args      = isset( $params['args'] ) && is_array( $params['args'] ) ? $params['args'] : [];
+		$args      = isset( $params['args'] ) && is_array( $params['args'] ) ? $params['args'] : array();
 
 		if ( empty( $hook ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'hook is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( $timestamp ) {
@@ -270,7 +276,7 @@ class Manage_Cron implements Action_Interface {
 		}
 
 		if ( false === $result || is_wp_error( $result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -278,18 +284,18 @@ class Manage_Cron implements Action_Interface {
 					__( 'Failed to delete cron event "%s".', 'wp-agent' ),
 					$hook
 				),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'hook' => $hook ],
+			'data'    => array( 'hook' => $hook ),
 			'message' => sprintf(
 				/* translators: %s: hook name */
 				__( 'Cron event "%s" deleted.', 'wp-agent' ),
 				$hook
 			),
-		];
+		);
 	}
 
 	/**
@@ -302,27 +308,27 @@ class Manage_Cron implements Action_Interface {
 	 */
 	private function run_cron_event( array $params ) {
 		$hook = sanitize_text_field( $params['hook'] ?? '' );
-		$args = isset( $params['args'] ) && is_array( $params['args'] ) ? $params['args'] : [];
+		$args = isset( $params['args'] ) && is_array( $params['args'] ) ? $params['args'] : array();
 
 		if ( empty( $hook ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'hook is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Fire the hook directly.
 		do_action_ref_array( $hook, $args );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'hook' => $hook ],
+			'data'    => array( 'hook' => $hook ),
 			'message' => sprintf(
 				/* translators: %s: hook name */
 				__( 'Cron hook "%s" executed immediately.', 'wp-agent' ),
 				$hook
 			),
-		];
+		);
 	}
 }

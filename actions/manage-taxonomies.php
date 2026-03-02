@@ -57,50 +57,50 @@ class Manage_Taxonomies implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation'       => [
+			'properties' => array(
+				'operation'        => array(
 					'type'        => 'string',
-					'enum'        => [ 'list', 'create', 'assign', 'remove' ],
+					'enum'        => array( 'list', 'create', 'assign', 'remove' ),
 					'description' => 'Operation to perform: list terms, create a term, assign terms to a post, or remove term assignments.',
-				],
-				'taxonomy'        => [
+				),
+				'taxonomy'         => array(
 					'type'        => 'string',
 					'description' => 'Taxonomy slug (e.g. "category", "post_tag", or a custom taxonomy). Defaults to "category".',
-				],
-				'term_name'       => [
+				),
+				'term_name'        => array(
 					'type'        => 'string',
 					'description' => 'Name of the new term. Required for the "create" operation.',
-				],
-				'term_slug'       => [
+				),
+				'term_slug'        => array(
 					'type'        => 'string',
 					'description' => 'Optional slug override for the new term. Used with "create".',
-				],
-				'parent_term_id'  => [
+				),
+				'parent_term_id'   => array(
 					'type'        => 'integer',
 					'description' => 'Parent term ID for hierarchical taxonomies. Used with "create".',
-				],
-				'term_description' => [
+				),
+				'term_description' => array(
 					'type'        => 'string',
 					'description' => 'Optional description for the new term. Used with "create".',
-				],
-				'term_ids'        => [
+				),
+				'term_ids'         => array(
 					'type'        => 'array',
-					'items'       => [ 'type' => 'integer' ],
+					'items'       => array( 'type' => 'integer' ),
 					'description' => 'Array of term IDs to assign or remove. Required for "assign" and "remove".',
-				],
-				'post_id'         => [
+				),
+				'post_id'          => array(
 					'type'        => 'integer',
 					'description' => 'Post ID to assign terms to or remove terms from. Required for "assign" and "remove".',
-				],
-				'search'          => [
+				),
+				'search'           => array(
 					'type'        => 'string',
 					'description' => 'Search string to filter term names. Used with "list".',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -136,28 +136,28 @@ class Manage_Taxonomies implements Action_Interface {
 		$taxonomy  = ! empty( $params['taxonomy'] ) ? sanitize_key( $params['taxonomy'] ) : 'category';
 
 		// Validate operation.
-		$allowed_operations = [ 'list', 'create', 'assign', 'remove' ];
+		$allowed_operations = array( 'list', 'create', 'assign', 'remove' );
 		if ( ! in_array( $operation, $allowed_operations, true ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
 					__( 'Invalid operation "%s". Allowed: list, create, assign, remove.', 'wp-agent' ),
 					$operation
 				),
-			];
+			);
 		}
 
 		// Validate taxonomy exists (skip for 'list' of built-ins to allow graceful error messaging below).
 		if ( ! taxonomy_exists( $taxonomy ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
 					__( 'Taxonomy "%s" does not exist.', 'wp-agent' ),
 					$taxonomy
 				),
-			];
+			);
 		}
 
 		switch ( $operation ) {
@@ -172,11 +172,11 @@ class Manage_Taxonomies implements Action_Interface {
 		}
 
 		// Unreachable, but satisfies return type.
-		return [
+		return array(
 			'success' => false,
 			'data'    => null,
 			'message' => __( 'Unknown operation.', 'wp-agent' ),
-		];
+		);
 	}
 
 	/**
@@ -191,13 +191,13 @@ class Manage_Taxonomies implements Action_Interface {
 	private function handle_list( array $params, string $taxonomy ): array {
 		$search = ! empty( $params['search'] ) ? sanitize_text_field( $params['search'] ) : '';
 
-		$query_args = [
+		$query_args = array(
 			'taxonomy'   => $taxonomy,
 			'hide_empty' => false,
 			'number'     => self::MAX_TERMS,
 			'orderby'    => 'name',
 			'order'      => 'ASC',
-		];
+		);
 
 		if ( $search ) {
 			$query_args['search'] = $search;
@@ -206,50 +206,53 @@ class Manage_Taxonomies implements Action_Interface {
 		$terms = get_terms( $query_args );
 
 		if ( is_wp_error( $terms ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $terms->get_error_message(),
-			];
+			);
 		}
 
 		if ( empty( $terms ) ) {
 			$message = $search
-				? sprintf( __( 'No terms found in "%s" matching "%s".', 'wp-agent' ), $taxonomy, $search )
+				? sprintf( __( 'No terms found in "%1$s" matching "%2$s".', 'wp-agent' ), $taxonomy, $search )
 				: sprintf( __( 'No terms found in "%s".', 'wp-agent' ), $taxonomy );
 
-			return [
+			return array(
 				'success' => true,
-				'data'    => [ 'total' => 0, 'terms' => [] ],
+				'data'    => array(
+					'total' => 0,
+					'terms' => array(),
+				),
 				'message' => $message,
-			];
+			);
 		}
 
-		$results = [];
+		$results = array();
 		foreach ( $terms as $term ) {
-			$results[] = [
+			$results[] = array(
 				'id'          => $term->term_id,
 				'name'        => sanitize_text_field( $term->name ),
 				'slug'        => sanitize_title( $term->slug ),
 				'count'       => absint( $term->count ),
 				'parent'      => absint( $term->parent ),
 				'description' => sanitize_text_field( $term->description ),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'total'    => count( $results ),
 				'taxonomy' => $taxonomy,
 				'terms'    => $results,
-			],
+			),
 			'message' => sprintf(
-				__( 'Found %d term(s) in "%s".', 'wp-agent' ),
+				__( 'Found %1$d term(s) in "%2$s".', 'wp-agent' ),
 				count( $results ),
 				$taxonomy
 			),
-		];
+		);
 	}
 
 	/**
@@ -265,14 +268,14 @@ class Manage_Taxonomies implements Action_Interface {
 		$term_name = ! empty( $params['term_name'] ) ? sanitize_text_field( $params['term_name'] ) : '';
 
 		if ( ! $term_name ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'term_name is required for the "create" operation.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$insert_args = [];
+		$insert_args = array();
 
 		if ( ! empty( $params['term_slug'] ) ) {
 			$insert_args['slug'] = sanitize_title( $params['term_slug'] );
@@ -282,15 +285,15 @@ class Manage_Taxonomies implements Action_Interface {
 			$parent_id = absint( $params['parent_term_id'] );
 			// Verify parent term exists in this taxonomy.
 			if ( $parent_id && ! term_exists( $parent_id, $taxonomy ) ) {
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => sprintf(
-						__( 'Parent term #%d does not exist in "%s".', 'wp-agent' ),
+						__( 'Parent term #%1$d does not exist in "%2$s".', 'wp-agent' ),
 						$parent_id,
 						$taxonomy
 					),
-				];
+				);
 			}
 			$insert_args['parent'] = $parent_id;
 		}
@@ -307,48 +310,48 @@ class Manage_Taxonomies implements Action_Interface {
 				$existing_id = absint( $result->get_error_data() );
 				$existing    = get_term( $existing_id, $taxonomy );
 
-				return [
+				return array(
 					'success' => false,
-					'data'    => [
+					'data'    => array(
 						'existing_term_id' => $existing_id,
 						'existing_slug'    => $existing instanceof \WP_Term ? sanitize_title( $existing->slug ) : '',
-					],
+					),
 					'message' => sprintf(
-						__( 'Term "%s" already exists in "%s" (ID: %d).', 'wp-agent' ),
+						__( 'Term "%1$s" already exists in "%2$s" (ID: %3$d).', 'wp-agent' ),
 						$term_name,
 						$taxonomy,
 						$existing_id
 					),
-				];
+				);
 			}
 
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $result->get_error_message(),
-			];
+			);
 		}
 
 		$term_id  = absint( $result['term_id'] );
 		$new_term = get_term( $term_id, $taxonomy );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'term_id'     => $term_id,
 				'name'        => sanitize_text_field( $new_term->name ),
 				'slug'        => sanitize_title( $new_term->slug ),
 				'taxonomy'    => $taxonomy,
 				'parent'      => absint( $new_term->parent ),
 				'description' => sanitize_text_field( $new_term->description ),
-			],
+			),
 			'message' => sprintf(
-				__( 'Created term "%s" (ID: %d) in "%s".', 'wp-agent' ),
+				__( 'Created term "%1$s" (ID: %2$d) in "%3$s".', 'wp-agent' ),
 				sanitize_text_field( $new_term->name ),
 				$term_id,
 				$taxonomy
 			),
-		];
+		);
 	}
 
 	/**
@@ -362,44 +365,44 @@ class Manage_Taxonomies implements Action_Interface {
 	 */
 	private function handle_assign( array $params, string $taxonomy ): array {
 		$post_id  = absint( $params['post_id'] ?? 0 );
-		$term_ids = $this->sanitize_term_ids( $params['term_ids'] ?? [] );
+		$term_ids = $this->sanitize_term_ids( $params['term_ids'] ?? array() );
 
 		if ( ! $post_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'post_id is required for the "assign" operation.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( empty( $term_ids ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'term_ids is required for the "assign" operation.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Verify post exists and user can edit it.
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf( __( 'Post #%d not found.', 'wp-agent' ), $post_id ),
-			];
+			);
 		}
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'You do not have permission to edit this post.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Verify all term IDs exist in this taxonomy.
-		$invalid_ids = [];
+		$invalid_ids = array();
 		foreach ( $term_ids as $tid ) {
 			if ( ! term_exists( $tid, $taxonomy ) ) {
 				$invalid_ids[] = $tid;
@@ -407,56 +410,56 @@ class Manage_Taxonomies implements Action_Interface {
 		}
 
 		if ( $invalid_ids ) {
-			return [
+			return array(
 				'success' => false,
-				'data'    => [ 'invalid_term_ids' => $invalid_ids ],
+				'data'    => array( 'invalid_term_ids' => $invalid_ids ),
 				'message' => sprintf(
-					__( 'Term ID(s) not found in "%s": %s', 'wp-agent' ),
+					__( 'Term ID(s) not found in "%1$s": %2$s', 'wp-agent' ),
 					$taxonomy,
 					implode( ', ', $invalid_ids )
 				),
-			];
+			);
 		}
 
 		// Append terms (preserve existing assignments).
 		$result = wp_set_object_terms( $post_id, $term_ids, $taxonomy, true );
 
 		if ( is_wp_error( $result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $result->get_error_message(),
-			];
+			);
 		}
 
 		// Fetch the full list of assigned terms for confirmation.
-		$assigned = get_the_terms( $post_id, $taxonomy );
-		$assigned_data = [];
+		$assigned      = get_the_terms( $post_id, $taxonomy );
+		$assigned_data = array();
 		if ( $assigned && ! is_wp_error( $assigned ) ) {
 			foreach ( $assigned as $term ) {
-				$assigned_data[] = [
+				$assigned_data[] = array(
 					'id'   => $term->term_id,
 					'name' => sanitize_text_field( $term->name ),
 					'slug' => sanitize_title( $term->slug ),
-				];
+				);
 			}
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'post_id'        => $post_id,
 				'taxonomy'       => $taxonomy,
 				'assigned_terms' => $assigned_data,
-			],
+			),
 			'message' => sprintf(
-				__( 'Assigned %d term(s) to "%s" (Post #%d) in "%s".', 'wp-agent' ),
+				__( 'Assigned %1$d term(s) to "%2$s" (Post #%3$d) in "%4$s".', 'wp-agent' ),
 				count( $term_ids ),
 				sanitize_text_field( $post->post_title ),
 				$post_id,
 				$taxonomy
 			),
-		];
+		);
 	}
 
 	/**
@@ -470,89 +473,89 @@ class Manage_Taxonomies implements Action_Interface {
 	 */
 	private function handle_remove( array $params, string $taxonomy ): array {
 		$post_id  = absint( $params['post_id'] ?? 0 );
-		$term_ids = $this->sanitize_term_ids( $params['term_ids'] ?? [] );
+		$term_ids = $this->sanitize_term_ids( $params['term_ids'] ?? array() );
 
 		if ( ! $post_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'post_id is required for the "remove" operation.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( empty( $term_ids ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'term_ids is required for the "remove" operation.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Verify post exists and user can edit it.
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf( __( 'Post #%d not found.', 'wp-agent' ), $post_id ),
-			];
+			);
 		}
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'You do not have permission to edit this post.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$result = wp_remove_object_terms( $post_id, $term_ids, $taxonomy );
 
 		if ( is_wp_error( $result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $result->get_error_message(),
-			];
+			);
 		}
 
 		if ( false === $result ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Failed to remove term assignments.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Fetch remaining assigned terms for confirmation.
 		$remaining      = get_the_terms( $post_id, $taxonomy );
-		$remaining_data = [];
+		$remaining_data = array();
 		if ( $remaining && ! is_wp_error( $remaining ) ) {
 			foreach ( $remaining as $term ) {
-				$remaining_data[] = [
+				$remaining_data[] = array(
 					'id'   => $term->term_id,
 					'name' => sanitize_text_field( $term->name ),
 					'slug' => sanitize_title( $term->slug ),
-				];
+				);
 			}
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'post_id'         => $post_id,
 				'taxonomy'        => $taxonomy,
 				'removed_count'   => count( $term_ids ),
 				'remaining_terms' => $remaining_data,
-			],
+			),
 			'message' => sprintf(
-				__( 'Removed %d term assignment(s) from "%s" (Post #%d) in "%s".', 'wp-agent' ),
+				__( 'Removed %1$d term assignment(s) from "%2$s" (Post #%3$d) in "%4$s".', 'wp-agent' ),
 				count( $term_ids ),
 				sanitize_text_field( $post->post_title ),
 				$post_id,
 				$taxonomy
 			),
-		];
+		);
 	}
 
 	/**
@@ -565,10 +568,10 @@ class Manage_Taxonomies implements Action_Interface {
 	 */
 	private function sanitize_term_ids( $raw ): array {
 		if ( ! is_array( $raw ) ) {
-			return [];
+			return array();
 		}
 
-		$ids = [];
+		$ids = array();
 		foreach ( $raw as $id ) {
 			$clean = absint( $id );
 			if ( $clean > 0 ) {

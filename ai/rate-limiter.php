@@ -76,7 +76,7 @@ class Rate_Limiter {
 			return new \WP_Error(
 				'invalid_user',
 				__( 'Rate limiting requires an authenticated user.', 'wp-agent' ),
-				[ 'status' => 403 ]
+				array( 'status' => 403 )
 			);
 		}
 
@@ -86,7 +86,7 @@ class Rate_Limiter {
 			return new \WP_Error(
 				'rate_limit_exceeded',
 				__( 'Rate limit exceeded. Please wait a moment before sending another message.', 'wp-agent' ),
-				[ 'status' => 429 ]
+				array( 'status' => 429 )
 			);
 		}
 
@@ -94,7 +94,7 @@ class Rate_Limiter {
 			return new \WP_Error(
 				'rate_limit_exceeded',
 				__( 'Daily request limit reached. Please try again tomorrow.', 'wp-agent' ),
-				[ 'status' => 429 ]
+				array( 'status' => 429 )
 			);
 		}
 
@@ -136,12 +136,12 @@ class Rate_Limiter {
 	 * @return array{minute: int, minute_limit: int, day: int, day_limit: int}
 	 */
 	public function get_usage( $user_id ) {
-		return [
+		return array(
 			'minute'       => (int) get_transient( $this->get_minute_key( $user_id ) ),
 			'minute_limit' => (int) get_option( 'wp_agent_rate_limit', self::DEFAULT_MINUTE_LIMIT ),
 			'day'          => (int) get_transient( $this->get_day_key( $user_id ) ),
 			'day_limit'    => (int) get_option( 'wp_agent_daily_limit', self::DEFAULT_DAILY_LIMIT ),
-		];
+		);
 	}
 
 	/**

@@ -58,29 +58,29 @@ class Recommend_Plugin implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation' => array(
 					'type'        => 'string',
-					'enum'        => [ 'search', 'recommend' ],
+					'enum'        => array( 'search', 'recommend' ),
 					'description' => 'Operation to perform.',
-				],
-				'query'     => [
+				),
+				'query'     => array(
 					'type'        => 'string',
 					'description' => 'Search keyword or use case description.',
-				],
-				'tag'       => [
+				),
+				'tag'       => array(
 					'type'        => 'string',
 					'description' => 'Optional plugin tag to filter by (e.g. "seo", "ecommerce", "security").',
-				],
-				'per_page'  => [
+				),
+				'per_page'  => array(
 					'type'        => 'integer',
 					'description' => 'Number of results (max 10). Defaults to 5.',
-				],
-			],
-			'required'   => [ 'operation', 'query' ],
-		];
+				),
+			),
+			'required'   => array( 'operation', 'query' ),
+		);
 	}
 
 	/**
@@ -116,11 +116,11 @@ class Recommend_Plugin implements Action_Interface {
 		$query     = ! empty( $params['query'] ) ? sanitize_text_field( $params['query'] ) : '';
 
 		if ( empty( $query ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Search query is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( ! function_exists( 'plugins_api' ) ) {
@@ -137,11 +137,11 @@ class Recommend_Plugin implements Action_Interface {
 				return $this->recommend_plugins( $query, $per_page, $params );
 
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation. Use "search" or "recommend".', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -156,11 +156,11 @@ class Recommend_Plugin implements Action_Interface {
 	 * @return array Execution result.
 	 */
 	private function search_plugins( $query, $per_page, $params ) {
-		$args = [
+		$args = array(
 			'keyword'  => $query,
 			'per_page' => $per_page,
 			'page'     => 1,
-			'fields'   => [
+			'fields'   => array(
 				'short_description' => true,
 				'icons'             => false,
 				'banners'           => false,
@@ -172,8 +172,8 @@ class Recommend_Plugin implements Action_Interface {
 				'rating'            => true,
 				'num_ratings'       => true,
 				'tested'            => true,
-			],
-		];
+			),
+		);
 
 		if ( ! empty( $params['tag'] ) ) {
 			$args['tag'] = sanitize_key( $params['tag'] );
@@ -182,7 +182,7 @@ class Recommend_Plugin implements Action_Interface {
 		$api_result = plugins_api( 'query_plugins', $args );
 
 		if ( is_wp_error( $api_result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -190,25 +190,25 @@ class Recommend_Plugin implements Action_Interface {
 					__( 'Plugin search failed: %s', 'wp-agent' ),
 					$api_result->get_error_message()
 				),
-			];
+			);
 		}
 
-		$plugins = $this->format_plugins( $api_result->plugins ?? [] );
+		$plugins = $this->format_plugins( $api_result->plugins ?? array() );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'query'   => $query,
 				'plugins' => $plugins,
 				'total'   => count( $plugins ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: plugin count, 2: search query */
 				__( 'Found %1$d plugin(s) for "%2$s".', 'wp-agent' ),
 				count( $plugins ),
 				$query
 			),
-		];
+		);
 	}
 
 	/**
@@ -222,11 +222,11 @@ class Recommend_Plugin implements Action_Interface {
 	 * @return array Execution result.
 	 */
 	private function recommend_plugins( $query, $per_page, $params ) {
-		$args = [
+		$args = array(
 			'keyword'  => $query,
 			'per_page' => $per_page * 2, // Fetch more so we can filter.
 			'page'     => 1,
-			'fields'   => [
+			'fields'   => array(
 				'short_description' => true,
 				'icons'             => false,
 				'banners'           => false,
@@ -238,8 +238,8 @@ class Recommend_Plugin implements Action_Interface {
 				'rating'            => true,
 				'num_ratings'       => true,
 				'tested'            => true,
-			],
-		];
+			),
+		);
 
 		if ( ! empty( $params['tag'] ) ) {
 			$args['tag'] = sanitize_key( $params['tag'] );
@@ -248,7 +248,7 @@ class Recommend_Plugin implements Action_Interface {
 		$api_result = plugins_api( 'query_plugins', $args );
 
 		if ( is_wp_error( $api_result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -256,37 +256,40 @@ class Recommend_Plugin implements Action_Interface {
 					__( 'Plugin recommendation failed: %s', 'wp-agent' ),
 					$api_result->get_error_message()
 				),
-			];
+			);
 		}
 
-		$raw_plugins = $api_result->plugins ?? [];
+		$raw_plugins = $api_result->plugins ?? array();
 
 		// Sort by a score combining rating and active installs.
-		usort( $raw_plugins, function ( $a, $b ) {
-			$a = (array) $a;
-			$b = (array) $b;
-			$score_a = ( $a['rating'] ?? 0 ) * 0.4 + min( ( $a['active_installs'] ?? 0 ) / 100000, 100 ) * 0.6;
-			$score_b = ( $b['rating'] ?? 0 ) * 0.4 + min( ( $b['active_installs'] ?? 0 ) / 100000, 100 ) * 0.6;
-			return $score_b <=> $score_a;
-		} );
+		usort(
+			$raw_plugins,
+			function ( $a, $b ) {
+				$a       = (array) $a;
+				$b       = (array) $b;
+				$score_a = ( $a['rating'] ?? 0 ) * 0.4 + min( ( $a['active_installs'] ?? 0 ) / 100000, 100 ) * 0.6;
+				$score_b = ( $b['rating'] ?? 0 ) * 0.4 + min( ( $b['active_installs'] ?? 0 ) / 100000, 100 ) * 0.6;
+				return $score_b <=> $score_a;
+			}
+		);
 
 		$plugins = $this->format_plugins( array_slice( $raw_plugins, 0, $per_page ) );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'query'          => $query,
 				'plugins'        => $plugins,
 				'total'          => count( $plugins ),
 				'recommendation' => __( 'Sorted by combined rating and popularity score.', 'wp-agent' ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: plugin count, 2: use case */
 				__( 'Recommending %1$d plugin(s) for "%2$s".', 'wp-agent' ),
 				count( $plugins ),
 				$query
 			),
-		];
+		);
 	}
 
 	/**
@@ -298,13 +301,13 @@ class Recommend_Plugin implements Action_Interface {
 	 * @return array Formatted plugin data.
 	 */
 	private function format_plugins( array $raw_plugins ) {
-		$plugins = [];
+		$plugins = array();
 
 		foreach ( $raw_plugins as $plugin ) {
 			// Results may be arrays or objects depending on WP version.
 			$p = (array) $plugin;
 
-			$plugins[] = [
+			$plugins[] = array(
 				'name'              => sanitize_text_field( $p['name'] ?? '' ),
 				'slug'              => sanitize_key( $p['slug'] ?? '' ),
 				'rating'            => round( ( $p['rating'] ?? 0 ) / 20, 1 ), // Convert to 5-star scale.
@@ -313,7 +316,7 @@ class Recommend_Plugin implements Action_Interface {
 				'last_updated'      => sanitize_text_field( $p['last_updated'] ?? '' ),
 				'tested'            => sanitize_text_field( $p['tested'] ?? '' ),
 				'short_description' => wp_trim_words( sanitize_text_field( $p['short_description'] ?? '' ), 30 ),
-			];
+			);
 		}
 
 		return $plugins;

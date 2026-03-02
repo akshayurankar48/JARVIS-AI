@@ -56,52 +56,52 @@ class Bulk_Edit implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'post_ids' => [
+			'properties' => array(
+				'post_ids' => array(
 					'type'        => 'array',
-					'items'       => [ 'type' => 'integer' ],
+					'items'       => array( 'type' => 'integer' ),
 					'description' => 'Array of post IDs to update. Maximum 50 IDs per operation.',
-				],
-				'updates'  => [
+				),
+				'updates'  => array(
 					'type'        => 'object',
 					'description' => 'Fields to update on every matched post. At least one field is required.',
-					'properties'  => [
-						'post_status'     => [
+					'properties'  => array(
+						'post_status'    => array(
 							'type'        => 'string',
-							'enum'        => [ 'publish', 'draft', 'pending', 'private' ],
+							'enum'        => array( 'publish', 'draft', 'pending', 'private' ),
 							'description' => 'New post status.',
-						],
-						'post_author'     => [
+						),
+						'post_author'    => array(
 							'type'        => 'integer',
 							'description' => 'New author user ID.',
-						],
-						'comment_status'  => [
+						),
+						'comment_status' => array(
 							'type'        => 'string',
-							'enum'        => [ 'open', 'closed' ],
+							'enum'        => array( 'open', 'closed' ),
 							'description' => 'New comment status.',
-						],
-						'ping_status'     => [
+						),
+						'ping_status'    => array(
 							'type'        => 'string',
-							'enum'        => [ 'open', 'closed' ],
+							'enum'        => array( 'open', 'closed' ),
 							'description' => 'New ping status.',
-						],
-						'categories'      => [
+						),
+						'categories'     => array(
 							'type'        => 'array',
-							'items'       => [ 'type' => 'integer' ],
+							'items'       => array( 'type' => 'integer' ),
 							'description' => 'Category IDs to assign. Replaces existing categories.',
-						],
-						'tags'            => [
+						),
+						'tags'           => array(
 							'type'        => 'array',
-							'items'       => [ 'type' => 'string' ],
+							'items'       => array( 'type' => 'string' ),
 							'description' => 'Tag names to assign. Replaces existing tags.',
-						],
-					],
-				],
-			],
-			'required'   => [ 'post_ids', 'updates' ],
-		];
+						),
+					),
+				),
+			),
+			'required'   => array( 'post_ids', 'updates' ),
+		);
 	}
 
 	/**
@@ -133,21 +133,21 @@ class Bulk_Edit implements Action_Interface {
 	 * @return array Execution result.
 	 */
 	public function execute( array $params ): array {
-		$raw_ids = $params['post_ids'] ?? [];
-		$updates = $params['updates'] ?? [];
+		$raw_ids = $params['post_ids'] ?? array();
+		$updates = $params['updates'] ?? array();
 
 		// Validate post_ids is a non-empty array.
 		if ( ! is_array( $raw_ids ) || empty( $raw_ids ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'post_ids must be a non-empty array.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Enforce max limit.
 		if ( count( $raw_ids ) > self::MAX_POST_IDS ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -155,50 +155,50 @@ class Bulk_Edit implements Action_Interface {
 					__( 'Maximum %d post IDs allowed per bulk operation.', 'wp-agent' ),
 					self::MAX_POST_IDS
 				),
-			];
+			);
 		}
 
 		// Sanitize post IDs to positive integers.
 		$post_ids = array_values( array_filter( array_map( 'absint', $raw_ids ) ) );
 
 		if ( empty( $post_ids ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'post_ids must contain valid positive integers.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Validate updates is a non-empty array/object.
 		if ( ! is_array( $updates ) || empty( $updates ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'updates must be a non-empty object with at least one field.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Validate and sanitize each update field.
 		$sanitized_updates = $this->sanitize_updates( $updates );
 
 		if ( is_wp_error( $sanitized_updates ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $sanitized_updates->get_error_message(),
-			];
+			);
 		}
 
 		if ( empty( $sanitized_updates ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'No valid update fields provided.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$succeeded      = [];
-		$failed         = [];
+		$succeeded       = array();
+		$failed          = array();
 		$total_requested = count( $post_ids );
 
 		foreach ( $post_ids as $post_id ) {
@@ -207,10 +207,10 @@ class Bulk_Edit implements Action_Interface {
 			if ( $result['success'] ) {
 				$succeeded[] = $post_id;
 			} else {
-				$failed[] = [
+				$failed[] = array(
 					'id'    => $post_id,
 					'error' => $result['error'],
-				];
+				);
 			}
 		}
 
@@ -248,21 +248,21 @@ class Bulk_Edit implements Action_Interface {
 			);
 		}
 
-		return [
+		return array(
 			'success' => $succeeded_count > 0,
-			'data'    => [
+			'data'    => array(
 				'total_requested' => $total_requested,
-				'succeeded'       => [
+				'succeeded'       => array(
 					'count' => $succeeded_count,
 					'ids'   => $succeeded,
-				],
-				'failed'          => [
+				),
+				'failed'          => array(
 					'count' => $failed_count,
 					'items' => $failed,
-				],
-			],
+				),
+			),
 			'message' => $message,
-		];
+		);
 	}
 
 	/**
@@ -277,11 +277,11 @@ class Bulk_Edit implements Action_Interface {
 	 * @return array|\WP_Error Sanitized updates or WP_Error.
 	 */
 	private function sanitize_updates( array $updates ) {
-		$sanitized = [];
+		$sanitized = array();
 
 		// post_status.
 		if ( isset( $updates['post_status'] ) ) {
-			$allowed_statuses = [ 'publish', 'draft', 'pending', 'private' ];
+			$allowed_statuses = array( 'publish', 'draft', 'pending', 'private' );
 			$status           = sanitize_key( $updates['post_status'] );
 
 			if ( ! in_array( $status, $allowed_statuses, true ) ) {
@@ -327,7 +327,7 @@ class Bulk_Edit implements Action_Interface {
 		if ( isset( $updates['comment_status'] ) ) {
 			$comment_status = sanitize_key( $updates['comment_status'] );
 
-			if ( ! in_array( $comment_status, [ 'open', 'closed' ], true ) ) {
+			if ( ! in_array( $comment_status, array( 'open', 'closed' ), true ) ) {
 				return new \WP_Error(
 					'invalid_comment_status',
 					__( 'comment_status must be "open" or "closed".', 'wp-agent' )
@@ -341,7 +341,7 @@ class Bulk_Edit implements Action_Interface {
 		if ( isset( $updates['ping_status'] ) ) {
 			$ping_status = sanitize_key( $updates['ping_status'] );
 
-			if ( ! in_array( $ping_status, [ 'open', 'closed' ], true ) ) {
+			if ( ! in_array( $ping_status, array( 'open', 'closed' ), true ) ) {
 				return new \WP_Error(
 					'invalid_ping_status',
 					__( 'ping_status must be "open" or "closed".', 'wp-agent' )
@@ -393,30 +393,30 @@ class Bulk_Edit implements Action_Interface {
 		// Verify post exists.
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return [
+			return array(
 				'success' => false,
 				'error'   => sprintf(
 					/* translators: %d: post ID */
 					__( 'Post #%d not found.', 'wp-agent' ),
 					$post_id
 				),
-			];
+			);
 		}
 
 		// Per-post capability check — never trust bulk capability alone.
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'error'   => sprintf(
 					/* translators: %d: post ID */
 					__( 'Permission denied for post #%d.', 'wp-agent' ),
 					$post_id
 				),
-			];
+			);
 		}
 
 		// Build wp_update_post args (excludes side-effect keys prefixed with _).
-		$update_args = [ 'ID' => $post_id ];
+		$update_args = array( 'ID' => $post_id );
 
 		foreach ( $sanitized_updates as $key => $value ) {
 			if ( '_' !== substr( $key, 0, 1 ) ) {
@@ -429,10 +429,10 @@ class Bulk_Edit implements Action_Interface {
 			$result = wp_update_post( $update_args, true );
 
 			if ( is_wp_error( $result ) ) {
-				return [
+				return array(
 					'success' => false,
 					'error'   => $result->get_error_message(),
-				];
+				);
 			}
 		}
 
@@ -446,6 +446,9 @@ class Bulk_Edit implements Action_Interface {
 			wp_set_post_tags( $post_id, $sanitized_updates['_tags'] );
 		}
 
-		return [ 'success' => true, 'error' => '' ];
+		return array(
+			'success' => true,
+			'error'   => '',
+		);
 	}
 }

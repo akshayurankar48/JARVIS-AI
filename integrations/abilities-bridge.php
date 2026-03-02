@@ -27,11 +27,11 @@ class Abilities_Bridge {
 	}
 
 	public function __construct() {
-		add_action( 'wp_abilities_api_init', [ $this, 'register_abilities' ] );
+		add_action( 'wp_abilities_api_init', array( $this, 'register_abilities' ) );
 
 		// Fallback: register on init if the dedicated hook doesn't exist yet.
 		if ( ! has_action( 'wp_abilities_api_init' ) ) {
-			add_action( 'init', [ $this, 'register_abilities' ], 20 );
+			add_action( 'init', array( $this, 'register_abilities' ), 20 );
 		}
 	}
 
@@ -42,10 +42,13 @@ class Abilities_Bridge {
 
 		// Register category.
 		if ( function_exists( 'wp_register_ability_category' ) ) {
-			wp_register_ability_category( 'wp-agent', [
-				'label'       => __( 'WP Agent (JARVIS)', 'wp-agent' ),
-				'description' => __( 'AI-powered WordPress management actions.', 'wp-agent' ),
-			] );
+			wp_register_ability_category(
+				'wp-agent',
+				array(
+					'label'       => __( 'WP Agent (JARVIS)', 'wp-agent' ),
+					'description' => __( 'AI-powered WordPress management actions.', 'wp-agent' ),
+				)
+			);
 		}
 
 		$registry = Action_Registry::get_instance();
@@ -57,7 +60,10 @@ class Abilities_Bridge {
 				$description = $action->get_description();
 			}
 
-			$parameters = [ 'type' => 'object', 'properties' => new \stdClass() ];
+			$parameters = array(
+				'type'       => 'object',
+				'properties' => new \stdClass(),
+			);
 			if ( method_exists( $action, 'get_parameters' ) ) {
 				$parameters = $action->get_parameters();
 			}
@@ -67,30 +73,36 @@ class Abilities_Bridge {
 				$capability = $action->get_capabilities_required();
 			}
 
-			wp_register_ability( "wp-agent/{$name}", [
-				'label'               => $this->get_first_sentence( $description ),
-				'description'         => $description,
-				'category'            => 'wp-agent',
-				'input_schema'        => $parameters,
-				'output_schema'       => [
-					'type'       => 'object',
-					'properties' => [
-						'success' => [ 'type' => 'boolean' ],
-						'data'    => [ 'type' => 'object' ],
-						'message' => [ 'type' => 'string' ],
-					],
-				],
-				'execute_callback'    => function ( $input ) use ( $registry, $name ) {
-					return $registry->dispatch( $name, $input );
-				},
-				'permission_callback' => function () use ( $capability ) {
-					return current_user_can( $capability );
-				},
-				'meta'                => [
-					'show_in_rest' => true,
-					'mcp'          => [ 'public' => true, 'type' => 'tool' ],
-				],
-			] );
+			wp_register_ability(
+				"wp-agent/{$name}",
+				array(
+					'label'               => $this->get_first_sentence( $description ),
+					'description'         => $description,
+					'category'            => 'wp-agent',
+					'input_schema'        => $parameters,
+					'output_schema'       => array(
+						'type'       => 'object',
+						'properties' => array(
+							'success' => array( 'type' => 'boolean' ),
+							'data'    => array( 'type' => 'object' ),
+							'message' => array( 'type' => 'string' ),
+						),
+					),
+					'execute_callback'    => function ( $input ) use ( $registry, $name ) {
+						return $registry->dispatch( $name, $input );
+					},
+					'permission_callback' => function () use ( $capability ) {
+						return current_user_can( $capability );
+					},
+					'meta'                => array(
+						'show_in_rest' => true,
+						'mcp'          => array(
+							'public' => true,
+							'type'   => 'tool',
+						),
+					),
+				)
+			);
 		}
 	}
 

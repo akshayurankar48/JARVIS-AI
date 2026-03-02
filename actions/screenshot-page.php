@@ -95,28 +95,28 @@ class Screenshot_Page implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'url'             => [
+			'properties' => array(
+				'url'             => array(
 					'type'        => 'string',
 					'description' => 'Full URL to screenshot. If not provided, post_id is used to get the permalink. At least one of url or post_id is required.',
-				],
-				'post_id'         => [
+				),
+				'post_id'         => array(
 					'type'        => 'integer',
 					'description' => 'Post or page ID to screenshot. The permalink is resolved automatically. At least one of url or post_id is required.',
-				],
-				'viewport_width'  => [
+				),
+				'viewport_width'  => array(
 					'type'        => 'integer',
 					'description' => 'Viewport width in pixels (320–1920). Defaults to 1280.',
-				],
-				'viewport_height' => [
+				),
+				'viewport_height' => array(
 					'type'        => 'integer',
 					'description' => 'Viewport height in pixels (480–1440). Defaults to 960.',
-				],
-			],
-			'required'   => [],
-		];
+				),
+			),
+			'required'   => array(),
+		);
 	}
 
 	/**
@@ -165,15 +165,15 @@ class Screenshot_Page implements Action_Interface {
 
 		// Bail early for local/private URLs with a helpful message.
 		if ( $this->is_local_url( $url ) ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [
+				'data'    => array(
 					'preview_url' => $url,
 					'screenshot'  => null,
 					'note'        => 'Site is on a local/private URL. Screenshot service requires a public URL. Open the preview URL in your browser to see the page.',
-				],
+				),
 				'message' => 'Cannot screenshot local URLs. Preview URL: ' . $url,
-			];
+			);
 		}
 
 		// Build mShots request URL.
@@ -189,25 +189,25 @@ class Screenshot_Page implements Action_Interface {
 		$body = $this->fetch_screenshot( $mshots_url );
 
 		if ( is_wp_error( $body ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $body->get_error_message(),
-			];
+			);
 		}
 
 		// mShots never returned a full image; give the user the direct URL.
 		if ( null === $body ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [
+				'data'    => array(
 					'screenshot_url' => $mshots_url,
 					'page_url'       => $url,
 					'viewport'       => $viewport_width . 'x' . $viewport_height,
 					'note'           => 'mShots is still processing. Open the screenshot_url directly to view it.',
-				],
+				),
 				'message' => 'Screenshot is still being generated. Check the URL manually: ' . $mshots_url,
-			];
+			);
 		}
 
 		// Save the image body to the media library.
@@ -237,7 +237,7 @@ class Screenshot_Page implements Action_Interface {
 			$post    = get_post( $post_id );
 
 			if ( ! $post ) {
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => sprintf(
@@ -245,12 +245,12 @@ class Screenshot_Page implements Action_Interface {
 						__( 'Post #%d not found.', 'wp-agent' ),
 						$post_id
 					),
-				];
+				);
 			}
 
 			$url = get_permalink( $post_id );
 			if ( ! $url ) {
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => sprintf(
@@ -258,7 +258,7 @@ class Screenshot_Page implements Action_Interface {
 						__( 'Could not resolve permalink for post #%d.', 'wp-agent' ),
 						$post_id
 					),
-				];
+				);
 			}
 
 			return $url;
@@ -269,17 +269,17 @@ class Screenshot_Page implements Action_Interface {
 			$url = esc_url_raw( trim( $params['url'] ) );
 
 			if ( ! wp_http_validate_url( $url ) ) {
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'The provided URL is not valid.', 'wp-agent' ),
-				];
+				);
 			}
 
 			// SSRF protection: only allow same-domain URLs.
 			$url_host = wp_parse_url( $url, PHP_URL_HOST );
 			if ( $url_host !== $site_host ) {
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => sprintf(
@@ -287,17 +287,17 @@ class Screenshot_Page implements Action_Interface {
 						__( 'Only URLs on this site (%s) can be screenshotted.', 'wp-agent' ),
 						$site_host
 					),
-				];
+				);
 			}
 
 			return $url;
 		}
 
-		return [
+		return array(
 			'success' => false,
 			'data'    => null,
 			'message' => __( 'Provide either url or post_id.', 'wp-agent' ),
-		];
+		);
 	}
 
 	/**
@@ -311,7 +311,7 @@ class Screenshot_Page implements Action_Interface {
 	private function is_local_url( $url ) {
 		$host = (string) wp_parse_url( $url, PHP_URL_HOST );
 
-		$local_patterns = [ 'localhost', '127.0.0.1', '.local', '.test' ];
+		$local_patterns = array( 'localhost', '127.0.0.1', '.local', '.test' );
 		foreach ( $local_patterns as $pattern ) {
 			if ( false !== strpos( $host, $pattern ) ) {
 				return true;
@@ -339,7 +339,7 @@ class Screenshot_Page implements Action_Interface {
 				sleep( self::RETRY_DELAY );
 			}
 
-			$response = wp_safe_remote_get( $mshots_url, [ 'timeout' => 30 ] );
+			$response = wp_safe_remote_get( $mshots_url, array( 'timeout' => 30 ) );
 
 			if ( is_wp_error( $response ) ) {
 				return new \WP_Error(
@@ -390,11 +390,11 @@ class Screenshot_Page implements Action_Interface {
 
 		$tmp_file = wp_tempnam( 'wp-agent-screenshot-' );
 		if ( ! $tmp_file ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Could not create temporary file.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
@@ -402,23 +402,23 @@ class Screenshot_Page implements Action_Interface {
 		unset( $body );
 
 		// Content-level validation: confirm the file is a real image.
-		$image_info = @getimagesize( $tmp_file );
+		$image_info = wp_getimagesize( $tmp_file );
 		if ( false === $image_info ) {
-			@unlink( $tmp_file );
-			return [
+			wp_delete_file( $tmp_file );
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'The screenshot response is not a valid image.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$host      = (string) wp_parse_url( $url, PHP_URL_HOST );
-		$filename  = sanitize_file_name( 'screenshot-' . $host . '-' . time() . '.jpg' );
+		$host     = (string) wp_parse_url( $url, PHP_URL_HOST );
+		$filename = sanitize_file_name( 'screenshot-' . $host . '-' . time() . '.jpg' );
 
-		$file_array = [
+		$file_array = array(
 			'name'     => $filename,
 			'tmp_name' => $tmp_file,
-		];
+		);
 
 		$attachment_id = media_handle_sideload(
 			$file_array,
@@ -429,9 +429,9 @@ class Screenshot_Page implements Action_Interface {
 
 		if ( is_wp_error( $attachment_id ) ) {
 			if ( file_exists( $tmp_file ) ) {
-				@unlink( $tmp_file );
+				wp_delete_file( $tmp_file );
 			}
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -439,18 +439,18 @@ class Screenshot_Page implements Action_Interface {
 					__( 'Failed to save screenshot to media library: %s', 'wp-agent' ),
 					$attachment_id->get_error_message()
 				),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'attachment_id'  => $attachment_id,
 				'screenshot_url' => wp_get_attachment_url( $attachment_id ),
 				'page_url'       => $url,
 				'viewport'       => $viewport_width . 'x' . $viewport_height,
-			],
+			),
 			'message' => __( 'Screenshot captured and saved to media library.', 'wp-agent' ),
-		];
+		);
 	}
 }

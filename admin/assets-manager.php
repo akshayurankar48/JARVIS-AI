@@ -31,14 +31,14 @@ class Assets_Manager {
 	 *
 	 * @var string[]
 	 */
-	private const PAGE_HOOKS = [
+	private const PAGE_HOOKS = array(
 		'toplevel_page_wp-agent',
 		'wp-agent_page_wp-agent-settings',
 		'wp-agent_page_wp-agent-history',
 		'wp-agent_page_wp-agent-schedules',
 		'wp-agent_page_wp-agent-capabilities',
 		'wp-agent_page_wp-agent-help',
-	];
+	);
 
 	/**
 	 * Initiator
@@ -59,11 +59,11 @@ class Assets_Manager {
 	 * @since 1.0.0
 	 */
 	public function __construct() {
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ] );
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_drawer_assets' ] );
-		add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_editor_assets' ] );
-		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_frontend_animations' ] );
-		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_ab_testing' ] );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_drawer_assets' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_editor_assets' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_animations' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_ab_testing' ) );
 	}
 
 	/**
@@ -97,14 +97,14 @@ class Assets_Manager {
 		wp_enqueue_style(
 			'wp-agent-admin',
 			WP_AGENT_URL . 'build/style-main.css',
-			[],
+			array(),
 			$asset['version']
 		);
 
 		wp_localize_script(
 			'wp-agent-admin',
 			'wpAgentData',
-			[
+			array(
 				'restUrl'     => rest_url( 'wp-agent/v1/' ),
 				'nonce'       => wp_create_nonce( 'wp_rest' ),
 				'hasApiKey'   => ! empty( get_option( \WPAgent\AI\Open_Router_Client::API_KEY_OPTION ) ),
@@ -112,8 +112,9 @@ class Assets_Manager {
 				'userName'    => wp_get_current_user()->display_name,
 				'version'     => WP_AGENT_VER,
 				'adminUrl'    => admin_url(),
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading admin page slug, no form action.
 				'currentPage' => isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : 'wp-agent',
-			]
+			)
 		);
 
 		// Hide default admin notices on our pages.
@@ -168,7 +169,7 @@ class Assets_Manager {
 			wp_enqueue_style(
 				'wp-agent-drawer',
 				WP_AGENT_URL . 'build/style-drawer.css',
-				[],
+				array(),
 				$asset['version']
 			);
 		}
@@ -176,7 +177,7 @@ class Assets_Manager {
 		wp_localize_script(
 			'wp-agent-drawer',
 			'wpAgentData',
-			[
+			array(
 				'restUrl'   => rest_url( 'wp-agent/v1/' ),
 				'nonce'     => wp_create_nonce( 'wp_rest' ),
 				'hasApiKey' => ! empty( get_option( \WPAgent\AI\Open_Router_Client::API_KEY_OPTION ) ),
@@ -184,7 +185,7 @@ class Assets_Manager {
 				'userName'  => wp_get_current_user()->display_name,
 				'version'   => WP_AGENT_VER,
 				'adminUrl'  => admin_url(),
-			]
+			)
 		);
 	}
 
@@ -215,14 +216,14 @@ class Assets_Manager {
 		wp_enqueue_style(
 			'wp-agent-animations',
 			WP_AGENT_URL . 'assets/css/animations.css',
-			[],
+			array(),
 			WP_AGENT_VER
 		);
 
 		wp_enqueue_script(
 			'wp-agent-animations',
 			WP_AGENT_URL . 'assets/js/animations.js',
-			[],
+			array(),
 			WP_AGENT_VER,
 			true
 		);
@@ -242,7 +243,7 @@ class Assets_Manager {
 			return;
 		}
 
-		$tests = get_option( 'wp_agent_ab_tests', [] );
+		$tests = get_option( 'wp_agent_ab_tests', array() );
 
 		if ( empty( $tests ) ) {
 			return;
@@ -265,7 +266,7 @@ class Assets_Manager {
 		// Only send minimal data to the frontend.
 		$frontend_tests = array_map(
 			function ( $test ) {
-				return [ 'id' => $test['id'] ];
+				return array( 'id' => $test['id'] );
 			},
 			$active_tests
 		);
@@ -273,7 +274,7 @@ class Assets_Manager {
 		wp_enqueue_script(
 			'wp-agent-ab-testing',
 			WP_AGENT_URL . 'assets/js/ab-testing.js',
-			[],
+			array(),
 			WP_AGENT_VER,
 			true
 		);
@@ -281,10 +282,10 @@ class Assets_Manager {
 		wp_localize_script(
 			'wp-agent-ab-testing',
 			'wpAgentAB',
-			[
+			array(
 				'restUrl' => rest_url( 'wp-agent/v1/ab-track' ),
 				'tests'   => $frontend_tests,
-			]
+			)
 		);
 	}
 
@@ -314,14 +315,14 @@ class Assets_Manager {
 		wp_enqueue_style(
 			'wp-agent-editor',
 			WP_AGENT_URL . 'build/style-main.css',
-			[],
+			array(),
 			$asset['version']
 		);
 
 		wp_localize_script(
 			'wp-agent-editor',
 			'wpAgentData',
-			[
+			array(
 				'restUrl'   => rest_url( 'wp-agent/v1/' ),
 				'nonce'     => wp_create_nonce( 'wp_rest' ),
 				'hasApiKey' => ! empty( get_option( \WPAgent\AI\Open_Router_Client::API_KEY_OPTION ) ),
@@ -329,7 +330,7 @@ class Assets_Manager {
 				'userName'  => wp_get_current_user()->display_name,
 				'version'   => WP_AGENT_VER,
 				'adminUrl'  => admin_url(),
-			]
+			)
 		);
 	}
 }

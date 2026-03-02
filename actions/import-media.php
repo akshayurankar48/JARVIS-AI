@@ -34,19 +34,19 @@ class Import_Media implements Action_Interface {
 	 *
 	 * @var string[]
 	 */
-	const ALLOWED_MIME_TYPES = [
+	const ALLOWED_MIME_TYPES = array(
 		'image/jpeg',
 		'image/png',
 		'image/gif',
 		'image/webp',
-	];
+	);
 
 	/**
 	 * Allowed URL schemes.
 	 *
 	 * @var string[]
 	 */
-	const ALLOWED_SCHEMES = [ 'http', 'https' ];
+	const ALLOWED_SCHEMES = array( 'http', 'https' );
 
 	/**
 	 * Get the action name.
@@ -78,28 +78,28 @@ class Import_Media implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'url'         => [
+			'properties' => array(
+				'url'         => array(
 					'type'        => 'string',
 					'description' => 'The full URL of the image to download (must be https or http). Supports JPEG, PNG, GIF, and WebP.',
-				],
-				'title'       => [
+				),
+				'title'       => array(
 					'type'        => 'string',
 					'description' => 'Optional title for the imported image. Defaults to the filename.',
-				],
-				'alt_text'    => [
+				),
+				'alt_text'    => array(
 					'type'        => 'string',
 					'description' => 'Optional alt text for accessibility. Recommended for all images.',
-				],
-				'description' => [
+				),
+				'description' => array(
 					'type'        => 'string',
 					'description' => 'Optional description/caption for the image.',
-				],
-			],
-			'required'   => [ 'url' ],
-		];
+				),
+			),
+			'required'   => array( 'url' ),
+		);
 	}
 
 	/**
@@ -134,11 +134,11 @@ class Import_Media implements Action_Interface {
 		$url = $this->validate_url( $params['url'] ?? '' );
 
 		if ( is_wp_error( $url ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $url->get_error_message(),
-			];
+			);
 		}
 
 		// Require media handling functions.
@@ -150,15 +150,18 @@ class Import_Media implements Action_Interface {
 
 		// Download via wp_safe_remote_get (SSRF-safe: validates at connection time,
 		// blocks private IPs, and prevents DNS rebinding / redirect-chain attacks).
-		$response = wp_safe_remote_get( $url, [
-			'timeout'             => 30,
-			'redirection'         => 0,
-			'reject_unsafe_urls'  => true,
-			'limit_response_size' => self::MAX_FILE_SIZE,
-		] );
+		$response = wp_safe_remote_get(
+			$url,
+			array(
+				'timeout'             => 30,
+				'redirection'         => 0,
+				'reject_unsafe_urls'  => true,
+				'limit_response_size' => self::MAX_FILE_SIZE,
+			)
+		);
 
 		if ( is_wp_error( $response ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -166,12 +169,12 @@ class Import_Media implements Action_Interface {
 					__( 'Failed to download image: %s', 'wp-agent' ),
 					$response->get_error_message()
 				),
-			];
+			);
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $response_code ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -179,26 +182,26 @@ class Import_Media implements Action_Interface {
 					__( 'Image URL returned HTTP %d.', 'wp-agent' ),
 					$response_code
 				),
-			];
+			);
 		}
 
 		$body = wp_remote_retrieve_body( $response );
 		if ( empty( $body ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Downloaded file is empty.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Write to a temp file for validation and sideload.
 		$temp_file = wp_tempnam( 'wp-agent-import-' );
 		if ( ! $temp_file ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Could not create temporary file.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
@@ -208,16 +211,16 @@ class Import_Media implements Action_Interface {
 		// Validate file size.
 		$file_size = filesize( $temp_file );
 		if ( false === $file_size ) {
-			@unlink( $temp_file );
-			return [
+			wp_delete_file( $temp_file );
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Could not read downloaded file.', 'wp-agent' ),
-			];
+			);
 		}
 		if ( $file_size > self::MAX_FILE_SIZE ) {
-			@unlink( $temp_file );
-			return [
+			wp_delete_file( $temp_file );
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -225,18 +228,18 @@ class Import_Media implements Action_Interface {
 					__( 'Image exceeds maximum file size of %s.', 'wp-agent' ),
 					size_format( self::MAX_FILE_SIZE )
 				),
-			];
+			);
 		}
 
 		// Content-level validation: confirm the file is actually an image.
-		$image_info = @getimagesize( $temp_file );
+		$image_info = wp_getimagesize( $temp_file );
 		if ( false === $image_info ) {
-			@unlink( $temp_file );
-			return [
+			wp_delete_file( $temp_file );
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'The downloaded file is not a valid image.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Validate MIME type using WordPress file type check.
@@ -244,19 +247,19 @@ class Import_Media implements Action_Interface {
 		$mime_type = $file_type['type'];
 
 		if ( ! $mime_type || ! in_array( $mime_type, self::ALLOWED_MIME_TYPES, true ) ) {
-			@unlink( $temp_file );
-			return [
+			wp_delete_file( $temp_file );
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'The URL does not point to a supported image format (JPEG, PNG, GIF, or WebP).', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Build the file array for media_handle_sideload.
-		$file_array = [
+		$file_array = array(
 			'name'     => $this->generate_filename( $url, $file_type['ext'] ),
 			'tmp_name' => $temp_file,
-		];
+		);
 
 		// Sideload into the media library (post_id 0 = unattached).
 		$attachment_id = media_handle_sideload( $file_array, 0 );
@@ -264,9 +267,9 @@ class Import_Media implements Action_Interface {
 		if ( is_wp_error( $attachment_id ) ) {
 			// Explicitly clean up in case sideload left the file behind.
 			if ( file_exists( $temp_file ) ) {
-				@unlink( $temp_file );
+				wp_delete_file( $temp_file );
 			}
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -274,7 +277,7 @@ class Import_Media implements Action_Interface {
 					__( 'Failed to import image: %s', 'wp-agent' ),
 					$attachment_id->get_error_message()
 				),
-			];
+			);
 		}
 
 		// Set optional metadata.
@@ -282,7 +285,7 @@ class Import_Media implements Action_Interface {
 		$alt   = ! empty( $params['alt_text'] ) ? sanitize_text_field( $params['alt_text'] ) : '';
 		$desc  = ! empty( $params['description'] ) ? sanitize_textarea_field( $params['description'] ) : '';
 
-		$post_update = [];
+		$post_update = array();
 		if ( $title ) {
 			$post_update['post_title'] = $title;
 		}
@@ -302,20 +305,20 @@ class Import_Media implements Action_Interface {
 		$local_url = wp_get_attachment_url( $attachment_id );
 		$metadata  = wp_get_attachment_metadata( $attachment_id );
 
-		$data = [
+		$data = array(
 			'id'    => $attachment_id,
 			'url'   => esc_url( $local_url ),
 			'title' => $title ? $title : get_the_title( $attachment_id ),
 			'alt'   => $alt ? $alt : get_the_title( $attachment_id ),
 			'mime'  => get_post_mime_type( $attachment_id ),
-		];
+		);
 
 		if ( is_array( $metadata ) && ! empty( $metadata['width'] ) ) {
 			$data['width']  = absint( $metadata['width'] );
 			$data['height'] = absint( $metadata['height'] );
 		}
 
-		return [
+		return array(
 			'success' => true,
 			'data'    => $data,
 			'message' => sprintf(
@@ -324,7 +327,7 @@ class Import_Media implements Action_Interface {
 				$data['title'],
 				$attachment_id
 			),
-		];
+		);
 	}
 
 	/**

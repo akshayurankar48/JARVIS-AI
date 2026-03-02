@@ -25,7 +25,7 @@ class Clone_Post implements Action_Interface {
 	 *
 	 * @var string[]
 	 */
-	const SKIP_META_PREFIXES = [ '_edit_', '_wp_old_slug' ];
+	const SKIP_META_PREFIXES = array( '_edit_', '_wp_old_slug' );
 
 	/**
 	 * Get the action name.
@@ -56,26 +56,26 @@ class Clone_Post implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'post_id'    => [
+			'properties' => array(
+				'post_id'    => array(
 					'type'        => 'integer',
 					'description' => 'ID of the post or page to clone.',
-				],
-				'new_title'  => [
+				),
+				'new_title'  => array(
 					'type'        => 'string',
 					'description' => 'Title for the clone. Defaults to "Copy of {original title}" if omitted.',
-				],
-				'new_status' => [
+				),
+				'new_status' => array(
 					'type'        => 'string',
-					'enum'        => [ 'draft', 'publish' ],
+					'enum'        => array( 'draft', 'publish' ),
 					'description' => 'Status for the cloned post. Defaults to "draft".',
 					'default'     => 'draft',
-				],
-			],
-			'required'   => [ 'post_id' ],
-		];
+				),
+			),
+			'required'   => array( 'post_id' ),
+		);
 	}
 
 	/**
@@ -110,17 +110,17 @@ class Clone_Post implements Action_Interface {
 		$post_id = absint( $params['post_id'] ?? 0 );
 
 		if ( ! $post_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'A valid post_id is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Verify the source post exists.
 		$source = get_post( $post_id );
 		if ( ! $source ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -128,16 +128,16 @@ class Clone_Post implements Action_Interface {
 					__( 'Post #%d not found.', 'wp-agent' ),
 					$post_id
 				),
-			];
+			);
 		}
 
 		// Verify the current user can read the source post.
 		if ( ! current_user_can( 'read_post', $post_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'You do not have permission to read this post.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Resolve new title.
@@ -152,7 +152,7 @@ class Clone_Post implements Action_Interface {
 		}
 
 		// Resolve new status.
-		$allowed_statuses = [ 'draft', 'publish' ];
+		$allowed_statuses = array( 'draft', 'publish' );
 		$new_status       = 'draft';
 		if ( ! empty( $params['new_status'] ) ) {
 			$candidate = sanitize_key( $params['new_status'] );
@@ -162,7 +162,7 @@ class Clone_Post implements Action_Interface {
 		}
 
 		// Build the new post array from the source.
-		$clone_args = [
+		$clone_args = array(
 			'post_title'     => $new_title,
 			'post_content'   => $source->post_content,
 			'post_excerpt'   => $source->post_excerpt,
@@ -172,16 +172,16 @@ class Clone_Post implements Action_Interface {
 			'menu_order'     => $source->menu_order,
 			'comment_status' => $source->comment_status,
 			'ping_status'    => $source->ping_status,
-		];
+		);
 
 		$clone_id = wp_insert_post( $clone_args, true );
 
 		if ( is_wp_error( $clone_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $clone_id->get_error_message(),
-			];
+			);
 		}
 
 		// Copy post meta.
@@ -198,15 +198,15 @@ class Clone_Post implements Action_Interface {
 
 		$clone = get_post( $clone_id );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'new_post_id'      => $clone_id,
 				'title'            => sanitize_text_field( $clone->post_title ),
 				'edit_url'         => get_edit_post_link( $clone_id, 'raw' ),
 				'status'           => $clone->post_status,
 				'original_post_id' => $post_id,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: clone title, 2: clone ID, 3: original ID */
 				__( 'Cloned "%1$s" (Post #%2$d) from original Post #%3$d.', 'wp-agent' ),
@@ -214,7 +214,7 @@ class Clone_Post implements Action_Interface {
 				$clone_id,
 				$post_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -280,7 +280,7 @@ class Clone_Post implements Action_Interface {
 		}
 
 		foreach ( $taxonomies as $taxonomy ) {
-			$terms = wp_get_object_terms( $source_id, $taxonomy, [ 'fields' => 'ids' ] );
+			$terms = wp_get_object_terms( $source_id, $taxonomy, array( 'fields' => 'ids' ) );
 
 			if ( is_wp_error( $terms ) || empty( $terms ) ) {
 				continue;

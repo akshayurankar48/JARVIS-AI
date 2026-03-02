@@ -46,12 +46,12 @@ class Chat_Controller {
 		register_rest_route(
 			self::NAMESPACE,
 			self::ROUTE,
-			[
+			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => [ $this, 'handle_chat' ],
-				'permission_callback' => [ $this, 'check_permissions' ],
+				'callback'            => array( $this, 'handle_chat' ),
+				'permission_callback' => array( $this, 'check_permissions' ),
 				'args'                => $this->get_args(),
-			]
+			)
 		);
 	}
 
@@ -68,7 +68,7 @@ class Chat_Controller {
 			return new \WP_Error(
 				'rest_forbidden',
 				__( 'You do not have permission to use the chat.', 'wp-agent' ),
-				[ 'status' => 403 ]
+				array( 'status' => 403 )
 			);
 		}
 
@@ -90,7 +90,7 @@ class Chat_Controller {
 		$conversation_id = $request->get_param( 'conversation_id' );
 		$user_id         = get_current_user_id();
 
-		$options = [];
+		$options = array();
 
 		if ( $request->has_param( 'post_id' ) ) {
 			$options['post_id'] = (int) $request->get_param( 'post_id' );
@@ -115,7 +115,7 @@ class Chat_Controller {
 			return new \WP_Error(
 				$result->get_error_code(),
 				$result->get_error_message(),
-				[ 'status' => $status ]
+				array( 'status' => $status )
 			);
 		}
 
@@ -129,8 +129,8 @@ class Chat_Controller {
 	 * @return array
 	 */
 	private function get_args() {
-		return [
-			'message'         => [
+		return array(
+			'message'         => array(
 				'required'          => true,
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_textarea_field',
@@ -139,24 +139,24 @@ class Chat_Controller {
 						return new \WP_Error(
 							'empty_message',
 							__( 'Message cannot be empty.', 'wp-agent' ),
-							[ 'status' => 400 ]
+							array( 'status' => 400 )
 						);
 					}
 					return true;
 				},
-			],
-			'conversation_id' => [
+			),
+			'conversation_id' => array(
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
-			],
-			'post_id'         => [
+			),
+			'post_id'         => array(
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
-			],
-			'model'           => [
+			),
+			'model'           => array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
-			],
-		];
+			),
+		);
 	}
 }

@@ -48,16 +48,16 @@ class Activate_Plugin implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'plugin' => [
+			'properties' => array(
+				'plugin' => array(
 					'type'        => 'string',
 					'description' => 'The plugin file path relative to the plugins directory (e.g. "akismet/akismet.php").',
-				],
-			],
-			'required'   => [ 'plugin' ],
-		];
+				),
+			),
+			'required'   => array( 'plugin' ),
+		);
 	}
 
 	/**
@@ -93,11 +93,11 @@ class Activate_Plugin implements Action_Interface {
 
 		// Validate the file path is safe.
 		if ( 0 !== validate_file( $plugin ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Invalid plugin file path.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Load plugin functions if not already available.
@@ -109,7 +109,7 @@ class Activate_Plugin implements Action_Interface {
 		$installed_plugins = get_plugins();
 
 		if ( ! isset( $installed_plugins[ $plugin ] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -117,12 +117,12 @@ class Activate_Plugin implements Action_Interface {
 					__( 'Plugin "%s" is not installed.', 'wp-agent' ),
 					$plugin
 				),
-			];
+			);
 		}
 
 		// Check if already active.
 		if ( is_plugin_active( $plugin ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -130,14 +130,14 @@ class Activate_Plugin implements Action_Interface {
 					__( 'Plugin "%s" is already active.', 'wp-agent' ),
 					$installed_plugins[ $plugin ]['Name']
 				),
-			];
+			);
 		}
 
 		// Activate the plugin. Returns null on success or WP_Error on failure.
 		$result = activate_plugin( $plugin );
 
 		if ( is_wp_error( $result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -146,20 +146,20 @@ class Activate_Plugin implements Action_Interface {
 					$installed_plugins[ $plugin ]['Name'],
 					$result->get_error_message()
 				),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'plugin' => $plugin,
 				'name'   => $installed_plugins[ $plugin ]['Name'],
-			],
+			),
 			'message' => sprintf(
 				/* translators: %s: plugin name */
 				__( 'Activated plugin "%s" successfully.', 'wp-agent' ),
 				$installed_plugins[ $plugin ]['Name']
 			),
-		];
+		);
 	}
 }

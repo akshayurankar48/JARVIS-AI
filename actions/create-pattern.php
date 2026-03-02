@@ -26,7 +26,7 @@ class Create_Pattern implements Action_Interface {
 	 *
 	 * @var string[]
 	 */
-	const ALLOWED_SYNC_STATUSES = [ 'fully', 'unsynced' ];
+	const ALLOWED_SYNC_STATUSES = array( 'fully', 'unsynced' );
 
 	/**
 	 * Get the action name.
@@ -58,33 +58,33 @@ class Create_Pattern implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'name'        => [
+			'properties' => array(
+				'name'        => array(
 					'type'        => 'string',
 					'description' => 'Display name for the pattern (e.g. "Homepage Hero Section").',
-				],
-				'content'     => [
+				),
+				'content'     => array(
 					'type'        => 'string',
 					'description' => 'Serialized block HTML markup to save as the pattern content.',
-				],
-				'category'    => [
+				),
+				'category'    => array(
 					'type'        => 'string',
 					'description' => 'Pattern category slug (e.g. "heroes", "features", "cta"). Optional.',
-				],
-				'description' => [
+				),
+				'description' => array(
 					'type'        => 'string',
 					'description' => 'Short description of what the pattern is for. Optional.',
-				],
-				'sync_status' => [
+				),
+				'sync_status' => array(
 					'type'        => 'string',
-					'enum'        => [ 'fully', 'unsynced' ],
+					'enum'        => array( 'fully', 'unsynced' ),
 					'description' => 'Whether edits to the pattern propagate to all uses. "fully" = synced everywhere, "unsynced" = independent copies. Defaults to "unsynced".',
-				],
-			],
-			'required'   => [ 'name', 'content' ],
-		];
+				),
+			),
+			'required'   => array( 'name', 'content' ),
+		);
 	}
 
 	/**
@@ -123,19 +123,19 @@ class Create_Pattern implements Action_Interface {
 		$sync_status = sanitize_key( $params['sync_status'] ?? 'unsynced' );
 
 		if ( empty( $name ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Pattern name is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( empty( $content ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Pattern content is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Fall back to 'unsynced' for any unrecognised value.
@@ -143,12 +143,12 @@ class Create_Pattern implements Action_Interface {
 			$sync_status = 'unsynced';
 		}
 
-		$post_data = [
+		$post_data = array(
 			'post_type'    => 'wp_block',
 			'post_title'   => $name,
 			'post_content' => $content,
 			'post_status'  => 'publish',
-		];
+		);
 
 		if ( ! empty( $description ) ) {
 			$post_data['post_excerpt'] = $description;
@@ -157,7 +157,7 @@ class Create_Pattern implements Action_Interface {
 		$post_id = wp_insert_post( $post_data, true );
 
 		if ( is_wp_error( $post_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -165,7 +165,7 @@ class Create_Pattern implements Action_Interface {
 					__( 'Failed to create pattern: %s', 'wp-agent' ),
 					$post_id->get_error_message()
 				),
-			];
+			);
 		}
 
 		// Assign pattern category taxonomy term if provided.
@@ -185,21 +185,21 @@ class Create_Pattern implements Action_Interface {
 
 		$edit_url = get_edit_post_link( $post_id, 'raw' );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'post_id'     => $post_id,
 				'name'        => $name,
 				'edit_url'    => esc_url_raw( $edit_url ),
 				'category'    => $assigned_category,
 				'sync_status' => $sync_status,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: pattern name, 2: post ID */
 				__( 'Pattern "%1$s" created successfully (ID: %2$d). It is now available in the block inserter.', 'wp-agent' ),
 				$name,
 				$post_id
 			),
-		];
+		);
 	}
 }

@@ -24,38 +24,38 @@ class Schedules_Controller extends \WP_REST_Controller {
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
-			[
-				[
+			array(
+				array(
 					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => [ $this, 'get_tasks' ],
-					'permission_callback' => [ $this, 'check_permission' ],
-				],
-			]
+					'callback'            => array( $this, 'get_tasks' ),
+					'permission_callback' => array( $this, 'check_permission' ),
+				),
+			)
 		);
 
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/(?P<task_id>[a-zA-Z0-9_]+)/(?P<action>pause|resume|delete)',
-			[
-				[
+			array(
+				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
-					'callback'            => [ $this, 'update_task' ],
-					'permission_callback' => [ $this, 'check_permission' ],
-					'args'                => [
-						'task_id' => [
+					'callback'            => array( $this, 'update_task' ),
+					'permission_callback' => array( $this, 'check_permission' ),
+					'args'                => array(
+						'task_id' => array(
 							'required'          => true,
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_key',
-						],
-						'action'  => [
+						),
+						'action'  => array(
 							'required'          => true,
 							'type'              => 'string',
-							'enum'              => [ 'pause', 'resume', 'delete' ],
+							'enum'              => array( 'pause', 'resume', 'delete' ),
 							'sanitize_callback' => 'sanitize_key',
-						],
-					],
-				],
-			]
+						),
+					),
+				),
+			)
 		);
 	}
 
@@ -64,14 +64,14 @@ class Schedules_Controller extends \WP_REST_Controller {
 	}
 
 	public function get_tasks() {
-		$tasks  = get_option( Manage_Scheduled_Tasks::OPTION_KEY, [] );
-		$result = [];
+		$tasks  = get_option( Manage_Scheduled_Tasks::OPTION_KEY, array() );
+		$result = array();
 
 		foreach ( $tasks as $task ) {
 			$hook_name = Manage_Scheduled_Tasks::HOOK_PREFIX . $task['id'];
 			$next_cron = wp_next_scheduled( $hook_name );
 
-			$result[] = [
+			$result[] = array(
 				'id'           => $task['id'],
 				'name'         => $task['name'],
 				'schedule'     => $task['schedule'],
@@ -81,7 +81,7 @@ class Schedules_Controller extends \WP_REST_Controller {
 				'next_run'     => $next_cron ? gmdate( 'Y-m-d H:i:s', $next_cron ) : null,
 				'last_run'     => $task['last_run'] ?? null,
 				'created_at'   => $task['created_at'],
-			];
+			);
 		}
 
 		return rest_ensure_response( $result );
@@ -92,16 +92,18 @@ class Schedules_Controller extends \WP_REST_Controller {
 		$action  = $request->get_param( 'action' );
 
 		$handler = new Manage_Scheduled_Tasks();
-		$result  = $handler->execute( [
-			'operation' => $action,
-			'task_id'   => $task_id,
-		] );
+		$result  = $handler->execute(
+			array(
+				'operation' => $action,
+				'task_id'   => $task_id,
+			)
+		);
 
 		if ( ! $result['success'] ) {
 			return new \WP_Error(
 				'wp_agent_schedule_error',
 				$result['message'],
-				[ 'status' => 400 ]
+				array( 'status' => 400 )
 			);
 		}
 

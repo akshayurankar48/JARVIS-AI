@@ -64,24 +64,24 @@ class Analyze_Reference_Site implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'url'     => [
+			'properties' => array(
+				'url'     => array(
 					'type'        => 'string',
 					'description' => 'The full URL to analyze (must be http or https).',
-				],
-				'extract' => [
+				),
+				'extract' => array(
 					'type'        => 'array',
-					'items'       => [
+					'items'       => array(
 						'type' => 'string',
-						'enum' => [ 'colors', 'fonts', 'sections', 'layout', 'images' ],
-					],
+						'enum' => array( 'colors', 'fonts', 'sections', 'layout', 'images' ),
+					),
 					'description' => 'Design elements to extract. Defaults to all: colors, fonts, sections, layout, images.',
-				],
-			],
-			'required'   => [ 'url' ],
-		];
+				),
+			),
+			'required'   => array( 'url' ),
+		);
 	}
 
 	/**
@@ -116,40 +116,43 @@ class Analyze_Reference_Site implements Action_Interface {
 		$url = isset( $params['url'] ) ? esc_url_raw( trim( $params['url'] ) ) : '';
 
 		if ( empty( $url ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'A valid URL is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$scheme = wp_parse_url( $url, PHP_URL_SCHEME );
-		if ( ! in_array( $scheme, [ 'http', 'https' ], true ) ) {
-			return [
+		if ( ! in_array( $scheme, array( 'http', 'https' ), true ) ) {
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Only http and https URLs are allowed.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$extract_items = [ 'colors', 'fonts', 'sections', 'layout', 'images' ];
+		$extract_items = array( 'colors', 'fonts', 'sections', 'layout', 'images' );
 		if ( ! empty( $params['extract'] ) && is_array( $params['extract'] ) ) {
 			$extract_items = array_intersect( array_map( 'sanitize_key', $params['extract'] ), $extract_items );
 			if ( empty( $extract_items ) ) {
-				$extract_items = [ 'colors', 'fonts', 'sections', 'layout', 'images' ];
+				$extract_items = array( 'colors', 'fonts', 'sections', 'layout', 'images' );
 			}
 		}
 
-		$response = wp_safe_remote_get( $url, [
-			'timeout'             => self::REQUEST_TIMEOUT,
-			'redirection'         => 3,
-			'reject_unsafe_urls'  => true,
-			'limit_response_size' => self::MAX_BODY_SIZE,
-			'user-agent'          => 'WP-Agent/1.0 (WordPress)',
-		] );
+		$response = wp_safe_remote_get(
+			$url,
+			array(
+				'timeout'             => self::REQUEST_TIMEOUT,
+				'redirection'         => 3,
+				'reject_unsafe_urls'  => true,
+				'limit_response_size' => self::MAX_BODY_SIZE,
+				'user-agent'          => 'WP-Agent/1.0 (WordPress)',
+			)
+		);
 
 		if ( is_wp_error( $response ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -157,12 +160,12 @@ class Analyze_Reference_Site implements Action_Interface {
 					__( 'Failed to fetch URL: %s', 'wp-agent' ),
 					$response->get_error_message()
 				),
-			];
+			);
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $response );
 		if ( $response_code < 200 || $response_code >= 400 ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -170,19 +173,19 @@ class Analyze_Reference_Site implements Action_Interface {
 					__( 'URL returned HTTP %d.', 'wp-agent' ),
 					$response_code
 				),
-			];
+			);
 		}
 
 		$html = wp_remote_retrieve_body( $response );
 		if ( empty( $html ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'The URL returned an empty response.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$analysis = [ 'url' => $url ];
+		$analysis = array( 'url' => $url );
 
 		if ( in_array( 'colors', $extract_items, true ) ) {
 			$analysis['colors'] = $this->extract_colors( $html );
@@ -204,7 +207,7 @@ class Analyze_Reference_Site implements Action_Interface {
 			$analysis['images'] = $this->extract_images( $html );
 		}
 
-		return [
+		return array(
 			'success' => true,
 			'data'    => $analysis,
 			'message' => sprintf(
@@ -212,7 +215,7 @@ class Analyze_Reference_Site implements Action_Interface {
 				__( 'Successfully analyzed design elements from %s.', 'wp-agent' ),
 				$url
 			),
-		];
+		);
 	}
 
 	/**
@@ -224,7 +227,7 @@ class Analyze_Reference_Site implements Action_Interface {
 	 * @return array Unique color hex codes found.
 	 */
 	private function extract_colors( $html ) {
-		$colors = [];
+		$colors = array();
 
 		// Extract from inline styles and style blocks.
 		$style_content = '';
@@ -263,9 +266,12 @@ class Analyze_Reference_Site implements Action_Interface {
 		$colors = array_values( array_unique( $colors ) );
 
 		// Filter out common black/white/transparent.
-		$filtered = array_filter( $colors, function ( $c ) {
-			return ! in_array( $c, [ '#000000', '#ffffff', '#fff', '#000' ], true );
-		} );
+		$filtered = array_filter(
+			$colors,
+			function ( $c ) {
+				return ! in_array( $c, array( '#000000', '#ffffff', '#fff', '#000' ), true );
+			}
+		);
 
 		// Return unique colors, keep black/white at end if nothing else.
 		$result = array_values( $filtered );
@@ -285,7 +291,7 @@ class Analyze_Reference_Site implements Action_Interface {
 	 * @return array Unique font families found.
 	 */
 	private function extract_fonts( $html ) {
-		$fonts = [];
+		$fonts = array();
 
 		// Extract from style blocks and inline styles.
 		$style_content = '';
@@ -302,7 +308,7 @@ class Analyze_Reference_Site implements Action_Interface {
 				$font_list = array_map( 'trim', explode( ',', $font_string ) );
 				foreach ( $font_list as $font ) {
 					$font = trim( $font, " \t\n\r\0\x0B'\"" );
-					if ( ! empty( $font ) && ! in_array( strtolower( $font ), [ 'serif', 'sans-serif', 'monospace', 'cursive', 'fantasy', 'inherit', 'initial' ], true ) ) {
+					if ( ! empty( $font ) && ! in_array( strtolower( $font ), array( 'serif', 'sans-serif', 'monospace', 'cursive', 'fantasy', 'inherit', 'initial' ), true ) ) {
 						$fonts[] = sanitize_text_field( $font );
 					}
 				}
@@ -333,7 +339,7 @@ class Analyze_Reference_Site implements Action_Interface {
 	 * @return array Section structure with heading hierarchy.
 	 */
 	private function extract_sections( $html ) {
-		$sections = [];
+		$sections = array();
 
 		// Remove script and style content.
 		$clean_html = preg_replace( '/<(script|style|noscript)[^>]*>.*?<\/\1>/is', '', $html );
@@ -342,10 +348,10 @@ class Analyze_Reference_Site implements Action_Interface {
 			foreach ( array_slice( $matches, 0, 40 ) as $match ) {
 				$text = trim( wp_strip_all_tags( $match[2] ) );
 				if ( ! empty( $text ) ) {
-					$sections[] = [
+					$sections[] = array(
 						'level' => (int) $match[1],
 						'text'  => substr( $text, 0, 200 ),
-					];
+					);
 				}
 			}
 		}
@@ -362,12 +368,12 @@ class Analyze_Reference_Site implements Action_Interface {
 	 * @return array Layout analysis data.
 	 */
 	private function extract_layout( $html ) {
-		$layout = [
+		$layout = array(
 			'has_header'  => (bool) preg_match( '/<header[^>]*>/i', $html ),
 			'has_footer'  => (bool) preg_match( '/<footer[^>]*>/i', $html ),
 			'has_sidebar' => (bool) preg_match( '/<aside[^>]*>/i', $html ) || (bool) preg_match( '/sidebar/i', $html ),
 			'has_nav'     => (bool) preg_match( '/<nav[^>]*>/i', $html ),
-		];
+		);
 
 		// Count major sections.
 		$layout['section_count'] = preg_match_all( '/<section[^>]*>/i', $html );
@@ -397,13 +403,13 @@ class Analyze_Reference_Site implements Action_Interface {
 	 * @return array Image analysis data.
 	 */
 	private function extract_images( $html ) {
-		$data = [
+		$data = array(
 			'total_count'    => 0,
 			'with_alt'       => 0,
 			'without_alt'    => 0,
 			'has_lazy_load'  => false,
-			'sample_sources' => [],
-		];
+			'sample_sources' => array(),
+		);
 
 		if ( preg_match_all( '/<img[^>]+>/i', $html, $img_matches ) ) {
 			$data['total_count'] = count( $img_matches[0] );

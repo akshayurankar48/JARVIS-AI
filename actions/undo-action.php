@@ -53,25 +53,25 @@ class Undo_Action implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation'       => [
+			'properties' => array(
+				'operation'       => array(
 					'type'        => 'string',
-					'enum'        => [ 'list', 'undo' ],
+					'enum'        => array( 'list', 'undo' ),
 					'description' => 'Operation: "list" to see undoable actions, "undo" to revert one.',
-				],
-				'checkpoint_id'   => [
+				),
+				'checkpoint_id'   => array(
 					'type'        => 'integer',
 					'description' => 'The checkpoint ID to undo. Required when operation is "undo". Get this from the "list" operation.',
-				],
-				'conversation_id' => [
+				),
+				'conversation_id' => array(
 					'type'        => 'integer',
 					'description' => 'The conversation ID to query. Defaults to the current conversation.',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -107,22 +107,22 @@ class Undo_Action implements Action_Interface {
 	public function execute( array $params ): array {
 		$operation = sanitize_key( $params['operation'] ?? '' );
 
-		if ( ! in_array( $operation, [ 'list', 'undo' ], true ) ) {
-			return [
+		if ( ! in_array( $operation, array( 'list', 'undo' ), true ) ) {
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Invalid operation. Must be "list" or "undo".', 'wp-agent' ),
-			];
+			);
 		}
 
 		$conversation_id = isset( $params['conversation_id'] ) ? absint( $params['conversation_id'] ) : 0;
 
 		if ( ! $conversation_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Conversation ID is required. This should be automatically provided by the system.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( 'list' === $operation ) {
@@ -143,34 +143,34 @@ class Undo_Action implements Action_Interface {
 		$checkpoints = $manager->get_conversation_checkpoints( $conversation_id );
 
 		if ( empty( $checkpoints ) ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [ 'checkpoints' => [] ],
+				'data'    => array( 'checkpoints' => array() ),
 				'message' => __( 'No undoable actions found in this conversation.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Format for AI readability.
-		$formatted = [];
+		$formatted = array();
 		foreach ( $checkpoints as $cp ) {
-			$formatted[] = [
+			$formatted[] = array(
 				'checkpoint_id' => (int) $cp['id'],
 				'action'        => $cp['action_type'],
 				'entity_type'   => $cp['entity_type'],
 				'entity_id'     => (int) $cp['entity_id'],
 				'created_at'    => $cp['created_at'],
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'checkpoints' => $formatted ],
+			'data'    => array( 'checkpoints' => $formatted ),
 			'message' => sprintf(
 				/* translators: %d: number of undoable checkpoints */
 				__( 'Found %d undoable action(s). Use the "undo" operation with a checkpoint_id to revert.', 'wp-agent' ),
 				count( $formatted )
 			),
-		];
+		);
 	}
 
 	/**
@@ -184,23 +184,23 @@ class Undo_Action implements Action_Interface {
 		$checkpoint_id = isset( $params['checkpoint_id'] ) ? absint( $params['checkpoint_id'] ) : 0;
 
 		if ( ! $checkpoint_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'checkpoint_id is required for the undo operation. Use "list" first to see available checkpoints.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$manager = Checkpoint_Manager::get_instance();
 		$result  = $manager->restore_checkpoint( $checkpoint_id, $conversation_id );
 
-		return [
+		return array(
 			'success' => $result['success'],
-			'data'    => [
+			'data'    => array(
 				'checkpoint_id' => $checkpoint_id,
 				'restored'      => $result['success'],
-			],
+			),
 			'message' => $result['message'],
-		];
+		);
 	}
 }

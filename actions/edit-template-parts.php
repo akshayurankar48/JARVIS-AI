@@ -51,30 +51,30 @@ class Edit_Template_Parts implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation' => array(
 					'type'        => 'string',
-					'enum'        => [ 'list', 'get', 'update' ],
+					'enum'        => array( 'list', 'get', 'update' ),
 					'description' => 'Operation to perform.',
-				],
-				'slug'      => [
+				),
+				'slug'      => array(
 					'type'        => 'string',
 					'description' => 'Template part slug (e.g. "header", "footer"). Required for "get" and "update".',
-				],
-				'content'   => [
+				),
+				'content'   => array(
 					'type'        => 'string',
 					'description' => 'New block content (HTML block markup) for "update" operation.',
-				],
-				'mode'      => [
+				),
+				'mode'      => array(
 					'type'        => 'string',
-					'enum'        => [ 'replace', 'append', 'prepend' ],
+					'enum'        => array( 'replace', 'append', 'prepend' ),
 					'description' => 'Update mode: "replace" overwrites all content, "append" adds after, "prepend" adds before. Defaults to "replace".',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -108,11 +108,11 @@ class Edit_Template_Parts implements Action_Interface {
 	public function execute( array $params ): array {
 		// Block theme check.
 		if ( ! wp_is_block_theme() ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Template parts are only available in block themes (Full Site Editing). The current theme is not a block theme.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$operation = $params['operation'] ?? '';
@@ -132,11 +132,11 @@ class Edit_Template_Parts implements Action_Interface {
 				return $this->update_template_part( $slug, $content, $mode );
 
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation. Use "list", "get", or "update".', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -147,31 +147,31 @@ class Edit_Template_Parts implements Action_Interface {
 	 * @return array Execution result.
 	 */
 	private function list_template_parts() {
-		$parts   = get_block_templates( [], 'wp_template_part' );
-		$results = [];
+		$parts   = get_block_templates( array(), 'wp_template_part' );
+		$results = array();
 
 		foreach ( $parts as $part ) {
-			$results[] = [
-				'slug'   => $part->slug,
-				'title'  => ! empty( $part->title ) ? $part->title : $part->slug,
-				'area'   => ! empty( $part->area ) ? $part->area : 'uncategorized',
-				'source' => $part->source ?? 'theme',
+			$results[] = array(
+				'slug'               => $part->slug,
+				'title'              => ! empty( $part->title ) ? $part->title : $part->slug,
+				'area'               => ! empty( $part->area ) ? $part->area : 'uncategorized',
+				'source'             => $part->source ?? 'theme',
 				'has_custom_content' => ! empty( $part->wp_id ),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'total' => count( $results ),
 				'parts' => $results,
-			],
+			),
 			'message' => sprintf(
 				/* translators: %d: part count */
 				__( '%d template part(s) found.', 'wp-agent' ),
 				count( $results )
 			),
-		];
+		);
 	}
 
 	/**
@@ -184,17 +184,17 @@ class Edit_Template_Parts implements Action_Interface {
 	 */
 	private function get_template_part( $slug ) {
 		if ( empty( $slug ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Template part slug is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$template_part = $this->find_template_part( $slug );
 
 		if ( ! $template_part ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -202,24 +202,24 @@ class Edit_Template_Parts implements Action_Interface {
 					__( 'Template part "%s" not found.', 'wp-agent' ),
 					$slug
 				),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'slug'    => $template_part->slug,
 				'title'   => ! empty( $template_part->title ) ? $template_part->title : $template_part->slug,
 				'area'    => ! empty( $template_part->area ) ? $template_part->area : 'uncategorized',
 				'content' => $template_part->content,
 				'source'  => $template_part->source ?? 'theme',
-			],
+			),
 			'message' => sprintf(
 				/* translators: %s: template part slug */
 				__( 'Template part "%s" retrieved.', 'wp-agent' ),
 				$slug
 			),
-		];
+		);
 	}
 
 	/**
@@ -234,29 +234,29 @@ class Edit_Template_Parts implements Action_Interface {
 	 */
 	private function update_template_part( $slug, $content, $mode ) {
 		if ( empty( $slug ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Template part slug is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( empty( $content ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Content is required for update.', 'wp-agent' ),
-			];
+			);
 		}
 
-		if ( ! in_array( $mode, [ 'replace', 'append', 'prepend' ], true ) ) {
+		if ( ! in_array( $mode, array( 'replace', 'append', 'prepend' ), true ) ) {
 			$mode = 'replace';
 		}
 
 		$template_part = $this->find_template_part( $slug );
 
 		if ( ! $template_part ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -264,7 +264,7 @@ class Edit_Template_Parts implements Action_Interface {
 					__( 'Template part "%s" not found.', 'wp-agent' ),
 					$slug
 				),
-			];
+			);
 		}
 
 		// Compose the final content based on mode.
@@ -285,15 +285,15 @@ class Edit_Template_Parts implements Action_Interface {
 		if ( ! empty( $template_part->wp_id ) ) {
 			// Update the existing post.
 			$result = wp_update_post(
-				[
+				array(
 					'ID'           => $template_part->wp_id,
 					'post_content' => $final_content,
-				],
+				),
 				true
 			);
 
 			if ( is_wp_error( $result ) ) {
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => sprintf(
@@ -301,28 +301,28 @@ class Edit_Template_Parts implements Action_Interface {
 						__( 'Failed to update template part: %s', 'wp-agent' ),
 						$result->get_error_message()
 					),
-				];
+				);
 			}
 		} else {
 			// Create a new wp_template_part post to override the theme file.
-			$theme = get_stylesheet();
+			$theme  = get_stylesheet();
 			$result = wp_insert_post(
-				[
+				array(
 					'post_type'    => 'wp_template_part',
 					'post_status'  => 'publish',
 					'post_name'    => $slug,
 					'post_title'   => ! empty( $template_part->title ) ? $template_part->title : $slug,
 					'post_content' => $final_content,
-					'tax_input'    => [
-						'wp_theme'              => [ $theme ],
-						'wp_template_part_area' => [ ! empty( $template_part->area ) ? $template_part->area : 'uncategorized' ],
-					],
-				],
+					'tax_input'    => array(
+						'wp_theme'              => array( $theme ),
+						'wp_template_part_area' => array( ! empty( $template_part->area ) ? $template_part->area : 'uncategorized' ),
+					),
+				),
 				true
 			);
 
 			if ( is_wp_error( $result ) ) {
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => sprintf(
@@ -330,7 +330,7 @@ class Edit_Template_Parts implements Action_Interface {
 						__( 'Failed to create template part override: %s', 'wp-agent' ),
 						$result->get_error_message()
 					),
-				];
+				);
 			}
 
 			// Set the theme taxonomy term since tax_input may not work for custom taxonomies.
@@ -340,19 +340,19 @@ class Edit_Template_Parts implements Action_Interface {
 			}
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'slug' => $slug,
 				'mode' => $mode,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: template part slug, 2: mode */
 				__( 'Template part "%1$s" updated (%2$s).', 'wp-agent' ),
 				$slug,
 				$mode
 			),
-		];
+		);
 	}
 
 	/**

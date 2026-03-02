@@ -64,21 +64,21 @@ class Optimize_Performance implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation' => array(
 					'type'        => 'string',
-					'enum'        => [ 'analyze', 'optimize_images', 'lazy_load', 'report' ],
+					'enum'        => array( 'analyze', 'optimize_images', 'lazy_load', 'report' ),
 					'description' => 'Operation to perform.',
-				],
-				'post_id'   => [
+				),
+				'post_id'   => array(
 					'type'        => 'integer',
 					'description' => 'Post or page ID. Required for analyze, optimize_images, and lazy_load.',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -126,11 +126,11 @@ class Optimize_Performance implements Action_Interface {
 				return $this->generate_report( $params );
 
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation. Use "analyze", "optimize_images", "lazy_load", or "report".', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -146,24 +146,24 @@ class Optimize_Performance implements Action_Interface {
 		$post_id = isset( $params['post_id'] ) ? absint( $params['post_id'] ) : 0;
 
 		if ( ! $post_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Post ID is required for analysis.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Post not found.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$content = $post->post_content;
-		$issues  = [];
+		$issues  = array();
 
 		// Check images without width/height.
 		$images_without_dimensions = 0;
@@ -184,7 +184,7 @@ class Optimize_Performance implements Action_Interface {
 		}
 
 		if ( $images_without_dimensions > 0 ) {
-			$issues[] = [
+			$issues[] = array(
 				'type'    => 'missing_dimensions',
 				'count'   => $images_without_dimensions,
 				'message' => sprintf(
@@ -192,11 +192,11 @@ class Optimize_Performance implements Action_Interface {
 					__( '%d image(s) missing width/height attributes (causes layout shift).', 'wp-agent' ),
 					$images_without_dimensions
 				),
-			];
+			);
 		}
 
 		if ( $images_without_lazy > 0 ) {
-			$issues[] = [
+			$issues[] = array(
 				'type'    => 'missing_lazy_load',
 				'count'   => $images_without_lazy,
 				'message' => sprintf(
@@ -204,13 +204,13 @@ class Optimize_Performance implements Action_Interface {
 					__( '%d image(s) without lazy loading.', 'wp-agent' ),
 					$images_without_lazy
 				),
-			];
+			);
 		}
 
 		// Check content size.
 		$content_size = strlen( $content );
 		if ( $content_size > 100000 ) {
-			$issues[] = [
+			$issues[] = array(
 				'type'    => 'large_content',
 				'size'    => $content_size,
 				'message' => sprintf(
@@ -218,17 +218,17 @@ class Optimize_Performance implements Action_Interface {
 					__( 'Post content is %s. Consider splitting into multiple pages.', 'wp-agent' ),
 					size_format( $content_size )
 				),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'post_id'      => $post_id,
 				'total_images' => $total_images,
 				'issues'       => $issues,
 				'issue_count'  => count( $issues ),
-			],
+			),
 			'message' => count( $issues ) > 0
 				? sprintf(
 					/* translators: 1: issue count, 2: post title */
@@ -241,7 +241,7 @@ class Optimize_Performance implements Action_Interface {
 					__( 'No performance issues found in "%s".', 'wp-agent' ),
 					$post->post_title
 				),
-		];
+		);
 	}
 
 	/**
@@ -256,66 +256,73 @@ class Optimize_Performance implements Action_Interface {
 		$post_id = isset( $params['post_id'] ) ? absint( $params['post_id'] ) : 0;
 
 		if ( ! $post_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Post ID is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Post not found.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$content = $post->post_content;
 		$fixed   = 0;
 
-		$content = preg_replace_callback( '/<img[^>]+>/i', function ( $match ) use ( &$fixed ) {
-			$img = $match[0];
+		$content = preg_replace_callback(
+			'/<img[^>]+>/i',
+			function ( $match ) use ( &$fixed ) {
+				$img = $match[0];
 
-			// Skip if already has both width and height.
-			if ( preg_match( '/\bwidth=/', $img ) && preg_match( '/\bheight=/', $img ) ) {
-				return $img;
-			}
+				// Skip if already has both width and height.
+				if ( preg_match( '/\bwidth=/', $img ) && preg_match( '/\bheight=/', $img ) ) {
+					return $img;
+				}
 
-			// Try to get dimensions from the src.
-			if ( preg_match( '/src=["\']([^"\']+)["\']/', $img, $src_match ) ) {
-				$attachment_id = attachment_url_to_postid( $src_match[1] );
+				// Try to get dimensions from the src.
+				if ( preg_match( '/src=["\']([^"\']+)["\']/', $img, $src_match ) ) {
+					$attachment_id = attachment_url_to_postid( $src_match[1] );
 
-				if ( $attachment_id ) {
-					$metadata = wp_get_attachment_metadata( $attachment_id );
-					if ( ! empty( $metadata['width'] ) && ! empty( $metadata['height'] ) ) {
-						$width  = (int) $metadata['width'];
-						$height = (int) $metadata['height'];
+					if ( $attachment_id ) {
+						$metadata = wp_get_attachment_metadata( $attachment_id );
+						if ( ! empty( $metadata['width'] ) && ! empty( $metadata['height'] ) ) {
+							$width  = (int) $metadata['width'];
+							$height = (int) $metadata['height'];
 
-						if ( ! preg_match( '/\bwidth=/', $img ) ) {
-							$img = str_replace( '<img', '<img width="' . $width . '"', $img );
+							if ( ! preg_match( '/\bwidth=/', $img ) ) {
+								$img = str_replace( '<img', '<img width="' . $width . '"', $img );
+							}
+							if ( ! preg_match( '/\bheight=/', $img ) ) {
+								$img = str_replace( '<img', '<img height="' . $height . '"', $img );
+							}
+
+							++$fixed;
 						}
-						if ( ! preg_match( '/\bheight=/', $img ) ) {
-							$img = str_replace( '<img', '<img height="' . $height . '"', $img );
-						}
-
-						++$fixed;
 					}
 				}
-			}
 
-			return $img;
-		}, $content );
+				return $img;
+			},
+			$content
+		);
 
 		if ( $fixed > 0 ) {
-			$result = wp_update_post( [
-				'ID'           => $post_id,
-				'post_content' => wp_slash( $content ),
-			], true );
+			$result = wp_update_post(
+				array(
+					'ID'           => $post_id,
+					'post_content' => wp_slash( $content ),
+				),
+				true
+			);
 
 			if ( is_wp_error( $result ) ) {
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => sprintf(
@@ -323,23 +330,23 @@ class Optimize_Performance implements Action_Interface {
 						__( 'Failed to save optimizations: %s', 'wp-agent' ),
 						$result->get_error_message()
 					),
-				];
+				);
 			}
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
-				'post_id'       => $post_id,
-				'images_fixed'  => $fixed,
-			],
+			'data'    => array(
+				'post_id'      => $post_id,
+				'images_fixed' => $fixed,
+			),
 			'message' => sprintf(
 				/* translators: 1: fixed count, 2: post title */
 				__( 'Added width/height to %1$d image(s) in "%2$s".', 'wp-agent' ),
 				$fixed,
 				$post->post_title
 			),
-		];
+		);
 	}
 
 	/**
@@ -354,45 +361,52 @@ class Optimize_Performance implements Action_Interface {
 		$post_id = isset( $params['post_id'] ) ? absint( $params['post_id'] ) : 0;
 
 		if ( ! $post_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Post ID is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Post not found.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$content = $post->post_content;
 		$fixed   = 0;
 
-		$content = preg_replace_callback( '/<img([^>]+)>/i', function ( $match ) use ( &$fixed ) {
-			$attrs = $match[1];
+		$content = preg_replace_callback(
+			'/<img([^>]+)>/i',
+			function ( $match ) use ( &$fixed ) {
+				$attrs = $match[1];
 
-			// Skip if already has loading attribute.
-			if ( preg_match( '/\bloading=/', $attrs ) ) {
-				return $match[0];
-			}
+				// Skip if already has loading attribute.
+				if ( preg_match( '/\bloading=/', $attrs ) ) {
+					return $match[0];
+				}
 
-			++$fixed;
-			return '<img' . $attrs . ' loading="lazy">';
-		}, $content );
+				++$fixed;
+				return '<img' . $attrs . ' loading="lazy">';
+			},
+			$content
+		);
 
 		if ( $fixed > 0 ) {
-			$result = wp_update_post( [
-				'ID'           => $post_id,
-				'post_content' => wp_slash( $content ),
-			], true );
+			$result = wp_update_post(
+				array(
+					'ID'           => $post_id,
+					'post_content' => wp_slash( $content ),
+				),
+				true
+			);
 
 			if ( is_wp_error( $result ) ) {
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => sprintf(
@@ -400,23 +414,23 @@ class Optimize_Performance implements Action_Interface {
 						__( 'Failed to save lazy loading changes: %s', 'wp-agent' ),
 						$result->get_error_message()
 					),
-				];
+				);
 			}
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
-				'post_id'       => $post_id,
-				'images_fixed'  => $fixed,
-			],
+			'data'    => array(
+				'post_id'      => $post_id,
+				'images_fixed' => $fixed,
+			),
 			'message' => sprintf(
 				/* translators: 1: fixed count, 2: post title */
 				__( 'Added lazy loading to %1$d image(s) in "%2$s".', 'wp-agent' ),
 				$fixed,
 				$post->post_title
 			),
-		];
+		);
 	}
 
 	/**
@@ -429,34 +443,39 @@ class Optimize_Performance implements Action_Interface {
 	 */
 	private function generate_report( array $params ) {
 		// Check large images in media library.
-		$large_images = [];
-		$attachments  = get_posts( [
-			'post_type'      => 'attachment',
-			'post_mime_type' => 'image',
-			'posts_per_page' => self::MAX_ATTACHMENTS,
-			'post_status'    => 'inherit',
-			'fields'         => 'ids',
-		] );
+		$large_images = array();
+		$attachments  = get_posts(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'image',
+				'posts_per_page' => self::MAX_ATTACHMENTS,
+				'post_status'    => 'inherit',
+				'fields'         => 'ids',
+			)
+		);
 
 		foreach ( $attachments as $attachment_id ) {
 			$file = get_attached_file( $attachment_id );
 			if ( $file && file_exists( $file ) ) {
 				$size = filesize( $file );
 				if ( $size > self::LARGE_IMAGE_THRESHOLD ) {
-					$large_images[] = [
+					$large_images[] = array(
 						'id'       => $attachment_id,
 						'filename' => basename( $file ),
 						'size'     => size_format( $size ),
 						'bytes'    => $size,
-					];
+					);
 				}
 			}
 		}
 
 		// Sort by size descending.
-		usort( $large_images, function ( $a, $b ) {
-			return $b['bytes'] - $a['bytes'];
-		} );
+		usort(
+			$large_images,
+			function ( $a, $b ) {
+				return $b['bytes'] - $a['bytes'];
+			}
+		);
 
 		// WordPress lazy loading default.
 		$wp_lazy_loading = function_exists( 'wp_lazy_loading_enabled' ) && wp_lazy_loading_enabled( 'img', 'the_content' );
@@ -466,17 +485,17 @@ class Optimize_Performance implements Action_Interface {
 		$page_count  = wp_count_posts( 'page' );
 		$total_media = wp_count_attachments();
 
-		$report = [
-			'large_images'         => array_slice( $large_images, 0, 20 ),
-			'large_image_count'    => count( $large_images ),
-			'total_media'          => array_sum( (array) $total_media ),
-			'wp_lazy_loading'      => $wp_lazy_loading,
-			'published_posts'      => isset( $post_count->publish ) ? (int) $post_count->publish : 0,
-			'published_pages'      => isset( $page_count->publish ) ? (int) $page_count->publish : 0,
-			'active_plugins'       => count( get_option( 'active_plugins', [] ) ),
-		];
+		$report = array(
+			'large_images'      => array_slice( $large_images, 0, 20 ),
+			'large_image_count' => count( $large_images ),
+			'total_media'       => array_sum( (array) $total_media ),
+			'wp_lazy_loading'   => $wp_lazy_loading,
+			'published_posts'   => isset( $post_count->publish ) ? (int) $post_count->publish : 0,
+			'published_pages'   => isset( $page_count->publish ) ? (int) $page_count->publish : 0,
+			'active_plugins'    => count( get_option( 'active_plugins', array() ) ),
+		);
 
-		return [
+		return array(
 			'success' => true,
 			'data'    => $report,
 			'message' => sprintf(
@@ -485,6 +504,6 @@ class Optimize_Performance implements Action_Interface {
 				count( $large_images ),
 				$report['total_media']
 			),
-		];
+		);
 	}
 }

@@ -24,7 +24,7 @@ class Manage_Roles implements Action_Interface {
 	 *
 	 * @var string[]
 	 */
-	const PROTECTED_ROLES = [ 'administrator', 'editor', 'author', 'contributor', 'subscriber' ];
+	const PROTECTED_ROLES = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
 
 	public function get_name(): string {
 		return 'manage_roles';
@@ -36,34 +36,34 @@ class Manage_Roles implements Action_Interface {
 	}
 
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation'    => [
+			'properties' => array(
+				'operation'    => array(
 					'type'        => 'string',
-					'enum'        => [ 'list', 'create', 'delete', 'add_cap', 'remove_cap', 'clone' ],
+					'enum'        => array( 'list', 'create', 'delete', 'add_cap', 'remove_cap', 'clone' ),
 					'description' => 'Operation to perform.',
-				],
-				'role'         => [
+				),
+				'role'         => array(
 					'type'        => 'string',
 					'description' => 'Role slug. Required for create, delete, add_cap, remove_cap, clone.',
-				],
-				'display_name' => [
+				),
+				'display_name' => array(
 					'type'        => 'string',
 					'description' => 'Human-readable role name. Required for create.',
-				],
-				'capabilities' => [
+				),
+				'capabilities' => array(
 					'type'        => 'array',
-					'items'       => [ 'type' => 'string' ],
+					'items'       => array( 'type' => 'string' ),
 					'description' => 'Capabilities to assign (create) or add/remove (add_cap/remove_cap).',
-				],
-				'source_role'  => [
+				),
+				'source_role'  => array(
 					'type'        => 'string',
 					'description' => 'Role to clone from. Required for clone operation.',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	public function get_capabilities_required(): string {
@@ -91,54 +91,61 @@ class Manage_Roles implements Action_Interface {
 			case 'clone':
 				return $this->clone_role( $params );
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation.', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
 	private function list_roles() {
 		global $wp_roles;
 
-		$roles = [];
+		$roles = array();
 		foreach ( $wp_roles->roles as $slug => $role_data ) {
-			$roles[] = [
+			$roles[] = array(
 				'slug'         => $slug,
 				'name'         => $role_data['name'],
 				'capabilities' => array_keys( array_filter( $role_data['capabilities'] ) ),
-				'user_count'   => count( get_users( [ 'role' => $slug, 'fields' => 'ID' ] ) ),
+				'user_count'   => count(
+					get_users(
+						array(
+							'role'   => $slug,
+							'fields' => 'ID',
+						)
+					)
+				),
 				'is_protected' => in_array( $slug, self::PROTECTED_ROLES, true ),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'roles' => $roles ],
+			'data'    => array( 'roles' => $roles ),
 			'message' => sprintf(
 				/* translators: %d: role count */
 				__( '%d role(s) found.', 'wp-agent' ),
 				count( $roles )
 			),
-		];
+		);
 	}
 
 	private function create_role( array $params ) {
 		$role         = sanitize_key( $params['role'] ?? '' );
 		$display_name = sanitize_text_field( $params['display_name'] ?? '' );
-		$capabilities = isset( $params['capabilities'] ) && is_array( $params['capabilities'] ) ? $params['capabilities'] : [];
+		$capabilities = isset( $params['capabilities'] ) && is_array( $params['capabilities'] ) ? $params['capabilities'] : array();
 
 		if ( empty( $role ) || empty( $display_name ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'role and display_name are required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( get_role( $role ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -146,10 +153,10 @@ class Manage_Roles implements Action_Interface {
 					__( 'Role "%s" already exists.', 'wp-agent' ),
 					$role
 				),
-			];
+			);
 		}
 
-		$caps = [];
+		$caps = array();
 		foreach ( $capabilities as $cap ) {
 			$caps[ sanitize_key( $cap ) ] = true;
 		}
@@ -157,49 +164,49 @@ class Manage_Roles implements Action_Interface {
 		$result = add_role( $role, $display_name, $caps );
 
 		if ( null === $result ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Failed to create role.', 'wp-agent' ),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'role'         => $role,
 				'display_name' => $display_name,
 				'capabilities' => array_keys( $caps ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: %s: role name */
 				__( 'Role "%s" created.', 'wp-agent' ),
 				$display_name
 			),
-		];
+		);
 	}
 
 	private function delete_role( array $params ) {
 		$role = sanitize_key( $params['role'] ?? '' );
 
 		if ( empty( $role ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'role is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( in_array( $role, self::PROTECTED_ROLES, true ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Cannot delete built-in WordPress roles.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( ! get_role( $role ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -207,37 +214,37 @@ class Manage_Roles implements Action_Interface {
 					__( 'Role "%s" not found.', 'wp-agent' ),
 					$role
 				),
-			];
+			);
 		}
 
 		remove_role( $role );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [ 'role' => $role ],
+			'data'    => array( 'role' => $role ),
 			'message' => sprintf(
 				/* translators: %s: role slug */
 				__( 'Role "%s" deleted.', 'wp-agent' ),
 				$role
 			),
-		];
+		);
 	}
 
 	private function modify_caps( array $params, bool $add ) {
 		$role_slug    = sanitize_key( $params['role'] ?? '' );
-		$capabilities = isset( $params['capabilities'] ) && is_array( $params['capabilities'] ) ? $params['capabilities'] : [];
+		$capabilities = isset( $params['capabilities'] ) && is_array( $params['capabilities'] ) ? $params['capabilities'] : array();
 
 		if ( empty( $role_slug ) || empty( $capabilities ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'role and capabilities are required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$role = get_role( $role_slug );
 		if ( ! $role ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -245,10 +252,10 @@ class Manage_Roles implements Action_Interface {
 					__( 'Role "%s" not found.', 'wp-agent' ),
 					$role_slug
 				),
-			];
+			);
 		}
 
-		$modified = [];
+		$modified = array();
 		foreach ( $capabilities as $cap ) {
 			$cap = sanitize_key( $cap );
 			if ( $add ) {
@@ -261,13 +268,13 @@ class Manage_Roles implements Action_Interface {
 
 		$action = $add ? 'added to' : 'removed from';
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'role'         => $role_slug,
 				'capabilities' => $modified,
 				'action'       => $add ? 'added' : 'removed',
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: action, 3: role */
 				__( '%1$d capability(ies) %2$s "%3$s".', 'wp-agent' ),
@@ -275,7 +282,7 @@ class Manage_Roles implements Action_Interface {
 				$action,
 				$role_slug
 			),
-		];
+		);
 	}
 
 	private function clone_role( array $params ) {
@@ -284,16 +291,16 @@ class Manage_Roles implements Action_Interface {
 		$source_slug  = sanitize_key( $params['source_role'] ?? '' );
 
 		if ( empty( $new_role ) || empty( $source_slug ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'role and source_role are required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$source = get_role( $source_slug );
 		if ( ! $source ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -301,37 +308,37 @@ class Manage_Roles implements Action_Interface {
 					__( 'Source role "%s" not found.', 'wp-agent' ),
 					$source_slug
 				),
-			];
+			);
 		}
 
 		if ( empty( $display_name ) ) {
-			$display_name = ucfirst( str_replace( [ '-', '_' ], ' ', $new_role ) );
+			$display_name = ucfirst( str_replace( array( '-', '_' ), ' ', $new_role ) );
 		}
 
 		$result = add_role( $new_role, $display_name, $source->capabilities );
 
 		if ( null === $result ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Failed to clone role. It may already exist.', 'wp-agent' ),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'role'         => $new_role,
 				'display_name' => $display_name,
 				'cloned_from'  => $source_slug,
 				'capabilities' => array_keys( array_filter( $source->capabilities ) ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: new role, 2: source role */
 				__( 'Role "%1$s" cloned from "%2$s".', 'wp-agent' ),
 				$display_name,
 				$source_slug
 			),
-		];
+		);
 	}
 }

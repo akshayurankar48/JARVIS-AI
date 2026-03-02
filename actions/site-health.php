@@ -49,17 +49,17 @@ class Site_Health implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'category' => [
+			'properties' => array(
+				'category' => array(
 					'type'        => 'string',
 					'description' => 'Filter results by category: "security", "performance", or "all". Defaults to "all".',
-					'enum'        => [ 'all', 'security', 'performance' ],
-				],
-			],
-			'required'   => [],
-		];
+					'enum'        => array( 'all', 'security', 'performance' ),
+				),
+			),
+			'required'   => array(),
+		);
 	}
 
 	/**
@@ -109,20 +109,20 @@ class Site_Health implements Action_Interface {
 
 		// Only run direct tests (skip async tests which make external requests).
 		if ( empty( $all_tests['direct'] ) || ! is_array( $all_tests['direct'] ) ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [
+				'data'    => array(
 					'total'       => 0,
 					'good'        => 0,
 					'recommended' => 0,
 					'critical'    => 0,
-					'results'     => [],
-				],
+					'results'     => array(),
+				),
 				'message' => __( 'No direct Site Health tests available.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$results     = [];
+		$results     = array();
 		$good        = 0;
 		$recommended = 0;
 		$critical    = 0;
@@ -133,7 +133,7 @@ class Site_Health implements Action_Interface {
 			if ( isset( $test_info['test'] ) && is_string( $test_info['test'] ) ) {
 				$method = 'get_test_' . $test_info['test'];
 				if ( method_exists( $site_health, $method ) ) {
-					$test_function = [ $site_health, $method ];
+					$test_function = array( $site_health, $method );
 				}
 			} elseif ( isset( $test_info['test'] ) && is_callable( $test_info['test'] ) ) {
 				$test_function = $test_info['test'];
@@ -166,12 +166,12 @@ class Site_Health implements Action_Interface {
 			$label       = isset( $result['label'] ) ? wp_strip_all_tags( $result['label'] ) : $test_key;
 			$badge_label = isset( $result['badge']['label'] ) ? wp_strip_all_tags( $result['badge']['label'] ) : '';
 
-			$results[] = [
+			$results[] = array(
 				'test'        => $test_key,
 				'label'       => $label,
 				'status'      => $result['status'],
 				'badge_label' => $badge_label,
-			];
+			);
 
 			// Count by status.
 			switch ( $result['status'] ) {
@@ -189,15 +189,15 @@ class Site_Health implements Action_Interface {
 
 		$total = count( $results );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'total'       => $total,
 				'good'        => $good,
 				'recommended' => $recommended,
 				'critical'    => $critical,
 				'results'     => $results,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: total tests, 2: good count, 3: recommended count, 4: critical count */
 				__( 'Site Health: %1$d tests — %2$d good, %3$d recommended, %4$d critical.', 'wp-agent' ),
@@ -206,6 +206,6 @@ class Site_Health implements Action_Interface {
 				$recommended,
 				$critical
 			),
-		];
+		);
 	}
 }

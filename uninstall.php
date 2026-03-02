@@ -13,12 +13,12 @@ defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 global $wpdb;
 
 // Drop custom tables.
-$tables = [
+$tables = array(
 	$wpdb->prefix . 'agent_conversations',
 	$wpdb->prefix . 'agent_messages',
 	$wpdb->prefix . 'agent_checkpoints',
 	$wpdb->prefix . 'agent_history',
-];
+);
 
 foreach ( $tables as $table ) {
 	$wpdb->query( "DROP TABLE IF EXISTS {$table}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared

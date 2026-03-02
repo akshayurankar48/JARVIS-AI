@@ -47,7 +47,7 @@ class Read_Url implements Action_Interface {
 	 *
 	 * @var string[]
 	 */
-	const ALLOWED_SCHEMES = [ 'http', 'https' ];
+	const ALLOWED_SCHEMES = array( 'http', 'https' );
 
 	/**
 	 * Get the action name.
@@ -78,22 +78,22 @@ class Read_Url implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'url'     => [
+			'properties' => array(
+				'url'     => array(
 					'type'        => 'string',
 					'description' => 'The full URL to fetch (must be http or https).',
-				],
-				'extract' => [
+				),
+				'extract' => array(
 					'type'        => 'string',
-					'enum'        => [ 'text', 'headings', 'links', 'meta', 'all' ],
+					'enum'        => array( 'text', 'headings', 'links', 'meta', 'all' ),
 					'description' => 'What to extract from the page. "text" returns body text, "headings" returns h1-h6, '
 						. '"links" returns anchor hrefs, "meta" returns title/description/og tags, "all" returns everything. Defaults to "all".',
-				],
-			],
-			'required'   => [ 'url' ],
-		];
+				),
+			),
+			'required'   => array( 'url' ),
+		);
 	}
 
 	/**
@@ -128,29 +128,32 @@ class Read_Url implements Action_Interface {
 		$url = $this->validate_url( $params['url'] ?? '' );
 
 		if ( is_wp_error( $url ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $url->get_error_message(),
-			];
+			);
 		}
 
 		$extract = ! empty( $params['extract'] ) ? sanitize_key( $params['extract'] ) : 'all';
-		if ( ! in_array( $extract, [ 'text', 'headings', 'links', 'meta', 'all' ], true ) ) {
+		if ( ! in_array( $extract, array( 'text', 'headings', 'links', 'meta', 'all' ), true ) ) {
 			$extract = 'all';
 		}
 
 		// Fetch the URL with SSRF protection.
-		$response = wp_safe_remote_get( $url, [
-			'timeout'             => self::REQUEST_TIMEOUT,
-			'redirection'         => 3,
-			'reject_unsafe_urls'  => true,
-			'limit_response_size' => self::MAX_BODY_SIZE,
-			'user-agent'          => 'WP-Agent/1.0 (WordPress)',
-		] );
+		$response = wp_safe_remote_get(
+			$url,
+			array(
+				'timeout'             => self::REQUEST_TIMEOUT,
+				'redirection'         => 3,
+				'reject_unsafe_urls'  => true,
+				'limit_response_size' => self::MAX_BODY_SIZE,
+				'user-agent'          => 'WP-Agent/1.0 (WordPress)',
+			)
+		);
 
 		if ( is_wp_error( $response ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -158,12 +161,12 @@ class Read_Url implements Action_Interface {
 					__( 'Failed to fetch URL: %s', 'wp-agent' ),
 					$response->get_error_message()
 				),
-			];
+			);
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $response );
 		if ( $response_code < 200 || $response_code >= 400 ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -171,16 +174,16 @@ class Read_Url implements Action_Interface {
 					__( 'URL returned HTTP %d.', 'wp-agent' ),
 					$response_code
 				),
-			];
+			);
 		}
 
 		$body = wp_remote_retrieve_body( $response );
 		if ( empty( $body ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'The URL returned an empty response.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$content_type = wp_remote_retrieve_header( $response, 'content-type' );
@@ -189,26 +192,26 @@ class Read_Url implements Action_Interface {
 		if ( ! $is_html ) {
 			// For non-HTML content, return raw text truncated.
 			$text = $this->truncate_text( $body );
-			return [
+			return array(
 				'success' => true,
-				'data'    => [
+				'data'    => array(
 					'url'          => $url,
 					'content_type' => $content_type,
 					'text'         => $text,
-				],
+				),
 				'message' => sprintf(
 					/* translators: 1: URL, 2: character count */
 					__( 'Fetched %1$s (%2$d characters of text content).', 'wp-agent' ),
 					$url,
 					strlen( $text )
 				),
-			];
+			);
 		}
 
 		// Parse HTML and extract requested content.
 		$data = $this->extract_content( $body, $extract, $url );
 
-		return [
+		return array(
 			'success' => true,
 			'data'    => $data,
 			'message' => sprintf(
@@ -216,7 +219,7 @@ class Read_Url implements Action_Interface {
 				__( 'Successfully extracted content from %s.', 'wp-agent' ),
 				$url
 			),
-		];
+		);
 	}
 
 	/**
@@ -230,7 +233,7 @@ class Read_Url implements Action_Interface {
 	 * @return array Extracted content.
 	 */
 	private function extract_content( $html, $extract, $url ) {
-		$data = [ 'url' => $url ];
+		$data = array( 'url' => $url );
 
 		// Extract meta tags (always useful as context).
 		if ( 'meta' === $extract || 'all' === $extract ) {
@@ -264,7 +267,7 @@ class Read_Url implements Action_Interface {
 	 * @return array Meta tag values.
 	 */
 	private function extract_meta( $html ) {
-		$meta = [];
+		$meta = array();
 
 		// Title tag.
 		if ( preg_match( '/<title[^>]*>([^<]+)<\/title>/i', $html, $matches ) ) {
@@ -277,7 +280,7 @@ class Read_Url implements Action_Interface {
 		}
 
 		// Open Graph tags.
-		$og_tags = [ 'og:title', 'og:description', 'og:image', 'og:type', 'og:url' ];
+		$og_tags = array( 'og:title', 'og:description', 'og:image', 'og:type', 'og:url' );
 		foreach ( $og_tags as $tag ) {
 			$escaped = preg_quote( $tag, '/' );
 			if ( preg_match( '/<meta[^>]+property=["\']' . $escaped . '["\'][^>]+content=["\']([^"\']+)["\']/i', $html, $matches ) ) {
@@ -298,14 +301,14 @@ class Read_Url implements Action_Interface {
 	 * @return array Headings with level and text.
 	 */
 	private function extract_headings( $html ) {
-		$headings = [];
+		$headings = array();
 
 		if ( preg_match_all( '/<h([1-6])[^>]*>(.*?)<\/h\1>/is', $html, $matches, PREG_SET_ORDER ) ) {
 			foreach ( array_slice( $matches, 0, 30 ) as $match ) {
-				$headings[] = [
+				$headings[] = array(
 					'level' => (int) $match[1],
 					'text'  => trim( wp_strip_all_tags( $match[2] ) ),
-				];
+				);
 			}
 		}
 
@@ -322,7 +325,7 @@ class Read_Url implements Action_Interface {
 	 * @return array Links with href and text.
 	 */
 	private function extract_links( $html, $base_url ) {
-		$links = [];
+		$links = array();
 
 		// Remove nav, header, footer to focus on content links.
 		$content_html = preg_replace( '/<(nav|header|footer)[^>]*>.*?<\/\1>/is', '', $html );
@@ -343,10 +346,10 @@ class Read_Url implements Action_Interface {
 				}
 
 				if ( $text ) {
-					$links[] = [
+					$links[] = array(
 						'href' => esc_url( $href ),
 						'text' => substr( $text, 0, 100 ),
-					];
+					);
 				}
 			}
 		}

@@ -25,7 +25,7 @@ class Manage_Options_Bulk implements Action_Interface {
 	 *
 	 * @var string[]
 	 */
-	const BLOCKLIST = [
+	const BLOCKLIST = array(
 		'auth_key',
 		'secure_auth_key',
 		'logged_in_key',
@@ -37,20 +37,20 @@ class Manage_Options_Bulk implements Action_Interface {
 		'db_password',
 		'wp_agent_openrouter_key',
 		'wp_agent_tavily_key',
-	];
+	);
 
 	/**
 	 * Patterns to block.
 	 *
 	 * @var string[]
 	 */
-	const BLOCKLIST_PATTERNS = [
+	const BLOCKLIST_PATTERNS = array(
 		'_key',
 		'_secret',
 		'_password',
 		'_token',
 		'_api_key',
-	];
+	);
 
 	public function get_name(): string {
 		return 'manage_options_bulk';
@@ -62,33 +62,36 @@ class Manage_Options_Bulk implements Action_Interface {
 	}
 
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation' => array(
 					'type'        => 'string',
-					'enum'        => [ 'get', 'set', 'delete', 'search' ],
+					'enum'        => array( 'get', 'set', 'delete', 'search' ),
 					'description' => 'Operation to perform.',
-				],
-				'options'   => [
+				),
+				'options'   => array(
 					'type'        => 'array',
-					'items'       => [
+					'items'       => array(
 						'type'       => 'object',
-						'properties' => [
-							'name'  => [ 'type' => 'string', 'description' => 'Option name.' ],
-							'value' => [ 'description' => 'Option value (for set).' ],
-						],
-						'required' => [ 'name' ],
-					],
+						'properties' => array(
+							'name'  => array(
+								'type'        => 'string',
+								'description' => 'Option name.',
+							),
+							'value' => array( 'description' => 'Option value (for set).' ),
+						),
+						'required'   => array( 'name' ),
+					),
 					'description' => 'Array of options to get/set/delete. Required for get, set, delete.',
-				],
-				'search'    => [
+				),
+				'search'    => array(
 					'type'        => 'string',
 					'description' => 'Search pattern for option names (e.g., "wp_agent_"). Required for search.',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	public function get_capabilities_required(): string {
@@ -112,11 +115,11 @@ class Manage_Options_Bulk implements Action_Interface {
 			case 'search':
 				return $this->search_options( $params );
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation. Use "get", "set", "delete", or "search".', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -135,18 +138,18 @@ class Manage_Options_Bulk implements Action_Interface {
 	}
 
 	private function get_options( array $params ) {
-		$options = isset( $params['options'] ) && is_array( $params['options'] ) ? $params['options'] : [];
+		$options = isset( $params['options'] ) && is_array( $params['options'] ) ? $params['options'] : array();
 
 		if ( empty( $options ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'options array is required.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$results = [];
-		$blocked = [];
+		$results = array();
+		$blocked = array();
 
 		foreach ( $options as $opt ) {
 			$name = sanitize_text_field( $opt['name'] ?? '' );
@@ -159,38 +162,38 @@ class Manage_Options_Bulk implements Action_Interface {
 				continue;
 			}
 
-			$value = get_option( $name, null );
+			$value            = get_option( $name, null );
 			$results[ $name ] = $value;
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'options' => $results,
 				'blocked' => $blocked,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: retrieved count, 2: blocked count */
 				__( 'Retrieved %1$d option(s). %2$d blocked.', 'wp-agent' ),
 				count( $results ),
 				count( $blocked )
 			),
-		];
+		);
 	}
 
 	private function set_options( array $params ) {
-		$options = isset( $params['options'] ) && is_array( $params['options'] ) ? $params['options'] : [];
+		$options = isset( $params['options'] ) && is_array( $params['options'] ) ? $params['options'] : array();
 
 		if ( empty( $options ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'options array is required.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$updated = [];
-		$blocked = [];
+		$updated = array();
+		$blocked = array();
 
 		foreach ( $options as $opt ) {
 			$name = sanitize_text_field( $opt['name'] ?? '' );
@@ -212,34 +215,34 @@ class Manage_Options_Bulk implements Action_Interface {
 			$updated[] = $name;
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'updated' => $updated,
 				'blocked' => $blocked,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: blocked count */
 				__( 'Updated %1$d option(s). %2$d blocked.', 'wp-agent' ),
 				count( $updated ),
 				count( $blocked )
 			),
-		];
+		);
 	}
 
 	private function delete_options( array $params ) {
-		$options = isset( $params['options'] ) && is_array( $params['options'] ) ? $params['options'] : [];
+		$options = isset( $params['options'] ) && is_array( $params['options'] ) ? $params['options'] : array();
 
 		if ( empty( $options ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'options array is required.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$deleted = [];
-		$blocked = [];
+		$deleted = array();
+		$blocked = array();
 
 		foreach ( $options as $opt ) {
 			$name = sanitize_text_field( $opt['name'] ?? '' );
@@ -256,19 +259,19 @@ class Manage_Options_Bulk implements Action_Interface {
 			$deleted[] = $name;
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'deleted' => $deleted,
 				'blocked' => $blocked,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: blocked count */
 				__( 'Deleted %1$d option(s). %2$d blocked.', 'wp-agent' ),
 				count( $deleted ),
 				count( $blocked )
 			),
-		];
+		);
 	}
 
 	private function search_options( array $params ) {
@@ -277,11 +280,11 @@ class Manage_Options_Bulk implements Action_Interface {
 		$search = sanitize_text_field( $params['search'] ?? '' );
 
 		if ( empty( $search ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'search pattern is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -297,31 +300,31 @@ class Manage_Options_Bulk implements Action_Interface {
 			ARRAY_A
 		);
 
-		$options = [];
+		$options = array();
 		foreach ( $results as $row ) {
 			if ( $this->is_blocked( $row['option_name'] ) ) {
 				continue;
 			}
-			$options[] = [
+			$options[] = array(
 				'name'         => $row['option_name'],
 				'value_length' => (int) $row['value_length'],
 				'autoload'     => $row['autoload'],
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'pattern' => $search,
 				'count'   => count( $options ),
 				'options' => $options,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: pattern */
 				__( 'Found %1$d option(s) matching "%2$s".', 'wp-agent' ),
 				count( $options ),
 				$search
 			),
-		];
+		);
 	}
 }

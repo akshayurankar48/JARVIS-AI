@@ -33,14 +33,14 @@ class Search_Media implements Action_Interface {
 	 *
 	 * @var string[]
 	 */
-	const ALLOWED_MIME_TYPES = [
+	const ALLOWED_MIME_TYPES = array(
 		'image',
 		'image/jpeg',
 		'image/png',
 		'image/webp',
 		'image/gif',
 		'image/svg+xml',
-	];
+	);
 
 	/**
 	 * Get the action name.
@@ -72,25 +72,25 @@ class Search_Media implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'search'    => [
+			'properties' => array(
+				'search'    => array(
 					'type'        => 'string',
 					'description' => 'Optional keyword to search media by title, caption, or alt text. Leave empty to list recent uploads.',
-				],
-				'mime_type' => [
+				),
+				'mime_type' => array(
 					'type'        => 'string',
 					'enum'        => self::ALLOWED_MIME_TYPES,
 					'description' => 'Filter by MIME type. Defaults to "image" (all image formats).',
-				],
-				'per_page'  => [
+				),
+				'per_page'  => array(
 					'type'        => 'integer',
 					'description' => 'Number of results to return (1-20). Defaults to 12.',
-				],
-			],
-			'required'   => [],
-		];
+				),
+			),
+			'required'   => array(),
+		);
 	}
 
 	/**
@@ -128,21 +128,21 @@ class Search_Media implements Action_Interface {
 		$per_page  = isset( $params['per_page'] ) ? absint( $params['per_page'] ) : 12;
 		$per_page  = max( 1, min( self::MAX_PER_PAGE, $per_page ) );
 
-		$query_args = [
+		$query_args = array(
 			'post_type'      => 'attachment',
 			'post_status'    => 'inherit',
 			'post_mime_type' => $mime_type,
 			'posts_per_page' => $per_page,
 			'orderby'        => 'date',
 			'order'          => 'DESC',
-		];
+		);
 
 		if ( ! empty( $search ) ) {
 			$query_args['s'] = $search;
 		}
 
 		$query   = new \WP_Query( $query_args );
-		$results = [];
+		$results = array();
 
 		foreach ( $query->posts as $attachment ) {
 			$item = $this->format_attachment( $attachment );
@@ -162,14 +162,14 @@ class Search_Media implements Action_Interface {
 				)
 				: __( 'No media found in the library.', 'wp-agent' );
 
-			return [
+			return array(
 				'success' => true,
-				'data'    => [
+				'data'    => array(
 					'total'   => 0,
-					'results' => [],
-				],
+					'results' => array(),
+				),
 				'message' => $message,
-			];
+			);
 		}
 
 		$message = $search
@@ -185,14 +185,14 @@ class Search_Media implements Action_Interface {
 				count( $results )
 			);
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'total'   => count( $results ),
 				'results' => $results,
-			],
+			),
 			'message' => $message,
-		];
+		);
 	}
 
 	/**
@@ -219,18 +219,18 @@ class Search_Media implements Action_Interface {
 
 		$metadata = wp_get_attachment_metadata( $id );
 		if ( ! is_array( $metadata ) ) {
-			$metadata = [];
+			$metadata = array();
 		}
 
 		$alt = get_post_meta( $id, '_wp_attachment_image_alt', true );
 
-		$item = [
+		$item = array(
 			'id'    => $id,
 			'url'   => esc_url( $url ),
 			'title' => sanitize_text_field( $attachment->post_title ),
 			'alt'   => sanitize_text_field( $alt ? $alt : $attachment->post_title ),
 			'mime'  => sanitize_mime_type( $attachment->post_mime_type ),
-		];
+		);
 
 		// Include dimensions for images.
 		if ( ! empty( $metadata['width'] ) && ! empty( $metadata['height'] ) ) {
@@ -241,14 +241,14 @@ class Search_Media implements Action_Interface {
 		// Include available sizes for images.
 		if ( ! empty( $metadata['sizes'] ) ) {
 			$base_url = trailingslashit( dirname( $url ) );
-			$sizes    = [];
+			$sizes    = array();
 			foreach ( $metadata['sizes'] as $size_name => $size_data ) {
 				if ( ! empty( $size_data['file'] ) ) {
-					$sizes[ sanitize_key( $size_name ) ] = [
+					$sizes[ sanitize_key( $size_name ) ] = array(
 						'url'    => esc_url( $base_url . $size_data['file'] ),
 						'width'  => absint( $size_data['width'] ),
 						'height' => absint( $size_data['height'] ),
-					];
+					);
 				}
 			}
 			if ( ! empty( $sizes ) ) {

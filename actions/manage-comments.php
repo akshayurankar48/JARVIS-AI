@@ -64,52 +64,52 @@ class Manage_Comments implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation'  => [
+			'properties' => array(
+				'operation'   => array(
 					'type'        => 'string',
-					'enum'        => [ 'list', 'approve', 'unapprove', 'spam', 'trash', 'reply', 'bulk' ],
+					'enum'        => array( 'list', 'approve', 'unapprove', 'spam', 'trash', 'reply', 'bulk' ),
 					'description' => 'Operation to perform.',
-				],
-				'comment_id' => [
+				),
+				'comment_id'  => array(
 					'type'        => 'integer',
 					'description' => 'Comment ID. Required for approve, unapprove, spam, trash, and reply.',
-				],
-				'post_id'    => [
+				),
+				'post_id'     => array(
 					'type'        => 'integer',
 					'description' => 'Filter comments by post ID (for "list" operation).',
-				],
-				'status'     => [
+				),
+				'status'      => array(
 					'type'        => 'string',
-					'enum'        => [ 'all', 'approve', 'hold', 'spam', 'trash' ],
+					'enum'        => array( 'all', 'approve', 'hold', 'spam', 'trash' ),
 					'description' => 'Filter by comment status for "list". Defaults to "all".',
-				],
-				'search'     => [
+				),
+				'search'      => array(
 					'type'        => 'string',
 					'description' => 'Search comments by keyword (for "list").',
-				],
-				'per_page'   => [
+				),
+				'per_page'    => array(
 					'type'        => 'integer',
 					'description' => 'Number of comments to return (max 50). Defaults to 20.',
-				],
-				'content'    => [
+				),
+				'content'     => array(
 					'type'        => 'string',
 					'description' => 'Reply content (for "reply" operation).',
-				],
-				'comment_ids' => [
+				),
+				'comment_ids' => array(
 					'type'        => 'array',
-					'items'       => [ 'type' => 'integer' ],
+					'items'       => array( 'type' => 'integer' ),
 					'description' => 'Array of comment IDs for "bulk" operation (max 100).',
-				],
-				'bulk_action' => [
+				),
+				'bulk_action' => array(
 					'type'        => 'string',
-					'enum'        => [ 'approve', 'unapprove', 'spam', 'trash' ],
+					'enum'        => array( 'approve', 'unapprove', 'spam', 'trash' ),
 					'description' => 'Action to apply in "bulk" operation.',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -160,16 +160,16 @@ class Manage_Comments implements Action_Interface {
 				return $this->reply_to_comment( $comment_id, $content );
 
 			case 'bulk':
-				$comment_ids = isset( $params['comment_ids'] ) && is_array( $params['comment_ids'] ) ? $params['comment_ids'] : [];
+				$comment_ids = isset( $params['comment_ids'] ) && is_array( $params['comment_ids'] ) ? $params['comment_ids'] : array();
 				$bulk_action = ! empty( $params['bulk_action'] ) ? sanitize_key( $params['bulk_action'] ) : '';
 				return $this->bulk_moderate( $comment_ids, $bulk_action );
 
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation.', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -184,11 +184,11 @@ class Manage_Comments implements Action_Interface {
 	private function list_comments( array $params ) {
 		$per_page = isset( $params['per_page'] ) ? min( absint( $params['per_page'] ), self::MAX_PER_PAGE ) : 20;
 
-		$args = [
-			'number' => $per_page,
+		$args = array(
+			'number'  => $per_page,
 			'orderby' => 'comment_date',
 			'order'   => 'DESC',
-		];
+		);
 
 		if ( ! empty( $params['status'] ) && 'all' !== $params['status'] ) {
 			$args['status'] = sanitize_key( $params['status'] );
@@ -203,45 +203,45 @@ class Manage_Comments implements Action_Interface {
 		}
 
 		$comments = get_comments( $args );
-		$results  = [];
+		$results  = array();
 
 		foreach ( $comments as $comment ) {
-			$results[] = [
-				'id'          => (int) $comment->comment_ID,
-				'post_id'     => (int) $comment->comment_post_ID,
-				'post_title'  => get_the_title( $comment->comment_post_ID ),
-				'author'      => sanitize_text_field( $comment->comment_author ),
-				'email'       => $this->mask_email( $comment->comment_author_email ),
-				'content'     => wp_trim_words( $comment->comment_content, 30 ),
-				'status'      => wp_get_comment_status( $comment ),
-				'date'        => $comment->comment_date,
-				'parent'      => (int) $comment->comment_parent,
-			];
+			$results[] = array(
+				'id'         => (int) $comment->comment_ID,
+				'post_id'    => (int) $comment->comment_post_ID,
+				'post_title' => get_the_title( $comment->comment_post_ID ),
+				'author'     => sanitize_text_field( $comment->comment_author ),
+				'email'      => $this->mask_email( $comment->comment_author_email ),
+				'content'    => wp_trim_words( $comment->comment_content, 30 ),
+				'status'     => wp_get_comment_status( $comment ),
+				'date'       => $comment->comment_date,
+				'parent'     => (int) $comment->comment_parent,
+			);
 		}
 
 		// Get counts by status.
 		$counts = wp_count_comments();
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'comments' => $results,
 				'total'    => count( $results ),
-				'counts'   => [
+				'counts'   => array(
 					'approved' => (int) $counts->approved,
 					'pending'  => (int) $counts->moderated,
 					'spam'     => (int) $counts->spam,
 					'trash'    => (int) $counts->trash,
 					'total'    => (int) $counts->total_comments,
-				],
-			],
+				),
+			),
 			'message' => sprintf(
 				/* translators: 1: returned count, 2: pending count */
 				__( '%1$d comment(s) returned. %2$d pending moderation.', 'wp-agent' ),
 				count( $results ),
 				(int) $counts->moderated
 			),
-		];
+		);
 	}
 
 	/**
@@ -255,42 +255,42 @@ class Manage_Comments implements Action_Interface {
 	 */
 	private function moderate_comment( $comment_id, $action ) {
 		if ( ! $comment_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Comment ID is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$comment = get_comment( $comment_id );
 		if ( ! $comment ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Comment not found.', 'wp-agent' ),
-			];
+			);
 		}
 
-		$status_map = [
+		$status_map = array(
 			'approve'   => '1',
 			'unapprove' => '0',
 			'spam'      => 'spam',
 			'trash'     => 'trash',
-		];
+		);
 
 		$new_status = $status_map[ $action ] ?? '';
 		if ( '' === $new_status ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Invalid moderation action.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$result = wp_set_comment_status( $comment_id, $new_status );
 
 		if ( ! $result ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -298,22 +298,22 @@ class Manage_Comments implements Action_Interface {
 					__( 'Failed to %s comment.', 'wp-agent' ),
 					$action
 				),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'comment_id' => $comment_id,
 				'action'     => $action,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: action (past tense), 2: comment ID */
 				__( 'Comment #%2$d %1$s.', 'wp-agent' ),
 				$this->past_tense( $action ),
 				$comment_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -327,66 +327,66 @@ class Manage_Comments implements Action_Interface {
 	 */
 	private function reply_to_comment( $comment_id, $content ) {
 		if ( ! $comment_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Comment ID is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( empty( $content ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Reply content is required.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$parent_comment = get_comment( $comment_id );
 		if ( ! $parent_comment ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Parent comment not found.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$current_user = wp_get_current_user();
 
-		$reply_data = [
-			'comment_post_ID'  => $parent_comment->comment_post_ID,
-			'comment_parent'   => $comment_id,
-			'comment_content'  => wp_kses_post( $content ),
-			'comment_approved' => 1,
-			'user_id'          => $current_user->ID,
-			'comment_author'   => $current_user->display_name,
+		$reply_data = array(
+			'comment_post_ID'      => $parent_comment->comment_post_ID,
+			'comment_parent'       => $comment_id,
+			'comment_content'      => wp_kses_post( $content ),
+			'comment_approved'     => 1,
+			'user_id'              => $current_user->ID,
+			'comment_author'       => $current_user->display_name,
 			'comment_author_email' => $current_user->user_email,
-		];
+		);
 
 		$reply_id = wp_insert_comment( $reply_data );
 
 		if ( ! $reply_id ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Failed to post reply.', 'wp-agent' ),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
-				'reply_id'   => $reply_id,
-				'parent_id'  => $comment_id,
-				'post_id'    => (int) $parent_comment->comment_post_ID,
-			],
+			'data'    => array(
+				'reply_id'  => $reply_id,
+				'parent_id' => $comment_id,
+				'post_id'   => (int) $parent_comment->comment_post_ID,
+			),
 			'message' => sprintf(
 				/* translators: 1: reply ID, 2: parent comment ID */
 				__( 'Reply #%1$d posted to comment #%2$d.', 'wp-agent' ),
 				$reply_id,
 				$comment_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -400,30 +400,30 @@ class Manage_Comments implements Action_Interface {
 	 */
 	private function bulk_moderate( array $comment_ids, $action ) {
 		if ( empty( $comment_ids ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Comment IDs are required for bulk operations.', 'wp-agent' ),
-			];
+			);
 		}
 
-		if ( ! in_array( $action, [ 'approve', 'unapprove', 'spam', 'trash' ], true ) ) {
-			return [
+		if ( ! in_array( $action, array( 'approve', 'unapprove', 'spam', 'trash' ), true ) ) {
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Invalid bulk action. Use "approve", "unapprove", "spam", or "trash".', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Cap the number of comments.
 		$comment_ids = array_slice( array_map( 'absint', $comment_ids ), 0, self::MAX_BULK );
 
-		$status_map = [
+		$status_map = array(
 			'approve'   => '1',
 			'unapprove' => '0',
 			'spam'      => 'spam',
 			'trash'     => 'trash',
-		];
+		);
 
 		$success_count = 0;
 		$fail_count    = 0;
@@ -442,14 +442,14 @@ class Manage_Comments implements Action_Interface {
 			}
 		}
 
-		return [
+		return array(
 			'success' => $success_count > 0,
-			'data'    => [
+			'data'    => array(
 				'action'    => $action,
 				'succeeded' => $success_count,
 				'failed'    => $fail_count,
 				'total'     => count( $comment_ids ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: success count, 2: total count, 3: action (past tense) */
 				__( '%1$d of %2$d comment(s) %3$s.', 'wp-agent' ),
@@ -457,7 +457,7 @@ class Manage_Comments implements Action_Interface {
 				count( $comment_ids ),
 				$this->past_tense( $action )
 			),
-		];
+		);
 	}
 
 	/**
@@ -491,12 +491,12 @@ class Manage_Comments implements Action_Interface {
 	 * @return string Past tense.
 	 */
 	private function past_tense( $action ) {
-		$map = [
+		$map = array(
 			'approve'   => 'approved',
 			'unapprove' => 'unapproved',
 			'spam'      => 'marked as spam',
 			'trash'     => 'trashed',
-		];
+		);
 
 		return $map[ $action ] ?? $action;
 	}

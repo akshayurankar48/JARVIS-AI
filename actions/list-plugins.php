@@ -48,17 +48,17 @@ class List_Plugins implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'status' => [
+			'properties' => array(
+				'status' => array(
 					'type'        => 'string',
-					'enum'        => [ 'all', 'active', 'inactive' ],
+					'enum'        => array( 'all', 'active', 'inactive' ),
 					'description' => 'Filter by plugin status. Defaults to "all".',
-				],
-			],
-			'required'   => [],
-		];
+				),
+			),
+			'required'   => array(),
+		);
 	}
 
 	/**
@@ -96,7 +96,7 @@ class List_Plugins implements Action_Interface {
 
 		$status_filter = ! empty( $params['status'] ) ? sanitize_key( $params['status'] ) : 'all';
 		$all_plugins   = get_plugins();
-		$results       = [];
+		$results       = array();
 
 		foreach ( $all_plugins as $plugin_file => $plugin_data ) {
 			$is_active = is_plugin_active( $plugin_file );
@@ -115,13 +115,13 @@ class List_Plugins implements Action_Interface {
 				$slug = basename( $plugin_file, '.php' );
 			}
 
-			$results[] = [
+			$results[] = array(
 				'name'        => sanitize_text_field( $plugin_data['Name'] ?? '' ),
 				'slug'        => sanitize_key( $slug ),
 				'version'     => sanitize_text_field( $plugin_data['Version'] ?? '' ),
 				'status'      => $is_active ? 'active' : 'inactive',
 				'description' => sanitize_text_field( wp_trim_words( $plugin_data['Description'] ?? '', 20 ) ),
-			];
+			);
 		}
 
 		$count_text = sprintf(
@@ -131,13 +131,13 @@ class List_Plugins implements Action_Interface {
 			count( array_filter( $results, fn( $p ) => 'inactive' === $p['status'] ) )
 		);
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'total'   => count( $results ),
 				'plugins' => $results,
-			],
+			),
 			'message' => $count_text,
-		];
+		);
 	}
 }

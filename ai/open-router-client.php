@@ -88,41 +88,41 @@ class Open_Router_Client {
 	 * @param int      $max_tokens  Maximum tokens in the response.
 	 * @return true|\WP_Error True on success, WP_Error on failure.
 	 */
-	public function stream( array $messages, $model, array $tools = [], callable $callback = null, $temperature = 0.7, $max_tokens = 4096 ) {
+	public function stream( array $messages, $model, array $tools = array(), callable $callback = null, $temperature = 0.7, $max_tokens = 4096 ) {
 		$api_key = $this->get_api_key();
 
 		if ( is_wp_error( $api_key ) ) {
 			return $api_key;
 		}
 
-		$body = [
-			'model'                => $model,
-			'messages'             => $messages,
-			'stream'               => true,
-			'stream_options'       => [ 'include_usage' => true ],
-			'max_tokens'           => (int) $max_tokens,
-			'temperature'          => (float) $temperature,
-			'parallel_tool_calls'  => false,
-			'provider'             => [
-				'allow_fallbacks'    => true,
-				'data_collection'    => 'deny',
-			],
-		];
+		$body = array(
+			'model'               => $model,
+			'messages'            => $messages,
+			'stream'              => true,
+			'stream_options'      => array( 'include_usage' => true ),
+			'max_tokens'          => (int) $max_tokens,
+			'temperature'         => (float) $temperature,
+			'parallel_tool_calls' => false,
+			'provider'            => array(
+				'allow_fallbacks' => true,
+				'data_collection' => 'deny',
+			),
+		);
 
 		if ( ! empty( $tools ) ) {
 			$body['tools'] = $tools;
 		}
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			$tool_count   = count( $tools );
-			$msg_count    = count( $messages );
-			$system_len   = ! empty( $messages[0]['content'] ) ? strlen( $messages[0]['content'] ) : 0;
+			$tool_count = count( $tools );
+			$msg_count  = count( $messages );
+			$system_len = ! empty( $messages[0]['content'] ) ? strlen( $messages[0]['content'] ) : 0;
 			error_log( "WP Agent stream: model={$model}, tools={$tool_count}, messages={$msg_count}, system_prompt_chars={$system_len}, temperature={$temperature}, max_tokens={$max_tokens}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 
-		$headers    = $this->get_request_headers( $api_key );
-		$buffer     = '';
-		$raw_body   = '';
+		$headers  = $this->get_request_headers( $api_key );
+		$buffer   = '';
+		$raw_body = '';
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_init -- cURL required for streaming; wp_remote_post does not support WRITEFUNCTION callbacks.
 		$ch = curl_init();
@@ -181,7 +181,7 @@ class Open_Router_Client {
 					// Stream termination signal.
 					if ( '[DONE]' === $json_str ) {
 						if ( $callback ) {
-							call_user_func( $callback, [ 'type' => 'done' ] );
+							call_user_func( $callback, array( 'type' => 'done' ) );
 						}
 						continue;
 					}
@@ -258,7 +258,7 @@ class Open_Router_Client {
 					__( 'AI request failed: %s', 'wp-agent' ),
 					$upstream_message
 				),
-				[ 'status' => $http_code ]
+				array( 'status' => $http_code )
 			);
 		}
 
@@ -291,25 +291,25 @@ class Open_Router_Client {
 	 *     @type array  $usage         Token usage {prompt_tokens, completion_tokens, total_tokens}.
 	 *     @type string $finish_reason Why the model stopped.
 	 */
-	public function chat( array $messages, $model, array $tools = [], $temperature = 0.7, $max_tokens = 4096 ) {
+	public function chat( array $messages, $model, array $tools = array(), $temperature = 0.7, $max_tokens = 4096 ) {
 		$api_key = $this->get_api_key();
 
 		if ( is_wp_error( $api_key ) ) {
 			return $api_key;
 		}
 
-		$body = [
-			'model'                => $model,
-			'messages'             => $messages,
-			'stream'               => false,
-			'max_tokens'           => (int) $max_tokens,
-			'temperature'          => (float) $temperature,
-			'parallel_tool_calls'  => false,
-			'provider'             => [
-				'allow_fallbacks'    => true,
-				'data_collection'    => 'deny',
-			],
-		];
+		$body = array(
+			'model'               => $model,
+			'messages'            => $messages,
+			'stream'              => false,
+			'max_tokens'          => (int) $max_tokens,
+			'temperature'         => (float) $temperature,
+			'parallel_tool_calls' => false,
+			'provider'            => array(
+				'allow_fallbacks' => true,
+				'data_collection' => 'deny',
+			),
+		);
 
 		if ( ! empty( $tools ) ) {
 			$body['tools'] = $tools;
@@ -317,11 +317,11 @@ class Open_Router_Client {
 
 		$response = wp_remote_post(
 			self::API_ENDPOINT,
-			[
+			array(
 				'headers' => $this->get_request_headers( $api_key ),
 				'body'    => wp_json_encode( $body ),
 				'timeout' => 60,
-			]
+			)
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -345,7 +345,7 @@ class Open_Router_Client {
 					__( 'AI request failed: %s', 'wp-agent' ),
 					$upstream_message
 				),
-				[ 'status' => $code ]
+				array( 'status' => $code )
 			);
 		}
 
@@ -355,13 +355,13 @@ class Open_Router_Client {
 
 		$choice = $data['choices'][0];
 
-		return [
+		return array(
 			'content'       => isset( $choice['message']['content'] ) ? $choice['message']['content'] : '',
-			'tool_calls'    => isset( $choice['message']['tool_calls'] ) ? $choice['message']['tool_calls'] : [],
+			'tool_calls'    => isset( $choice['message']['tool_calls'] ) ? $choice['message']['tool_calls'] : array(),
 			'model'         => isset( $data['model'] ) ? $data['model'] : $model,
-			'usage'         => isset( $data['usage'] ) ? $data['usage'] : [],
+			'usage'         => isset( $data['usage'] ) ? $data['usage'] : array(),
 			'finish_reason' => isset( $choice['finish_reason'] ) ? $choice['finish_reason'] : '',
-		];
+		);
 	}
 
 	/**
@@ -381,12 +381,12 @@ class Open_Router_Client {
 
 		$response = wp_remote_get(
 			self::MODELS_ENDPOINT,
-			[
-				'headers' => [
+			array(
+				'headers' => array(
 					'Authorization' => 'Bearer ' . $key,
-				],
+				),
 				'timeout' => 15,
-			]
+			)
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -529,12 +529,12 @@ class Open_Router_Client {
 	 * @return array<string, string> Request headers.
 	 */
 	private function get_request_headers( $api_key ) {
-		return [
+		return array(
 			'Content-Type'  => 'application/json',
 			'Authorization' => 'Bearer ' . $api_key,
 			'HTTP-Referer'  => home_url(),
 			'X-Title'       => 'WP Agent',
-		];
+		);
 	}
 
 	/**
@@ -546,7 +546,7 @@ class Open_Router_Client {
 	 * @return string[] Array of "Key: Value" strings.
 	 */
 	private function format_headers_for_curl( array $headers ) {
-		$formatted = [];
+		$formatted = array();
 		foreach ( $headers as $key => $value ) {
 			$formatted[] = "{$key}: {$value}";
 		}
@@ -565,16 +565,16 @@ class Open_Router_Client {
 	 * @return array[] Array of typed chunk objects.
 	 */
 	private function parse_stream_chunk( array $data ) {
-		$chunks = [];
+		$chunks = array();
 
 		// Handle API-level errors in the stream.
 		if ( ! empty( $data['error'] ) ) {
-			$chunks[] = [
+			$chunks[] = array(
 				'type'    => 'error',
 				'message' => is_array( $data['error'] )
 					? ( isset( $data['error']['message'] ) ? $data['error']['message'] : 'Unknown error' )
 					: $data['error'],
-			];
+			);
 			return $chunks;
 		}
 
@@ -583,25 +583,25 @@ class Open_Router_Client {
 		}
 
 		$choice = $data['choices'][0];
-		$delta  = isset( $choice['delta'] ) ? $choice['delta'] : [];
+		$delta  = isset( $choice['delta'] ) ? $choice['delta'] : array();
 
 		// Content delta.
 		if ( ! empty( $delta['content'] ) ) {
-			$chunks[] = [
+			$chunks[] = array(
 				'type'    => 'content',
 				'content' => $delta['content'],
-			];
+			);
 		}
 
 		// Tool call deltas.
 		if ( ! empty( $delta['tool_calls'] ) ) {
 			foreach ( $delta['tool_calls'] as $tool_call ) {
-				$chunks[] = [
-					'type'      => 'tool_call',
-					'index'     => isset( $tool_call['index'] ) ? $tool_call['index'] : 0,
-					'id'        => isset( $tool_call['id'] ) ? $tool_call['id'] : null,
-					'function'  => isset( $tool_call['function'] ) ? $tool_call['function'] : [],
-				];
+				$chunks[] = array(
+					'type'     => 'tool_call',
+					'index'    => isset( $tool_call['index'] ) ? $tool_call['index'] : 0,
+					'id'       => isset( $tool_call['id'] ) ? $tool_call['id'] : null,
+					'function' => isset( $tool_call['function'] ) ? $tool_call['function'] : array(),
+				);
 			}
 		}
 
@@ -609,26 +609,26 @@ class Open_Router_Client {
 		if ( ! empty( $choice['finish_reason'] ) ) {
 			// Mid-stream error — provider failed after partial output.
 			if ( 'error' === $choice['finish_reason'] ) {
-				$chunks[] = [
+				$chunks[] = array(
 					'type'    => 'error',
 					'message' => 'The AI provider encountered an error mid-response. Please try again.',
-				];
+				);
 			}
 
-			$chunks[] = [
+			$chunks[] = array(
 				'type'          => 'finish',
 				'finish_reason' => $choice['finish_reason'],
-			];
+			);
 		}
 
 		// Usage data (sent in the final chunk when stream_options.include_usage is set).
 		if ( ! empty( $data['usage'] ) ) {
-			$chunks[] = [
+			$chunks[] = array(
 				'type'              => 'usage',
 				'prompt_tokens'     => (int) ( $data['usage']['prompt_tokens'] ?? 0 ),
 				'completion_tokens' => (int) ( $data['usage']['completion_tokens'] ?? 0 ),
 				'total_tokens'      => (int) ( $data['usage']['total_tokens'] ?? 0 ),
-			];
+			);
 		}
 
 		return $chunks;

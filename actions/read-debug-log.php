@@ -57,21 +57,21 @@ class Read_Debug_Log implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation' => array(
 					'type'        => 'string',
-					'enum'        => [ 'read', 'tail', 'clear' ],
+					'enum'        => array( 'read', 'tail', 'clear' ),
 					'description' => 'Operation to perform.',
-				],
-				'lines'     => [
+				),
+				'lines'     => array(
 					'type'        => 'integer',
 					'description' => 'Number of lines for "tail" operation. Default 50, max 200.',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -134,11 +134,11 @@ class Read_Debug_Log implements Action_Interface {
 				return $this->clear_log( $log_path );
 
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation. Use "read", "tail", or "clear".', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -152,33 +152,43 @@ class Read_Debug_Log implements Action_Interface {
 	 */
 	private function read_log( $log_path ) {
 		if ( ! file_exists( $log_path ) ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [ 'content' => '', 'size' => 0 ],
+				'data'    => array(
+					'content' => '',
+					'size'    => 0,
+				),
 				'message' => __( 'Debug log file does not exist. WP_DEBUG_LOG may not be enabled.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$size = filesize( $log_path );
 
 		// If file is larger than 100KB, only return the last portion.
 		$max_read = 100 * 1024;
+		global $wp_filesystem;
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		WP_Filesystem();
+
 		if ( $size > $max_read ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- WP_Filesystem has no offset read; local file only.
 			$content   = file_get_contents( $log_path, false, null, $size - $max_read );
 			$truncated = true;
 		} else {
-			$content   = file_get_contents( $log_path );
+			$content   = $wp_filesystem->get_contents( $log_path );
 			$truncated = false;
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'content'   => $content,
 				'size'      => $size,
 				'truncated' => $truncated,
 				'path'      => $log_path,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: file size */
 				$truncated
@@ -186,7 +196,7 @@ class Read_Debug_Log implements Action_Interface {
 					: __( 'Debug log (%1$s).', 'wp-agent' ),
 				size_format( $size )
 			),
-		];
+		);
 	}
 
 	/**
@@ -200,30 +210,36 @@ class Read_Debug_Log implements Action_Interface {
 	 */
 	private function tail_log( $log_path, $lines ) {
 		if ( ! file_exists( $log_path ) ) {
-			return [
+			return array(
 				'success' => true,
-				'data'    => [ 'content' => '', 'lines' => 0 ],
+				'data'    => array(
+					'content' => '',
+					'lines'   => 0,
+				),
 				'message' => __( 'Debug log file does not exist. WP_DEBUG_LOG may not be enabled.', 'wp-agent' ),
-			];
+			);
 		}
 
 		try {
-			$file    = new \SplFileObject( $log_path, 'r' );
+			$file = new \SplFileObject( $log_path, 'r' );
 			$file->seek( PHP_INT_MAX );
 			$total_lines = $file->key();
 
 			if ( 0 === $total_lines ) {
-				return [
+				return array(
 					'success' => true,
-					'data'    => [ 'content' => '', 'lines' => 0 ],
+					'data'    => array(
+						'content' => '',
+						'lines'   => 0,
+					),
 					'message' => __( 'Debug log is empty.', 'wp-agent' ),
-				];
+				);
 			}
 
 			$start = max( 0, $total_lines - $lines );
 			$file->seek( $start );
 
-			$output = [];
+			$output = array();
 			while ( ! $file->eof() ) {
 				$line = $file->fgets();
 				if ( '' !== trim( $line ) ) {
@@ -231,7 +247,7 @@ class Read_Debug_Log implements Action_Interface {
 				}
 			}
 		} catch ( \Exception $e ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -239,23 +255,23 @@ class Read_Debug_Log implements Action_Interface {
 					__( 'Failed to read debug log: %s', 'wp-agent' ),
 					$e->getMessage()
 				),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'content'     => implode( "\n", $output ),
 				'lines'       => count( $output ),
 				'total_lines' => $total_lines,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: returned lines, 2: total lines */
 				__( 'Showing last %1$d lines of debug log (%2$d total).', 'wp-agent' ),
 				count( $output ),
 				$total_lines
 			),
-		];
+		);
 	}
 
 	/**
@@ -268,35 +284,42 @@ class Read_Debug_Log implements Action_Interface {
 	 */
 	private function clear_log( $log_path ) {
 		if ( ! file_exists( $log_path ) ) {
-			return [
+			return array(
 				'success' => true,
 				'data'    => null,
 				'message' => __( 'Debug log does not exist. Nothing to clear.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$old_size = filesize( $log_path );
-		$result   = file_put_contents( $log_path, '' );
+
+		global $wp_filesystem;
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		WP_Filesystem();
+
+		$result = $wp_filesystem->put_contents( $log_path, '' );
 
 		if ( false === $result ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Failed to clear debug log. Check filesystem permissions.', 'wp-agent' ),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'previous_size' => $old_size,
 				'path'          => $log_path,
-			],
+			),
 			'message' => sprintf(
 				/* translators: %s: previous file size */
 				__( 'Debug log cleared (%s freed).', 'wp-agent' ),
 				size_format( $old_size )
 			),
-		];
+		);
 	}
 }

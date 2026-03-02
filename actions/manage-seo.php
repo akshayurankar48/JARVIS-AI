@@ -27,7 +27,7 @@ class Manage_Seo implements Action_Interface {
 	 *
 	 * @var string[]
 	 */
-	const SEO_FIELDS = [
+	const SEO_FIELDS = array(
 		'meta_title',
 		'meta_description',
 		'og_title',
@@ -36,7 +36,7 @@ class Manage_Seo implements Action_Interface {
 		'canonical_url',
 		'robots',
 		'focus_keyword',
-	];
+	);
 
 	/**
 	 * Get the action name.
@@ -68,35 +68,59 @@ class Manage_Seo implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation' => array(
 					'type'        => 'string',
-					'enum'        => [ 'get', 'update' ],
+					'enum'        => array( 'get', 'update' ),
 					'description' => 'Operation to perform: "get" reads current SEO values, "update" sets new values.',
-				],
-				'post_id'   => [
+				),
+				'post_id'   => array(
 					'type'        => 'integer',
 					'description' => 'The post ID to manage SEO for.',
-				],
-				'fields'    => [
+				),
+				'fields'    => array(
 					'type'        => 'object',
 					'description' => 'SEO fields to update. Keys: meta_title, meta_description, og_title, og_description, og_image, canonical_url, robots, focus_keyword.',
-					'properties'  => [
-						'meta_title'       => [ 'type' => 'string', 'description' => 'SEO title tag (50-60 characters recommended).' ],
-						'meta_description' => [ 'type' => 'string', 'description' => 'Meta description (120-160 characters recommended).' ],
-						'og_title'         => [ 'type' => 'string', 'description' => 'Open Graph title for social sharing.' ],
-						'og_description'   => [ 'type' => 'string', 'description' => 'Open Graph description for social sharing.' ],
-						'og_image'         => [ 'type' => 'string', 'description' => 'Open Graph image URL for social sharing.' ],
-						'canonical_url'    => [ 'type' => 'string', 'description' => 'Canonical URL to prevent duplicate content.' ],
-						'robots'           => [ 'type' => 'string', 'description' => 'Robots directive (e.g. "index, follow" or "noindex, nofollow").' ],
-						'focus_keyword'    => [ 'type' => 'string', 'description' => 'Primary keyword this page targets.' ],
-					],
-				],
-			],
-			'required'   => [ 'operation', 'post_id' ],
-		];
+					'properties'  => array(
+						'meta_title'       => array(
+							'type'        => 'string',
+							'description' => 'SEO title tag (50-60 characters recommended).',
+						),
+						'meta_description' => array(
+							'type'        => 'string',
+							'description' => 'Meta description (120-160 characters recommended).',
+						),
+						'og_title'         => array(
+							'type'        => 'string',
+							'description' => 'Open Graph title for social sharing.',
+						),
+						'og_description'   => array(
+							'type'        => 'string',
+							'description' => 'Open Graph description for social sharing.',
+						),
+						'og_image'         => array(
+							'type'        => 'string',
+							'description' => 'Open Graph image URL for social sharing.',
+						),
+						'canonical_url'    => array(
+							'type'        => 'string',
+							'description' => 'Canonical URL to prevent duplicate content.',
+						),
+						'robots'           => array(
+							'type'        => 'string',
+							'description' => 'Robots directive (e.g. "index, follow" or "noindex, nofollow").',
+						),
+						'focus_keyword'    => array(
+							'type'        => 'string',
+							'description' => 'Primary keyword this page targets.',
+						),
+					),
+				),
+			),
+			'required'   => array( 'operation', 'post_id' ),
+		);
 	}
 
 	/**
@@ -132,19 +156,19 @@ class Manage_Seo implements Action_Interface {
 		$post_id   = isset( $params['post_id'] ) ? absint( $params['post_id'] ) : 0;
 
 		if ( ! $post_id || ! get_post( $post_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Invalid or missing post ID.', 'wp-agent' ),
-			];
+			);
 		}
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'You do not have permission to edit this post.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$provider = $this->detect_seo_provider();
@@ -154,22 +178,22 @@ class Manage_Seo implements Action_Interface {
 		}
 
 		if ( 'update' === $operation ) {
-			$fields = isset( $params['fields'] ) && is_array( $params['fields'] ) ? $params['fields'] : [];
+			$fields = isset( $params['fields'] ) && is_array( $params['fields'] ) ? $params['fields'] : array();
 			if ( empty( $fields ) ) {
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'No SEO fields provided to update.', 'wp-agent' ),
-				];
+				);
 			}
 			return $this->update_seo( $post_id, $fields, $provider );
 		}
 
-		return [
+		return array(
 			'success' => false,
 			'data'    => null,
 			'message' => __( 'Invalid operation. Use "get" or "update".', 'wp-agent' ),
-		];
+		);
 	}
 
 	/**
@@ -205,18 +229,18 @@ class Manage_Seo implements Action_Interface {
 	 */
 	private function get_seo( $post_id, $provider ) {
 		$meta_map = $this->get_meta_keys( $provider );
-		$data     = [ 'provider' => $provider ];
+		$data     = array( 'provider' => $provider );
 
 		foreach ( self::SEO_FIELDS as $field ) {
 			if ( ! empty( $meta_map[ $field ] ) ) {
-				$value = get_post_meta( $post_id, $meta_map[ $field ], true );
+				$value          = get_post_meta( $post_id, $meta_map[ $field ], true );
 				$data[ $field ] = is_string( $value ) ? $value : '';
 			} else {
 				$data[ $field ] = '';
 			}
 		}
 
-		return [
+		return array(
 			'success' => true,
 			'data'    => $data,
 			'message' => sprintf(
@@ -225,7 +249,7 @@ class Manage_Seo implements Action_Interface {
 				$post_id,
 				$provider
 			),
-		];
+		);
 	}
 
 	/**
@@ -240,7 +264,7 @@ class Manage_Seo implements Action_Interface {
 	 */
 	private function update_seo( $post_id, array $fields, $provider ) {
 		$meta_map = $this->get_meta_keys( $provider );
-		$updated  = [];
+		$updated  = array();
 
 		foreach ( $fields as $field => $value ) {
 			if ( ! in_array( $field, self::SEO_FIELDS, true ) ) {
@@ -257,27 +281,27 @@ class Manage_Seo implements Action_Interface {
 		}
 
 		if ( empty( $updated ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'No valid SEO fields were updated.', 'wp-agent' ),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'post_id'  => $post_id,
 				'provider' => $provider,
 				'updated'  => $updated,
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: field count, 2: post ID */
 				__( 'Updated %1$d SEO field(s) on post #%2$d.', 'wp-agent' ),
 				count( $updated ),
 				$post_id
 			),
-		];
+		);
 	}
 
 	/**
@@ -291,7 +315,7 @@ class Manage_Seo implements Action_Interface {
 	private function get_meta_keys( $provider ) {
 		switch ( $provider ) {
 			case 'yoast':
-				return [
+				return array(
 					'meta_title'       => '_yoast_wpseo_title',
 					'meta_description' => '_yoast_wpseo_metadesc',
 					'og_title'         => '_yoast_wpseo_opengraph-title',
@@ -300,10 +324,10 @@ class Manage_Seo implements Action_Interface {
 					'canonical_url'    => '_yoast_wpseo_canonical',
 					'robots'           => '_yoast_wpseo_meta-robots-noindex',
 					'focus_keyword'    => '_yoast_wpseo_focuskw',
-				];
+				);
 
 			case 'aioseo':
-				return [
+				return array(
 					'meta_title'       => '_aioseo_title',
 					'meta_description' => '_aioseo_description',
 					'og_title'         => '_aioseo_og_title',
@@ -312,10 +336,10 @@ class Manage_Seo implements Action_Interface {
 					'canonical_url'    => '_aioseo_canonical_url',
 					'robots'           => '_aioseo_robots_noindex',
 					'focus_keyword'    => '_aioseo_keyphrases',
-				];
+				);
 
 			case 'rank_math':
-				return [
+				return array(
 					'meta_title'       => 'rank_math_title',
 					'meta_description' => 'rank_math_description',
 					'og_title'         => 'rank_math_facebook_title',
@@ -324,10 +348,10 @@ class Manage_Seo implements Action_Interface {
 					'canonical_url'    => 'rank_math_canonical_url',
 					'robots'           => 'rank_math_robots',
 					'focus_keyword'    => 'rank_math_focus_keyword',
-				];
+				);
 
 			case 'seo_framework':
-				return [
+				return array(
 					'meta_title'       => '_genesis_title',
 					'meta_description' => '_genesis_description',
 					'og_title'         => '_open_graph_title',
@@ -336,10 +360,10 @@ class Manage_Seo implements Action_Interface {
 					'canonical_url'    => '_genesis_canonical_uri',
 					'robots'           => '_genesis_noindex',
 					'focus_keyword'    => '',
-				];
+				);
 
 			default: // native
-				return [
+				return array(
 					'meta_title'       => '_wp_agent_meta_title',
 					'meta_description' => '_wp_agent_meta_description',
 					'og_title'         => '_wp_agent_og_title',
@@ -348,7 +372,7 @@ class Manage_Seo implements Action_Interface {
 					'canonical_url'    => '_wp_agent_canonical_url',
 					'robots'           => '_wp_agent_robots',
 					'focus_keyword'    => '_wp_agent_focus_keyword',
-				];
+				);
 		}
 	}
 

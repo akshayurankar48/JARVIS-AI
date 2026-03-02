@@ -30,17 +30,17 @@ class Generate_Sitemap implements Action_Interface {
 	}
 
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation' => array(
 					'type'        => 'string',
-					'enum'        => [ 'status', 'generate', 'ping' ],
+					'enum'        => array( 'status', 'generate', 'ping' ),
 					'description' => '"status" checks if sitemap exists, "generate" creates one, "ping" notifies search engines.',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	public function get_capabilities_required(): string {
@@ -62,11 +62,11 @@ class Generate_Sitemap implements Action_Interface {
 			case 'ping':
 				return $this->ping_search_engines();
 			default:
-				return [
+				return array(
 					'success' => false,
 					'data'    => null,
 					'message' => __( 'Invalid operation. Use "status", "generate", or "ping".', 'wp-agent' ),
-				];
+				);
 		}
 	}
 
@@ -87,25 +87,25 @@ class Generate_Sitemap implements Action_Interface {
 		}
 
 		// Count indexable content.
-		$post_count = wp_count_posts( 'post' );
-		$page_count = wp_count_posts( 'page' );
+		$post_count      = wp_count_posts( 'post' );
+		$page_count      = wp_count_posts( 'page' );
 		$published_posts = isset( $post_count->publish ) ? $post_count->publish : 0;
 		$published_pages = isset( $page_count->publish ) ? $page_count->publish : 0;
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'core_sitemaps_active' => $has_core_sitemaps,
 				'core_sitemap_url'     => $has_core_sitemaps ? $sitemap_url : null,
 				'custom_sitemap'       => $has_custom,
 				'seo_plugin_sitemap'   => $seo_sitemap ?: null,
 				'published_posts'      => $published_posts,
 				'published_pages'      => $published_pages,
-			],
+			),
 			'message' => $has_core_sitemaps
 				? sprintf( __( 'WordPress core sitemaps active at %s.', 'wp-agent' ), $sitemap_url )
 				: __( 'No active sitemap found.', 'wp-agent' ),
-		];
+		);
 	}
 
 	private function generate() {
@@ -129,7 +129,7 @@ class Generate_Sitemap implements Action_Interface {
 
 		// Homepage.
 		$xml .= "<url>\n";
-		$xml .= "  <loc>" . esc_url( $site_url ) . "</loc>\n";
+		$xml .= '  <loc>' . esc_url( $site_url ) . "</loc>\n";
 		$xml .= '  <changefreq>daily</changefreq>' . "\n";
 		$xml .= '  <priority>1.0</priority>' . "\n";
 		$xml .= "</url>\n";
@@ -153,27 +153,27 @@ class Generate_Sitemap implements Action_Interface {
 		$written = file_put_contents( $filepath, $xml );
 
 		if ( false === $written ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Failed to write sitemap.xml. Check file permissions.', 'wp-agent' ),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
-				'url'        => home_url( '/sitemap.xml' ),
-				'url_count'  => count( $posts ) + 1,
-				'size'       => size_format( $written ),
-			],
+			'data'    => array(
+				'url'       => home_url( '/sitemap.xml' ),
+				'url_count' => count( $posts ) + 1,
+				'size'      => size_format( $written ),
+			),
 			'message' => sprintf(
 				/* translators: 1: URL count, 2: file size */
 				__( 'Sitemap generated with %1$d URLs (%2$s).', 'wp-agent' ),
 				count( $posts ) + 1,
 				size_format( $written )
 			),
-		];
+		);
 	}
 
 	private function ping_search_engines() {
@@ -184,29 +184,29 @@ class Generate_Sitemap implements Action_Interface {
 			$sitemap_url = home_url( '/sitemap.xml' );
 		}
 
-		$engines = [
+		$engines = array(
 			'Google' => 'https://www.google.com/ping?sitemap=' . rawurlencode( $sitemap_url ),
 			'Bing'   => 'https://www.bing.com/ping?sitemap=' . rawurlencode( $sitemap_url ),
-		];
+		);
 
-		$results = [];
+		$results = array();
 		foreach ( $engines as $name => $ping_url ) {
-			$response = wp_remote_get( $ping_url, [ 'timeout' => 10 ] );
+			$response = wp_remote_get( $ping_url, array( 'timeout' => 10 ) );
 			$code     = wp_remote_retrieve_response_code( $response );
 
-			$results[ $name ] = [
-				'status'  => ( $code >= 200 && $code < 300 ) ? 'success' : 'failed',
-				'code'    => $code,
-			];
+			$results[ $name ] = array(
+				'status' => ( $code >= 200 && $code < 300 ) ? 'success' : 'failed',
+				'code'   => $code,
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'sitemap_url' => $sitemap_url,
 				'results'     => $results,
-			],
+			),
 			'message' => __( 'Pinged search engines with sitemap URL.', 'wp-agent' ),
-		];
+		);
 	}
 }

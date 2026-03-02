@@ -67,21 +67,21 @@ class Add_Custom_Css implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'operation' => [
+			'properties' => array(
+				'operation' => array(
 					'type'        => 'string',
-					'enum'        => [ 'get', 'append', 'replace' ],
+					'enum'        => array( 'get', 'append', 'replace' ),
 					'description' => 'Operation to perform: get current CSS, append to it, or replace it entirely.',
-				],
-				'css'       => [
+				),
+				'css'       => array(
 					'type'        => 'string',
 					'description' => 'The CSS code to add or replace with. Required for append and replace operations. Maximum 100 KB.',
-				],
-			],
-			'required'   => [ 'operation' ],
-		];
+				),
+			),
+			'required'   => array( 'operation' ),
+		);
 	}
 
 	/**
@@ -115,12 +115,12 @@ class Add_Custom_Css implements Action_Interface {
 	public function execute( array $params ): array {
 		$operation = sanitize_key( $params['operation'] ?? '' );
 
-		if ( ! in_array( $operation, [ 'get', 'append', 'replace' ], true ) ) {
-			return [
+		if ( ! in_array( $operation, array( 'get', 'append', 'replace' ), true ) ) {
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Invalid operation. Must be one of: get, append, replace.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Handle read-only operation.
@@ -130,11 +130,11 @@ class Add_Custom_Css implements Action_Interface {
 
 		// append and replace both require the css parameter.
 		if ( empty( $params['css'] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'The "css" parameter is required for append and replace operations.', 'wp-agent' ),
-			];
+			);
 		}
 
 		$raw_css = $params['css'];
@@ -147,16 +147,16 @@ class Add_Custom_Css implements Action_Interface {
 		$raw_css = trim( $raw_css );
 
 		if ( empty( $raw_css ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'CSS was empty after sanitization.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Enforce size limit.
 		if ( strlen( $raw_css ) > self::MAX_CSS_BYTES ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -165,17 +165,17 @@ class Add_Custom_Css implements Action_Interface {
 					(int) ceil( strlen( $raw_css ) / 1024 ),
 					(int) ( self::MAX_CSS_BYTES / 1024 )
 				),
-			];
+			);
 		}
 
 		// Security validation.
 		$validation = $this->validate_css( $raw_css );
 		if ( is_wp_error( $validation ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $validation->get_error_message(),
-			];
+			);
 		}
 
 		if ( 'append' === $operation ) {
@@ -199,13 +199,13 @@ class Add_Custom_Css implements Action_Interface {
 		$current_css = wp_get_custom_css();
 		$css_length  = strlen( $current_css );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'css'        => $current_css,
 				'css_length' => $css_length,
 				'preview'    => $this->make_preview( $current_css ),
-			],
+			),
 			'message' => $css_length > 0
 				? sprintf(
 					/* translators: %d: number of CSS characters */
@@ -213,7 +213,7 @@ class Add_Custom_Css implements Action_Interface {
 					$css_length
 				)
 				: __( 'No custom CSS is currently set.', 'wp-agent' ),
-		];
+		);
 	}
 
 	/**
@@ -231,7 +231,7 @@ class Add_Custom_Css implements Action_Interface {
 
 		// Final combined-size check.
 		if ( strlen( $combined_css ) > self::MAX_CSS_BYTES ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -239,34 +239,34 @@ class Add_Custom_Css implements Action_Interface {
 					__( 'Combined CSS would exceed the %d KB limit. Use the replace operation or remove existing CSS first.', 'wp-agent' ),
 					(int) ( self::MAX_CSS_BYTES / 1024 )
 				),
-			];
+			);
 		}
 
 		$result = wp_update_custom_css_post( $combined_css );
 
 		if ( is_wp_error( $result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $result->get_error_message(),
-			];
+			);
 		}
 
 		$total_length = strlen( $combined_css );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'css_length' => $total_length,
 				'preview'    => $this->make_preview( $new_css ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: appended CSS length, 2: total CSS length */
 				__( 'Appended %1$d characters of CSS. Total custom CSS is now %2$d characters.', 'wp-agent' ),
 				strlen( $new_css ),
 				$total_length
 			),
-		];
+		);
 	}
 
 	/**
@@ -281,27 +281,27 @@ class Add_Custom_Css implements Action_Interface {
 		$result = wp_update_custom_css_post( $new_css );
 
 		if ( is_wp_error( $result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $result->get_error_message(),
-			];
+			);
 		}
 
 		$css_length = strlen( $new_css );
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'css_length' => $css_length,
 				'preview'    => $this->make_preview( $new_css ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: %d: CSS character count */
 				__( 'Replaced custom CSS with %d characters of new CSS.', 'wp-agent' ),
 				$css_length
 			),
-		];
+		);
 	}
 
 	/**
@@ -316,13 +316,13 @@ class Add_Custom_Css implements Action_Interface {
 	 * @return true|\WP_Error True when safe, WP_Error on the first violation found.
 	 */
 	private function validate_css( string $css ) {
-		$dangerous = [
+		$dangerous = array(
 			'expression(',
 			'javascript:',
 			'behavior:',
 			'-moz-binding:',
 			'vbscript:',
-		];
+		);
 
 		$css_lower = strtolower( $css );
 

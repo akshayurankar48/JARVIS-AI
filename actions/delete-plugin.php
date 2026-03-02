@@ -50,16 +50,16 @@ class Delete_Plugin implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'plugin' => [
+			'properties' => array(
+				'plugin' => array(
 					'type'        => 'string',
 					'description' => 'Plugin file path relative to plugins directory (e.g. "akismet/akismet.php").',
-				],
-			],
-			'required'   => [ 'plugin' ],
-		];
+				),
+			),
+			'required'   => array( 'plugin' ),
+		);
 	}
 
 	/**
@@ -95,20 +95,20 @@ class Delete_Plugin implements Action_Interface {
 
 		// Validate file path.
 		if ( 0 !== validate_file( $plugin ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Invalid plugin file path.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Self-deletion guard.
 		if ( defined( 'WP_AGENT_BASE' ) && WP_AGENT_BASE === $plugin ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Cannot delete WP Agent through its own action system.', 'wp-agent' ),
-			];
+			);
 		}
 
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -117,7 +117,7 @@ class Delete_Plugin implements Action_Interface {
 		// Verify plugin is installed.
 		$installed = get_plugins();
 		if ( ! isset( $installed[ $plugin ] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -125,29 +125,29 @@ class Delete_Plugin implements Action_Interface {
 					__( 'Plugin "%s" is not installed.', 'wp-agent' ),
 					$plugin
 				),
-			];
+			);
 		}
 
 		$plugin_name = $installed[ $plugin ]['Name'];
 
 		// Auto-deactivate if active.
 		if ( is_plugin_active( $plugin ) ) {
-			deactivate_plugins( [ $plugin ] );
+			deactivate_plugins( array( $plugin ) );
 		}
 
 		// Delete the plugin.
-		$result = delete_plugins( [ $plugin ] );
+		$result = delete_plugins( array( $plugin ) );
 
 		if ( is_wp_error( $result ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => $result->get_error_message(),
-			];
+			);
 		}
 
 		if ( true !== $result ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -155,20 +155,20 @@ class Delete_Plugin implements Action_Interface {
 					__( 'Failed to delete "%s". Check filesystem permissions.', 'wp-agent' ),
 					$plugin_name
 				),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'plugin' => $plugin,
 				'name'   => $plugin_name,
-			],
+			),
 			'message' => sprintf(
 				/* translators: %s: plugin name */
 				__( 'Deleted plugin "%s" permanently.', 'wp-agent' ),
 				$plugin_name
 			),
-		];
+		);
 	}
 }

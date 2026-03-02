@@ -41,46 +41,46 @@ class Action_Controller {
 		register_rest_route(
 			self::NAMESPACE,
 			'/action/execute',
-			[
+			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => [ $this, 'execute_action' ],
-				'permission_callback' => [ $this, 'check_execute_permissions' ],
-				'args'                => [
-					'action' => [
+				'callback'            => array( $this, 'execute_action' ),
+				'permission_callback' => array( $this, 'check_execute_permissions' ),
+				'args'                => array(
+					'action' => array(
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'params' => [
+					),
+					'params' => array(
 						'type'              => 'object',
-						'default'           => [],
+						'default'           => array(),
 						'sanitize_callback' => function ( $params ) {
 							if ( ! is_array( $params ) ) {
-								return [];
+								return array();
 							}
 							return map_deep( $params, 'sanitize_text_field' );
 						},
-					],
-				],
-			]
+					),
+				),
+			)
 		);
 
 		// POST /action/undo — restore a checkpoint.
 		register_rest_route(
 			self::NAMESPACE,
 			'/action/undo',
-			[
+			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => [ $this, 'undo_action' ],
-				'permission_callback' => [ $this, 'check_undo_permissions' ],
-				'args'                => [
-					'checkpoint_id' => [
+				'callback'            => array( $this, 'undo_action' ),
+				'permission_callback' => array( $this, 'check_undo_permissions' ),
+				'args'                => array(
+					'checkpoint_id' => array(
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
-					],
-				],
-			]
+					),
+				),
+			)
 		);
 	}
 
@@ -99,7 +99,7 @@ class Action_Controller {
 			return new \WP_Error(
 				'rest_forbidden',
 				__( 'You do not have permission to execute actions.', 'wp-agent' ),
-				[ 'status' => 403 ]
+				array( 'status' => 403 )
 			);
 		}
 
@@ -119,7 +119,7 @@ class Action_Controller {
 			return new \WP_Error(
 				'rest_forbidden',
 				__( 'You do not have permission to undo actions.', 'wp-agent' ),
-				[ 'status' => 403 ]
+				array( 'status' => 403 )
 			);
 		}
 
@@ -141,7 +141,7 @@ class Action_Controller {
 		$params      = $request->get_param( 'params' );
 
 		if ( ! is_array( $params ) ) {
-			$params = [];
+			$params = array();
 		}
 
 		$result = Action_Registry::get_instance()->dispatch( $action_name, $params );
@@ -154,7 +154,7 @@ class Action_Controller {
 			return new \WP_Error(
 				$result->get_error_code(),
 				$result->get_error_message(),
-				[ 'status' => $status ]
+				array( 'status' => $status )
 			);
 		}
 
@@ -198,7 +198,7 @@ class Action_Controller {
 			return new \WP_Error(
 				'not_found',
 				__( 'Checkpoint not found.', 'wp-agent' ),
-				[ 'status' => 404 ]
+				array( 'status' => 404 )
 			);
 		}
 
@@ -206,7 +206,7 @@ class Action_Controller {
 			return new \WP_Error(
 				'forbidden',
 				__( 'You do not have access to this checkpoint.', 'wp-agent' ),
-				[ 'status' => 403 ]
+				array( 'status' => 403 )
 			);
 		}
 
@@ -214,7 +214,7 @@ class Action_Controller {
 			return new \WP_Error(
 				'already_restored',
 				__( 'This checkpoint has already been restored.', 'wp-agent' ),
-				[ 'status' => 409 ]
+				array( 'status' => 409 )
 			);
 		}
 
@@ -222,24 +222,26 @@ class Action_Controller {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$updated = $wpdb->update(
 			$tables['checkpoints'],
-			[ 'is_restored' => 1 ],
-			[ 'id' => $checkpoint_id ],
-			[ '%d' ],
-			[ '%d' ]
+			array( 'is_restored' => 1 ),
+			array( 'id' => $checkpoint_id ),
+			array( '%d' ),
+			array( '%d' )
 		);
 
 		if ( false === $updated ) {
 			return new \WP_Error(
 				'db_error',
 				__( 'Failed to mark checkpoint as restored.', 'wp-agent' ),
-				[ 'status' => 500 ]
+				array( 'status' => 500 )
 			);
 		}
 
-		return rest_ensure_response( [
-			'success'       => true,
-			'checkpoint_id' => $checkpoint_id,
-			'action_type'   => $checkpoint['action_type'],
-		] );
+		return rest_ensure_response(
+			array(
+				'success'       => true,
+				'checkpoint_id' => $checkpoint_id,
+				'action_type'   => $checkpoint['action_type'],
+			)
+		);
 	}
 }

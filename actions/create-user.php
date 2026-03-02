@@ -49,36 +49,36 @@ class Create_User implements Action_Interface {
 	 * @return array
 	 */
 	public function get_parameters(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'user_login'   => [
+			'properties' => array(
+				'user_login'   => array(
 					'type'        => 'string',
 					'description' => 'The username for the new user.',
-				],
-				'user_email'   => [
+				),
+				'user_email'   => array(
 					'type'        => 'string',
 					'description' => 'The email address for the new user.',
-				],
-				'role'         => [
+				),
+				'role'         => array(
 					'type'        => 'string',
 					'description' => 'The role to assign (e.g. "subscriber", "editor", "author"). Defaults to "subscriber".',
-				],
-				'first_name'   => [
+				),
+				'first_name'   => array(
 					'type'        => 'string',
 					'description' => 'The user\'s first name.',
-				],
-				'last_name'    => [
+				),
+				'last_name'    => array(
 					'type'        => 'string',
 					'description' => 'The user\'s last name.',
-				],
-				'display_name' => [
+				),
+				'display_name' => array(
 					'type'        => 'string',
 					'description' => 'The display name for the user.',
-				],
-			],
-			'required'   => [ 'user_login', 'user_email' ],
-		];
+				),
+			),
+			'required'   => array( 'user_login', 'user_email' ),
+		);
 	}
 
 	/**
@@ -116,25 +116,25 @@ class Create_User implements Action_Interface {
 
 		// Validate username is not empty after sanitization.
 		if ( empty( $user_login ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Invalid username. Username must contain valid characters.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Validate email format.
 		if ( ! is_email( $user_email ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'Invalid email address.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Check username uniqueness.
 		if ( username_exists( $user_login ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -142,12 +142,12 @@ class Create_User implements Action_Interface {
 					__( 'Username "%s" already exists.', 'wp-agent' ),
 					$user_login
 				),
-			];
+			);
 		}
 
 		// Check email uniqueness.
 		if ( email_exists( $user_email ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -155,13 +155,13 @@ class Create_User implements Action_Interface {
 					__( 'Email "%s" is already registered.', 'wp-agent' ),
 					$user_email
 				),
-			];
+			);
 		}
 
 		// Validate role exists.
 		$valid_roles = wp_roles()->get_names();
 		if ( ! isset( $valid_roles[ $role ] ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -169,25 +169,25 @@ class Create_User implements Action_Interface {
 					__( 'Invalid role "%s".', 'wp-agent' ),
 					$role
 				),
-			];
+			);
 		}
 
 		// Restrict role assignment: non-admins cannot assign administrator role.
 		if ( 'administrator' === $role && ! current_user_can( 'manage_options' ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => __( 'You do not have permission to assign the administrator role.', 'wp-agent' ),
-			];
+			);
 		}
 
 		// Build the user data array.
-		$userdata = [
+		$userdata = array(
 			'user_login' => $user_login,
 			'user_email' => $user_email,
 			'user_pass'  => wp_generate_password( 24, true, true ),
 			'role'       => $role,
-		];
+		);
 
 		if ( ! empty( $params['first_name'] ) ) {
 			$userdata['first_name'] = sanitize_text_field( $params['first_name'] );
@@ -205,7 +205,7 @@ class Create_User implements Action_Interface {
 		$user_id = wp_insert_user( $userdata );
 
 		if ( is_wp_error( $user_id ) ) {
-			return [
+			return array(
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
@@ -213,23 +213,23 @@ class Create_User implements Action_Interface {
 					__( 'Failed to create user: %s', 'wp-agent' ),
 					$user_id->get_error_message()
 				),
-			];
+			);
 		}
 
-		return [
+		return array(
 			'success' => true,
-			'data'    => [
+			'data'    => array(
 				'user_id'    => $user_id,
 				'user_login' => $user_login,
 				'role'       => $role,
 				'edit_url'   => admin_url( 'user-edit.php?user_id=' . $user_id ),
-			],
+			),
 			'message' => sprintf(
 				/* translators: 1: username, 2: role */
 				__( 'Created user "%1$s" with the "%2$s" role. A password was auto-generated.', 'wp-agent' ),
 				$user_login,
 				$valid_roles[ $role ]
 			),
-		];
+		);
 	}
 }
