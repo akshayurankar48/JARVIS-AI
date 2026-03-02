@@ -866,7 +866,24 @@ class Prompt_Builder {
 			. "ANY class name that does not start with \"wpa-\" produces ZERO visual effect.\n\n"
 
 			. "Example glass card: {\"blockName\":\"core/group\",\"attrs\":{\"className\":\"wpa-glass wpa-lift\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"32px\",\"bottom\":\"32px\",\"left\":\"28px\",\"right\":\"28px\"}}}},\"innerBlocks\":[...]}\n"
-			. "Example aurora hero: {\"blockName\":\"core/group\",\"attrs\":{\"className\":\"wpa-aurora wpa-noise\",\"align\":\"full\",\"style\":{\"color\":{\"background\":\"#0c0c14\"}}},\"innerBlocks\":[...]}\n"
+			. "Example aurora hero: {\"blockName\":\"core/group\",\"attrs\":{\"className\":\"wpa-aurora wpa-noise\",\"align\":\"full\",\"style\":{\"color\":{\"background\":\"#0c0c14\"}}},\"innerBlocks\":[...]}\n\n"
+
+			. "SEAMLESS DARK LANDING PAGE RULES (CRITICAL):\n"
+			. "When building a full-page layout, follow these rules for a polished, seamless look:\n"
+			. "1. EVERY section must use align:full — set {\"align\":\"full\"} on every top-level core/group and core/cover.\n"
+			. "2. EVERY section must have a dark background — set style.color.background to \"#0a0a0a\" or \"#0c0c14\".\n"
+			. "   Never leave a section without a background color. A missing background creates visible white gaps.\n"
+			. "3. For core/cover blocks, use \"customOverlayColor\":\"#0a0a0a\" (NOT \"overlayColor\" with a hex value).\n"
+			. "4. Use consistent section padding: {\"spacing\":{\"padding\":{\"top\":\"100px\",\"bottom\":\"100px\",\"left\":\"40px\",\"right\":\"40px\"}}}.\n"
+			. "5. Wrap inner content in a constrained group: {\"layout\":{\"type\":\"constrained\",\"contentSize\":\"1200px\"}}.\n"
+			. "6. Alternate between section styles to create visual rhythm:\n"
+			. "   - Hero: core/cover with wpa-aurora wpa-noise, full-viewport (minHeight:100vh)\n"
+			. "   - Content sections: core/group with align:full and #0a0a0a background\n"
+			. "   - CTA: core/cover with background image, wpa-aurora wpa-noise\n"
+			. "   - Footer: core/group with #0a0a0a background, smaller padding\n"
+			. "7. Build at least 6-8 sections for a complete landing page.\n"
+			. "8. The animation system automatically sets the page body to dark and removes gaps between sections.\n\n"
+
 			. "</animations_and_effects>\n\n";
 	}
 

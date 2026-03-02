@@ -309,6 +309,53 @@
 	}
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   LANDING PAGE — seamless dark sections
+   ═══════════════════════════════════════════════════════════════════ */
+
+/**
+ * When the page body has .wpa-page (set by animations.js), remove
+ * the theme's block-gap between consecutive full-width sections so
+ * dark backgrounds flow edge-to-edge without white lines.
+ */
+body.wpa-page {
+	background-color: #0a0a0a;
+}
+
+/* Remove theme block-gap between full-width sections */
+body.wpa-page .wp-block-post-content > .alignfull + .alignfull {
+	margin-block-start: 0 !important;
+}
+
+/* Also handle the first alignfull block (theme may add top margin) */
+body.wpa-page .wp-block-post-content > .alignfull:first-child {
+	margin-block-start: 0 !important;
+}
+
+/* Hide the theme header/nav on animated landing pages for cleaner look */
+body.wpa-page .wp-block-template-part:has( .wp-block-navigation ) {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 100;
+	background: transparent !important;
+}
+
+/* Make theme footer blend with dark pages */
+body.wpa-page .wp-block-template-part:last-child {
+	background-color: #0a0a0a;
+}
+
+body.wpa-page .wp-block-template-part:last-child,
+body.wpa-page .wp-block-template-part:last-child * {
+	color: #666;
+}
+
+body.wpa-page .wp-block-template-part:last-child a {
+	color: #888;
+}
+
 /* ── Respect reduced-motion preference ──────────────────────────── */
 @media ( prefers-reduced-motion: reduce ) {
 	.wpa-fade-up,

@@ -27,7 +27,14 @@
 	);
 
 	function observe() {
-		document.querySelectorAll( selector ).forEach( function ( el ) {
+		const elements = document.querySelectorAll( selector );
+
+		// Mark body so CSS can remove theme gaps between dark sections.
+		if ( elements.length > 0 ) {
+			document.body.classList.add( 'wpa-page' );
+		}
+
+		elements.forEach( function ( el ) {
 			if ( ! el.classList.contains( 'wpa-visible' ) ) {
 				observer.observe( el );
 			}
