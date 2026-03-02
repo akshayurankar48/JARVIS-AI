@@ -25,6 +25,7 @@ import {
 	X,
 	SquarePen,
 	AlertCircle,
+	RotateCw,
 	FileText,
 	Sliders,
 	Sparkles,
@@ -179,6 +180,27 @@ const errorMsg = css`
 	line-height: 1.4;
 `;
 
+const retryBtn = css`
+	${ focusRing };
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	flex-shrink: 0;
+	padding: 3px 8px;
+	border: 1px solid ${ colors.errorBorder };
+	border-radius: ${ radii.sm };
+	background: #ffffff;
+	font-size: ${ fontSizes.xs };
+	font-weight: 500;
+	color: ${ colors.error };
+	cursor: pointer;
+	transition: background 0.15s ease;
+
+	&:hover {
+		background: ${ colors.errorBg };
+	}
+`;
+
 const errorDismiss = css`
 	${ focusRing };
 	flex-shrink: 0;
@@ -291,10 +313,12 @@ export default function DrawerPanel( { onClose } ) {
 		hasApiKey,
 		actionProgress,
 		completedSteps,
+		lastFailedMessage,
 		sendMessage,
 		stopStreaming,
 		startNewConversation,
 		clearError,
+		retryLastMessage,
 	} = useChatAdmin();
 
 	const hasMessages = messages.length > 0;
@@ -344,6 +368,17 @@ export default function DrawerPanel( { onClose } ) {
 					<div className={ errorBanner }>
 						<AlertCircle size={ 14 } className={ errorIconStyle } />
 						<p className={ errorMsg }>{ error }</p>
+						{ lastFailedMessage && (
+							<button
+								type="button"
+								onClick={ retryLastMessage }
+								className={ retryBtn }
+								aria-label="Retry last message"
+							>
+								<RotateCw size={ 10 } />
+								Retry
+							</button>
+						) }
 						<button
 							type="button"
 							onClick={ clearError }

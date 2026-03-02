@@ -92,6 +92,11 @@ export const clearActionProgress = () => ( {
 	type: ACTION_TYPES.CLEAR_ACTION_PROGRESS,
 } );
 
+export const setLastFailedMessage = ( message ) => ( {
+	type: ACTION_TYPES.SET_LAST_FAILED_MESSAGE,
+	message,
+} );
+
 // --- Thunks ---
 
 /**
@@ -119,6 +124,7 @@ export const sendMessage =
 			};
 			dispatch( addMessage( userMessage ) );
 			dispatch( setError( null ) );
+			dispatch( setLastFailedMessage( null ) );
 			dispatch( setIsStreaming( true ) );
 			dispatch( setStreamingContent( '' ) );
 
@@ -152,6 +158,7 @@ export const sendMessage =
 					const errorMessage =
 					errorData?.message || `Request failed with status ${ response.status }`;
 					dispatch( setError( errorMessage ) );
+					dispatch( setLastFailedMessage( message ) );
 					dispatch( setIsStreaming( false ) );
 					return;
 				}
@@ -195,6 +202,7 @@ export const sendMessage =
 					dispatch( finalizeStreaming() );
 				} else {
 					dispatch( setError( error.message || 'An unexpected error occurred.' ) );
+					dispatch( setLastFailedMessage( message ) );
 					dispatch( setIsStreaming( false ) );
 				}
 			} finally {

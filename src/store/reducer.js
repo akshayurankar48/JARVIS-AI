@@ -21,6 +21,7 @@ const DEFAULT_STATE = {
 	pendingActions: [],
 	actionProgress: null,
 	completedSteps: [],
+	lastFailedMessage: null,
 };
 
 const reducer = ( state = DEFAULT_STATE, action ) => {
@@ -118,6 +119,9 @@ const reducer = ( state = DEFAULT_STATE, action ) => {
 
 		case ACTION_TYPES.CLEAR_ACTION_PROGRESS:
 			return { ...state, actionProgress: null, completedSteps: [] };
+
+		case ACTION_TYPES.SET_LAST_FAILED_MESSAGE:
+			return { ...state, lastFailedMessage: action.message };
 
 		default:
 			return state;

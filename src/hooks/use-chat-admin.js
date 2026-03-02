@@ -23,6 +23,7 @@ export function useChatAdmin() {
 		hasApiKey,
 		actionProgress,
 		completedSteps,
+		lastFailedMessage,
 	} = useSelect( ( select ) => {
 		const store = select( STORE_NAME );
 		return {
@@ -35,6 +36,7 @@ export function useChatAdmin() {
 			hasApiKey: store.getHasApiKey(),
 			actionProgress: store.getActionProgress(),
 			completedSteps: store.getCompletedSteps(),
+			lastFailedMessage: store.getLastFailedMessage(),
 		};
 	}, [] );
 
@@ -43,7 +45,16 @@ export function useChatAdmin() {
 		stopStreaming,
 		startNewConversation,
 		setError,
+		setLastFailedMessage,
 	} = useDispatch( STORE_NAME );
+
+	const retryLastMessage = useCallback( () => {
+		if ( lastFailedMessage ) {
+			setLastFailedMessage( null );
+			setError( null );
+			sendMessage( lastFailedMessage );
+		}
+	}, [ lastFailedMessage, setLastFailedMessage, setError, sendMessage ] );
 
 	return {
 		conversationId,
@@ -55,9 +66,11 @@ export function useChatAdmin() {
 		hasApiKey,
 		actionProgress,
 		completedSteps,
+		lastFailedMessage,
 		sendMessage,
 		stopStreaming,
 		startNewConversation,
 		clearError: useCallback( () => setError( null ), [ setError ] ),
+		retryLastMessage,
 	};
 }
