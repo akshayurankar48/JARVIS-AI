@@ -1,6 +1,6 @@
 {
 	"name": "wp-agent",
-	"version": "1.0.0-alpha",
+	"version": "1.0.0",
 	"description": "AI-powered admin assistant for WordPress",
 	"main": "index.js",
 	"scripts": {

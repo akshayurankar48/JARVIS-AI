@@ -8,7 +8,7 @@
  */
 
 import { registerPlugin } from '@wordpress/plugins';
-import { PluginSidebar } from '@wordpress/edit-post';
+import { PluginSidebar } from '@wordpress/editor';
 import { Icon } from '@wordpress/components';
 import ChatPanel from './editor/ChatPanel';
 import './store';

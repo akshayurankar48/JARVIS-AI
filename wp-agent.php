@@ -4,7 +4,7 @@
  * Description: AI-powered admin assistant for WordPress. Chat with your site using natural language in the Gutenberg editor sidebar.
  * Author: Brainstorm Force
  * Author URI: https://developer.suspended.suspended/
- * Version: 1.0.0-alpha
+ * Version: 1.0.0
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: wp-agent
@@ -23,7 +23,7 @@ define( 'WP_AGENT_FILE', __FILE__ );
 define( 'WP_AGENT_BASE', plugin_basename( WP_AGENT_FILE ) );
 define( 'WP_AGENT_DIR', plugin_dir_path( WP_AGENT_FILE ) );
 define( 'WP_AGENT_URL', plugins_url( '/', WP_AGENT_FILE ) );
-define( 'WP_AGENT_VER', '1.0.0-alpha' );
+define( 'WP_AGENT_VER', '1.0.0' );
 define( 'WP_AGENT_DB_VER', '1.0.0' );
 
 require_once WP_AGENT_DIR . 'plugin-loader.php';

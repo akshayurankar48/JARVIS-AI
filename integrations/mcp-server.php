@@ -27,7 +27,7 @@ class MCP_Server {
 	}
 
 	public function __construct() {
-		add_action( 'rest_api_init', [ $this, 'register_mcp_server' ] );
+		add_action( 'mcp_adapter_init', [ $this, 'register_mcp_server' ] );
 	}
 
 	public function register_mcp_server() {
@@ -37,48 +37,29 @@ class MCP_Server {
 
 		try {
 			$adapter = \WP\MCP\Core\McpAdapter::instance();
-			$server  = $adapter->create_server( 'wp-agent-mcp', [
-				'name'        => 'WP Agent (JARVIS)',
-				'description' => 'AI-powered WordPress management — 70+ actions available as MCP tools.',
-				'version'     => defined( 'WP_AGENT_VER' ) ? WP_AGENT_VER : '1.0.0',
-			] );
 
-			if ( ! $server ) {
-				return;
-			}
-
-			$registry = Action_Registry::get_instance();
-			$actions  = $registry->get_all_actions();
-
+			// Collect ability names registered by Abilities_Bridge (wp-agent/{action}).
+			$registry     = Action_Registry::get_instance();
+			$actions      = $registry->get_all_actions();
+			$ability_names = [];
 			foreach ( $actions as $name => $action ) {
-				$description = method_exists( $action, 'get_description' ) ? $action->get_description() : '';
-				$parameters  = method_exists( $action, 'get_parameters' ) ? $action->get_parameters() : [];
-				$capability  = method_exists( $action, 'get_capabilities_required' ) ? $action->get_capabilities_required() : 'manage_options';
-
-				$tool = new \WP\MCP\Domain\Tools\McpTool(
-					$name,
-					$description,
-					$parameters,
-					function ( $input ) use ( $registry, $name, $capability ) {
-						if ( ! current_user_can( $capability ) ) {
-							return [
-								'success' => false,
-								'message' => 'Insufficient permissions.',
-							];
-						}
-						$result = $registry->dispatch( $name, $input );
-						if ( is_wp_error( $result ) ) {
-							return [
-								'success' => false,
-								'message' => $result->get_error_message(),
-							];
-						}
-						return $result;
-					}
-				);
-
-				$server->register_tool( $tool );
+				$ability_names[] = "wp-agent/{$name}";
 			}
+
+			$version = defined( 'WP_AGENT_VER' ) ? WP_AGENT_VER : '1.0.0';
+
+			$adapter->create_server(
+				'wp-agent-mcp',                                                     // server_id
+				'wp-agent/v1',                                                       // server_route_namespace
+				'/mcp',                                                              // server_route
+				'WP Agent (JARVIS)',                                                 // server_name
+				'AI-powered WordPress management — 70+ actions available as tools.', // server_description
+				$version,                                                            // server_version
+				[ \WP\MCP\Transport\HttpTransport::class ],                         // mcp_transports
+				null,                                                                // error_handler (null = default)
+				null,                                                                // observability_handler (null = default)
+				$ability_names                                                       // tools (ability name strings)
+			);
 		} catch ( \Exception $e ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				error_log( 'WP Agent MCP Server error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
