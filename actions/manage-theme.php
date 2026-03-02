@@ -39,7 +39,9 @@ class Manage_Theme implements Action_Interface {
 	public function get_description(): string {
 		return 'Manage installed WordPress themes. Operations: "list" shows all installed themes, '
 			. '"get_active" returns details about the current theme, '
-			. '"switch" activates a different installed theme. '
+			. '"switch" activates a different installed theme, '
+			. '"update" updates a theme to its latest version, '
+			. '"delete" permanently removes an inactive theme. '
 			. 'To install a new theme from WordPress.org, use install_theme first.';
 	}
 
@@ -55,7 +57,7 @@ class Manage_Theme implements Action_Interface {
 			'properties' => [
 				'operation' => [
 					'type'        => 'string',
-					'enum'        => [ 'list', 'get_active', 'switch' ],
+					'enum'        => [ 'list', 'get_active', 'switch', 'update', 'delete' ],
 					'description' => 'Operation to perform.',
 				],
 				'stylesheet' => [
@@ -109,11 +111,19 @@ class Manage_Theme implements Action_Interface {
 				$stylesheet = ! empty( $params['stylesheet'] ) ? sanitize_text_field( $params['stylesheet'] ) : '';
 				return $this->switch_theme( $stylesheet );
 
+			case 'update':
+				$stylesheet = ! empty( $params['stylesheet'] ) ? sanitize_text_field( $params['stylesheet'] ) : '';
+				return $this->update_theme( $stylesheet );
+
+			case 'delete':
+				$stylesheet = ! empty( $params['stylesheet'] ) ? sanitize_text_field( $params['stylesheet'] ) : '';
+				return $this->delete_theme( $stylesheet );
+
 			default:
 				return [
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "list", "get_active", or "switch".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "list", "get_active", "switch", "update", or "delete".', 'wp-agent' ),
 				];
 		}
 	}
@@ -268,6 +278,197 @@ class Manage_Theme implements Action_Interface {
 				__( 'Switched theme from "%1$s" to "%2$s".', 'wp-agent' ),
 				$previous_theme,
 				$new_theme->get( 'Name' )
+			),
+		];
+	}
+
+	/**
+	 * Update a theme to its latest version.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $stylesheet Theme stylesheet to update.
+	 * @return array Execution result.
+	 */
+	private function update_theme( $stylesheet ) {
+		if ( empty( $stylesheet ) ) {
+			return [
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'Theme stylesheet (slug) is required for updating.', 'wp-agent' ),
+			];
+		}
+
+		$themes = wp_get_themes();
+		if ( ! isset( $themes[ $stylesheet ] ) ) {
+			return [
+				'success' => false,
+				'data'    => null,
+				'message' => sprintf(
+					/* translators: %s: theme stylesheet */
+					__( 'Theme "%s" is not installed.', 'wp-agent' ),
+					$stylesheet
+				),
+			];
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		require_once ABSPATH . 'wp-admin/includes/update.php';
+
+		// Refresh update transient.
+		wp_update_themes();
+
+		$old_version = $themes[ $stylesheet ]->get( 'Version' );
+		$skin        = new \WP_Ajax_Upgrader_Skin();
+		$upgrader    = new \Theme_Upgrader( $skin );
+		$result      = $upgrader->upgrade( $stylesheet );
+
+		if ( is_wp_error( $result ) ) {
+			return [
+				'success' => false,
+				'data'    => null,
+				'message' => $result->get_error_message(),
+			];
+		}
+
+		if ( is_wp_error( $skin->result ) ) {
+			return [
+				'success' => false,
+				'data'    => null,
+				'message' => $skin->result->get_error_message(),
+			];
+		}
+
+		if ( false === $result ) {
+			return [
+				'success' => true,
+				'data'    => [
+					'slug'    => $stylesheet,
+					'version' => $old_version,
+				],
+				'message' => sprintf(
+					/* translators: 1: theme name, 2: version */
+					__( '"%1$s" is already at the latest version (%2$s).', 'wp-agent' ),
+					$themes[ $stylesheet ]->get( 'Name' ),
+					$old_version
+				),
+			];
+		}
+
+		// Re-read to get new version.
+		wp_clean_themes_cache();
+		$updated_theme = wp_get_theme( $stylesheet );
+		$new_version   = $updated_theme->get( 'Version' );
+
+		return [
+			'success' => true,
+			'data'    => [
+				'slug'        => $stylesheet,
+				'name'        => $themes[ $stylesheet ]->get( 'Name' ),
+				'old_version' => $old_version,
+				'new_version' => $new_version,
+			],
+			'message' => sprintf(
+				/* translators: 1: theme name, 2: old version, 3: new version */
+				__( 'Updated "%1$s" from v%2$s to v%3$s.', 'wp-agent' ),
+				$themes[ $stylesheet ]->get( 'Name' ),
+				$old_version,
+				$new_version
+			),
+		];
+	}
+
+	/**
+	 * Delete an inactive theme.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $stylesheet Theme stylesheet to delete.
+	 * @return array Execution result.
+	 */
+	private function delete_theme( $stylesheet ) {
+		if ( empty( $stylesheet ) ) {
+			return [
+				'success' => false,
+				'data'    => null,
+				'message' => __( 'Theme stylesheet (slug) is required for deletion.', 'wp-agent' ),
+			];
+		}
+
+		$themes = wp_get_themes();
+		if ( ! isset( $themes[ $stylesheet ] ) ) {
+			return [
+				'success' => false,
+				'data'    => null,
+				'message' => sprintf(
+					/* translators: %s: theme stylesheet */
+					__( 'Theme "%s" is not installed.', 'wp-agent' ),
+					$stylesheet
+				),
+			];
+		}
+
+		// Guard: cannot delete active theme.
+		if ( $stylesheet === get_stylesheet() ) {
+			return [
+				'success' => false,
+				'data'    => null,
+				'message' => sprintf(
+					/* translators: %s: theme name */
+					__( 'Cannot delete the active theme "%s". Switch to another theme first.', 'wp-agent' ),
+					$themes[ $stylesheet ]->get( 'Name' )
+				),
+			];
+		}
+
+		// Guard: cannot delete parent of active child theme.
+		if ( is_child_theme() && $stylesheet === get_template() ) {
+			return [
+				'success' => false,
+				'data'    => null,
+				'message' => sprintf(
+					/* translators: %s: theme name */
+					__( 'Cannot delete "%s" because it is the parent of the active child theme.', 'wp-agent' ),
+					$themes[ $stylesheet ]->get( 'Name' )
+				),
+			];
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+
+		$theme_name = $themes[ $stylesheet ]->get( 'Name' );
+		$result     = delete_theme( $stylesheet );
+
+		if ( is_wp_error( $result ) ) {
+			return [
+				'success' => false,
+				'data'    => null,
+				'message' => $result->get_error_message(),
+			];
+		}
+
+		if ( true !== $result ) {
+			return [
+				'success' => false,
+				'data'    => null,
+				'message' => sprintf(
+					/* translators: %s: theme name */
+					__( 'Failed to delete "%s". Check filesystem permissions.', 'wp-agent' ),
+					$theme_name
+				),
+			];
+		}
+
+		return [
+			'success' => true,
+			'data'    => [
+				'slug' => $stylesheet,
+				'name' => $theme_name,
+			],
+			'message' => sprintf(
+				/* translators: %s: theme name */
+				__( 'Deleted theme "%s" permanently.', 'wp-agent' ),
+				$theme_name
 			),
 		];
 	}
