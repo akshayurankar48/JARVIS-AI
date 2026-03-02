@@ -5,11 +5,11 @@
  * Moves a WordPress post to trash via wp_trash_post().
  * Never permanently deletes — always uses trash for safety.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -97,7 +97,7 @@ class Delete_Post implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: post ID */
-					__( 'Post #%d not found.', 'wp-agent' ),
+					__( 'Post #%d not found.', 'jarvis-ai' ),
 					$post_id
 				),
 			);
@@ -107,7 +107,7 @@ class Delete_Post implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'You do not have permission to delete this post.', 'wp-agent' ),
+				'message' => __( 'You do not have permission to delete this post.', 'jarvis-ai' ),
 			);
 		}
 
@@ -117,7 +117,7 @@ class Delete_Post implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: post ID */
-					__( 'Post #%d is already in trash.', 'wp-agent' ),
+					__( 'Post #%d is already in trash.', 'jarvis-ai' ),
 					$post_id
 				),
 			);
@@ -131,7 +131,7 @@ class Delete_Post implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: post ID */
-					__( 'Failed to trash post #%d.', 'wp-agent' ),
+					__( 'Failed to trash post #%d.', 'jarvis-ai' ),
 					$post_id
 				),
 			);
@@ -144,7 +144,7 @@ class Delete_Post implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: post title, 2: post ID */
-				__( 'Moved "%1$s" (post #%2$d) to trash.', 'wp-agent' ),
+				__( 'Moved "%1$s" (post #%2$d) to trash.', 'jarvis-ai' ),
 				$post->post_title,
 				$post_id
 			),

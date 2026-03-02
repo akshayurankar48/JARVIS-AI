@@ -5,11 +5,11 @@
  * Three-tier model selection with auto-routing and fallback chain.
  * Selects the appropriate AI model based on message complexity.
  *
- * @package WPAgent\AI
+ * @package JarvisAI\AI
  * @since   1.0.0
  */
 
-namespace WPAgent\AI;
+namespace JarvisAI\AI;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -202,7 +202,7 @@ class Model_Router {
 	 * @return string OpenRouter model ID.
 	 */
 	public function get_default_model() {
-		$default = get_option( 'wp_agent_default_model', '' );
+		$default = get_option( 'jarvis_ai_default_model', '' );
 
 		if ( ! empty( $default ) && $this->is_valid_model( $default ) ) {
 			return $default;

@@ -5,11 +5,11 @@
  * Generates a WXR (WordPress eXtended RSS) export file and returns
  * a temporary download URL. Read-only — does not modify the site.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -104,8 +104,8 @@ class Export_Site implements Action_Interface {
 
 		$upload_dir = wp_upload_dir();
 		$secret     = wp_generate_password( 32, false );
-		$filename   = 'wp-agent-export-' . gmdate( 'Y-m-d-His' ) . '-' . $secret . '.xml';
-		$export_dir = trailingslashit( $upload_dir['basedir'] ) . 'wp-agent-exports';
+		$filename   = 'jarvis-ai-export-' . gmdate( 'Y-m-d-His' ) . '-' . $secret . '.xml';
+		$export_dir = trailingslashit( $upload_dir['basedir'] ) . 'jarvis-ai-exports';
 		wp_mkdir_p( $export_dir );
 
 		// Protect the directory from direct browsing.
@@ -116,7 +116,7 @@ class Export_Site implements Action_Interface {
 		}
 
 		$filepath = trailingslashit( $export_dir ) . $filename;
-		$file_url = admin_url( 'admin-ajax.php?action=wp_agent_download_export&file=' . rawurlencode( $filename ) . '&nonce=' . wp_create_nonce( 'wp_agent_export_' . $filename ) );
+		$file_url = admin_url( 'admin-ajax.php?action=jarvis_ai_download_export&file=' . rawurlencode( $filename ) . '&nonce=' . wp_create_nonce( 'jarvis_ai_export_' . $filename ) );
 
 		$args = array(
 			'content' => 'all' === $content_type ? 'all' : $content_type,
@@ -135,7 +135,7 @@ class Export_Site implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Export generated no content.', 'wp-agent' ),
+				'message' => __( 'Export generated no content.', 'jarvis-ai' ),
 			);
 		}
 
@@ -151,14 +151,14 @@ class Export_Site implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Failed to write export file.', 'wp-agent' ),
+				'message' => __( 'Failed to write export file.', 'jarvis-ai' ),
 			);
 		}
 
 		$file_size = $wp_filesystem->size( $filepath );
 
 		// Schedule cleanup after 1 hour.
-		wp_schedule_single_event( time() + HOUR_IN_SECONDS, 'wp_agent_cleanup_export', array( $filepath ) );
+		wp_schedule_single_event( time() + HOUR_IN_SECONDS, 'jarvis_ai_cleanup_export', array( $filepath ) );
 
 		return array(
 			'success' => true,
@@ -170,7 +170,7 @@ class Export_Site implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: file size, 2: content type */
-				__( 'Site export complete (%1$s, content: %2$s). Download link is valid for 1 hour.', 'wp-agent' ),
+				__( 'Site export complete (%1$s, content: %2$s). Download link is valid for 1 hour.', 'jarvis-ai' ),
 				size_format( $file_size ),
 				$content_type
 			),

@@ -2,11 +2,11 @@
 /**
  * Assets Manager.
  *
- * @package WPAgent\Admin
+ * @package JarvisAI\Admin
  * @since 1.0.0
  */
 
-namespace WPAgent\Admin;
+namespace JarvisAI\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -32,12 +32,12 @@ class Assets_Manager {
 	 * @var string[]
 	 */
 	private const PAGE_HOOKS = array(
-		'toplevel_page_wp-agent',
-		'wp-agent_page_wp-agent-settings',
-		'wp-agent_page_wp-agent-history',
-		'wp-agent_page_wp-agent-schedules',
-		'wp-agent_page_wp-agent-capabilities',
-		'wp-agent_page_wp-agent-help',
+		'toplevel_page_jarvis-ai',
+		'jarvis-ai_page_jarvis-ai-settings',
+		'jarvis-ai_page_jarvis-ai-history',
+		'jarvis-ai_page_jarvis-ai-schedules',
+		'jarvis-ai_page_jarvis-ai-capabilities',
+		'jarvis-ai_page_jarvis-ai-help',
 	);
 
 	/**
@@ -78,7 +78,7 @@ class Assets_Manager {
 			return;
 		}
 
-		$asset_file = WP_AGENT_DIR . 'build/main.asset.php';
+		$asset_file = JARVIS_AI_DIR . 'build/main.asset.php';
 
 		if ( ! file_exists( $asset_file ) ) {
 			return;
@@ -87,45 +87,45 @@ class Assets_Manager {
 		$asset = require $asset_file;
 
 		wp_enqueue_script(
-			'wp-agent-admin',
-			WP_AGENT_URL . 'build/main.js',
+			'jarvis-ai-admin',
+			JARVIS_AI_URL . 'build/main.js',
 			$asset['dependencies'],
 			$asset['version'],
 			true
 		);
 
 		wp_enqueue_style(
-			'wp-agent-admin',
-			WP_AGENT_URL . 'build/style-main.css',
+			'jarvis-ai-admin',
+			JARVIS_AI_URL . 'build/style-main.css',
 			array(),
 			$asset['version']
 		);
 
 		wp_localize_script(
-			'wp-agent-admin',
-			'wpAgentData',
+			'jarvis-ai-admin',
+			'jarvisAiData',
 			array(
-				'restUrl'     => rest_url( 'wp-agent/v1/' ),
+				'restUrl'     => rest_url( 'jarvis-ai/v1/' ),
 				'nonce'       => wp_create_nonce( 'wp_rest' ),
-				'hasApiKey'   => ! empty( get_option( \WPAgent\AI\Open_Router_Client::API_KEY_OPTION ) ),
+				'hasApiKey'   => ! empty( get_option( \JarvisAI\AI\Open_Router_Client::API_KEY_OPTION ) ),
 				'userId'      => get_current_user_id(),
 				'userName'    => wp_get_current_user()->display_name,
-				'version'     => WP_AGENT_VER,
+				'version'     => JARVIS_AI_VER,
 				'adminUrl'    => admin_url(),
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading admin page slug, no form action.
-				'currentPage' => isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : 'wp-agent',
+				'currentPage' => isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : 'jarvis-ai',
 			)
 		);
 
 		// Hide default admin notices on our pages.
 		wp_add_inline_style(
-			'wp-agent-admin',
-			'.wp-agent-wrap ~ .notice, .wp-agent-wrap ~ .updated, .wp-agent-wrap ~ .error, .wp-agent-wrap .notice, div.notice:not(.wp-agent-notice) { display: none !important; } #wpcontent { padding-left: 0; } #wpbody-content { padding-bottom: 0; }'
+			'jarvis-ai-admin',
+			'.jarvis-ai-wrap ~ .notice, .jarvis-ai-wrap ~ .updated, .jarvis-ai-wrap ~ .error, .jarvis-ai-wrap .notice, div.notice:not(.jarvis-ai-notice) { display: none !important; } #wpcontent { padding-left: 0; } #wpbody-content { padding-bottom: 0; }'
 		);
 	}
 
 	/**
-	 * Enqueue drawer assets on all admin pages except WP Agent's own pages
+	 * Enqueue drawer assets on all admin pages except JARVIS AI's own pages
 	 * and the block editor (which has its own PluginSidebar).
 	 *
 	 * @param string $hook_suffix The current admin page hook suffix.
@@ -133,7 +133,7 @@ class Assets_Manager {
 	 * @return void
 	 */
 	public function enqueue_drawer_assets( $hook_suffix ) {
-		// Skip on WP Agent pages — they already have the full UI.
+		// Skip on JARVIS AI pages — they already have the full UI.
 		if ( in_array( $hook_suffix, self::PAGE_HOOKS, true ) ) {
 			return;
 		}
@@ -149,7 +149,7 @@ class Assets_Manager {
 			return;
 		}
 
-		$asset_file = WP_AGENT_DIR . 'build/drawer.asset.php';
+		$asset_file = JARVIS_AI_DIR . 'build/drawer.asset.php';
 
 		if ( ! file_exists( $asset_file ) ) {
 			return;
@@ -158,32 +158,32 @@ class Assets_Manager {
 		$asset = require $asset_file;
 
 		wp_enqueue_script(
-			'wp-agent-drawer',
-			WP_AGENT_URL . 'build/drawer.js',
+			'jarvis-ai-drawer',
+			JARVIS_AI_URL . 'build/drawer.js',
 			$asset['dependencies'],
 			$asset['version'],
 			true
 		);
 
-		if ( file_exists( WP_AGENT_DIR . 'build/style-drawer.css' ) ) {
+		if ( file_exists( JARVIS_AI_DIR . 'build/style-drawer.css' ) ) {
 			wp_enqueue_style(
-				'wp-agent-drawer',
-				WP_AGENT_URL . 'build/style-drawer.css',
+				'jarvis-ai-drawer',
+				JARVIS_AI_URL . 'build/style-drawer.css',
 				array(),
 				$asset['version']
 			);
 		}
 
 		wp_localize_script(
-			'wp-agent-drawer',
-			'wpAgentData',
+			'jarvis-ai-drawer',
+			'jarvisAiData',
 			array(
-				'restUrl'   => rest_url( 'wp-agent/v1/' ),
+				'restUrl'   => rest_url( 'jarvis-ai/v1/' ),
 				'nonce'     => wp_create_nonce( 'wp_rest' ),
-				'hasApiKey' => ! empty( get_option( \WPAgent\AI\Open_Router_Client::API_KEY_OPTION ) ),
+				'hasApiKey' => ! empty( get_option( \JarvisAI\AI\Open_Router_Client::API_KEY_OPTION ) ),
 				'userId'    => get_current_user_id(),
 				'userName'  => wp_get_current_user()->display_name,
-				'version'   => WP_AGENT_VER,
+				'version'   => JARVIS_AI_VER,
 				'adminUrl'  => admin_url(),
 			)
 		);
@@ -214,17 +214,17 @@ class Assets_Manager {
 		}
 
 		wp_enqueue_style(
-			'wp-agent-animations',
-			WP_AGENT_URL . 'assets/css/animations.css',
+			'jarvis-ai-animations',
+			JARVIS_AI_URL . 'assets/css/animations.css',
 			array(),
-			WP_AGENT_VER
+			JARVIS_AI_VER
 		);
 
 		wp_enqueue_script(
-			'wp-agent-animations',
-			WP_AGENT_URL . 'assets/js/animations.js',
+			'jarvis-ai-animations',
+			JARVIS_AI_URL . 'assets/js/animations.js',
 			array(),
-			WP_AGENT_VER,
+			JARVIS_AI_VER,
 			true
 		);
 	}
@@ -243,7 +243,7 @@ class Assets_Manager {
 			return;
 		}
 
-		$tests = get_option( 'wp_agent_ab_tests', array() );
+		$tests = get_option( 'jarvis_ai_ab_tests', array() );
 
 		if ( empty( $tests ) ) {
 			return;
@@ -272,18 +272,18 @@ class Assets_Manager {
 		);
 
 		wp_enqueue_script(
-			'wp-agent-ab-testing',
-			WP_AGENT_URL . 'assets/js/ab-testing.js',
+			'jarvis-ai-ab-testing',
+			JARVIS_AI_URL . 'assets/js/ab-testing.js',
 			array(),
-			WP_AGENT_VER,
+			JARVIS_AI_VER,
 			true
 		);
 
 		wp_localize_script(
-			'wp-agent-ab-testing',
+			'jarvis-ai-ab-testing',
 			'wpAgentAB',
 			array(
-				'restUrl' => rest_url( 'wp-agent/v1/ab-track' ),
+				'restUrl' => rest_url( 'jarvis-ai/v1/ab-track' ),
 				'tests'   => $frontend_tests,
 			)
 		);
@@ -296,7 +296,7 @@ class Assets_Manager {
 	 * @return void
 	 */
 	public function enqueue_editor_assets() {
-		$asset_file = WP_AGENT_DIR . 'build/editor.asset.php';
+		$asset_file = JARVIS_AI_DIR . 'build/editor.asset.php';
 
 		if ( ! file_exists( $asset_file ) ) {
 			return;
@@ -305,30 +305,30 @@ class Assets_Manager {
 		$asset = require $asset_file;
 
 		wp_enqueue_script(
-			'wp-agent-editor',
-			WP_AGENT_URL . 'build/editor.js',
+			'jarvis-ai-editor',
+			JARVIS_AI_URL . 'build/editor.js',
 			$asset['dependencies'],
 			$asset['version'],
 			true
 		);
 
 		wp_enqueue_style(
-			'wp-agent-editor',
-			WP_AGENT_URL . 'build/style-main.css',
+			'jarvis-ai-editor',
+			JARVIS_AI_URL . 'build/style-main.css',
 			array(),
 			$asset['version']
 		);
 
 		wp_localize_script(
-			'wp-agent-editor',
-			'wpAgentData',
+			'jarvis-ai-editor',
+			'jarvisAiData',
 			array(
-				'restUrl'   => rest_url( 'wp-agent/v1/' ),
+				'restUrl'   => rest_url( 'jarvis-ai/v1/' ),
 				'nonce'     => wp_create_nonce( 'wp_rest' ),
-				'hasApiKey' => ! empty( get_option( \WPAgent\AI\Open_Router_Client::API_KEY_OPTION ) ),
+				'hasApiKey' => ! empty( get_option( \JarvisAI\AI\Open_Router_Client::API_KEY_OPTION ) ),
 				'userId'    => get_current_user_id(),
 				'userName'  => wp_get_current_user()->display_name,
-				'version'   => WP_AGENT_VER,
+				'version'   => JARVIS_AI_VER,
 				'adminUrl'  => admin_url(),
 			)
 		);

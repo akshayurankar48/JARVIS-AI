@@ -6,11 +6,11 @@
  * missing alt text, heading hierarchy violations, empty links, missing
  * form labels, and potential color contrast problems.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -113,7 +113,7 @@ class Audit_Accessibility implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Post ID is required.', 'wp-agent' ),
+				'message' => __( 'Post ID is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -122,7 +122,7 @@ class Audit_Accessibility implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Post not found.', 'wp-agent' ),
+				'message' => __( 'Post not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -142,7 +142,7 @@ class Audit_Accessibility implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "audit", "check_element", or "fix".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "audit", "check_element", or "fix".', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -201,12 +201,12 @@ class Audit_Accessibility implements Action_Interface {
 			'message' => 0 === $total
 				? sprintf(
 					/* translators: %s: post title */
-					__( 'No accessibility issues found in "%s".', 'wp-agent' ),
+					__( 'No accessibility issues found in "%s".', 'jarvis-ai' ),
 					$post->post_title
 				)
 				: sprintf(
 					/* translators: 1: total issues, 2: critical count, 3: warning count, 4: post title */
-					__( 'Found %1$d accessibility issue(s) in "%4$s": %2$d critical, %3$d warnings.', 'wp-agent' ),
+					__( 'Found %1$d accessibility issue(s) in "%4$s": %2$d critical, %3$d warnings.', 'jarvis-ai' ),
 					$total,
 					$counts['critical'],
 					$counts['warning'],
@@ -233,7 +233,7 @@ class Audit_Accessibility implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: block index */
-					__( 'Block at index %d not found.', 'wp-agent' ),
+					__( 'Block at index %d not found.', 'jarvis-ai' ),
 					$block_index
 				),
 			);
@@ -257,7 +257,7 @@ class Audit_Accessibility implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: issue count, 2: block name */
-				__( 'Found %1$d issue(s) in block "%2$s".', 'wp-agent' ),
+				__( 'Found %1$d issue(s) in block "%2$s".', 'jarvis-ai' ),
 				count( $issues ),
 				$block['blockName'] ?? 'unknown'
 			),
@@ -283,7 +283,7 @@ class Audit_Accessibility implements Action_Interface {
 				'/<img(?![^>]*\balt=)[^>]*>/i',
 				function ( $match ) use ( &$fixes_applied ) {
 					++$fixes_applied;
-					return str_replace( '<img', '<img alt="' . esc_attr__( 'Image', 'wp-agent' ) . '"', $match[0] );
+					return str_replace( '<img', '<img alt="' . esc_attr__( 'Image', 'jarvis-ai' ) . '"', $match[0] );
 				},
 				$content
 			);
@@ -296,7 +296,7 @@ class Audit_Accessibility implements Action_Interface {
 				function ( $match ) use ( &$fixes_applied ) {
 					if ( false === strpos( $match[1], 'aria-label' ) ) {
 						++$fixes_applied;
-						return '<a' . $match[1] . ' aria-label="' . esc_attr__( 'Link', 'wp-agent' ) . '"></a>';
+						return '<a' . $match[1] . ' aria-label="' . esc_attr__( 'Link', 'jarvis-ai' ) . '"></a>';
 					}
 					return $match[0];
 				},
@@ -319,7 +319,7 @@ class Audit_Accessibility implements Action_Interface {
 					'data'    => null,
 					'message' => sprintf(
 						/* translators: %s: error message */
-						__( 'Failed to save fixes: %s', 'wp-agent' ),
+						__( 'Failed to save fixes: %s', 'jarvis-ai' ),
 						$result->get_error_message()
 					),
 				);
@@ -336,13 +336,13 @@ class Audit_Accessibility implements Action_Interface {
 			'message' => $fixes_applied > 0
 				? sprintf(
 					/* translators: 1: fix count, 2: post title */
-					__( 'Applied %1$d accessibility fix(es) to "%2$s".', 'wp-agent' ),
+					__( 'Applied %1$d accessibility fix(es) to "%2$s".', 'jarvis-ai' ),
 					$fixes_applied,
 					$post->post_title
 				)
 				: sprintf(
 					/* translators: %s: post title */
-					__( 'No automatic fixes needed for "%s".', 'wp-agent' ),
+					__( 'No automatic fixes needed for "%s".', 'jarvis-ai' ),
 					$post->post_title
 				),
 		);
@@ -372,18 +372,18 @@ class Audit_Accessibility implements Action_Interface {
 						'element'  => substr( $img, 0, 120 ),
 						'message'  => sprintf(
 							/* translators: %s: image filename */
-							__( 'Image "%s" has no alt attribute.', 'wp-agent' ),
+							__( 'Image "%s" has no alt attribute.', 'jarvis-ai' ),
 							$src
 						),
-						'fix'      => __( 'Add descriptive alt text that conveys the image content.', 'wp-agent' ),
+						'fix'      => __( 'Add descriptive alt text that conveys the image content.', 'jarvis-ai' ),
 					);
 				} elseif ( empty( trim( $alt_match[1] ) ) ) {
 					$issues[] = array(
 						'type'     => 'empty_alt_text',
 						'severity' => 'warning',
 						'element'  => substr( $img, 0, 120 ),
-						'message'  => __( 'Image has an empty alt attribute. If decorative, this is acceptable.', 'wp-agent' ),
-						'fix'      => __( 'Add descriptive alt text or confirm the image is purely decorative.', 'wp-agent' ),
+						'message'  => __( 'Image has an empty alt attribute. If decorative, this is acceptable.', 'jarvis-ai' ),
+						'fix'      => __( 'Add descriptive alt text or confirm the image is purely decorative.', 'jarvis-ai' ),
 					);
 				}
 			}
@@ -418,13 +418,13 @@ class Audit_Accessibility implements Action_Interface {
 						'element'  => sprintf( 'h%d: %s', $level, substr( $text, 0, 80 ) ),
 						'message'  => sprintf(
 							/* translators: 1: current heading level, 2: previous heading level */
-							__( 'Heading level h%1$d skips from h%2$d. Headings should not skip levels.', 'wp-agent' ),
+							__( 'Heading level h%1$d skips from h%2$d. Headings should not skip levels.', 'jarvis-ai' ),
 							$level,
 							$last_level
 						),
 						'fix'      => sprintf(
 							/* translators: %d: correct heading level */
-							__( 'Change to h%d to maintain proper hierarchy.', 'wp-agent' ),
+							__( 'Change to h%d to maintain proper hierarchy.', 'jarvis-ai' ),
 							$last_level + 1
 						),
 					);
@@ -464,8 +464,8 @@ class Audit_Accessibility implements Action_Interface {
 						'type'     => 'empty_link',
 						'severity' => 'critical',
 						'element'  => substr( $match[0], 0, 120 ),
-						'message'  => __( 'Link has no accessible text content or aria-label.', 'wp-agent' ),
-						'fix'      => __( 'Add descriptive text or an aria-label attribute.', 'wp-agent' ),
+						'message'  => __( 'Link has no accessible text content or aria-label.', 'jarvis-ai' ),
+						'fix'      => __( 'Add descriptive text or an aria-label attribute.', 'jarvis-ai' ),
 					);
 				}
 			}
@@ -507,8 +507,8 @@ class Audit_Accessibility implements Action_Interface {
 					'type'     => 'missing_label',
 					'severity' => 'critical',
 					'element'  => substr( $input, 0, 120 ),
-					'message'  => __( 'Form input has no associated label, aria-label, or aria-labelledby.', 'wp-agent' ),
-					'fix'      => __( 'Add a <label for="..."> element or aria-label attribute.', 'wp-agent' ),
+					'message'  => __( 'Form input has no associated label, aria-label, or aria-labelledby.', 'jarvis-ai' ),
+					'fix'      => __( 'Add a <label for="..."> element or aria-label attribute.', 'jarvis-ai' ),
 				);
 			}
 		}
@@ -546,8 +546,8 @@ class Audit_Accessibility implements Action_Interface {
 						'type'     => 'low_contrast',
 						'severity' => 'warning',
 						'element'  => sprintf( 'color: %s, background: %s', $color, $bg ),
-						'message'  => __( 'Potential low contrast between text color and background color.', 'wp-agent' ),
-						'fix'      => __( 'Ensure a contrast ratio of at least 4.5:1 for normal text (WCAG AA).', 'wp-agent' ),
+						'message'  => __( 'Potential low contrast between text color and background color.', 'jarvis-ai' ),
+						'fix'      => __( 'Ensure a contrast ratio of at least 4.5:1 for normal text (WCAG AA).', 'jarvis-ai' ),
 					);
 				}
 			}

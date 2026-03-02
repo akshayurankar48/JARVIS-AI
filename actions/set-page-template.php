@@ -5,11 +5,11 @@
  * Sets the page template for a post or page via the _wp_page_template
  * meta key. Works for both classic and block (FSE) themes.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -102,7 +102,7 @@ class Set_Page_Template implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'A valid post_id is required.', 'wp-agent' ),
+				'message' => __( 'A valid post_id is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -112,7 +112,7 @@ class Set_Page_Template implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => sprintf( __( 'Post #%d not found.', 'wp-agent' ), $post_id ),
+				'message' => sprintf( __( 'Post #%d not found.', 'jarvis-ai' ), $post_id ),
 			);
 		}
 
@@ -121,7 +121,7 @@ class Set_Page_Template implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'You do not have permission to edit this post.', 'wp-agent' ),
+				'message' => __( 'You do not have permission to edit this post.', 'jarvis-ai' ),
 			);
 		}
 
@@ -130,7 +130,7 @@ class Set_Page_Template implements Action_Interface {
 			$template = '';
 		}
 
-		$template_name = __( 'Default Template', 'wp-agent' );
+		$template_name = __( 'Default Template', 'jarvis-ai' );
 
 		if ( '' !== $template ) {
 			if ( wp_is_block_theme() ) {
@@ -160,7 +160,7 @@ class Set_Page_Template implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: template name, 2: post title, 3: post ID */
-				__( 'Template "%1$s" applied to "%2$s" (Post #%3$d).', 'wp-agent' ),
+				__( 'Template "%1$s" applied to "%2$s" (Post #%3$d).', 'jarvis-ai' ),
 				$template_name,
 				sanitize_text_field( $post->post_title ),
 				$post_id
@@ -217,7 +217,7 @@ class Set_Page_Template implements Action_Interface {
 				'invalid_template',
 				sprintf(
 					/* translators: 1: requested slug, 2: comma-separated list of available slugs */
-					__( 'Template "%1$s" not found in the active theme. Available templates: %2$s', 'wp-agent' ),
+					__( 'Template "%1$s" not found in the active theme. Available templates: %2$s', 'jarvis-ai' ),
 					$template,
 					$list
 				)
@@ -228,7 +228,7 @@ class Set_Page_Template implements Action_Interface {
 			'no_templates',
 			sprintf(
 				/* translators: %s: requested template slug */
-				__( 'Template "%s" not found. The active theme has no registered page templates.', 'wp-agent' ),
+				__( 'Template "%s" not found. The active theme has no registered page templates.', 'jarvis-ai' ),
 				$template
 			)
 		);

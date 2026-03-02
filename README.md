@@ -1,6 +1,6 @@
-# wp-plugin-base
+# jarvis-ai
 
 1. Constant Prefix - WPB
 2. Package - package {{package}}
 3. @since {{since}}
-4. slug - wp-plugin-base
+4. slug - jarvis-ai

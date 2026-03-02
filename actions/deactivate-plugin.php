@@ -4,13 +4,13 @@
  *
  * Deactivates an active WordPress plugin by its plugin file path.
  * Validates the plugin exists and is currently active before deactivating.
- * Includes a self-deactivation guard to prevent WP Agent from deactivating itself.
+ * Includes a self-deactivation guard to prevent JARVIS AI from deactivating itself.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -39,7 +39,7 @@ class Deactivate_Plugin implements Action_Interface {
 	 */
 	public function get_description(): string {
 		return 'Deactivate a currently active WordPress plugin. Requires the plugin file path '
-			. '(e.g. "akismet/akismet.php", "hello.php"). Cannot deactivate WP Agent itself.';
+			. '(e.g. "akismet/akismet.php", "hello.php"). Cannot deactivate JARVIS AI itself.';
 	}
 
 	/**
@@ -97,16 +97,16 @@ class Deactivate_Plugin implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Invalid plugin file path.', 'wp-agent' ),
+				'message' => __( 'Invalid plugin file path.', 'jarvis-ai' ),
 			);
 		}
 
-		// Self-deactivation guard: prevent deactivating WP Agent itself.
-		if ( defined( 'WP_AGENT_BASE' ) && WP_AGENT_BASE === $plugin ) {
+		// Self-deactivation guard: prevent deactivating JARVIS AI itself.
+		if ( defined( 'JARVIS_AI_BASE' ) && JARVIS_AI_BASE === $plugin ) {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Cannot deactivate WP Agent through its own action system.', 'wp-agent' ),
+				'message' => __( 'Cannot deactivate JARVIS AI through its own action system.', 'jarvis-ai' ),
 			);
 		}
 
@@ -124,7 +124,7 @@ class Deactivate_Plugin implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: plugin file path */
-					__( 'Plugin "%s" is not installed.', 'wp-agent' ),
+					__( 'Plugin "%s" is not installed.', 'jarvis-ai' ),
 					$plugin
 				),
 			);
@@ -137,7 +137,7 @@ class Deactivate_Plugin implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: plugin name */
-					__( 'Plugin "%s" is already inactive.', 'wp-agent' ),
+					__( 'Plugin "%s" is already inactive.', 'jarvis-ai' ),
 					$installed_plugins[ $plugin ]['Name']
 				),
 			);
@@ -153,7 +153,7 @@ class Deactivate_Plugin implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: plugin name */
-					__( 'Failed to deactivate "%s".', 'wp-agent' ),
+					__( 'Failed to deactivate "%s".', 'jarvis-ai' ),
 					$installed_plugins[ $plugin ]['Name']
 				),
 			);
@@ -167,7 +167,7 @@ class Deactivate_Plugin implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %s: plugin name */
-				__( 'Deactivated plugin "%s" successfully.', 'wp-agent' ),
+				__( 'Deactivated plugin "%s" successfully.', 'jarvis-ai' ),
 				$installed_plugins[ $plugin ]['Name']
 			),
 		);

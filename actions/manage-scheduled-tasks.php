@@ -3,14 +3,14 @@
  * Manage Scheduled Tasks Action.
  *
  * Creates, lists, pauses, resumes, and deletes custom scheduled tasks
- * that execute chains of WP Agent actions on a recurring schedule.
+ * that execute chains of JARVIS AI actions on a recurring schedule.
  * Uses WordPress cron system for scheduling.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -26,14 +26,14 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 	 *
 	 * @var string
 	 */
-	const OPTION_KEY = 'wp_agent_scheduled_tasks';
+	const OPTION_KEY = 'jarvis_ai_scheduled_tasks';
 
 	/**
 	 * Hook prefix for scheduled events.
 	 *
 	 * @var string
 	 */
-	const HOOK_PREFIX = 'wp_agent_execute_scheduled_';
+	const HOOK_PREFIX = 'jarvis_ai_execute_scheduled_';
 
 	/**
 	 * Maximum tasks allowed.
@@ -68,7 +68,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 	public function get_description(): string {
 		return 'Manage recurring scheduled tasks that execute action chains. Operations: "create" registers a new scheduled task, '
 			. '"list" shows all tasks, "delete" removes a task, "pause" temporarily stops a task, "resume" reactivates a paused task. '
-			. 'Each task runs a chain of WP Agent actions on a schedule (hourly, twicedaily, daily, weekly).';
+			. 'Each task runs a chain of JARVIS AI actions on a schedule (hourly, twicedaily, daily, weekly).';
 	}
 
 	/**
@@ -173,7 +173,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation.', 'wp-agent' ),
+					'message' => __( 'Invalid operation.', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -195,7 +195,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Task name is required.', 'wp-agent' ),
+				'message' => __( 'Task name is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -203,7 +203,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'At least one action is required in the action chain.', 'wp-agent' ),
+				'message' => __( 'At least one action is required in the action chain.', 'jarvis-ai' ),
 			);
 		}
 
@@ -219,7 +219,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: max tasks */
-					__( 'Maximum of %d scheduled tasks reached.', 'wp-agent' ),
+					__( 'Maximum of %d scheduled tasks reached.', 'jarvis-ai' ),
 					self::MAX_TASKS
 				),
 			);
@@ -243,7 +243,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'No valid actions in the action chain.', 'wp-agent' ),
+				'message' => __( 'No valid actions in the action chain.', 'jarvis-ai' ),
 			);
 		}
 
@@ -275,7 +275,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			'data'    => $task,
 			'message' => sprintf(
 				/* translators: 1: task name, 2: schedule, 3: action count */
-				__( 'Scheduled task "%1$s" created (%2$s, %3$d action(s)).', 'wp-agent' ),
+				__( 'Scheduled task "%1$s" created (%2$s, %3$d action(s)).', 'jarvis-ai' ),
 				$name,
 				$schedule,
 				count( $sanitized_chain )
@@ -329,7 +329,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: total tasks, 2: active tasks */
-				__( '%1$d task(s) total, %2$d active.', 'wp-agent' ),
+				__( '%1$d task(s) total, %2$d active.', 'jarvis-ai' ),
 				count( $result ),
 				$active
 			),
@@ -351,7 +351,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Task ID is required.', 'wp-agent' ),
+				'message' => __( 'Task ID is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -361,7 +361,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Task not found.', 'wp-agent' ),
+				'message' => __( 'Task not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -382,7 +382,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			'data'    => array( 'task_id' => $task_id ),
 			'message' => sprintf(
 				/* translators: %s: task name */
-				__( 'Scheduled task "%s" deleted.', 'wp-agent' ),
+				__( 'Scheduled task "%s" deleted.', 'jarvis-ai' ),
 				$name
 			),
 		);
@@ -403,7 +403,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Task ID is required.', 'wp-agent' ),
+				'message' => __( 'Task ID is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -413,7 +413,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Task not found.', 'wp-agent' ),
+				'message' => __( 'Task not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -421,7 +421,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Task is already paused.', 'wp-agent' ),
+				'message' => __( 'Task is already paused.', 'jarvis-ai' ),
 			);
 		}
 
@@ -443,7 +443,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %s: task name */
-				__( 'Scheduled task "%s" paused.', 'wp-agent' ),
+				__( 'Scheduled task "%s" paused.', 'jarvis-ai' ),
 				$tasks[ $task_id ]['name']
 			),
 		);
@@ -464,7 +464,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Task ID is required.', 'wp-agent' ),
+				'message' => __( 'Task ID is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -474,7 +474,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Task not found.', 'wp-agent' ),
+				'message' => __( 'Task not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -482,7 +482,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Task is already active.', 'wp-agent' ),
+				'message' => __( 'Task is already active.', 'jarvis-ai' ),
 			);
 		}
 
@@ -505,7 +505,7 @@ class Manage_Scheduled_Tasks implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %s: task name */
-				__( 'Scheduled task "%s" resumed.', 'wp-agent' ),
+				__( 'Scheduled task "%s" resumed.', 'jarvis-ai' ),
 				$tasks[ $task_id ]['name']
 			),
 		);

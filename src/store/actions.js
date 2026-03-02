@@ -108,7 +108,7 @@ export const setLastFailedMessage = ( message ) => ( {
 export const sendMessage =
 	( message ) =>
 		async ( { dispatch, select } ) => {
-			const { restUrl, nonce } = window.wpAgentData || {};
+			const { restUrl, nonce } = window.jarvisAiData || {};
 
 			if ( ! restUrl || ! nonce ) {
 				dispatch( setError( 'Plugin configuration is missing. Please reload the page.' ) );
@@ -252,7 +252,7 @@ export const startNewConversation =
 export const restoreConversation =
 	( postId ) =>
 		async ( { dispatch } ) => {
-			const { restUrl, nonce } = window.wpAgentData || {};
+			const { restUrl, nonce } = window.jarvisAiData || {};
 
 			if ( ! restUrl || ! nonce || ! postId ) {
 				return;
@@ -288,7 +288,7 @@ export const restoreConversation =
 export const loadConversation =
 	( id ) =>
 		async ( { dispatch } ) => {
-			const { restUrl, nonce } = window.wpAgentData || {};
+			const { restUrl, nonce } = window.jarvisAiData || {};
 
 			if ( ! restUrl || ! nonce ) {
 				dispatch( setError( 'Plugin configuration is missing.' ) );

@@ -5,11 +5,11 @@
  * Updates one or all WordPress plugins to their latest versions.
  * Uses the WordPress Plugin_Upgrader API for safe upgrades.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -104,7 +104,7 @@ class Update_Plugin implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Provide a plugin file path or set update_all to true.', 'wp-agent' ),
+				'message' => __( 'Provide a plugin file path or set update_all to true.', 'jarvis-ai' ),
 			);
 		}
 
@@ -134,16 +134,16 @@ class Update_Plugin implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Invalid plugin file path.', 'wp-agent' ),
+				'message' => __( 'Invalid plugin file path.', 'jarvis-ai' ),
 			);
 		}
 
 		// Self-update guard.
-		if ( defined( 'WP_AGENT_BASE' ) && WP_AGENT_BASE === $plugin ) {
+		if ( defined( 'JARVIS_AI_BASE' ) && JARVIS_AI_BASE === $plugin ) {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Cannot update WP Agent through its own action system.', 'wp-agent' ),
+				'message' => __( 'Cannot update JARVIS AI through its own action system.', 'jarvis-ai' ),
 			);
 		}
 
@@ -155,7 +155,7 @@ class Update_Plugin implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: plugin file */
-					__( 'Plugin "%s" is not installed.', 'wp-agent' ),
+					__( 'Plugin "%s" is not installed.', 'jarvis-ai' ),
 					$plugin
 				),
 			);
@@ -172,7 +172,7 @@ class Update_Plugin implements Action_Interface {
 				),
 				'message' => sprintf(
 					/* translators: 1: plugin name, 2: version */
-					__( '"%1$s" is already at the latest version (%2$s).', 'wp-agent' ),
+					__( '"%1$s" is already at the latest version (%2$s).', 'jarvis-ai' ),
 					$installed[ $plugin ]['Name'],
 					$installed[ $plugin ]['Version']
 				),
@@ -206,7 +206,7 @@ class Update_Plugin implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: plugin name */
-					__( 'Failed to update "%s". Check filesystem permissions.', 'wp-agent' ),
+					__( 'Failed to update "%s". Check filesystem permissions.', 'jarvis-ai' ),
 					$installed[ $plugin ]['Name']
 				),
 			);
@@ -227,7 +227,7 @@ class Update_Plugin implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: plugin name, 2: old version, 3: new version */
-				__( 'Updated "%1$s" from v%2$s to v%3$s.', 'wp-agent' ),
+				__( 'Updated "%1$s" from v%2$s to v%3$s.', 'jarvis-ai' ),
 				$installed[ $plugin ]['Name'],
 				$old_version,
 				$new_version
@@ -248,20 +248,20 @@ class Update_Plugin implements Action_Interface {
 			return array(
 				'success' => true,
 				'data'    => array( 'updated' => 0 ),
-				'message' => __( 'All plugins are up to date.', 'wp-agent' ),
+				'message' => __( 'All plugins are up to date.', 'jarvis-ai' ),
 			);
 		}
 
 		// Remove self from update list.
-		if ( defined( 'WP_AGENT_BASE' ) && isset( $updates[ WP_AGENT_BASE ] ) ) {
-			unset( $updates[ WP_AGENT_BASE ] );
+		if ( defined( 'JARVIS_AI_BASE' ) && isset( $updates[ JARVIS_AI_BASE ] ) ) {
+			unset( $updates[ JARVIS_AI_BASE ] );
 		}
 
 		if ( empty( $updates ) ) {
 			return array(
 				'success' => true,
 				'data'    => array( 'updated' => 0 ),
-				'message' => __( 'All plugins are up to date (WP Agent excluded from self-update).', 'wp-agent' ),
+				'message' => __( 'All plugins are up to date (JARVIS AI excluded from self-update).', 'jarvis-ai' ),
 			);
 		}
 
@@ -293,7 +293,7 @@ class Update_Plugin implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: updated count, 2: failed count */
-				__( 'Updated %1$d plugin(s). %2$d failed.', 'wp-agent' ),
+				__( 'Updated %1$d plugin(s). %2$d failed.', 'jarvis-ai' ),
 				count( $updated ),
 				count( $failed )
 			),

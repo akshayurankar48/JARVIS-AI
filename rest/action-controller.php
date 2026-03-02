@@ -5,14 +5,14 @@
  * Direct action dispatch and undo endpoints. Allows the frontend to
  * execute actions outside of a chat flow and undo checkpointed actions.
  *
- * @package WPAgent\REST
+ * @package JarvisAI\REST
  * @since   1.0.0
  */
 
-namespace WPAgent\REST;
+namespace JarvisAI\REST;
 
-use WPAgent\Actions\Action_Registry;
-use WPAgent\Core\Database;
+use JarvisAI\Actions\Action_Registry;
+use JarvisAI\Core\Database;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -28,7 +28,7 @@ class Action_Controller {
 	 *
 	 * @var string
 	 */
-	const NAMESPACE = 'wp-agent/v1';
+	const NAMESPACE = 'jarvis-ai/v1';
 
 	/**
 	 * Register REST routes.
@@ -98,7 +98,7 @@ class Action_Controller {
 		if ( ! current_user_can( 'edit_posts' ) || ! REST_Permissions::current_user_has_allowed_role() ) {
 			return new \WP_Error(
 				'rest_forbidden',
-				__( 'You do not have permission to execute actions.', 'wp-agent' ),
+				__( 'You do not have permission to execute actions.', 'jarvis-ai' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -118,7 +118,7 @@ class Action_Controller {
 		if ( ! current_user_can( 'edit_posts' ) || ! REST_Permissions::current_user_has_allowed_role() ) {
 			return new \WP_Error(
 				'rest_forbidden',
-				__( 'You do not have permission to undo actions.', 'wp-agent' ),
+				__( 'You do not have permission to undo actions.', 'jarvis-ai' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -127,7 +127,7 @@ class Action_Controller {
 	}
 
 	/**
-	 * POST /wp-agent/v1/action/execute
+	 * POST /jarvis-ai/v1/action/execute
 	 *
 	 * Dispatches an action through the Action Registry.
 	 *
@@ -162,7 +162,7 @@ class Action_Controller {
 	}
 
 	/**
-	 * POST /wp-agent/v1/action/undo
+	 * POST /jarvis-ai/v1/action/undo
 	 *
 	 * Marks a checkpoint as restored. Full snapshot restore logic
 	 * will be implemented with the sidebar UI.
@@ -197,7 +197,7 @@ class Action_Controller {
 		if ( null === $checkpoint ) {
 			return new \WP_Error(
 				'not_found',
-				__( 'Checkpoint not found.', 'wp-agent' ),
+				__( 'Checkpoint not found.', 'jarvis-ai' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -205,7 +205,7 @@ class Action_Controller {
 		if ( (int) $checkpoint['user_id'] !== $user_id ) {
 			return new \WP_Error(
 				'forbidden',
-				__( 'You do not have access to this checkpoint.', 'wp-agent' ),
+				__( 'You do not have access to this checkpoint.', 'jarvis-ai' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -213,7 +213,7 @@ class Action_Controller {
 		if ( (int) $checkpoint['is_restored'] ) {
 			return new \WP_Error(
 				'already_restored',
-				__( 'This checkpoint has already been restored.', 'wp-agent' ),
+				__( 'This checkpoint has already been restored.', 'jarvis-ai' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -231,7 +231,7 @@ class Action_Controller {
 		if ( false === $updated ) {
 			return new \WP_Error(
 				'db_error',
-				__( 'Failed to mark checkpoint as restored.', 'wp-agent' ),
+				__( 'Failed to mark checkpoint as restored.', 'jarvis-ai' ),
 				array( 'status' => 500 )
 			);
 		}

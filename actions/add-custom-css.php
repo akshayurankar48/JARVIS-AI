@@ -8,11 +8,11 @@
  * and other visual polish that block attributes alone cannot achieve.
  * CSS is site-wide and persists across theme changes.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -119,7 +119,7 @@ class Add_Custom_Css implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Invalid operation. Must be one of: get, append, replace.', 'wp-agent' ),
+				'message' => __( 'Invalid operation. Must be one of: get, append, replace.', 'jarvis-ai' ),
 			);
 		}
 
@@ -133,7 +133,7 @@ class Add_Custom_Css implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'The "css" parameter is required for append and replace operations.', 'wp-agent' ),
+				'message' => __( 'The "css" parameter is required for append and replace operations.', 'jarvis-ai' ),
 			);
 		}
 
@@ -150,7 +150,7 @@ class Add_Custom_Css implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'CSS was empty after sanitization.', 'wp-agent' ),
+				'message' => __( 'CSS was empty after sanitization.', 'jarvis-ai' ),
 			);
 		}
 
@@ -161,7 +161,7 @@ class Add_Custom_Css implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: 1: submitted size in KB, 2: max size in KB */
-					__( 'CSS exceeds the maximum allowed size of %2$d KB (submitted: %1$d KB).', 'wp-agent' ),
+					__( 'CSS exceeds the maximum allowed size of %2$d KB (submitted: %1$d KB).', 'jarvis-ai' ),
 					(int) ceil( strlen( $raw_css ) / 1024 ),
 					(int) ( self::MAX_CSS_BYTES / 1024 )
 				),
@@ -209,10 +209,10 @@ class Add_Custom_Css implements Action_Interface {
 			'message' => $css_length > 0
 				? sprintf(
 					/* translators: %d: number of CSS characters */
-					__( 'Retrieved current custom CSS (%d characters).', 'wp-agent' ),
+					__( 'Retrieved current custom CSS (%d characters).', 'jarvis-ai' ),
 					$css_length
 				)
-				: __( 'No custom CSS is currently set.', 'wp-agent' ),
+				: __( 'No custom CSS is currently set.', 'jarvis-ai' ),
 		);
 	}
 
@@ -236,7 +236,7 @@ class Add_Custom_Css implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: max size in KB */
-					__( 'Combined CSS would exceed the %d KB limit. Use the replace operation or remove existing CSS first.', 'wp-agent' ),
+					__( 'Combined CSS would exceed the %d KB limit. Use the replace operation or remove existing CSS first.', 'jarvis-ai' ),
 					(int) ( self::MAX_CSS_BYTES / 1024 )
 				),
 			);
@@ -262,7 +262,7 @@ class Add_Custom_Css implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: appended CSS length, 2: total CSS length */
-				__( 'Appended %1$d characters of CSS. Total custom CSS is now %2$d characters.', 'wp-agent' ),
+				__( 'Appended %1$d characters of CSS. Total custom CSS is now %2$d characters.', 'jarvis-ai' ),
 				strlen( $new_css ),
 				$total_length
 			),
@@ -298,7 +298,7 @@ class Add_Custom_Css implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %d: CSS character count */
-				__( 'Replaced custom CSS with %d characters of new CSS.', 'wp-agent' ),
+				__( 'Replaced custom CSS with %d characters of new CSS.', 'jarvis-ai' ),
 				$css_length
 			),
 		);
@@ -332,7 +332,7 @@ class Add_Custom_Css implements Action_Interface {
 					'unsafe_css',
 					sprintf(
 						/* translators: %s: the dangerous CSS pattern that was detected */
-						__( 'CSS contains unsafe pattern: %s', 'wp-agent' ),
+						__( 'CSS contains unsafe pattern: %s', 'jarvis-ai' ),
 						$pattern
 					)
 				);
@@ -343,7 +343,7 @@ class Add_Custom_Css implements Action_Interface {
 		if ( preg_match( '/@import\s+url\s*\(\s*["\']?https?:\/\//i', $css ) ) {
 			return new \WP_Error(
 				'unsafe_css',
-				__( 'External @import URLs are not allowed for security.', 'wp-agent' )
+				__( 'External @import URLs are not allowed for security.', 'jarvis-ai' )
 			);
 		}
 

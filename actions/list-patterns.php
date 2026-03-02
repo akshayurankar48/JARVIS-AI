@@ -6,11 +6,11 @@
  * Returns metadata only (no block JSON) so the AI can pick
  * patterns before fetching their full content via get_pattern.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -100,7 +100,7 @@ class List_Patterns implements Action_Interface {
 		$category = ! empty( $params['category'] ) ? sanitize_key( $params['category'] ) : '';
 		$search   = ! empty( $params['search'] ) ? sanitize_text_field( $params['search'] ) : '';
 
-		$manager  = \WPAgent\Patterns\Pattern_Manager::get_instance();
+		$manager  = \JarvisAI\Patterns\Pattern_Manager::get_instance();
 		$patterns = $manager->list_patterns( $category, $search );
 
 		// Also include blueprints metadata.
@@ -115,8 +115,8 @@ class List_Patterns implements Action_Interface {
 
 		if ( empty( $patterns ) ) {
 			$message = $category
-				? sprintf( __( 'No patterns found in the "%s" category.', 'wp-agent' ), $category )
-				: __( 'No patterns found.', 'wp-agent' );
+				? sprintf( __( 'No patterns found in the "%s" category.', 'jarvis-ai' ), $category )
+				: __( 'No patterns found.', 'jarvis-ai' );
 
 			return array(
 				'success' => true,
@@ -131,14 +131,14 @@ class List_Patterns implements Action_Interface {
 
 		$message = sprintf(
 			/* translators: %d: result count */
-			__( 'Found %d pattern(s).', 'wp-agent' ),
+			__( 'Found %d pattern(s).', 'jarvis-ai' ),
 			count( $patterns )
 		);
 
 		if ( $category ) {
 			$message .= sprintf(
 				/* translators: %s: category name */
-				__( ' Category: %s.', 'wp-agent' ),
+				__( ' Category: %s.', 'jarvis-ai' ),
 				$category
 			);
 		}

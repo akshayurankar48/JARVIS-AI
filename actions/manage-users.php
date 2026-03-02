@@ -6,11 +6,11 @@
  * create_user (new users) and list_users (query users). Supports
  * role changes, profile updates, password resets, and user deletion.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -120,7 +120,7 @@ class Manage_Users implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'User ID is required.', 'wp-agent' ),
+				'message' => __( 'User ID is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -130,7 +130,7 @@ class Manage_Users implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => sprintf( __( 'User #%d not found.', 'wp-agent' ), $user_id ),
+				'message' => sprintf( __( 'User #%d not found.', 'jarvis-ai' ), $user_id ),
 			);
 		}
 
@@ -139,7 +139,7 @@ class Manage_Users implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'You cannot modify your own account through the AI agent.', 'wp-agent' ),
+				'message' => __( 'You cannot modify your own account through the AI agent.', 'jarvis-ai' ),
 			);
 		}
 
@@ -148,7 +148,7 @@ class Manage_Users implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'You do not have permission to modify administrator accounts.', 'wp-agent' ),
+				'message' => __( 'You do not have permission to modify administrator accounts.', 'jarvis-ai' ),
 			);
 		}
 
@@ -165,7 +165,7 @@ class Manage_Users implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => sprintf( __( 'Unknown operation: %s', 'wp-agent' ), $operation ),
+					'message' => sprintf( __( 'Unknown operation: %s', 'jarvis-ai' ), $operation ),
 				);
 		}
 	}
@@ -186,7 +186,7 @@ class Manage_Users implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'No fields provided to update.', 'wp-agent' ),
+				'message' => __( 'No fields provided to update.', 'jarvis-ai' ),
 			);
 		}
 
@@ -215,7 +215,7 @@ class Manage_Users implements Action_Interface {
 					return array(
 						'success' => false,
 						'data'    => null,
-						'message' => __( 'Invalid email address.', 'wp-agent' ),
+						'message' => __( 'Invalid email address.', 'jarvis-ai' ),
 					);
 				}
 				// Check email is not taken by another user.
@@ -224,7 +224,7 @@ class Manage_Users implements Action_Interface {
 					return array(
 						'success' => false,
 						'data'    => null,
-						'message' => __( 'This email is already registered to another user.', 'wp-agent' ),
+						'message' => __( 'This email is already registered to another user.', 'jarvis-ai' ),
 					);
 				}
 			} elseif ( 'user_url' === $key ) {
@@ -241,7 +241,7 @@ class Manage_Users implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'No valid fields to update.', 'wp-agent' ),
+				'message' => __( 'No valid fields to update.', 'jarvis-ai' ),
 			);
 		}
 
@@ -252,7 +252,7 @@ class Manage_Users implements Action_Interface {
 				'success' => false,
 				'data'    => null,
 				'message' => sprintf(
-					__( 'Failed to update user: %s', 'wp-agent' ),
+					__( 'Failed to update user: %s', 'jarvis-ai' ),
 					$result->get_error_message()
 				),
 			);
@@ -265,7 +265,7 @@ class Manage_Users implements Action_Interface {
 				'updated_fields' => $updated,
 			),
 			'message' => sprintf(
-				__( 'Updated %1$d field(s) for user "%2$s".', 'wp-agent' ),
+				__( 'Updated %1$d field(s) for user "%2$s".', 'jarvis-ai' ),
 				count( $updated ),
 				sanitize_text_field( $user->display_name )
 			),
@@ -288,7 +288,7 @@ class Manage_Users implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Role is required for change_role operation.', 'wp-agent' ),
+				'message' => __( 'Role is required for change_role operation.', 'jarvis-ai' ),
 			);
 		}
 
@@ -298,7 +298,7 @@ class Manage_Users implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => sprintf( __( 'Invalid role: %s', 'wp-agent' ), $new_role ),
+				'message' => sprintf( __( 'Invalid role: %s', 'jarvis-ai' ), $new_role ),
 			);
 		}
 
@@ -307,7 +307,7 @@ class Manage_Users implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'You do not have permission to assign the administrator role.', 'wp-agent' ),
+				'message' => __( 'You do not have permission to assign the administrator role.', 'jarvis-ai' ),
 			);
 		}
 
@@ -322,7 +322,7 @@ class Manage_Users implements Action_Interface {
 				'new_role' => $new_role,
 			),
 			'message' => sprintf(
-				__( 'Changed role for "%1$s" from %2$s to %3$s.', 'wp-agent' ),
+				__( 'Changed role for "%1$s" from %2$s to %3$s.', 'jarvis-ai' ),
 				sanitize_text_field( $user->display_name ),
 				$valid_roles[ $old_role ] ?? $old_role,
 				$valid_roles[ $new_role ]
@@ -352,7 +352,7 @@ class Manage_Users implements Action_Interface {
 				'user_id' => $user->ID,
 			),
 			'message' => sprintf(
-				__( 'Password reset for "%s". A notification has been sent.', 'wp-agent' ),
+				__( 'Password reset for "%s". A notification has been sent.', 'jarvis-ai' ),
 				sanitize_text_field( $user->display_name )
 			),
 		);
@@ -372,7 +372,7 @@ class Manage_Users implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'You do not have permission to delete users.', 'wp-agent' ),
+				'message' => __( 'You do not have permission to delete users.', 'jarvis-ai' ),
 			);
 		}
 
@@ -383,7 +383,7 @@ class Manage_Users implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'You must specify a reassign user ID to transfer content to before deleting a user.', 'wp-agent' ),
+				'message' => __( 'You must specify a reassign user ID to transfer content to before deleting a user.', 'jarvis-ai' ),
 			);
 		}
 
@@ -393,7 +393,7 @@ class Manage_Users implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => sprintf( __( 'Reassign user #%d not found.', 'wp-agent' ), $reassign ),
+				'message' => sprintf( __( 'Reassign user #%d not found.', 'jarvis-ai' ), $reassign ),
 			);
 		}
 
@@ -402,7 +402,7 @@ class Manage_Users implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Cannot reassign content to the user being deleted.', 'wp-agent' ),
+				'message' => __( 'Cannot reassign content to the user being deleted.', 'jarvis-ai' ),
 			);
 		}
 
@@ -415,7 +415,7 @@ class Manage_Users implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Failed to delete user.', 'wp-agent' ),
+				'message' => __( 'Failed to delete user.', 'jarvis-ai' ),
 			);
 		}
 
@@ -426,7 +426,7 @@ class Manage_Users implements Action_Interface {
 				'reassigned_to'   => $reassign,
 			),
 			'message' => sprintf(
-				__( 'Deleted user "%1$s". Content reassigned to "%2$s".', 'wp-agent' ),
+				__( 'Deleted user "%1$s". Content reassigned to "%2$s".', 'jarvis-ai' ),
 				$display_name,
 				sanitize_text_field( $reassign_user->display_name )
 			),

@@ -6,11 +6,11 @@
  * recommendations with ratings, install counts, and compatibility
  * information.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -119,7 +119,7 @@ class Recommend_Plugin implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Search query is required.', 'wp-agent' ),
+				'message' => __( 'Search query is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -140,7 +140,7 @@ class Recommend_Plugin implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "search" or "recommend".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "search" or "recommend".', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -187,7 +187,7 @@ class Recommend_Plugin implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: error message */
-					__( 'Plugin search failed: %s', 'wp-agent' ),
+					__( 'Plugin search failed: %s', 'jarvis-ai' ),
 					$api_result->get_error_message()
 				),
 			);
@@ -204,7 +204,7 @@ class Recommend_Plugin implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: plugin count, 2: search query */
-				__( 'Found %1$d plugin(s) for "%2$s".', 'wp-agent' ),
+				__( 'Found %1$d plugin(s) for "%2$s".', 'jarvis-ai' ),
 				count( $plugins ),
 				$query
 			),
@@ -253,7 +253,7 @@ class Recommend_Plugin implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: error message */
-					__( 'Plugin recommendation failed: %s', 'wp-agent' ),
+					__( 'Plugin recommendation failed: %s', 'jarvis-ai' ),
 					$api_result->get_error_message()
 				),
 			);
@@ -281,11 +281,11 @@ class Recommend_Plugin implements Action_Interface {
 				'query'          => $query,
 				'plugins'        => $plugins,
 				'total'          => count( $plugins ),
-				'recommendation' => __( 'Sorted by combined rating and popularity score.', 'wp-agent' ),
+				'recommendation' => __( 'Sorted by combined rating and popularity score.', 'jarvis-ai' ),
 			),
 			'message' => sprintf(
 				/* translators: 1: plugin count, 2: use case */
-				__( 'Recommending %1$d plugin(s) for "%2$s".', 'wp-agent' ),
+				__( 'Recommending %1$d plugin(s) for "%2$s".', 'jarvis-ai' ),
 				count( $plugins ),
 				$query
 			),

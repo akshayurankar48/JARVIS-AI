@@ -18,11 +18,11 @@
  * - comment      Comment data
  * - template_part  Template part post content
  *
- * @package WPAgent\Core
+ * @package JarvisAI\Core
  * @since   1.0.0
  */
 
-namespace WPAgent\Core;
+namespace JarvisAI\Core;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -294,23 +294,23 @@ class Checkpoint_Manager {
 		if ( ! $checkpoint ) {
 			return array(
 				'success' => false,
-				'message' => __( 'Checkpoint not found or does not belong to this conversation.', 'wp-agent' ),
+				'message' => __( 'Checkpoint not found or does not belong to this conversation.', 'jarvis-ai' ),
 			);
 		}
 
 		if ( ! empty( $checkpoint['is_restored'] ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'This checkpoint has already been restored.', 'wp-agent' ),
+				'message' => __( 'This checkpoint has already been restored.', 'jarvis-ai' ),
 			);
 		}
 
 		// Verify the current user has permission for the original action.
-		$action_obj = \WPAgent\Actions\Action_Registry::get_instance()->get_action( $checkpoint['action_type'] );
+		$action_obj = \JarvisAI\Actions\Action_Registry::get_instance()->get_action( $checkpoint['action_type'] );
 		if ( $action_obj && ! current_user_can( $action_obj->get_capabilities_required() ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'You do not have permission to undo this action.', 'wp-agent' ),
+				'message' => __( 'You do not have permission to undo this action.', 'jarvis-ai' ),
 			);
 		}
 
@@ -318,7 +318,7 @@ class Checkpoint_Manager {
 		if ( ! is_array( $snapshot ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'Snapshot data is corrupt.', 'wp-agent' ),
+				'message' => __( 'Snapshot data is corrupt.', 'jarvis-ai' ),
 			);
 		}
 
@@ -471,7 +471,7 @@ class Checkpoint_Manager {
 		}
 
 		// Only snapshot whitelisted options.
-		if ( ! in_array( $option_name, \WPAgent\Actions\Update_Settings::ALLOWED_OPTIONS, true ) ) {
+		if ( ! in_array( $option_name, \JarvisAI\Actions\Update_Settings::ALLOWED_OPTIONS, true ) ) {
 			return null;
 		}
 
@@ -764,7 +764,7 @@ class Checkpoint_Manager {
 					'success' => false,
 					'message' => sprintf(
 						/* translators: %s: entity type */
-						__( 'Unknown entity type for restore: %s', 'wp-agent' ),
+						__( 'Unknown entity type for restore: %s', 'jarvis-ai' ),
 						$entity_type
 					),
 				);
@@ -782,7 +782,7 @@ class Checkpoint_Manager {
 		if ( empty( $snapshot['post'] ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'No post data in snapshot.', 'wp-agent' ),
+				'message' => __( 'No post data in snapshot.', 'jarvis-ai' ),
 			);
 		}
 
@@ -841,7 +841,7 @@ class Checkpoint_Manager {
 			'success' => true,
 			'message' => sprintf(
 				/* translators: %d: post ID */
-				__( 'Restored post #%d to its previous state.', 'wp-agent' ),
+				__( 'Restored post #%d to its previous state.', 'jarvis-ai' ),
 				$post_id
 			),
 		);
@@ -865,7 +865,7 @@ class Checkpoint_Manager {
 			}
 			return array(
 				'success' => true,
-				'message' => __( 'Restored global styles (removed custom overrides).', 'wp-agent' ),
+				'message' => __( 'Restored global styles (removed custom overrides).', 'jarvis-ai' ),
 			);
 		}
 
@@ -892,7 +892,7 @@ class Checkpoint_Manager {
 
 		return array(
 			'success' => true,
-			'message' => __( 'Restored global styles to their previous state.', 'wp-agent' ),
+			'message' => __( 'Restored global styles to their previous state.', 'jarvis-ai' ),
 		);
 	}
 
@@ -915,7 +915,7 @@ class Checkpoint_Manager {
 
 		return array(
 			'success' => true,
-			'message' => __( 'Restored custom CSS to its previous state.', 'wp-agent' ),
+			'message' => __( 'Restored custom CSS to its previous state.', 'jarvis-ai' ),
 		);
 	}
 
@@ -928,7 +928,7 @@ class Checkpoint_Manager {
 	 * @return array { success, message }
 	 */
 	private function restore_options( array $snapshot ) {
-		$allowed  = array_flip( \WPAgent\Actions\Update_Settings::ALLOWED_OPTIONS );
+		$allowed  = array_flip( \JarvisAI\Actions\Update_Settings::ALLOWED_OPTIONS );
 		$restored = 0;
 
 		foreach ( $snapshot as $key => $value ) {
@@ -944,7 +944,7 @@ class Checkpoint_Manager {
 			'success' => true,
 			'message' => sprintf(
 				/* translators: %d: number of options restored */
-				__( 'Restored %d option(s) to their previous values.', 'wp-agent' ),
+				__( 'Restored %d option(s) to their previous values.', 'jarvis-ai' ),
 				$restored
 			),
 		);
@@ -963,7 +963,7 @@ class Checkpoint_Manager {
 		if ( ! isset( $snapshot['active_plugins'] ) || ! is_array( $snapshot['active_plugins'] ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'No plugin data in snapshot.', 'wp-agent' ),
+				'message' => __( 'No plugin data in snapshot.', 'jarvis-ai' ),
 			);
 		}
 
@@ -992,7 +992,7 @@ class Checkpoint_Manager {
 
 		return array(
 			'success' => true,
-			'message' => __( 'Restored active plugins to their previous state.', 'wp-agent' ),
+			'message' => __( 'Restored active plugins to their previous state.', 'jarvis-ai' ),
 		);
 	}
 
@@ -1006,7 +1006,7 @@ class Checkpoint_Manager {
 		if ( empty( $snapshot['stylesheet'] ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'No theme data in snapshot.', 'wp-agent' ),
+				'message' => __( 'No theme data in snapshot.', 'jarvis-ai' ),
 			);
 		}
 
@@ -1016,7 +1016,7 @@ class Checkpoint_Manager {
 			'success' => true,
 			'message' => sprintf(
 				/* translators: %s: theme stylesheet */
-				__( 'Restored theme to "%s".', 'wp-agent' ),
+				__( 'Restored theme to "%s".', 'jarvis-ai' ),
 				$snapshot['stylesheet']
 			),
 		);
@@ -1035,7 +1035,7 @@ class Checkpoint_Manager {
 			set_theme_mod( 'nav_menu_locations', $snapshot['locations'] );
 			return array(
 				'success' => true,
-				'message' => __( 'Restored menu locations to their previous state.', 'wp-agent' ),
+				'message' => __( 'Restored menu locations to their previous state.', 'jarvis-ai' ),
 			);
 		}
 
@@ -1047,7 +1047,7 @@ class Checkpoint_Manager {
 			'success' => true,
 			'message' => sprintf(
 				/* translators: %d: menu ID */
-				__( 'Restored menu #%d to its previous state.', 'wp-agent' ),
+				__( 'Restored menu #%d to its previous state.', 'jarvis-ai' ),
 				$menu_id
 			),
 		);
@@ -1064,7 +1064,7 @@ class Checkpoint_Manager {
 		if ( empty( $snapshot['term'] ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'No term data in snapshot.', 'wp-agent' ),
+				'message' => __( 'No term data in snapshot.', 'jarvis-ai' ),
 			);
 		}
 
@@ -1086,7 +1086,7 @@ class Checkpoint_Manager {
 			'success' => true,
 			'message' => sprintf(
 				/* translators: %d: term ID */
-				__( 'Restored term #%d to its previous state.', 'wp-agent' ),
+				__( 'Restored term #%d to its previous state.', 'jarvis-ai' ),
 				$term_id
 			),
 		);
@@ -1103,7 +1103,7 @@ class Checkpoint_Manager {
 		if ( empty( $snapshot['comment'] ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'No comment data in snapshot.', 'wp-agent' ),
+				'message' => __( 'No comment data in snapshot.', 'jarvis-ai' ),
 			);
 		}
 
@@ -1120,7 +1120,7 @@ class Checkpoint_Manager {
 			'success' => true,
 			'message' => sprintf(
 				/* translators: %d: comment ID */
-				__( 'Restored comment #%d to its previous state.', 'wp-agent' ),
+				__( 'Restored comment #%d to its previous state.', 'jarvis-ai' ),
 				$comment_id
 			),
 		);
@@ -1137,7 +1137,7 @@ class Checkpoint_Manager {
 		if ( ! isset( $snapshot['meta'] ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'No SEO meta in snapshot.', 'wp-agent' ),
+				'message' => __( 'No SEO meta in snapshot.', 'jarvis-ai' ),
 			);
 		}
 
@@ -1149,7 +1149,7 @@ class Checkpoint_Manager {
 			'success' => true,
 			'message' => sprintf(
 				/* translators: %d: post ID */
-				__( 'Restored SEO meta for post #%d.', 'wp-agent' ),
+				__( 'Restored SEO meta for post #%d.', 'jarvis-ai' ),
 				$post_id
 			),
 		);
@@ -1166,7 +1166,7 @@ class Checkpoint_Manager {
 		if ( ! isset( $snapshot['post_content'] ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'No template part content in snapshot.', 'wp-agent' ),
+				'message' => __( 'No template part content in snapshot.', 'jarvis-ai' ),
 			);
 		}
 
@@ -1190,7 +1190,7 @@ class Checkpoint_Manager {
 			'success' => true,
 			'message' => sprintf(
 				/* translators: %s: template part slug */
-				__( 'Restored template part "%s" to its previous state.', 'wp-agent' ),
+				__( 'Restored template part "%s" to its previous state.', 'jarvis-ai' ),
 				$snapshot['slug'] ?? $post_id
 			),
 		);
@@ -1211,7 +1211,7 @@ class Checkpoint_Manager {
 		if ( ! $entity_id ) {
 			return array(
 				'success' => false,
-				'message' => __( 'Cannot undo creation: entity ID is unknown.', 'wp-agent' ),
+				'message' => __( 'Cannot undo creation: entity ID is unknown.', 'jarvis-ai' ),
 			);
 		}
 
@@ -1224,13 +1224,13 @@ class Checkpoint_Manager {
 						'success' => true,
 						'message' => sprintf(
 							/* translators: %d: post ID */
-							__( 'Moved created post #%d to trash.', 'wp-agent' ),
+							__( 'Moved created post #%d to trash.', 'jarvis-ai' ),
 							$entity_id
 						),
 					)
 					: array(
 						'success' => false,
-						'message' => __( 'Failed to trash the created post.', 'wp-agent' ),
+						'message' => __( 'Failed to trash the created post.', 'jarvis-ai' ),
 					);
 
 			case 'create_pattern':
@@ -1240,13 +1240,13 @@ class Checkpoint_Manager {
 						'success' => true,
 						'message' => sprintf(
 							/* translators: %d: pattern post ID */
-							__( 'Deleted created pattern #%d.', 'wp-agent' ),
+							__( 'Deleted created pattern #%d.', 'jarvis-ai' ),
 							$entity_id
 						),
 					)
 					: array(
 						'success' => false,
-						'message' => __( 'Failed to delete the created pattern.', 'wp-agent' ),
+						'message' => __( 'Failed to delete the created pattern.', 'jarvis-ai' ),
 					);
 
 			case 'import_media':
@@ -1257,13 +1257,13 @@ class Checkpoint_Manager {
 						'success' => true,
 						'message' => sprintf(
 							/* translators: %d: attachment ID */
-							__( 'Deleted created media #%d.', 'wp-agent' ),
+							__( 'Deleted created media #%d.', 'jarvis-ai' ),
 							$entity_id
 						),
 					)
 					: array(
 						'success' => false,
-						'message' => __( 'Failed to delete the created media.', 'wp-agent' ),
+						'message' => __( 'Failed to delete the created media.', 'jarvis-ai' ),
 					);
 
 			case 'create_user':
@@ -1275,20 +1275,20 @@ class Checkpoint_Manager {
 						'success' => true,
 						'message' => sprintf(
 							/* translators: %d: user ID */
-							__( 'Deleted created user #%d.', 'wp-agent' ),
+							__( 'Deleted created user #%d.', 'jarvis-ai' ),
 							$entity_id
 						),
 					)
 					: array(
 						'success' => false,
-						'message' => __( 'Failed to delete the created user.', 'wp-agent' ),
+						'message' => __( 'Failed to delete the created user.', 'jarvis-ai' ),
 					);
 
 			case 'install_plugin':
 				// Cannot safely uninstall — just report.
 				return array(
 					'success' => false,
-					'message' => __( 'Cannot automatically uninstall a plugin. Please remove it manually via Plugins > Installed Plugins.', 'wp-agent' ),
+					'message' => __( 'Cannot automatically uninstall a plugin. Please remove it manually via Plugins > Installed Plugins.', 'jarvis-ai' ),
 				);
 
 			default:
@@ -1296,7 +1296,7 @@ class Checkpoint_Manager {
 					'success' => false,
 					'message' => sprintf(
 						/* translators: %s: action type */
-						__( 'Undo not supported for creation action: %s', 'wp-agent' ),
+						__( 'Undo not supported for creation action: %s', 'jarvis-ai' ),
 						$action_type
 					),
 				);

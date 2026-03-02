@@ -1,10 +1,10 @@
 <?php
 /**
- * Uninstall WP Agent.
+ * Uninstall JARVIS AI.
  *
  * Removes all plugin data when uninstalled via WP Admin > Plugins.
  *
- * @package WPAgent
+ * @package JarvisAI
  * @since 1.0.0
  */
 
@@ -31,7 +31,7 @@ foreach ( $tables as $table ) {
 $wpdb->query(
 	$wpdb->prepare(
 		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-		$wpdb->esc_like( 'wp_agent_' ) . '%'
+		$wpdb->esc_like( 'jarvis_ai_' ) . '%'
 	)
 );
 
@@ -40,7 +40,7 @@ $wpdb->query(
 $wpdb->query(
 	$wpdb->prepare(
 		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-		$wpdb->esc_like( '_transient_wp_agent_' ) . '%',
-		$wpdb->esc_like( '_transient_timeout_wp_agent_' ) . '%'
+		$wpdb->esc_like( '_transient_jarvis_ai_' ) . '%',
+		$wpdb->esc_like( '_transient_timeout_jarvis_ai_' ) . '%'
 	)
 );

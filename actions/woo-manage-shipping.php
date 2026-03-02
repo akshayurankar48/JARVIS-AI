@@ -2,11 +2,11 @@
 /**
  * WooCommerce Manage Shipping Action.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -116,7 +116,7 @@ class Woo_Manage_Shipping implements Action_Interface {
 				return array(
 					'success' => true,
 					'data'    => array( 'zones' => $list ),
-					'message' => sprintf( __( '%d shipping zone(s).', 'wp-agent' ), count( $list ) ),
+					'message' => sprintf( __( '%d shipping zone(s).', 'jarvis-ai' ), count( $list ) ),
 				);
 
 			case 'list_methods':
@@ -137,7 +137,7 @@ class Woo_Manage_Shipping implements Action_Interface {
 						'zone_id' => $zone_id,
 						'methods' => $methods,
 					),
-					'message' => sprintf( __( '%d method(s) in zone.', 'wp-agent' ), count( $methods ) ),
+					'message' => sprintf( __( '%d method(s) in zone.', 'jarvis-ai' ), count( $methods ) ),
 				);
 
 			case 'add_zone':
@@ -146,7 +146,7 @@ class Woo_Manage_Shipping implements Action_Interface {
 					return array(
 						'success' => false,
 						'data'    => null,
-						'message' => __( 'zone_name required.', 'wp-agent' ),
+						'message' => __( 'zone_name required.', 'jarvis-ai' ),
 					);
 				}
 				$zone = new \WC_Shipping_Zone();
@@ -155,7 +155,7 @@ class Woo_Manage_Shipping implements Action_Interface {
 				return array(
 					'success' => true,
 					'data'    => array( 'zone_id' => $zone->get_id() ),
-					'message' => sprintf( __( 'Zone "%s" created.', 'wp-agent' ), $name ),
+					'message' => sprintf( __( 'Zone "%s" created.', 'jarvis-ai' ), $name ),
 				);
 
 			case 'add_method':
@@ -165,7 +165,7 @@ class Woo_Manage_Shipping implements Action_Interface {
 					return array(
 						'success' => false,
 						'data'    => null,
-						'message' => __( 'method_type required.', 'wp-agent' ),
+						'message' => __( 'method_type required.', 'jarvis-ai' ),
 					);
 				}
 				$zone        = new \WC_Shipping_Zone( $zone_id );
@@ -173,7 +173,7 @@ class Woo_Manage_Shipping implements Action_Interface {
 				return array(
 					'success' => true,
 					'data'    => array( 'instance_id' => $instance_id ),
-					'message' => sprintf( __( 'Method "%1$s" added to zone #%2$d.', 'wp-agent' ), $type, $zone_id ),
+					'message' => sprintf( __( 'Method "%1$s" added to zone #%2$d.', 'jarvis-ai' ), $type, $zone_id ),
 				);
 
 			case 'update_method':
@@ -183,7 +183,7 @@ class Woo_Manage_Shipping implements Action_Interface {
 					return array(
 						'success' => false,
 						'data'    => null,
-						'message' => __( 'instance_id and settings required.', 'wp-agent' ),
+						'message' => __( 'instance_id and settings required.', 'jarvis-ai' ),
 					);
 				}
 				foreach ( $settings as $key => $value ) {
@@ -192,14 +192,14 @@ class Woo_Manage_Shipping implements Action_Interface {
 				return array(
 					'success' => true,
 					'data'    => array( 'instance_id' => $instance_id ),
-					'message' => sprintf( __( 'Shipping method #%d updated.', 'wp-agent' ), $instance_id ),
+					'message' => sprintf( __( 'Shipping method #%d updated.', 'jarvis-ai' ), $instance_id ),
 				);
 
 			default:
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation.', 'wp-agent' ),
+					'message' => __( 'Invalid operation.', 'jarvis-ai' ),
 				);
 		}
 	}

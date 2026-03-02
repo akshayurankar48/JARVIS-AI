@@ -7,7 +7,7 @@
 
 import { ACTION_TYPES } from './constants';
 
-const { hasApiKey } = window.wpAgentData || {};
+const { hasApiKey } = window.jarvisAiData || {};
 
 const DEFAULT_STATE = {
 	conversationId: null,

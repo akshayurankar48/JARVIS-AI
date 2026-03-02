@@ -7,14 +7,14 @@
  * existing OpenRouter client. Returns the generated text so the
  * orchestrator can insert it into posts via create_post or insert_blocks.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
-use WPAgent\AI\Open_Router_Client;
-use WPAgent\AI\Model_Router;
+use JarvisAI\AI\Open_Router_Client;
+use JarvisAI\AI\Model_Router;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -218,7 +218,7 @@ class Generate_Content implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Invalid content type. Use: blog_post, product_description, ad_copy, social_post, email, page_copy, or custom.', 'wp-agent' ),
+				'message' => __( 'Invalid content type. Use: blog_post, product_description, ad_copy, social_post, email, page_copy, or custom.', 'jarvis-ai' ),
 			);
 		}
 
@@ -226,7 +226,7 @@ class Generate_Content implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'A topic is required to generate content.', 'wp-agent' ),
+				'message' => __( 'A topic is required to generate content.', 'jarvis-ai' ),
 			);
 		}
 
@@ -236,7 +236,7 @@ class Generate_Content implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: maximum allowed characters */
-					__( 'Topic must be %d characters or fewer.', 'wp-agent' ),
+					__( 'Topic must be %d characters or fewer.', 'jarvis-ai' ),
 					self::MAX_TOPIC_LENGTH
 				),
 			);
@@ -319,7 +319,7 @@ class Generate_Content implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: error message */
-					__( 'Content generation failed: %s', 'wp-agent' ),
+					__( 'Content generation failed: %s', 'jarvis-ai' ),
 					$response->get_error_message()
 				),
 			);
@@ -331,7 +331,7 @@ class Generate_Content implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Content generation returned empty content. Please try again.', 'wp-agent' ),
+				'message' => __( 'Content generation returned empty content. Please try again.', 'jarvis-ai' ),
 			);
 		}
 
@@ -350,7 +350,7 @@ class Generate_Content implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: content type label, 2: word count */
-				__( 'Generated %1$s (%2$d words). Use create_post or insert_blocks to add it to the site.', 'wp-agent' ),
+				__( 'Generated %1$s (%2$d words). Use create_post or insert_blocks to add it to the site.', 'jarvis-ai' ),
 				$type_label,
 				$word_count
 			),

@@ -1,4 +1,4 @@
-=== WP Agent ===
+=== JARVIS AI ===
 Contributors: flavor flavor
 Tags: ai, assistant, agent, chatbot, gutenberg
 Requires at least: 6.4
@@ -12,7 +12,7 @@ AI-powered admin assistant for WordPress. Chat with your site using natural lang
 
 == Description ==
 
-WP Agent (JARVIS) is an autonomous AI agent that **operates** WordPress from natural language. Unlike simple chatbots, JARVIS plans multi-step tasks, confirms destructive actions, and executes them — all from a sidebar chat in the block editor.
+JARVIS AI (JARVIS) is an autonomous AI agent that **operates** WordPress from natural language. Unlike simple chatbots, JARVIS plans multi-step tasks, confirms destructive actions, and executes them — all from a sidebar chat in the block editor.
 
 = What It Can Do =
 
@@ -52,9 +52,9 @@ WP Agent (JARVIS) is an autonomous AI agent that **operates** WordPress from nat
 
 == Installation ==
 
-1. Upload the `wp-agent` folder to `/wp-content/plugins/`
+1. Upload the `jarvis-ai` folder to `/wp-content/plugins/`
 2. Activate the plugin through the Plugins menu
-3. Go to **WP Agent > Settings** and enter your API key (OpenRouter, Anthropic, OpenAI, or Google)
+3. Go to **JARVIS AI > Settings** and enter your API key (OpenRouter, Anthropic, OpenAI, or Google)
 4. Open the block editor on any post or page
 5. Click the JARVIS icon in the editor toolbar to open the sidebar
 6. Start chatting — e.g., "Create a landing page for a coffee shop"
@@ -75,7 +75,7 @@ JARVIS uses a Plan-Confirm-Execute model. Destructive actions (deleting posts, d
 
 = Does it work with any theme? =
 
-Yes. WP Agent works with any block theme and generates standard WordPress blocks. It does not depend on any specific theme.
+Yes. JARVIS AI works with any block theme and generates standard WordPress blocks. It does not depend on any specific theme.
 
 == Changelog ==
 

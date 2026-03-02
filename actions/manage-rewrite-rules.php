@@ -5,11 +5,11 @@
  * Lists, flushes, and tests WordPress rewrite rules. Useful for
  * debugging permalink issues and verifying URL routing.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -122,7 +122,7 @@ class Manage_Rewrite_Rules implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "list", "flush", or "test_url".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "list", "flush", or "test_url".', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -149,7 +149,7 @@ class Manage_Rewrite_Rules implements Action_Interface {
 					'total'     => 0,
 					'structure' => get_option( 'permalink_structure', '' ),
 				),
-				'message' => __( 'No rewrite rules found. Permalinks may be set to "Plain".', 'wp-agent' ),
+				'message' => __( 'No rewrite rules found. Permalinks may be set to "Plain".', 'jarvis-ai' ),
 			);
 		}
 
@@ -183,7 +183,7 @@ class Manage_Rewrite_Rules implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: shown count, 2: total count */
-				__( 'Showing %1$d of %2$d rewrite rules.', 'wp-agent' ),
+				__( 'Showing %1$d of %2$d rewrite rules.', 'jarvis-ai' ),
 				count( $formatted ),
 				$total
 			),
@@ -212,7 +212,7 @@ class Manage_Rewrite_Rules implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %d: rule count */
-				__( 'Rewrite rules flushed. %d rule(s) regenerated.', 'wp-agent' ),
+				__( 'Rewrite rules flushed. %d rule(s) regenerated.', 'jarvis-ai' ),
 				$count
 			),
 		);
@@ -233,7 +233,7 @@ class Manage_Rewrite_Rules implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'URL is required for testing.', 'wp-agent' ),
+				'message' => __( 'URL is required for testing.', 'jarvis-ai' ),
 			);
 		}
 
@@ -260,14 +260,14 @@ class Manage_Rewrite_Rules implements Action_Interface {
 			'message' => $post_id
 				? sprintf(
 					/* translators: 1: URL, 2: post title, 3: post ID */
-					__( 'URL "%1$s" resolves to "%2$s" (ID: %3$d).', 'wp-agent' ),
+					__( 'URL "%1$s" resolves to "%2$s" (ID: %3$d).', 'jarvis-ai' ),
 					$url,
 					$result['title'],
 					$post_id
 				)
 				: sprintf(
 					/* translators: %s: URL */
-					__( 'URL "%s" does not resolve to any post or page.', 'wp-agent' ),
+					__( 'URL "%s" does not resolve to any post or page.', 'jarvis-ai' ),
 					$url
 				),
 		);

@@ -1,0 +1,206 @@
+{
+	"categories": [
+		{
+			"id": "landing-pages",
+			"label": "Landing Pages",
+			"icon": "Rocket"
+		},
+		{
+			"id": "saas",
+			"label": "SaaS",
+			"icon": "Cpu"
+		},
+		{
+			"id": "ecommerce",
+			"label": "E-commerce",
+			"icon": "ShoppingBag"
+		},
+		{
+			"id": "portfolio",
+			"label": "Portfolio",
+			"icon": "Image"
+		},
+		{
+			"id": "blog",
+			"label": "Blog",
+			"icon": "FileText"
+		},
+		{
+			"id": "restaurant",
+			"label": "Restaurant",
+			"icon": "UtensilsCrossed"
+		},
+		{
+			"id": "agency",
+			"label": "Agency",
+			"icon": "Briefcase"
+		},
+		{
+			"id": "startup",
+			"label": "Startup",
+			"icon": "Zap"
+		}
+	],
+	"templates": [
+		{
+			"id": "saas-landing",
+			"title": "SaaS Landing Page",
+			"description": "Modern SaaS page with aurora hero, bento features, glass pricing, and gradient CTA",
+			"category": "saas",
+			"prompt": "Build a modern SaaS landing page with an aurora gradient hero section, bento-style feature cards, glassmorphic pricing table with 3 tiers, customer testimonials, FAQ accordion, and a glowing gradient CTA. Use dark theme with indigo/violet palette. Make it conversion-focused.",
+			"tags": ["dark", "modern", "conversion"]
+		},
+		{
+			"id": "saas-minimal",
+			"title": "Minimal SaaS Page",
+			"description": "Clean, light SaaS page focused on clarity and whitespace",
+			"category": "saas",
+			"prompt": "Build a minimal SaaS landing page with a clean light hero, simple 3-column feature grid with icons, a stats counter section, minimal testimonial cards, a simple pricing comparison, and a clean CTA banner. Use a light theme with blue accent colors and plenty of whitespace.",
+			"tags": ["light", "minimal", "clean"]
+		},
+		{
+			"id": "saas-ai-product",
+			"title": "AI Product Page",
+			"description": "Futuristic AI product showcase with animated gradients and tech feel",
+			"category": "saas",
+			"prompt": "Build an AI product landing page with a dark gradient hero featuring animated aurora background, a 'How it Works' process steps section, bento grid showcasing AI capabilities, social proof logos marquee, gradient stats counters, testimonial wall, pricing with popular badge, and a split CTA section. Use dark theme with cyan and purple accents for a futuristic tech feel.",
+			"tags": ["dark", "ai", "futuristic"]
+		},
+		{
+			"id": "landing-business",
+			"title": "Business Landing Page",
+			"description": "Professional business page with trust signals and clear value proposition",
+			"category": "landing-pages",
+			"prompt": "Build a professional business landing page with a split hero (text + image), logo bar of trusted clients, 4-column feature grid with icons, a large stats/numbers section, team member cards, customer testimonials, and a strong CTA banner. Use a professional blue and slate color palette with light theme.",
+			"tags": ["professional", "light", "business"]
+		},
+		{
+			"id": "landing-product-launch",
+			"title": "Product Launch Page",
+			"description": "Exciting product launch with countdown feel and bold visuals",
+			"category": "landing-pages",
+			"prompt": "Build a product launch landing page with a bold dark hero section featuring gradient text, a feature showcase with alternating image-text rows, a benefits bento grid, early-access signup CTA, testimonials from beta users, FAQ section, and a final urgency-driven CTA. Use dark theme with vibrant orange and amber accents.",
+			"tags": ["dark", "bold", "launch"]
+		},
+		{
+			"id": "landing-app",
+			"title": "Mobile App Landing",
+			"description": "App download page with device mockups and feature highlights",
+			"category": "landing-pages",
+			"prompt": "Build a mobile app landing page with a centered hero with app screenshot, a scrolling feature highlights section with icons, a step-by-step 'How It Works' with numbered cards, user review testimonials, app stats counters, and a download CTA with app store badges. Use a vibrant gradient theme with purple and pink accents.",
+			"tags": ["app", "vibrant", "mobile"]
+		},
+		{
+			"id": "ecom-fashion",
+			"title": "Fashion Store",
+			"description": "Elegant fashion storefront with featured collections and lookbook",
+			"category": "ecommerce",
+			"prompt": "Build a fashion e-commerce landing page with a full-width hero image section, featured collection grid, new arrivals showcase, a brand story section with media and text, Instagram-style gallery grid, newsletter signup, and a minimal footer. Use an elegant dark theme with gold accent colors for luxury feel.",
+			"tags": ["elegant", "dark", "fashion"]
+		},
+		{
+			"id": "ecom-product",
+			"title": "Product Showcase",
+			"description": "Single product focused page with features, reviews, and purchase CTA",
+			"category": "ecommerce",
+			"prompt": "Build a single product showcase page with a large hero section featuring the product name and tagline, a feature grid highlighting key benefits, comparison table vs competitors, customer review cards, a FAQ section about the product, and a sticky purchase CTA. Use a clean light theme with emerald accents.",
+			"tags": ["product", "light", "clean"]
+		},
+		{
+			"id": "portfolio-creative",
+			"title": "Creative Portfolio",
+			"description": "Bold creative portfolio with masonry gallery and case studies",
+			"category": "portfolio",
+			"prompt": "Build a creative portfolio page with a minimal hero showing name and title, a masonry-style project gallery, featured case study cards with descriptions, an about section with skills, client testimonials, and a contact CTA. Use a dark theme with subtle warm accents and plenty of visual breathing room.",
+			"tags": ["creative", "dark", "minimal"]
+		},
+		{
+			"id": "portfolio-developer",
+			"title": "Developer Portfolio",
+			"description": "Clean developer portfolio with tech stack and project cards",
+			"category": "portfolio",
+			"prompt": "Build a developer portfolio page with a dark code-themed hero with gradient text, a tech stack icons grid, featured project cards with descriptions and links, an experience timeline section, GitHub-style contribution stats, and a contact form section. Use dark slate theme with green accent like a terminal.",
+			"tags": ["developer", "dark", "technical"]
+		},
+		{
+			"id": "blog-magazine",
+			"title": "Magazine Blog",
+			"description": "Content-rich blog layout with featured posts and category sections",
+			"category": "blog",
+			"prompt": "Build a blog magazine page with a large featured post hero, a grid of recent articles with thumbnails and excerpts, category section headers, an author spotlight card, newsletter signup banner, and a popular posts sidebar-style section. Use a clean light theme with a warm serif feel and indigo accents.",
+			"tags": ["content", "light", "editorial"]
+		},
+		{
+			"id": "blog-personal",
+			"title": "Personal Blog",
+			"description": "Simple personal blog with about section and recent posts",
+			"category": "blog",
+			"prompt": "Build a personal blog page with a friendly hero section with avatar and bio, recent blog post cards in a clean grid, a popular tags section, an about-me media-text section, and a newsletter signup. Use a warm light theme with soft rounded corners and rose/amber accents.",
+			"tags": ["personal", "warm", "friendly"]
+		},
+		{
+			"id": "restaurant-modern",
+			"title": "Modern Restaurant",
+			"description": "Upscale restaurant page with menu, gallery, and reservations",
+			"category": "restaurant",
+			"prompt": "Build a modern restaurant page with a full-width cover hero with restaurant name, a story/about section with side image, a featured menu grid with categories, a photo gallery section, customer reviews, and a reservation CTA with location map details. Use a dark elegant theme with warm gold and amber accents for an upscale dining feel.",
+			"tags": ["elegant", "dark", "food"]
+		},
+		{
+			"id": "restaurant-casual",
+			"title": "Casual Dining",
+			"description": "Fun casual restaurant page with specials and social vibe",
+			"category": "restaurant",
+			"prompt": "Build a casual restaurant page with a vibrant hero section, daily specials feature cards, a picture menu grid, social media reviews section, location and hours info, and an order-online CTA. Use a warm light theme with orange and red accents for an inviting, casual dining feel.",
+			"tags": ["casual", "warm", "fun"]
+		},
+		{
+			"id": "agency-creative",
+			"title": "Creative Agency",
+			"description": "Bold agency site with case studies, team, and services",
+			"category": "agency",
+			"prompt": "Build a creative agency page with a glassmorphic dark hero, services bento grid, featured case study cards with hover effects, team member grid, client logo marquee, testimonials, process steps, and a bold CTA section. Use dark theme with vibrant gradient accents. Use the agency-portfolio blueprint.",
+			"tags": ["bold", "dark", "creative"]
+		},
+		{
+			"id": "agency-consulting",
+			"title": "Consulting Firm",
+			"description": "Professional consulting page with expertise areas and results",
+			"category": "agency",
+			"prompt": "Build a consulting firm page with a professional split hero, expertise areas in a 3-column grid, results/stats counter section, case study previews, team leadership cards, client testimonials, and a consultation booking CTA. Use a light professional theme with navy and slate blue palette.",
+			"tags": ["professional", "light", "corporate"]
+		},
+		{
+			"id": "startup-mvp",
+			"title": "Startup MVP Page",
+			"description": "Early-stage startup page with waitlist signup and vision",
+			"category": "startup",
+			"prompt": "Build a startup MVP landing page with a bold gradient hero with waitlist email signup, a problem-solution section, 3 key feature cards, early traction stats/logos, founder quote testimonial, a roadmap/timeline section, and a final waitlist CTA. Use dark theme with vibrant blue-to-purple gradient accents.",
+			"tags": ["startup", "dark", "mvp"]
+		},
+		{
+			"id": "startup-fundraise",
+			"title": "Investor Page",
+			"description": "Fundraising page with metrics, traction, and team credibility",
+			"category": "startup",
+			"prompt": "Build a startup investor/fundraising page with a clean hero showing the mission statement, key metrics counter section, market opportunity content block, product screenshots or demo section, traction and growth stats, team cards with credentials, press logos, and a contact CTA. Use a clean light theme with emerald and teal accents to convey growth.",
+			"tags": ["investor", "light", "metrics"]
+		},
+		{
+			"id": "landing-event",
+			"title": "Event Landing Page",
+			"description": "Conference or event page with speakers, schedule, and registration",
+			"category": "landing-pages",
+			"prompt": "Build an event landing page with a dark gradient hero showing event name and date, speaker lineup cards, event schedule/agenda section, venue information with map, sponsor logo grid, early bird pricing section, and a registration CTA. Use a dark theme with electric blue and cyan accents for an energetic tech-event feel.",
+			"tags": ["event", "dark", "energetic"]
+		},
+		{
+			"id": "portfolio-photographer",
+			"title": "Photography Portfolio",
+			"description": "Visual-first portfolio with full-width gallery and minimal text",
+			"category": "portfolio",
+			"prompt": "Build a photography portfolio page with a full-width hero image, a masonry photo gallery section, about the photographer media-text block, service packages pricing, client testimonials, and a booking contact CTA. Use a minimal dark theme with very subtle warm accents, letting the imagery be the focus.",
+			"tags": ["visual", "dark", "minimal"]
+		}
+	]
+}

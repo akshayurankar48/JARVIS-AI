@@ -2,15 +2,15 @@ import { Topbar, Badge, Toaster } from '@bsf/force-ui';
 import { Bot } from 'lucide-react';
 import { cn } from '../utils/cn';
 
-const { adminUrl, currentPage, version } = window.wpAgentData || {};
+const { adminUrl, currentPage, version } = window.jarvisAiData || {};
 
 const NAV_ITEMS = [
-	{ label: 'Dashboard', slug: 'wp-agent' },
-	{ label: 'History', slug: 'wp-agent-history' },
-	{ label: 'Schedules', slug: 'wp-agent-schedules' },
-	{ label: 'Settings', slug: 'wp-agent-settings' },
-	{ label: 'Capabilities', slug: 'wp-agent-capabilities' },
-	{ label: 'Help', slug: 'wp-agent-help' },
+	{ label: 'Dashboard', slug: 'jarvis-ai' },
+	{ label: 'History', slug: 'jarvis-ai-history' },
+	{ label: 'Schedules', slug: 'jarvis-ai-schedules' },
+	{ label: 'Settings', slug: 'jarvis-ai-settings' },
+	{ label: 'Capabilities', slug: 'jarvis-ai-capabilities' },
+	{ label: 'Help', slug: 'jarvis-ai-help' },
 ];
 
 export default function PageLayout( { children } ) {

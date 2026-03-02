@@ -6,11 +6,11 @@
  * and removes term assignments across categories, tags, and
  * custom taxonomies.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -143,7 +143,7 @@ class Manage_Taxonomies implements Action_Interface {
 				'data'    => null,
 				/* translators: %s: invalid operation name */
 				'message' => sprintf(
-					__( 'Invalid operation "%s". Allowed: list, create, assign, remove.', 'wp-agent' ),
+					__( 'Invalid operation "%s". Allowed: list, create, assign, remove.', 'jarvis-ai' ),
 					$operation
 				),
 			);
@@ -156,7 +156,7 @@ class Manage_Taxonomies implements Action_Interface {
 				'data'    => null,
 				/* translators: %s: taxonomy slug */
 				'message' => sprintf(
-					__( 'Taxonomy "%s" does not exist.', 'wp-agent' ),
+					__( 'Taxonomy "%s" does not exist.', 'jarvis-ai' ),
 					$taxonomy
 				),
 			);
@@ -177,7 +177,7 @@ class Manage_Taxonomies implements Action_Interface {
 		return array(
 			'success' => false,
 			'data'    => null,
-			'message' => __( 'Unknown operation.', 'wp-agent' ),
+			'message' => __( 'Unknown operation.', 'jarvis-ai' ),
 		);
 	}
 
@@ -218,9 +218,9 @@ class Manage_Taxonomies implements Action_Interface {
 		if ( empty( $terms ) ) {
 			$message = $search
 				/* translators: 1: taxonomy slug, 2: search query */
-				? sprintf( __( 'No terms found in "%1$s" matching "%2$s".', 'wp-agent' ), $taxonomy, $search )
+				? sprintf( __( 'No terms found in "%1$s" matching "%2$s".', 'jarvis-ai' ), $taxonomy, $search )
 				/* translators: %s: taxonomy slug */
-				: sprintf( __( 'No terms found in "%s".', 'wp-agent' ), $taxonomy );
+				: sprintf( __( 'No terms found in "%s".', 'jarvis-ai' ), $taxonomy );
 
 			return array(
 				'success' => true,
@@ -253,7 +253,7 @@ class Manage_Taxonomies implements Action_Interface {
 			),
 			/* translators: 1: number of terms found, 2: taxonomy slug */
 			'message' => sprintf(
-				__( 'Found %1$d term(s) in "%2$s".', 'wp-agent' ),
+				__( 'Found %1$d term(s) in "%2$s".', 'jarvis-ai' ),
 				count( $results ),
 				$taxonomy
 			),
@@ -276,7 +276,7 @@ class Manage_Taxonomies implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'term_name is required for the "create" operation.', 'wp-agent' ),
+				'message' => __( 'term_name is required for the "create" operation.', 'jarvis-ai' ),
 			);
 		}
 
@@ -295,7 +295,7 @@ class Manage_Taxonomies implements Action_Interface {
 					'data'    => null,
 					/* translators: 1: parent term ID, 2: taxonomy slug */
 					'message' => sprintf(
-						__( 'Parent term #%1$d does not exist in "%2$s".', 'wp-agent' ),
+						__( 'Parent term #%1$d does not exist in "%2$s".', 'jarvis-ai' ),
 						$parent_id,
 						$taxonomy
 					),
@@ -324,7 +324,7 @@ class Manage_Taxonomies implements Action_Interface {
 					),
 					/* translators: 1: term name, 2: taxonomy slug, 3: existing term ID */
 					'message' => sprintf(
-						__( 'Term "%1$s" already exists in "%2$s" (ID: %3$d).', 'wp-agent' ),
+						__( 'Term "%1$s" already exists in "%2$s" (ID: %3$d).', 'jarvis-ai' ),
 						$term_name,
 						$taxonomy,
 						$existing_id
@@ -354,7 +354,7 @@ class Manage_Taxonomies implements Action_Interface {
 			),
 			/* translators: 1: term name, 2: term ID, 3: taxonomy slug */
 			'message' => sprintf(
-				__( 'Created term "%1$s" (ID: %2$d) in "%3$s".', 'wp-agent' ),
+				__( 'Created term "%1$s" (ID: %2$d) in "%3$s".', 'jarvis-ai' ),
 				sanitize_text_field( $new_term->name ),
 				$term_id,
 				$taxonomy
@@ -379,7 +379,7 @@ class Manage_Taxonomies implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'post_id is required for the "assign" operation.', 'wp-agent' ),
+				'message' => __( 'post_id is required for the "assign" operation.', 'jarvis-ai' ),
 			);
 		}
 
@@ -387,7 +387,7 @@ class Manage_Taxonomies implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'term_ids is required for the "assign" operation.', 'wp-agent' ),
+				'message' => __( 'term_ids is required for the "assign" operation.', 'jarvis-ai' ),
 			);
 		}
 
@@ -398,7 +398,7 @@ class Manage_Taxonomies implements Action_Interface {
 				'success' => false,
 				'data'    => null,
 				/* translators: %d: post ID */
-				'message' => sprintf( __( 'Post #%d not found.', 'wp-agent' ), $post_id ),
+				'message' => sprintf( __( 'Post #%d not found.', 'jarvis-ai' ), $post_id ),
 			);
 		}
 
@@ -406,7 +406,7 @@ class Manage_Taxonomies implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'You do not have permission to edit this post.', 'wp-agent' ),
+				'message' => __( 'You do not have permission to edit this post.', 'jarvis-ai' ),
 			);
 		}
 
@@ -424,7 +424,7 @@ class Manage_Taxonomies implements Action_Interface {
 				'data'    => array( 'invalid_term_ids' => $invalid_ids ),
 				/* translators: 1: taxonomy slug, 2: comma-separated list of invalid term IDs */
 				'message' => sprintf(
-					__( 'Term ID(s) not found in "%1$s": %2$s', 'wp-agent' ),
+					__( 'Term ID(s) not found in "%1$s": %2$s', 'jarvis-ai' ),
 					$taxonomy,
 					implode( ', ', $invalid_ids )
 				),
@@ -464,7 +464,7 @@ class Manage_Taxonomies implements Action_Interface {
 			),
 			/* translators: 1: number of terms assigned, 2: post title, 3: post ID, 4: taxonomy slug */
 			'message' => sprintf(
-				__( 'Assigned %1$d term(s) to "%2$s" (Post #%3$d) in "%4$s".', 'wp-agent' ),
+				__( 'Assigned %1$d term(s) to "%2$s" (Post #%3$d) in "%4$s".', 'jarvis-ai' ),
 				count( $term_ids ),
 				sanitize_text_field( $post->post_title ),
 				$post_id,
@@ -490,7 +490,7 @@ class Manage_Taxonomies implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'post_id is required for the "remove" operation.', 'wp-agent' ),
+				'message' => __( 'post_id is required for the "remove" operation.', 'jarvis-ai' ),
 			);
 		}
 
@@ -498,7 +498,7 @@ class Manage_Taxonomies implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'term_ids is required for the "remove" operation.', 'wp-agent' ),
+				'message' => __( 'term_ids is required for the "remove" operation.', 'jarvis-ai' ),
 			);
 		}
 
@@ -509,7 +509,7 @@ class Manage_Taxonomies implements Action_Interface {
 				'success' => false,
 				'data'    => null,
 				/* translators: %d: post ID */
-				'message' => sprintf( __( 'Post #%d not found.', 'wp-agent' ), $post_id ),
+				'message' => sprintf( __( 'Post #%d not found.', 'jarvis-ai' ), $post_id ),
 			);
 		}
 
@@ -517,7 +517,7 @@ class Manage_Taxonomies implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'You do not have permission to edit this post.', 'wp-agent' ),
+				'message' => __( 'You do not have permission to edit this post.', 'jarvis-ai' ),
 			);
 		}
 
@@ -535,7 +535,7 @@ class Manage_Taxonomies implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Failed to remove term assignments.', 'wp-agent' ),
+				'message' => __( 'Failed to remove term assignments.', 'jarvis-ai' ),
 			);
 		}
 
@@ -562,7 +562,7 @@ class Manage_Taxonomies implements Action_Interface {
 			),
 			/* translators: 1: number of terms removed, 2: post title, 3: post ID, 4: taxonomy slug */
 			'message' => sprintf(
-				__( 'Removed %1$d term assignment(s) from "%2$s" (Post #%3$d) in "%4$s".', 'wp-agent' ),
+				__( 'Removed %1$d term assignment(s) from "%2$s" (Post #%3$d) in "%4$s".', 'jarvis-ai' ),
 				count( $term_ids ),
 				sanitize_text_field( $post->post_title ),
 				$post_id,

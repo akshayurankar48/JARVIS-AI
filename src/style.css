@@ -2,47 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Remove WordPress default blue focus outlines on ALL WP Agent admin pages */
-.toplevel_page_wp-agent button:focus,
-.toplevel_page_wp-agent input:focus,
-.toplevel_page_wp-agent select:focus,
-.toplevel_page_wp-agent textarea:focus,
-.toplevel_page_wp-agent a:focus,
-.toplevel_page_wp-agent [type="button"]:focus,
-.toplevel_page_wp-agent [type="submit"]:focus,
-.toplevel_page_wp-agent [role="button"]:focus,
-[class*="wp-agent_page_wp-agent"] button:focus,
-[class*="wp-agent_page_wp-agent"] input:focus,
-[class*="wp-agent_page_wp-agent"] select:focus,
-[class*="wp-agent_page_wp-agent"] textarea:focus,
-[class*="wp-agent_page_wp-agent"] a:focus,
-[class*="wp-agent_page_wp-agent"] [type="button"]:focus,
-[class*="wp-agent_page_wp-agent"] [type="submit"]:focus,
-[class*="wp-agent_page_wp-agent"] [role="button"]:focus {
+/* Remove WordPress default blue focus outlines on ALL JARVIS AI admin pages */
+.toplevel_page_jarvis-ai button:focus,
+.toplevel_page_jarvis-ai input:focus,
+.toplevel_page_jarvis-ai select:focus,
+.toplevel_page_jarvis-ai textarea:focus,
+.toplevel_page_jarvis-ai a:focus,
+.toplevel_page_jarvis-ai [type="button"]:focus,
+.toplevel_page_jarvis-ai [type="submit"]:focus,
+.toplevel_page_jarvis-ai [role="button"]:focus,
+[class*="jarvis-ai_page_jarvis-ai"] button:focus,
+[class*="jarvis-ai_page_jarvis-ai"] input:focus,
+[class*="jarvis-ai_page_jarvis-ai"] select:focus,
+[class*="jarvis-ai_page_jarvis-ai"] textarea:focus,
+[class*="jarvis-ai_page_jarvis-ai"] a:focus,
+[class*="jarvis-ai_page_jarvis-ai"] [type="button"]:focus,
+[class*="jarvis-ai_page_jarvis-ai"] [type="submit"]:focus,
+[class*="jarvis-ai_page_jarvis-ai"] [role="button"]:focus {
 	outline: none !important;
 	box-shadow: none !important;
 	border-color: inherit !important;
 }
 
 /* Restore focus-visible for keyboard accessibility */
-.toplevel_page_wp-agent button:focus-visible,
-.toplevel_page_wp-agent input:focus-visible,
-.toplevel_page_wp-agent select:focus-visible,
-.toplevel_page_wp-agent textarea:focus-visible,
-.toplevel_page_wp-agent a:focus-visible,
-[class*="wp-agent_page_wp-agent"] button:focus-visible,
-[class*="wp-agent_page_wp-agent"] input:focus-visible,
-[class*="wp-agent_page_wp-agent"] select:focus-visible,
-[class*="wp-agent_page_wp-agent"] textarea:focus-visible,
-[class*="wp-agent_page_wp-agent"] a:focus-visible {
+.toplevel_page_jarvis-ai button:focus-visible,
+.toplevel_page_jarvis-ai input:focus-visible,
+.toplevel_page_jarvis-ai select:focus-visible,
+.toplevel_page_jarvis-ai textarea:focus-visible,
+.toplevel_page_jarvis-ai a:focus-visible,
+[class*="jarvis-ai_page_jarvis-ai"] button:focus-visible,
+[class*="jarvis-ai_page_jarvis-ai"] input:focus-visible,
+[class*="jarvis-ai_page_jarvis-ai"] select:focus-visible,
+[class*="jarvis-ai_page_jarvis-ai"] textarea:focus-visible,
+[class*="jarvis-ai_page_jarvis-ai"] a:focus-visible {
 	outline: 2px solid #4f46e5 !important;
 	outline-offset: 2px !important;
 	box-shadow: none !important;
 }
 
 /* Kill WP admin default component focus styles globally on our pages */
-[class*="wp-agent"] .components-button:focus:not( :disabled ),
-[class*="wp-agent"] .components-text-control__input:focus {
+[class*="jarvis-ai"] .components-button:focus:not( :disabled ),
+[class*="jarvis-ai"] .components-text-control__input:focus {
 	outline: none !important;
 	box-shadow: none !important;
 }

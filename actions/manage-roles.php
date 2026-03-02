@@ -4,11 +4,11 @@
  *
  * Lists, creates, deletes, clones roles and manages capabilities.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -132,7 +132,7 @@ class Manage_Roles implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation.', 'wp-agent' ),
+					'message' => __( 'Invalid operation.', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -169,7 +169,7 @@ class Manage_Roles implements Action_Interface {
 			'data'    => array( 'roles' => $roles ),
 			'message' => sprintf(
 				/* translators: %d: role count */
-				__( '%d role(s) found.', 'wp-agent' ),
+				__( '%d role(s) found.', 'jarvis-ai' ),
 				count( $roles )
 			),
 		);
@@ -192,7 +192,7 @@ class Manage_Roles implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'role and display_name are required.', 'wp-agent' ),
+				'message' => __( 'role and display_name are required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -202,7 +202,7 @@ class Manage_Roles implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: role slug */
-					__( 'Role "%s" already exists.', 'wp-agent' ),
+					__( 'Role "%s" already exists.', 'jarvis-ai' ),
 					$role
 				),
 			);
@@ -219,7 +219,7 @@ class Manage_Roles implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Failed to create role.', 'wp-agent' ),
+				'message' => __( 'Failed to create role.', 'jarvis-ai' ),
 			);
 		}
 
@@ -232,7 +232,7 @@ class Manage_Roles implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %s: role name */
-				__( 'Role "%s" created.', 'wp-agent' ),
+				__( 'Role "%s" created.', 'jarvis-ai' ),
 				$display_name
 			),
 		);
@@ -253,7 +253,7 @@ class Manage_Roles implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'role is required.', 'wp-agent' ),
+				'message' => __( 'role is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -261,7 +261,7 @@ class Manage_Roles implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Cannot delete built-in WordPress roles.', 'wp-agent' ),
+				'message' => __( 'Cannot delete built-in WordPress roles.', 'jarvis-ai' ),
 			);
 		}
 
@@ -271,7 +271,7 @@ class Manage_Roles implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: role slug */
-					__( 'Role "%s" not found.', 'wp-agent' ),
+					__( 'Role "%s" not found.', 'jarvis-ai' ),
 					$role
 				),
 			);
@@ -284,7 +284,7 @@ class Manage_Roles implements Action_Interface {
 			'data'    => array( 'role' => $role ),
 			'message' => sprintf(
 				/* translators: %s: role slug */
-				__( 'Role "%s" deleted.', 'wp-agent' ),
+				__( 'Role "%s" deleted.', 'jarvis-ai' ),
 				$role
 			),
 		);
@@ -307,7 +307,7 @@ class Manage_Roles implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'role and capabilities are required.', 'wp-agent' ),
+				'message' => __( 'role and capabilities are required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -318,7 +318,7 @@ class Manage_Roles implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: role slug */
-					__( 'Role "%s" not found.', 'wp-agent' ),
+					__( 'Role "%s" not found.', 'jarvis-ai' ),
 					$role_slug
 				),
 			);
@@ -346,7 +346,7 @@ class Manage_Roles implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: action, 3: role */
-				__( '%1$d capability(ies) %2$s "%3$s".', 'wp-agent' ),
+				__( '%1$d capability(ies) %2$s "%3$s".', 'jarvis-ai' ),
 				count( $modified ),
 				$action,
 				$role_slug
@@ -371,7 +371,7 @@ class Manage_Roles implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'role and source_role are required.', 'wp-agent' ),
+				'message' => __( 'role and source_role are required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -382,7 +382,7 @@ class Manage_Roles implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: role slug */
-					__( 'Source role "%s" not found.', 'wp-agent' ),
+					__( 'Source role "%s" not found.', 'jarvis-ai' ),
 					$source_slug
 				),
 			);
@@ -398,7 +398,7 @@ class Manage_Roles implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Failed to clone role. It may already exist.', 'wp-agent' ),
+				'message' => __( 'Failed to clone role. It may already exist.', 'jarvis-ai' ),
 			);
 		}
 
@@ -412,7 +412,7 @@ class Manage_Roles implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: new role, 2: source role */
-				__( 'Role "%1$s" cloned from "%2$s".', 'wp-agent' ),
+				__( 'Role "%1$s" cloned from "%2$s".', 'jarvis-ai' ),
 				$display_name,
 				$source_slug
 			),

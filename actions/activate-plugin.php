@@ -5,11 +5,11 @@
  * Activates an installed WordPress plugin by its plugin file path.
  * Validates the plugin exists in the installed plugins list before activating.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -96,7 +96,7 @@ class Activate_Plugin implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Invalid plugin file path.', 'wp-agent' ),
+				'message' => __( 'Invalid plugin file path.', 'jarvis-ai' ),
 			);
 		}
 
@@ -114,7 +114,7 @@ class Activate_Plugin implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: plugin file path */
-					__( 'Plugin "%s" is not installed.', 'wp-agent' ),
+					__( 'Plugin "%s" is not installed.', 'jarvis-ai' ),
 					$plugin
 				),
 			);
@@ -127,7 +127,7 @@ class Activate_Plugin implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: plugin name */
-					__( 'Plugin "%s" is already active.', 'wp-agent' ),
+					__( 'Plugin "%s" is already active.', 'jarvis-ai' ),
 					$installed_plugins[ $plugin ]['Name']
 				),
 			);
@@ -142,7 +142,7 @@ class Activate_Plugin implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: 1: plugin name, 2: error message */
-					__( 'Failed to activate "%1$s": %2$s', 'wp-agent' ),
+					__( 'Failed to activate "%1$s": %2$s', 'jarvis-ai' ),
 					$installed_plugins[ $plugin ]['Name'],
 					$result->get_error_message()
 				),
@@ -157,7 +157,7 @@ class Activate_Plugin implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %s: plugin name */
-				__( 'Activated plugin "%s" successfully.', 'wp-agent' ),
+				__( 'Activated plugin "%s" successfully.', 'jarvis-ai' ),
 				$installed_plugins[ $plugin ]['Name']
 			),
 		);

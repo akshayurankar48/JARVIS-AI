@@ -11,7 +11,7 @@
  * Run via WP-CLI:
  *   php -d "mysqli.default_socket=..." wp-cli.phar --path=... eval-file tests/test-action-gaps.php
  *
- * @package WPAgent\Tests
+ * @package JarvisAI\Tests
  */
 
 // Ensure we're running inside WordPress.
@@ -28,11 +28,11 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 require_once ABSPATH . 'wp-admin/includes/file.php';
 
 // Load action registry.
-if ( ! class_exists( 'WPAgent\Actions\Action_Registry' ) ) {
-	echo "ERROR: WPAgent\\Actions\\Action_Registry class not found. Is the plugin active?\n";
+if ( ! class_exists( 'JarvisAI\Actions\Action_Registry' ) ) {
+	echo "ERROR: JarvisAI\\Actions\\Action_Registry class not found. Is the plugin active?\n";
 	exit( 1 );
 }
-$registry = \WPAgent\Actions\Action_Registry::get_instance();
+$registry = \JarvisAI\Actions\Action_Registry::get_instance();
 if ( ! $registry ) {
 	echo "ERROR: Could not get Action_Registry instance.\n";
 	exit( 1 );
@@ -49,7 +49,7 @@ function run_test( $name, $action_name, $params, $expect_success, $expect_contai
 	global $pass, $fail, $total;
 	$total++;
 
-	$registry = \WPAgent\Actions\Action_Registry::get_instance();
+	$registry = \JarvisAI\Actions\Action_Registry::get_instance();
 	$result   = $registry->dispatch( $action_name, $params );
 	if ( is_wp_error( $result ) ) {
 		$result = [
@@ -88,7 +88,7 @@ function run_test( $name, $action_name, $params, $expect_success, $expect_contai
 
 echo "\n";
 echo "============================================\n";
-echo " WP Agent — Action Gaps Test Suite\n";
+echo " JARVIS AI — Action Gaps Test Suite\n";
 echo "============================================\n\n";
 
 // =============================================
@@ -127,16 +127,16 @@ run_test(
 );
 
 // Test 2: Self-update guard.
-if ( defined( 'WP_AGENT_BASE' ) ) {
+if ( defined( 'JARVIS_AI_BASE' ) ) {
 	run_test(
-		'update_plugin: self-update guard (WP Agent)',
+		'update_plugin: self-update guard (JARVIS AI)',
 		'update_plugin',
-		[ 'plugin' => WP_AGENT_BASE ],
+		[ 'plugin' => JARVIS_AI_BASE ],
 		false,
 		'cannot'
 	);
 } else {
-	echo "  SKIP  | update_plugin self-guard (WP_AGENT_BASE not defined)\n";
+	echo "  SKIP  | update_plugin self-guard (JARVIS_AI_BASE not defined)\n";
 	$total++;
 	$pass++;
 }
@@ -184,16 +184,16 @@ foreach ( $installed as $file => $data ) {
 }
 
 // Test 6: Self-deletion guard.
-if ( defined( 'WP_AGENT_BASE' ) ) {
+if ( defined( 'JARVIS_AI_BASE' ) ) {
 	run_test(
-		'delete_plugin: self-delete guard (WP Agent)',
+		'delete_plugin: self-delete guard (JARVIS AI)',
 		'delete_plugin',
-		[ 'plugin' => WP_AGENT_BASE ],
+		[ 'plugin' => JARVIS_AI_BASE ],
 		false,
 		'cannot'
 	);
 } else {
-	echo "  SKIP  | delete_plugin self-guard (WP_AGENT_BASE not defined)\n";
+	echo "  SKIP  | delete_plugin self-guard (JARVIS_AI_BASE not defined)\n";
 	$total++;
 	$pass++;
 }

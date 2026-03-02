@@ -6,11 +6,11 @@
  * dimensions, lazy loading, and media library file sizes. Provides
  * actionable reports and automated fixes.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -129,7 +129,7 @@ class Optimize_Performance implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "analyze", "optimize_images", "lazy_load", or "report".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "analyze", "optimize_images", "lazy_load", or "report".', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -149,7 +149,7 @@ class Optimize_Performance implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Post ID is required for analysis.', 'wp-agent' ),
+				'message' => __( 'Post ID is required for analysis.', 'jarvis-ai' ),
 			);
 		}
 
@@ -158,7 +158,7 @@ class Optimize_Performance implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Post not found.', 'wp-agent' ),
+				'message' => __( 'Post not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -189,7 +189,7 @@ class Optimize_Performance implements Action_Interface {
 				'count'   => $images_without_dimensions,
 				'message' => sprintf(
 					/* translators: %d: image count */
-					__( '%d image(s) missing width/height attributes (causes layout shift).', 'wp-agent' ),
+					__( '%d image(s) missing width/height attributes (causes layout shift).', 'jarvis-ai' ),
 					$images_without_dimensions
 				),
 			);
@@ -201,7 +201,7 @@ class Optimize_Performance implements Action_Interface {
 				'count'   => $images_without_lazy,
 				'message' => sprintf(
 					/* translators: %d: image count */
-					__( '%d image(s) without lazy loading.', 'wp-agent' ),
+					__( '%d image(s) without lazy loading.', 'jarvis-ai' ),
 					$images_without_lazy
 				),
 			);
@@ -215,7 +215,7 @@ class Optimize_Performance implements Action_Interface {
 				'size'    => $content_size,
 				'message' => sprintf(
 					/* translators: %s: content size */
-					__( 'Post content is %s. Consider splitting into multiple pages.', 'wp-agent' ),
+					__( 'Post content is %s. Consider splitting into multiple pages.', 'jarvis-ai' ),
 					size_format( $content_size )
 				),
 			);
@@ -232,13 +232,13 @@ class Optimize_Performance implements Action_Interface {
 			'message' => count( $issues ) > 0
 				? sprintf(
 					/* translators: 1: issue count, 2: post title */
-					__( 'Found %1$d performance issue(s) in "%2$s".', 'wp-agent' ),
+					__( 'Found %1$d performance issue(s) in "%2$s".', 'jarvis-ai' ),
 					count( $issues ),
 					$post->post_title
 				)
 				: sprintf(
 					/* translators: %s: post title */
-					__( 'No performance issues found in "%s".', 'wp-agent' ),
+					__( 'No performance issues found in "%s".', 'jarvis-ai' ),
 					$post->post_title
 				),
 		);
@@ -259,7 +259,7 @@ class Optimize_Performance implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Post ID is required.', 'wp-agent' ),
+				'message' => __( 'Post ID is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -268,7 +268,7 @@ class Optimize_Performance implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Post not found.', 'wp-agent' ),
+				'message' => __( 'Post not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -327,7 +327,7 @@ class Optimize_Performance implements Action_Interface {
 					'data'    => null,
 					'message' => sprintf(
 						/* translators: %s: error message */
-						__( 'Failed to save optimizations: %s', 'wp-agent' ),
+						__( 'Failed to save optimizations: %s', 'jarvis-ai' ),
 						$result->get_error_message()
 					),
 				);
@@ -342,7 +342,7 @@ class Optimize_Performance implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: fixed count, 2: post title */
-				__( 'Added width/height to %1$d image(s) in "%2$s".', 'wp-agent' ),
+				__( 'Added width/height to %1$d image(s) in "%2$s".', 'jarvis-ai' ),
 				$fixed,
 				$post->post_title
 			),
@@ -364,7 +364,7 @@ class Optimize_Performance implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Post ID is required.', 'wp-agent' ),
+				'message' => __( 'Post ID is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -373,7 +373,7 @@ class Optimize_Performance implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Post not found.', 'wp-agent' ),
+				'message' => __( 'Post not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -411,7 +411,7 @@ class Optimize_Performance implements Action_Interface {
 					'data'    => null,
 					'message' => sprintf(
 						/* translators: %s: error message */
-						__( 'Failed to save lazy loading changes: %s', 'wp-agent' ),
+						__( 'Failed to save lazy loading changes: %s', 'jarvis-ai' ),
 						$result->get_error_message()
 					),
 				);
@@ -426,7 +426,7 @@ class Optimize_Performance implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: fixed count, 2: post title */
-				__( 'Added lazy loading to %1$d image(s) in "%2$s".', 'wp-agent' ),
+				__( 'Added lazy loading to %1$d image(s) in "%2$s".', 'jarvis-ai' ),
 				$fixed,
 				$post->post_title
 			),
@@ -500,7 +500,7 @@ class Optimize_Performance implements Action_Interface {
 			'data'    => $report,
 			'message' => sprintf(
 				/* translators: 1: large image count, 2: total media count */
-				__( 'Performance report: %1$d large image(s) (>500KB) out of %2$d total media files.', 'wp-agent' ),
+				__( 'Performance report: %1$d large image(s) (>500KB) out of %2$d total media files.', 'jarvis-ai' ),
 				count( $large_images ),
 				$report['total_media']
 			),

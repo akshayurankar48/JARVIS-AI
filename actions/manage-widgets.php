@@ -5,11 +5,11 @@
  * Lists widget areas, lists widgets, adds, removes, and reorders widgets
  * using the WordPress sidebars/widgets API.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -128,7 +128,7 @@ class Manage_Widgets implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "list_areas", "list_widgets", "add", "remove", or "reorder".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "list_areas", "list_widgets", "add", "remove", or "reorder".', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -160,7 +160,7 @@ class Manage_Widgets implements Action_Interface {
 			'data'    => array( 'areas' => $areas ),
 			'message' => sprintf(
 				/* translators: %d: area count */
-				__( '%d widget area(s) registered.', 'wp-agent' ),
+				__( '%d widget area(s) registered.', 'jarvis-ai' ),
 				count( $areas )
 			),
 		);
@@ -181,7 +181,7 @@ class Manage_Widgets implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'sidebar_id is required.', 'wp-agent' ),
+				'message' => __( 'sidebar_id is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -194,7 +194,7 @@ class Manage_Widgets implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: sidebar ID */
-					__( 'Widget area "%s" not found.', 'wp-agent' ),
+					__( 'Widget area "%s" not found.', 'jarvis-ai' ),
 					$sidebar_id
 				),
 			);
@@ -221,7 +221,7 @@ class Manage_Widgets implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: sidebar ID */
-				__( '%1$d widget(s) in "%2$s".', 'wp-agent' ),
+				__( '%1$d widget(s) in "%2$s".', 'jarvis-ai' ),
 				count( $widgets ),
 				$sidebar_id
 			),
@@ -247,7 +247,7 @@ class Manage_Widgets implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'sidebar_id and widget_type are required.', 'wp-agent' ),
+				'message' => __( 'sidebar_id and widget_type are required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -287,7 +287,7 @@ class Manage_Widgets implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: widget ID, 2: sidebar ID */
-				__( 'Widget "%1$s" added to "%2$s".', 'wp-agent' ),
+				__( 'Widget "%1$s" added to "%2$s".', 'jarvis-ai' ),
 				$widget_id,
 				$sidebar_id
 			),
@@ -310,7 +310,7 @@ class Manage_Widgets implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'widget_id is required.', 'wp-agent' ),
+				'message' => __( 'widget_id is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -344,7 +344,7 @@ class Manage_Widgets implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: widget ID */
-					__( 'Widget "%s" not found in any sidebar.', 'wp-agent' ),
+					__( 'Widget "%s" not found in any sidebar.', 'jarvis-ai' ),
 					$widget_id
 				),
 			);
@@ -360,7 +360,7 @@ class Manage_Widgets implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: widget ID, 2: sidebar ID */
-				__( 'Widget "%1$s" removed from "%2$s".', 'wp-agent' ),
+				__( 'Widget "%1$s" removed from "%2$s".', 'jarvis-ai' ),
 				$widget_id,
 				$sidebar_id
 			),
@@ -383,7 +383,7 @@ class Manage_Widgets implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'sidebar_id and order are required.', 'wp-agent' ),
+				'message' => __( 'sidebar_id and order are required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -395,7 +395,7 @@ class Manage_Widgets implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: sidebar ID */
-					__( 'Widget area "%s" not found.', 'wp-agent' ),
+					__( 'Widget area "%s" not found.', 'jarvis-ai' ),
 					$sidebar_id
 				),
 			);
@@ -413,7 +413,7 @@ class Manage_Widgets implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %s: sidebar ID */
-				__( 'Widgets reordered in "%s".', 'wp-agent' ),
+				__( 'Widgets reordered in "%s".', 'jarvis-ai' ),
 				$sidebar_id
 			),
 		);

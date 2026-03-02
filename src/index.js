@@ -11,12 +11,12 @@ import './store';
 import './style.css';
 
 const pages = [
-	{ id: 'wp-agent-dashboard', Component: Dashboard },
-	{ id: 'wp-agent-settings', Component: Settings },
-	{ id: 'wp-agent-history', Component: History },
-	{ id: 'wp-agent-schedules', Component: Schedules },
-	{ id: 'wp-agent-capabilities', Component: Capabilities },
-	{ id: 'wp-agent-help', Component: Help },
+	{ id: 'jarvis-ai-dashboard', Component: Dashboard },
+	{ id: 'jarvis-ai-settings', Component: Settings },
+	{ id: 'jarvis-ai-history', Component: History },
+	{ id: 'jarvis-ai-schedules', Component: Schedules },
+	{ id: 'jarvis-ai-capabilities', Component: Capabilities },
+	{ id: 'jarvis-ai-help', Component: Help },
 ];
 
 domReady( () => {
@@ -28,10 +28,10 @@ domReady( () => {
 		}
 	}
 
-	// Mount the JARVIS chat drawer on all WP Agent admin pages.
+	// Mount the JARVIS chat drawer on all JARVIS AI admin pages.
 	// Uses Emotion-based drawer (not Tailwind) since it renders via body portal.
 	const drawerRoot = document.createElement( 'div' );
-	drawerRoot.id = 'wp-agent-app-drawer';
+	drawerRoot.id = 'jarvis-ai-app-drawer';
 	document.body.appendChild( drawerRoot );
 	createRoot( drawerRoot ).render( <AdminChatDrawer /> );
 } );

@@ -5,11 +5,11 @@
  * Public endpoint for recording A/B test impressions and clicks.
  * Rate limited to prevent abuse.
  *
- * @package WPAgent\REST
+ * @package JarvisAI\REST
  * @since   1.1.0
  */
 
-namespace WPAgent\REST;
+namespace JarvisAI\REST;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -28,7 +28,7 @@ class Ab_Tracking_Controller extends \WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'wp-agent/v1';
+	protected $namespace = 'jarvis-ai/v1';
 
 	/**
 	 * REST route base.
@@ -76,7 +76,7 @@ class Ab_Tracking_Controller extends \WP_REST_Controller {
 	}
 
 	/**
-	 * POST /wp-agent/v1/ab-track
+	 * POST /jarvis-ai/v1/ab-track
 	 *
 	 * Record an A/B test impression or click event.
 	 *
@@ -95,7 +95,7 @@ class Ab_Tracking_Controller extends \WP_REST_Controller {
 
 		// Rate limit: max 30 events per IP per minute.
 		$ip            = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-		$transient_key = 'wp_agent_ab_rate_' . md5( $ip );
+		$transient_key = 'jarvis_ai_ab_rate_' . md5( $ip );
 		$count         = (int) get_transient( $transient_key );
 
 		if ( $count >= 30 ) {
@@ -105,7 +105,7 @@ class Ab_Tracking_Controller extends \WP_REST_Controller {
 		set_transient( $transient_key, $count + 1, MINUTE_IN_SECONDS );
 
 		// Verify the test exists and is active before writing.
-		$tests    = get_option( 'wp_agent_ab_tests', array() );
+		$tests    = get_option( 'jarvis_ai_ab_tests', array() );
 		$found    = false;
 
 		foreach ( $tests as &$test ) {
@@ -130,7 +130,7 @@ class Ab_Tracking_Controller extends \WP_REST_Controller {
 			return new \WP_REST_Response( array( 'success' => false ), 404 );
 		}
 
-		update_option( 'wp_agent_ab_tests', $tests );
+		update_option( 'jarvis_ai_ab_tests', $tests );
 
 		return new \WP_REST_Response( array( 'success' => true ), 200 );
 	}

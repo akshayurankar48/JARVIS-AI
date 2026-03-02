@@ -4,11 +4,11 @@
  *
  * Lists, adds, deletes, and immediately runs WP-Cron scheduled events.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -122,7 +122,7 @@ class Manage_Cron implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "list", "add", "delete", or "run_now".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "list", "add", "delete", or "run_now".', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -143,7 +143,7 @@ class Manage_Cron implements Action_Interface {
 					'events' => array(),
 					'count'  => 0,
 				),
-				'message' => __( 'No cron events scheduled.', 'wp-agent' ),
+				'message' => __( 'No cron events scheduled.', 'jarvis-ai' ),
 			);
 		}
 
@@ -182,7 +182,7 @@ class Manage_Cron implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %d: event count */
-				__( '%d cron event(s) scheduled.', 'wp-agent' ),
+				__( '%d cron event(s) scheduled.', 'jarvis-ai' ),
 				count( $events )
 			),
 		);
@@ -205,7 +205,7 @@ class Manage_Cron implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'hook and schedule are required.', 'wp-agent' ),
+				'message' => __( 'hook and schedule are required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -216,7 +216,7 @@ class Manage_Cron implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: 1: schedule name, 2: available schedules */
-					__( 'Invalid schedule "%1$s". Available: %2$s.', 'wp-agent' ),
+					__( 'Invalid schedule "%1$s". Available: %2$s.', 'jarvis-ai' ),
 					$schedule,
 					implode( ', ', array_keys( $schedules ) )
 				),
@@ -229,7 +229,7 @@ class Manage_Cron implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Failed to schedule cron event.', 'wp-agent' ),
+				'message' => __( 'Failed to schedule cron event.', 'jarvis-ai' ),
 			);
 		}
 
@@ -241,7 +241,7 @@ class Manage_Cron implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: hook name, 2: schedule */
-				__( 'Cron event "%1$s" scheduled (%2$s).', 'wp-agent' ),
+				__( 'Cron event "%1$s" scheduled (%2$s).', 'jarvis-ai' ),
 				$hook,
 				$schedule
 			),
@@ -265,7 +265,7 @@ class Manage_Cron implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'hook is required.', 'wp-agent' ),
+				'message' => __( 'hook is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -281,7 +281,7 @@ class Manage_Cron implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: hook name */
-					__( 'Failed to delete cron event "%s".', 'wp-agent' ),
+					__( 'Failed to delete cron event "%s".', 'jarvis-ai' ),
 					$hook
 				),
 			);
@@ -292,7 +292,7 @@ class Manage_Cron implements Action_Interface {
 			'data'    => array( 'hook' => $hook ),
 			'message' => sprintf(
 				/* translators: %s: hook name */
-				__( 'Cron event "%s" deleted.', 'wp-agent' ),
+				__( 'Cron event "%s" deleted.', 'jarvis-ai' ),
 				$hook
 			),
 		);
@@ -314,7 +314,7 @@ class Manage_Cron implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'hook is required.', 'wp-agent' ),
+				'message' => __( 'hook is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -326,7 +326,7 @@ class Manage_Cron implements Action_Interface {
 			'data'    => array( 'hook' => $hook ),
 			'message' => sprintf(
 				/* translators: %s: hook name */
-				__( 'Cron hook "%s" executed immediately.', 'wp-agent' ),
+				__( 'Cron hook "%s" executed immediately.', 'jarvis-ai' ),
 				$hook
 			),
 		);

@@ -5,11 +5,11 @@
  * Parses and returns the block structure of a post's content
  * via parse_blocks(). Read-only, no modifications.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -99,7 +99,7 @@ class Read_Blocks implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: post ID */
-					__( 'Post #%d not found.', 'wp-agent' ),
+					__( 'Post #%d not found.', 'jarvis-ai' ),
 					$post_id
 				),
 			);
@@ -109,7 +109,7 @@ class Read_Blocks implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'You do not have permission to read this post.', 'wp-agent' ),
+				'message' => __( 'You do not have permission to read this post.', 'jarvis-ai' ),
 			);
 		}
 
@@ -125,7 +125,7 @@ class Read_Blocks implements Action_Interface {
 				),
 				'message' => sprintf(
 					/* translators: %d: post ID */
-					__( 'Post #%d has no content.', 'wp-agent' ),
+					__( 'Post #%d has no content.', 'jarvis-ai' ),
 					$post_id
 				),
 			);
@@ -142,7 +142,7 @@ class Read_Blocks implements Action_Interface {
 				),
 				'message' => sprintf(
 					/* translators: %d: post ID */
-					__( 'Post #%d uses classic content (no blocks).', 'wp-agent' ),
+					__( 'Post #%d uses classic content (no blocks).', 'jarvis-ai' ),
 					$post_id
 				),
 			);
@@ -160,7 +160,7 @@ class Read_Blocks implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: block count, 2: post ID */
-				__( 'Found %1$d block(s) in post #%2$d.', 'wp-agent' ),
+				__( 'Found %1$d block(s) in post #%2$d.', 'jarvis-ai' ),
 				count( $simplified ),
 				$post_id
 			),

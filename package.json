@@ -1,12 +1,12 @@
 {
-	"name": "wp-agent",
+	"name": "jarvis-ai",
 	"version": "1.0.0",
 	"description": "AI-powered admin assistant for WordPress",
 	"main": "index.js",
 	"scripts": {
 		"start": "wp-scripts start",
 		"build": "wp-scripts build",
-		"i18n": "grunt textdomain && wp i18n make-pot languages/wp-agent.pot --domain=wp-agent --debug",
+		"i18n": "grunt textdomain && wp i18n make-pot languages/jarvis-ai.pot --domain=jarvis-ai --debug",
 		"pretty": "prettier --check .",
 		"pretty:fix": "prettier --write .",
 		"lint-js": "wp-scripts lint-js",
@@ -27,14 +27,14 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/akshayurankar48/WP-AGENT.git"
+		"url": "git+https://github.com/akshayurankar48/JARVIS-AI.git"
 	},
 	"author": "Brainstorm Force",
 	"license": "GPL-2.0-or-later",
 	"bugs": {
-		"url": "https://github.com/akshayurankar48/WP-AGENT/issues"
+		"url": "https://github.com/akshayurankar48/JARVIS-AI/issues"
 	},
-	"homepage": "https://github.com/akshayurankar48/WP-AGENT#readme",
+	"homepage": "https://github.com/akshayurankar48/JARVIS-AI#readme",
 	"dependencies": {
 		"@bsf/force-ui": "git+https://github.com/brainstormforce/force-ui.git#1.7.9",
 		"@emotion/css": "^11.13.5",

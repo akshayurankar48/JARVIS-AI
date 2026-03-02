@@ -5,11 +5,11 @@
  * Updates a WordPress site option from a strict whitelist of safe options.
  * Stores the old value before updating for checkpoint undo support.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -136,7 +136,7 @@ class Update_Settings implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: option name */
-					__( 'Option "%s" is not in the allowed whitelist.', 'wp-agent' ),
+					__( 'Option "%s" is not in the allowed whitelist.', 'jarvis-ai' ),
 					$option_name
 				),
 			);
@@ -160,7 +160,7 @@ class Update_Settings implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: option name */
-					__( 'Failed to update option "%s".', 'wp-agent' ),
+					__( 'Failed to update option "%s".', 'jarvis-ai' ),
 					$option_name
 				),
 			);
@@ -175,7 +175,7 @@ class Update_Settings implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %s: option name */
-				__( 'Updated option "%s" successfully.', 'wp-agent' ),
+				__( 'Updated option "%s" successfully.', 'jarvis-ai' ),
 				$option_name
 			),
 		);

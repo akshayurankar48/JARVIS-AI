@@ -1,5 +1,5 @@
 /**
- * WP Agent — Animation & Visual Effects Library.
+ * JARVIS AI — Animation & Visual Effects Library.
  *
  * AI sets className on blocks; IntersectionObserver adds .wpa-visible on scroll.
  * All scroll animations are invisible until triggered, ensuring no layout shift.
@@ -8,7 +8,7 @@
  * ~100 classes total: scroll entrance, 3D, continuous, text, background,
  * interactive hover, layout helpers, and modifiers.
  *
- * @package WPAgent
+ * @package JarvisAI
  * @since   1.0.0
  */
 

@@ -5,11 +5,11 @@
  * Updates multiple posts or pages at once. Supports changing status,
  * author, comment status, ping status, categories, and tags in batch.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -141,7 +141,7 @@ class Bulk_Edit implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'post_ids must be a non-empty array.', 'wp-agent' ),
+				'message' => __( 'post_ids must be a non-empty array.', 'jarvis-ai' ),
 			);
 		}
 
@@ -152,7 +152,7 @@ class Bulk_Edit implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: maximum allowed post IDs */
-					__( 'Maximum %d post IDs allowed per bulk operation.', 'wp-agent' ),
+					__( 'Maximum %d post IDs allowed per bulk operation.', 'jarvis-ai' ),
 					self::MAX_POST_IDS
 				),
 			);
@@ -165,7 +165,7 @@ class Bulk_Edit implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'post_ids must contain valid positive integers.', 'wp-agent' ),
+				'message' => __( 'post_ids must contain valid positive integers.', 'jarvis-ai' ),
 			);
 		}
 
@@ -174,7 +174,7 @@ class Bulk_Edit implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'updates must be a non-empty object with at least one field.', 'wp-agent' ),
+				'message' => __( 'updates must be a non-empty object with at least one field.', 'jarvis-ai' ),
 			);
 		}
 
@@ -193,7 +193,7 @@ class Bulk_Edit implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'No valid update fields provided.', 'wp-agent' ),
+				'message' => __( 'No valid update fields provided.', 'jarvis-ai' ),
 			);
 		}
 
@@ -224,7 +224,7 @@ class Bulk_Edit implements Action_Interface {
 					'Bulk edit failed. %d post could not be updated.',
 					'Bulk edit failed. %d posts could not be updated.',
 					$failed_count,
-					'wp-agent'
+					'jarvis-ai'
 				),
 				$failed_count
 			);
@@ -235,14 +235,14 @@ class Bulk_Edit implements Action_Interface {
 					'Successfully updated %d post.',
 					'Successfully updated %d posts.',
 					$succeeded_count,
-					'wp-agent'
+					'jarvis-ai'
 				),
 				$succeeded_count
 			);
 		} else {
 			$message = sprintf(
 				/* translators: 1: succeeded count, 2: failed count */
-				__( 'Updated %1$d post(s). %2$d could not be updated.', 'wp-agent' ),
+				__( 'Updated %1$d post(s). %2$d could not be updated.', 'jarvis-ai' ),
 				$succeeded_count,
 				$failed_count
 			);
@@ -289,7 +289,7 @@ class Bulk_Edit implements Action_Interface {
 					'invalid_post_status',
 					sprintf(
 						/* translators: %s: invalid status value */
-						__( 'Invalid post_status "%s". Allowed: publish, draft, pending, private.', 'wp-agent' ),
+						__( 'Invalid post_status "%s". Allowed: publish, draft, pending, private.', 'jarvis-ai' ),
 						esc_html( $updates['post_status'] )
 					)
 				);
@@ -305,7 +305,7 @@ class Bulk_Edit implements Action_Interface {
 			if ( ! $author_id ) {
 				return new \WP_Error(
 					'invalid_post_author',
-					__( 'post_author must be a positive integer.', 'wp-agent' )
+					__( 'post_author must be a positive integer.', 'jarvis-ai' )
 				);
 			}
 
@@ -314,7 +314,7 @@ class Bulk_Edit implements Action_Interface {
 					'author_not_found',
 					sprintf(
 						/* translators: %d: user ID */
-						__( 'Author user #%d does not exist.', 'wp-agent' ),
+						__( 'Author user #%d does not exist.', 'jarvis-ai' ),
 						$author_id
 					)
 				);
@@ -330,7 +330,7 @@ class Bulk_Edit implements Action_Interface {
 			if ( ! in_array( $comment_status, array( 'open', 'closed' ), true ) ) {
 				return new \WP_Error(
 					'invalid_comment_status',
-					__( 'comment_status must be "open" or "closed".', 'wp-agent' )
+					__( 'comment_status must be "open" or "closed".', 'jarvis-ai' )
 				);
 			}
 
@@ -344,7 +344,7 @@ class Bulk_Edit implements Action_Interface {
 			if ( ! in_array( $ping_status, array( 'open', 'closed' ), true ) ) {
 				return new \WP_Error(
 					'invalid_ping_status',
-					__( 'ping_status must be "open" or "closed".', 'wp-agent' )
+					__( 'ping_status must be "open" or "closed".', 'jarvis-ai' )
 				);
 			}
 
@@ -356,7 +356,7 @@ class Bulk_Edit implements Action_Interface {
 			if ( ! is_array( $updates['categories'] ) ) {
 				return new \WP_Error(
 					'invalid_categories',
-					__( 'categories must be an array of integers.', 'wp-agent' )
+					__( 'categories must be an array of integers.', 'jarvis-ai' )
 				);
 			}
 
@@ -370,7 +370,7 @@ class Bulk_Edit implements Action_Interface {
 			if ( ! is_array( $updates['tags'] ) ) {
 				return new \WP_Error(
 					'invalid_tags',
-					__( 'tags must be an array of strings.', 'wp-agent' )
+					__( 'tags must be an array of strings.', 'jarvis-ai' )
 				);
 			}
 
@@ -397,7 +397,7 @@ class Bulk_Edit implements Action_Interface {
 				'success' => false,
 				'error'   => sprintf(
 					/* translators: %d: post ID */
-					__( 'Post #%d not found.', 'wp-agent' ),
+					__( 'Post #%d not found.', 'jarvis-ai' ),
 					$post_id
 				),
 			);
@@ -409,7 +409,7 @@ class Bulk_Edit implements Action_Interface {
 				'success' => false,
 				'error'   => sprintf(
 					/* translators: %d: post ID */
-					__( 'Permission denied for post #%d.', 'wp-agent' ),
+					__( 'Permission denied for post #%d.', 'jarvis-ai' ),
 					$post_id
 				),
 			);

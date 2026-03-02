@@ -1,7 +1,7 @@
 /**
  * Gutenberg editor entry point.
  *
- * Registers the WP Agent PluginSidebar in the block editor.
+ * Registers the JARVIS AI PluginSidebar in the block editor.
  *
  * @package
  * @since 1.0.0
@@ -14,7 +14,7 @@ import ChatPanel from './editor/ChatPanel';
 import './store';
 import './style.css';
 
-const WPAgentIcon = () => (
+const JarvisAIIcon = () => (
 	<Icon
 		icon={
 			<svg
@@ -39,12 +39,12 @@ const WPAgentIcon = () => (
 	/>
 );
 
-registerPlugin( 'wp-agent', {
+registerPlugin( 'jarvis-ai', {
 	render: () => (
 		<PluginSidebar
-			name="wp-agent-sidebar"
+			name="jarvis-ai-sidebar"
 			title="JARVIS"
-			icon={ <WPAgentIcon /> }
+			icon={ <JarvisAIIcon /> }
 		>
 			<ChatPanel />
 		</PluginSidebar>

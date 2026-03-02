@@ -1,5 +1,5 @@
 /**
- * WP Agent chat store registration.
+ * JARVIS AI chat store registration.
  *
  * @package
  * @since 1.0.0

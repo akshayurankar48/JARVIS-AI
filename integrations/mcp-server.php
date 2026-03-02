@@ -5,13 +5,13 @@
  * Exposes all JARVIS abilities as MCP tools for Claude Desktop, VS Code, etc.
  * Conditional — only loads when MCP Adapter is available.
  *
- * @package WPAgent\Integrations
+ * @package JarvisAI\Integrations
  * @since   1.0.0
  */
 
-namespace WPAgent\Integrations;
+namespace JarvisAI\Integrations;
 
-use WPAgent\Actions\Action_Registry;
+use JarvisAI\Actions\Action_Registry;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -64,21 +64,21 @@ class MCP_Server {
 		try {
 			$adapter = \WP\MCP\Core\McpAdapter::instance();
 
-			// Collect ability names registered by Abilities_Bridge (wp-agent/{action}).
+			// Collect ability names registered by Abilities_Bridge (jarvis-ai/{action}).
 			$registry      = Action_Registry::get_instance();
 			$actions       = $registry->get_all_actions();
 			$ability_names = array();
 			foreach ( $actions as $name => $action ) {
-				$ability_names[] = "wp-agent/{$name}";
+				$ability_names[] = "jarvis-ai/{$name}";
 			}
 
-			$version = defined( 'WP_AGENT_VER' ) ? WP_AGENT_VER : '1.0.0';
+			$version = defined( 'JARVIS_AI_VER' ) ? JARVIS_AI_VER : '1.0.0';
 
 			$adapter->create_server(
-				'wp-agent-mcp',                                                     // server_id
-				'wp-agent/v1',                                                       // server_route_namespace
+				'jarvis-ai-mcp',                                                     // server_id
+				'jarvis-ai/v1',                                                       // server_route_namespace
 				'/mcp',                                                              // server_route
-				'WP Agent (JARVIS)',                                                 // server_name
+				'JARVIS AI (JARVIS)',                                                 // server_name
 				'AI-powered WordPress management — 70+ actions available as tools.', // server_description
 				$version,                                                            // server_version
 				array( \WP\MCP\Transport\HttpTransport::class ),                         // mcp_transports
@@ -88,7 +88,7 @@ class MCP_Server {
 			);
 		} catch ( \Exception $e ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'WP Agent MCP Server error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'JARVIS AI MCP Server error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 		}
 	}

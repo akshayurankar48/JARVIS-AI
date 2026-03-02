@@ -2,11 +2,11 @@
 /**
  * WooCommerce Manage Inventory Action.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -123,7 +123,7 @@ class Woo_Manage_Inventory implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation.', 'wp-agent' ),
+					'message' => __( 'Invalid operation.', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -142,7 +142,7 @@ class Woo_Manage_Inventory implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'product_id required.', 'wp-agent' ),
+				'message' => __( 'product_id required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -151,7 +151,7 @@ class Woo_Manage_Inventory implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Product not found.', 'wp-agent' ),
+				'message' => __( 'Product not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -166,7 +166,7 @@ class Woo_Manage_Inventory implements Action_Interface {
 				'backorders'     => $product->get_backorders(),
 			),
 			/* translators: 1: product name, 2: stock status, 3: stock quantity */
-			'message' => sprintf( __( '%1$s: %2$s (qty: %3$s).', 'wp-agent' ), $product->get_name(), $product->get_stock_status(), $product->get_stock_quantity() ?? 'N/A' ),
+			'message' => sprintf( __( '%1$s: %2$s (qty: %3$s).', 'jarvis-ai' ), $product->get_name(), $product->get_stock_status(), $product->get_stock_quantity() ?? 'N/A' ),
 		);
 	}
 
@@ -186,7 +186,7 @@ class Woo_Manage_Inventory implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'product_id and quantity required.', 'wp-agent' ),
+				'message' => __( 'product_id and quantity required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -195,7 +195,7 @@ class Woo_Manage_Inventory implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Product not found.', 'wp-agent' ),
+				'message' => __( 'Product not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -212,7 +212,7 @@ class Woo_Manage_Inventory implements Action_Interface {
 				'new_quantity' => $quantity,
 			),
 			/* translators: 1: product name, 2: old stock quantity, 3: new stock quantity */
-			'message' => sprintf( __( '%1$s stock: %2$s -> %3$d.', 'wp-agent' ), $product->get_name(), $old_qty ?? 'N/A', $quantity ),
+			'message' => sprintf( __( '%1$s stock: %2$s -> %3$d.', 'jarvis-ai' ), $product->get_name(), $old_qty ?? 'N/A', $quantity ),
 		);
 	}
 
@@ -259,7 +259,7 @@ class Woo_Manage_Inventory implements Action_Interface {
 				'products'  => $low,
 			),
 			/* translators: 1: number of low-stock products, 2: stock threshold */
-			'message' => sprintf( __( '%1$d product(s) with stock <= %2$d.', 'wp-agent' ), count( $low ), $threshold ),
+			'message' => sprintf( __( '%1$d product(s) with stock <= %2$d.', 'jarvis-ai' ), count( $low ), $threshold ),
 		);
 	}
 
@@ -278,7 +278,7 @@ class Woo_Manage_Inventory implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'updates array required.', 'wp-agent' ),
+				'message' => __( 'updates array required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -309,7 +309,7 @@ class Woo_Manage_Inventory implements Action_Interface {
 		return array(
 			'success' => true,
 			'data'    => array( 'updated' => $results ),
-			'message' => sprintf( __( 'Updated stock for %d product(s).', 'wp-agent' ), count( $results ) ),
+			'message' => sprintf( __( 'Updated stock for %d product(s).', 'jarvis-ai' ), count( $results ) ),
 		);
 	}
 }

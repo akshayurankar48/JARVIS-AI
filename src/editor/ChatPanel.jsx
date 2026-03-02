@@ -6,13 +6,14 @@
  */
 
 import { css } from '@emotion/css';
-import { useEffect, useRef } from '@wordpress/element';
+import { useEffect, useRef, useState, useCallback } from '@wordpress/element';
 import { useChat } from '../hooks/use-chat';
 import { useBlockActions } from '../hooks/use-block-actions';
 import { useEditorContext } from '../hooks/use-editor-context';
 import MessageList from './MessageList';
 import InputArea from './InputArea';
 import WelcomeScreen from './WelcomeScreen';
+import DesignScore from './DesignScore';
 import { SquarePen, AlertCircle, X, Bot } from 'lucide-react';
 import {
 	colors,
@@ -155,9 +156,35 @@ const ChatPanel = () => {
 	} = useChat();
 
 	const editorContext = useEditorContext();
+	const [ showDesignScore, setShowDesignScore ] = useState( false );
+	const prevStreamingRef = useRef( false );
 
 	// Process pending client-side block actions from the AI.
 	useBlockActions();
+
+	// Show Design Score after streaming completes (page build finished).
+	useEffect( () => {
+		if ( prevStreamingRef.current && ! isStreaming && messages.length > 0 ) {
+			// Check if the conversation involved block insertion (page building).
+			const lastMessages = messages.slice( -5 );
+			const hadBuild = lastMessages.some( ( m ) =>
+				typeof m.content === 'string' && (
+					m.content.includes( 'insert_blocks' ) ||
+					m.content.includes( 'build_from_blueprint' ) ||
+					m.content.includes( 'get_pattern' )
+				)
+			);
+			if ( hadBuild ) {
+				setShowDesignScore( true );
+			}
+		}
+		prevStreamingRef.current = isStreaming;
+	}, [ isStreaming, messages ] );
+
+	const handleDesignImprove = useCallback( ( prompt ) => {
+		sendMessage( prompt );
+		setShowDesignScore( false );
+	}, [ sendMessage ] );
 
 	// Auto-send demo prompt when launched from dashboard.
 	const demoFired = useRef( false );
@@ -166,7 +193,7 @@ const ChatPanel = () => {
 			return;
 		}
 		const params = new URLSearchParams( window.location.search );
-		const demo = params.get( 'wp-agent-demo' );
+		const demo = params.get( 'jarvis-ai-demo' );
 		if ( ! demo ) {
 			return;
 		}
@@ -182,7 +209,7 @@ const ChatPanel = () => {
 	const hasMessages = messages.length > 0;
 
 	return (
-		<div id="wp-agent-sidebar" className={ panel }>
+		<div id="jarvis-ai-sidebar" className={ panel }>
 			{ /* Header */ }
 			<div className={ header }>
 				<div className={ headerLeft }>
@@ -236,6 +263,14 @@ const ChatPanel = () => {
 					isLoading={ isLoading }
 					actionProgress={ actionProgress }
 					completedSteps={ completedSteps }
+				/>
+			) }
+
+			{ /* Design Score Card */ }
+			{ showDesignScore && hasApiKey && (
+				<DesignScore
+					onClose={ () => setShowDesignScore( false ) }
+					onImprove={ handleDesignImprove }
 				/>
 			) }
 

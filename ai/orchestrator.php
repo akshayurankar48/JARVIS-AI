@@ -8,15 +8,15 @@
  *
  * This is a library class — REST endpoints (Commit 6) call it.
  *
- * @package WPAgent\AI
+ * @package JarvisAI\AI
  * @since   1.0.0
  */
 
-namespace WPAgent\AI;
+namespace JarvisAI\AI;
 
-use WPAgent\Actions\Action_Registry;
-use WPAgent\Core\Checkpoint_Manager;
-use WPAgent\Core\Database;
+use JarvisAI\Actions\Action_Registry;
+use JarvisAI\Core\Checkpoint_Manager;
+use JarvisAI\Core\Database;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -496,7 +496,7 @@ class Orchestrator {
 			// No tool calls — check for empty response.
 			if ( empty( trim( $accumulated_content ) ) ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					error_log( 'WP Agent: AI returned empty response (no content, no tool calls)' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					error_log( 'JARVIS AI: AI returned empty response (no content, no tool calls)' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				}
 				if ( $callback ) {
 					call_user_func(
@@ -655,7 +655,7 @@ class Orchestrator {
 				}
 			} catch ( \Throwable $e ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					error_log( sprintf( 'WP Agent: Action "%s" threw exception: %s', $fn_name, $e->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					error_log( sprintf( 'JARVIS AI: Action "%s" threw exception: %s', $fn_name, $e->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				}
 				$tool_result = array(
 					'success'    => false,
@@ -764,7 +764,7 @@ class Orchestrator {
 			if ( ! $this->user_owns_conversation( (int) $conversation_id, (int) $user_id ) ) {
 				return new \WP_Error(
 					'forbidden',
-					__( 'You do not have access to this conversation.', 'wp-agent' ),
+					__( 'You do not have access to this conversation.', 'jarvis-ai' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -829,7 +829,7 @@ class Orchestrator {
 		);
 
 		if ( false === $inserted ) {
-			return new \WP_Error( 'db_error', __( 'Failed to create conversation.', 'wp-agent' ) );
+			return new \WP_Error( 'db_error', __( 'Failed to create conversation.', 'jarvis-ai' ) );
 		}
 
 		return (int) $wpdb->insert_id;
@@ -1060,7 +1060,7 @@ class Orchestrator {
 	 * @return Open_Router_Client|AI_Client_Adapter
 	 */
 	private function get_ai_client() {
-		$backend = get_option( 'wp_agent_ai_backend', 'openrouter' );
+		$backend = get_option( 'jarvis_ai_ai_backend', 'openrouter' );
 
 		if ( 'providers' === $backend ) {
 			$adapter    = AI_Client_Adapter::get_instance();
@@ -1128,7 +1128,7 @@ class Orchestrator {
 			'screenshot_page'   => 'The page may not be published or accessible. Ensure the post is saved and has a permalink.',
 			'manage_seo'        => 'No SEO plugin detected. The native fallback handles basic meta. Suggest installing Yoast or Rank Math for full SEO features.',
 			'generate_image'    => 'Image generation may have failed due to API limits. Try using search_media or import_media as alternatives.',
-			'web_search'        => 'Search may have failed due to API key issues. Check WP Agent > Settings to verify the Tavily API key is configured.',
+			'web_search'        => 'Search may have failed due to API key issues. Check JARVIS AI > Settings to verify the Tavily API key is configured.',
 		);
 
 		if ( isset( $action_hints[ $action_name ] ) ) {

@@ -210,7 +210,7 @@ export default function History() {
 		}
 		try {
 			await apiFetch( {
-				path: `/wp-agent/v1/history/${ id }`,
+				path: `/jarvis-ai/v1/history/${ id }`,
 				method: 'DELETE',
 			} );
 			setData( ( prev ) => {
@@ -231,7 +231,7 @@ export default function History() {
 	const handleRename = useCallback( async ( id, title ) => {
 		try {
 			await apiFetch( {
-				path: `/wp-agent/v1/history/${ id }/rename`,
+				path: `/jarvis-ai/v1/history/${ id }/rename`,
 				method: 'POST',
 				data: { title },
 			} );
@@ -256,7 +256,7 @@ export default function History() {
 		try {
 			setLoading( true );
 			const result = await apiFetch( {
-				path: `/wp-agent/v1/history?page=${ p }&per_page=20`,
+				path: `/jarvis-ai/v1/history?page=${ p }&per_page=20`,
 			} );
 			setData( result );
 		} catch {

@@ -1,8 +1,8 @@
-# WP Agent - Phase 1 Implementation Plan
+# JARVIS AI - Phase 1 Implementation Plan
 
 > **Status**: APPROVED - Final Decisions Locked
-> **Repo**: https://github.com/akshayurankar48/WP-AGENT
-> **Base**: BSF plugin boilerplate (`wp-plugin-base`) - single commit `6dab8e6`
+> **Repo**: https://github.com/akshayurankar48/JARVIS-AI
+> **Base**: BSF plugin boilerplate (`jarvis-ai`) - single commit `6dab8e6`
 > **Date**: 2026-02-28
 
 ---
@@ -69,22 +69,22 @@ An AI-powered WordPress admin assistant that lives natively in the **Gutenberg e
 
 ## Boilerplate Current State
 
-| Item | Current (Boilerplate) | Target (WP Agent) |
+| Item | Current (Boilerplate) | Target (JARVIS AI) |
 |------|----------------------|-------------------|
-| Plugin slug | `wp-plugin-base` | `wp-agent` |
-| Main file | `wp-plugin-base.php` | `wp-agent.php` |
-| Namespace | `WPB` | `WPAgent` |
-| Constant prefix | `WPB_` | `WP_AGENT_` |
-| Text domain | `wp-plugin-base` | `wp-agent` |
-| Filter prefix | `wpb_` | `wp_agent_` |
+| Plugin slug | `jarvis-ai` | `jarvis-ai` |
+| Main file | `jarvis-ai.php` | `jarvis-ai.php` |
+| Namespace | `WPB` | `JarvisAI` |
+| Constant prefix | `WPB_` | `JARVIS_AI_` |
+| Text domain | `jarvis-ai` | `jarvis-ai` |
+| Filter prefix | `wpb_` | `jarvis_ai_` |
 | Version | `0.0.1` | `1.0.0-alpha` |
 | @wordpress/scripts | `^21.0.1` | `^27.0.0` |
 | WPCS | `^2.2` | `^3.0` |
 | PHP minimum | 5.6 | 7.4 |
-| Plugin header | Generic boilerplate | WP Agent branded |
+| Plugin header | Generic boilerplate | JARVIS AI branded |
 
 **Autoloader convention** (preserved from boilerplate):
-- Class `WPAgent\AI\Open_Router_Client` resolves to `ai/open-router-client.php`
+- Class `JarvisAI\AI\Open_Router_Client` resolves to `ai/open-router-client.php`
 - Namespace separators become directory separators
 - Underscores and CamelCase become hyphens, lowercased
 
@@ -96,7 +96,7 @@ Each commit produces a **working, non-breaking** plugin state. No commit depends
 
 | # | Commit | Scope |
 |---|--------|-------|
-| 1 | `feat: adapt boilerplate to WP Agent scaffold` | Rename namespace/constants/text-domain, activation/deactivation hooks |
+| 1 | `feat: adapt boilerplate to JARVIS AI scaffold` | Rename namespace/constants/text-domain, activation/deactivation hooks |
 | 2 | `feat: database schema and migration system` | 4 custom tables + dbDelta migration |
 | 3 | `feat: OpenRouter AI client with streaming` | cURL SSE streaming, prompt builder, model router, rate limiter |
 | 4a | `feat: action system interface, registry, and content actions` | Interface, registry, 5 content actions |
@@ -111,40 +111,40 @@ Each commit produces a **working, non-breaking** plugin state. No commit depends
 | 11 | `feat: CI workflow for code analysis` | GitHub Actions updates |
 | 12 | `docs: README and inline documentation` | Installation, config, developer docs |
 
-### Commit 1: `feat: adapt boilerplate to WP Agent scaffold`
+### Commit 1: `feat: adapt boilerplate to JARVIS AI scaffold`
 
-**Scope**: Rename everything from boilerplate identity to WP Agent identity.
+**Scope**: Rename everything from boilerplate identity to JARVIS AI identity.
 
 **Files modified:**
-- `wp-plugin-base.php` -> `wp-agent.php` (rename + rewrite header & constants)
-- `plugin-loader.php` (namespace `WPB` -> `WPAgent`, text domain, filter names)
+- `jarvis-ai.php` -> `jarvis-ai.php` (rename + rewrite header & constants)
+- `plugin-loader.php` (namespace `WPB` -> `JarvisAI`, text domain, filter names)
 - `uninstall.php` (new - clean uninstall handler)
 - `package.json` (name, version, description, repository URL, scripts text-domain refs)
 - `composer.json` (name, description, stubs script refs)
-- `phpcs.xml` (text_domain element -> `wp-agent`)
-- `phpstan.neon` (paths -> `wp-agent.php`, bootstrap refs)
-- `.eslintrc.js` (allowedTextDomain -> `wp-agent`)
-- `Gruntfile.js` (dest/archive refs -> `wp-agent`)
-- `tests/php/stubs/wpb-constants.php` -> `tests/php/stubs/wp-agent-constants.php`
+- `phpcs.xml` (text_domain element -> `jarvis-ai`)
+- `phpstan.neon` (paths -> `jarvis-ai.php`, bootstrap refs)
+- `.eslintrc.js` (allowedTextDomain -> `jarvis-ai`)
+- `Gruntfile.js` (dest/archive refs -> `jarvis-ai`)
+- `tests/php/stubs/wpb-constants.php` -> `tests/php/stubs/jarvis-ai-constants.php`
 
 **Specific changes:**
 ```
-Constants:   WPB_FILE -> WP_AGENT_FILE
-             WPB_BASE -> WP_AGENT_BASE
-             WPB_DIR  -> WP_AGENT_DIR
-             WPB_URL  -> WP_AGENT_URL
-             WPB_VER  -> WP_AGENT_VER
+Constants:   WPB_FILE -> JARVIS_AI_FILE
+             WPB_BASE -> JARVIS_AI_BASE
+             WPB_DIR  -> JARVIS_AI_DIR
+             WPB_URL  -> JARVIS_AI_URL
+             WPB_VER  -> JARVIS_AI_VER
 
-Namespace:   WPB\    -> WPAgent\
-Filters:     wpb_*   -> wp_agent_*
-Text domain: wp-plugin-base -> wp-agent
+Namespace:   WPB\    -> JarvisAI\
+Filters:     wpb_*   -> jarvis_ai_*
+Text domain: jarvis-ai -> jarvis-ai
 ```
 
 **Additions:**
-- `register_activation_hook()` in main file (calls `WPAgent\Core\Database::activate()`)
+- `register_activation_hook()` in main file (calls `JarvisAI\Core\Database::activate()`)
 - `register_deactivation_hook()` in main file (cleanup transients)
 - `defined( 'ABSPATH' ) || exit;` guard in every PHP file
-- Version constant `WP_AGENT_DB_VER` for migration tracking
+- Version constant `JARVIS_AI_DB_VER` for migration tracking
 
 **Verification:** Plugin activates in WP admin without errors. No PHP notices.
 
@@ -155,7 +155,7 @@ Text domain: wp-plugin-base -> wp-agent
 **Scope**: 4 custom DB tables + dbDelta migration system.
 
 **New files:**
-- `core/database.php` - `WPAgent\Core\Database` class
+- `core/database.php` - `JarvisAI\Core\Database` class
 
 **Tables created on activation:**
 
@@ -228,7 +228,7 @@ CREATE TABLE {prefix}agent_history (
 
 **Implementation details:**
 - Uses `dbDelta()` from `wp-admin/includes/upgrade.php`
-- Version stored in `wp_options` as `wp_agent_db_version`
+- Version stored in `wp_options` as `jarvis_ai_db_version`
 - `activate()` static method called from activation hook
 - `maybe_upgrade()` checks version on `admin_init` for seamless upgrades
 - All queries use `$wpdb->prepare()` with parameterized placeholders
@@ -244,16 +244,16 @@ CREATE TABLE {prefix}agent_history (
 **Scope**: cURL-based SSE streaming client for OpenRouter API.
 
 **New files:**
-- `ai/open-router-client.php` - `WPAgent\AI\Open_Router_Client`
-- `ai/prompt-builder.php` - `WPAgent\AI\Prompt_Builder`
-- `ai/model-router.php` - `WPAgent\AI\Model_Router`
-- `ai/rate-limiter.php` - `WPAgent\AI\Rate_Limiter`
+- `ai/open-router-client.php` - `JarvisAI\AI\Open_Router_Client`
+- `ai/prompt-builder.php` - `JarvisAI\AI\Prompt_Builder`
+- `ai/model-router.php` - `JarvisAI\AI\Model_Router`
+- `ai/rate-limiter.php` - `JarvisAI\AI\Rate_Limiter`
 
 **Open_Router_Client details:**
 - `stream( $messages, $model, $callback )` - cURL with `CURLOPT_WRITEFUNCTION`
 - `chat( $messages, $model )` - Non-streaming via `wp_remote_post()`
 - Endpoint: `https://openrouter.ai/api/v1/chat/completions`
-- Headers: `Authorization: Bearer {key}`, `HTTP-Referer`, `X-Title: WP Agent`
+- Headers: `Authorization: Bearer {key}`, `HTTP-Referer`, `X-Title: JARVIS AI`
 - API key stored in `wp_options` (encrypted with `wp_salt()` + openssl)
 - Timeout handling: cURL `CURLOPT_TIMEOUT => 120`
 
@@ -268,7 +268,7 @@ CREATE TABLE {prefix}agent_history (
 - Fallback chain if primary model fails
 
 **Rate_Limiter details:**
-- Per-user limits via transients: `wp_agent_rate_{user_id}`
+- Per-user limits via transients: `jarvis_ai_rate_{user_id}`
 - Default: 30 requests/minute, 500 requests/day
 - Admin-configurable via settings
 
@@ -281,13 +281,13 @@ CREATE TABLE {prefix}agent_history (
 **Scope**: Action interface + registry + 5 content actions.
 
 **New files:**
-- `actions/action-interface.php` - `WPAgent\Actions\Action_Interface`
-- `actions/action-registry.php` - `WPAgent\Actions\Action_Registry`
-- `actions/create-post.php` - `WPAgent\Actions\Create_Post`
-- `actions/edit-post.php` - `WPAgent\Actions\Edit_Post`
-- `actions/delete-post.php` - `WPAgent\Actions\Delete_Post`
-- `actions/insert-blocks.php` - `WPAgent\Actions\Insert_Blocks`
-- `actions/read-blocks.php` - `WPAgent\Actions\Read_Blocks`
+- `actions/action-interface.php` - `JarvisAI\Actions\Action_Interface`
+- `actions/action-registry.php` - `JarvisAI\Actions\Action_Registry`
+- `actions/create-post.php` - `JarvisAI\Actions\Create_Post`
+- `actions/edit-post.php` - `JarvisAI\Actions\Edit_Post`
+- `actions/delete-post.php` - `JarvisAI\Actions\Delete_Post`
+- `actions/insert-blocks.php` - `JarvisAI\Actions\Insert_Blocks`
+- `actions/read-blocks.php` - `JarvisAI\Actions\Read_Blocks`
 
 **Action_Interface contract:**
 ```php
@@ -307,7 +307,7 @@ interface Action_Interface {
 - `get( string $name )` returns action instance
 - `get_all()` returns all registered actions
 - `get_tool_definitions()` returns OpenRouter function/tool calling definitions
-- Hook: `wp_agent_register_actions` for third-party extensions
+- Hook: `jarvis_ai_register_actions` for third-party extensions
 
 **Content actions:**
 - `create_post` - `wp_insert_post()` with blocks. Server-side. Capability: `edit_posts`
@@ -325,10 +325,10 @@ interface Action_Interface {
 **Scope**: 4 more actions for settings and plugin management.
 
 **New files:**
-- `actions/update-settings.php` - `WPAgent\Actions\Update_Settings`
-- `actions/manage-permalinks.php` - `WPAgent\Actions\Manage_Permalinks`
-- `actions/install-plugin.php` - `WPAgent\Actions\Install_Plugin`
-- `actions/activate-plugin.php` - `WPAgent\Actions\Activate_Plugin`
+- `actions/update-settings.php` - `JarvisAI\Actions\Update_Settings`
+- `actions/manage-permalinks.php` - `JarvisAI\Actions\Manage_Permalinks`
+- `actions/install-plugin.php` - `JarvisAI\Actions\Install_Plugin`
+- `actions/activate-plugin.php` - `JarvisAI\Actions\Activate_Plugin`
 
 **Actions:**
 - `update_settings` - Whitelist of allowed options. Server-side. Capability: `manage_options`
@@ -345,9 +345,9 @@ interface Action_Interface {
 **Scope**: Final 3 actions to complete the core 12.
 
 **New files:**
-- `actions/deactivate-plugin.php` - `WPAgent\Actions\Deactivate_Plugin`
-- `actions/create-user.php` - `WPAgent\Actions\Create_User`
-- `actions/site-health.php` - `WPAgent\Actions\Site_Health`
+- `actions/deactivate-plugin.php` - `JarvisAI\Actions\Deactivate_Plugin`
+- `actions/create-user.php` - `JarvisAI\Actions\Create_User`
+- `actions/site-health.php` - `JarvisAI\Actions\Site_Health`
 
 **Actions:**
 - `deactivate_plugin` - `deactivate_plugins()` core function. Server-side. Capability: `activate_plugins`
@@ -363,10 +363,10 @@ interface Action_Interface {
 **Scope**: Main AI brain that coordinates requests, plus site context gathering.
 
 **New files:**
-- `core/orchestrator.php` - `WPAgent\Core\Orchestrator`
-- `core/context-collector.php` - `WPAgent\Core\Context_Collector`
-- `core/checkpoint-manager.php` - `WPAgent\Core\Checkpoint_Manager`
-- `core/knowledge-base.php` - `WPAgent\Core\Knowledge_Base`
+- `core/orchestrator.php` - `JarvisAI\Core\Orchestrator`
+- `core/context-collector.php` - `JarvisAI\Core\Context_Collector`
+- `core/checkpoint-manager.php` - `JarvisAI\Core\Checkpoint_Manager`
+- `core/knowledge-base.php` - `JarvisAI\Core\Knowledge_Base`
 
 **Orchestrator flow:**
 1. Receive user message + conversation context
@@ -393,7 +393,7 @@ interface Action_Interface {
 - Handles: posts (full post data), options (option value), blocks (serialized blocks)
 
 **Knowledge_Base:**
-- Persistent site knowledge stored in `wp_options` as `wp_agent_knowledge`
+- Persistent site knowledge stored in `wp_options` as `jarvis_ai_knowledge`
 - Auto-learns: frequently used post types, common settings changed, user preferences
 - Provides context hints to prompt builder
 
@@ -403,27 +403,27 @@ interface Action_Interface {
 
 ### Commit 6: `feat: REST API endpoints for chat and streaming`
 
-**Scope**: 5 REST controllers under `/wp-agent/v1/` namespace.
+**Scope**: 5 REST controllers under `/jarvis-ai/v1/` namespace.
 
 **New files:**
-- `rest/chat-controller.php` - `WPAgent\REST\Chat_Controller`
-- `rest/stream-controller.php` - `WPAgent\REST\Stream_Controller`
-- `rest/history-controller.php` - `WPAgent\REST\History_Controller`
-- `rest/settings-controller.php` - `WPAgent\REST\Settings_Controller`
-- `rest/action-controller.php` - `WPAgent\REST\Action_Controller`
+- `rest/chat-controller.php` - `JarvisAI\REST\Chat_Controller`
+- `rest/stream-controller.php` - `JarvisAI\REST\Stream_Controller`
+- `rest/history-controller.php` - `JarvisAI\REST\History_Controller`
+- `rest/settings-controller.php` - `JarvisAI\REST\Settings_Controller`
+- `rest/action-controller.php` - `JarvisAI\REST\Action_Controller`
 
 **Endpoints:**
 
 | Method | Route | Controller | Capability |
 |--------|-------|------------|------------|
-| POST | `/wp-agent/v1/chat` | Chat_Controller | `edit_posts` |
-| POST | `/wp-agent/v1/stream` | Stream_Controller | `edit_posts` |
-| GET | `/wp-agent/v1/history` | History_Controller | `edit_posts` |
-| GET | `/wp-agent/v1/history/{id}` | History_Controller | `edit_posts` |
-| GET | `/wp-agent/v1/settings` | Settings_Controller | `manage_options` |
-| POST | `/wp-agent/v1/settings` | Settings_Controller | `manage_options` |
-| POST | `/wp-agent/v1/action/execute` | Action_Controller | per-action |
-| POST | `/wp-agent/v1/action/undo` | Action_Controller | per-action |
+| POST | `/jarvis-ai/v1/chat` | Chat_Controller | `edit_posts` |
+| POST | `/jarvis-ai/v1/stream` | Stream_Controller | `edit_posts` |
+| GET | `/jarvis-ai/v1/history` | History_Controller | `edit_posts` |
+| GET | `/jarvis-ai/v1/history/{id}` | History_Controller | `edit_posts` |
+| GET | `/jarvis-ai/v1/settings` | Settings_Controller | `manage_options` |
+| POST | `/jarvis-ai/v1/settings` | Settings_Controller | `manage_options` |
+| POST | `/jarvis-ai/v1/action/execute` | Action_Controller | per-action |
+| POST | `/jarvis-ai/v1/action/undo` | Action_Controller | per-action |
 
 **Stream_Controller (SSE) critical path:**
 ```php
@@ -466,7 +466,7 @@ public function stream( $request ) {
 
 **Registration:** All controllers register routes on `rest_api_init` hook via plugin-loader.
 
-**Verification:** `curl /wp-json/wp-agent/v1/settings` returns 401 without auth, 200 with valid nonce.
+**Verification:** `curl /wp-json/jarvis-ai/v1/settings` returns 401 without auth, 200 with valid nonce.
 
 ---
 
@@ -475,12 +475,12 @@ public function stream( $request ) {
 **Scope**: WP admin integration - menu page, script/style loading.
 
 **New files:**
-- `admin/admin-menu.php` - `WPAgent\Admin\Admin_Menu`
-- `admin/settings-page.php` - `WPAgent\Admin\Settings_Page`
-- `admin/assets-manager.php` - `WPAgent\Admin\Assets_Manager`
+- `admin/admin-menu.php` - `JarvisAI\Admin\Admin_Menu`
+- `admin/settings-page.php` - `JarvisAI\Admin\Settings_Page`
+- `admin/assets-manager.php` - `JarvisAI\Admin\Assets_Manager`
 
 **Admin_Menu:**
-- Top-level menu: "WP Agent" with dashicon `dashicons-format-chat`
+- Top-level menu: "JARVIS AI" with dashicon `dashicons-format-chat`
 - Position: 30 (below Comments)
 - Capability: `manage_options`
 - Submenu: "Settings" (default), "History"
@@ -490,24 +490,24 @@ public function stream( $request ) {
 - `admin_enqueue_scripts` hook -> loads settings page assets (from `build/admin/settings/index.js`)
 - `wp_localize_script()` passes:
   ```php
-  wp_localize_script( 'wp-agent-sidebar', 'wpAgentData', [
-      'restUrl'    => rest_url( 'wp-agent/v1/' ),
+  wp_localize_script( 'jarvis-ai-sidebar', 'jarvisAiData', [
+      'restUrl'    => rest_url( 'jarvis-ai/v1/' ),
       'nonce'      => wp_create_nonce( 'wp_rest' ),
-      'hasApiKey'  => ! empty( get_option( 'wp_agent_api_key' ) ),
+      'hasApiKey'  => ! empty( get_option( 'jarvis_ai_api_key' ) ),
       'userId'     => get_current_user_id(),
       'userName'   => wp_get_current_user()->display_name,
       'userAvatar' => get_avatar_url( get_current_user_id() ),
       'postId'     => get_the_ID(),
       'models'     => Model_Router::get_available_models(),
-      'version'    => WP_AGENT_VER,
+      'version'    => JARVIS_AI_VER,
   ] );
   ```
 - **API key never exposed to client** - only boolean `hasApiKey`
 
 **Settings_Page:**
-- Renders React mount point: `<div id="wp-agent-settings"></div>`
+- Renders React mount point: `<div id="jarvis-ai-settings"></div>`
 
-**Verification:** "WP Agent" appears in admin menu. Opening Gutenberg editor loads sidebar script (console shows no errors).
+**Verification:** "JARVIS AI" appears in admin menu. Opening Gutenberg editor loads sidebar script (console shows no errors).
 
 ---
 
@@ -587,7 +587,7 @@ src/
   style.css                   # Tailwind directives + sidebar-specific styles
   store/
     index.js                  # createReduxStore registration
-    constants.js              # STORE_NAME = 'wp-agent', ACTION_TYPES
+    constants.js              # STORE_NAME = 'jarvis-ai', ACTION_TYPES
     reducer.js                # Chat state: messages, conversations, streaming, etc.
     actions.js                # Action creators (sendMessage, setStreaming, etc.)
     selectors.js              # getMessages, isStreaming, getCurrentConversation, etc.
@@ -620,11 +620,11 @@ import { registerPlugin } from '@wordpress/plugins';
 import { PluginSidebar } from '@wordpress/editor'; // NOT edit-post (deprecated WP 6.6+)
 import { ChatPanel } from './components/ChatPanel';
 
-registerPlugin( 'wp-agent', {
+registerPlugin( 'jarvis-ai', {
     render: () => (
         <PluginSidebar
-            name="wp-agent-sidebar"
-            title="WP Agent"
+            name="jarvis-ai-sidebar"
+            title="JARVIS AI"
             icon={ /* Bot icon */ }
         >
             <ChatPanel />
@@ -687,13 +687,13 @@ const replaceBlock = ( clientId, blockDefs ) => { /* replaceBlocks */ };
 - `Tooltip` - Button tooltips
 - Icons from `lucide-react`: Send, Square, Bot, User, Undo2, Settings, ChevronDown, etc.
 
-**Verification:** Open any post in Gutenberg -> WP Agent icon in toolbar -> sidebar opens -> type message -> streaming response appears.
+**Verification:** Open any post in Gutenberg -> JARVIS AI icon in toolbar -> sidebar opens -> type message -> streaming response appears.
 
 ---
 
 ### Commit 10: `feat: admin settings page React app`
 
-**Scope**: Settings page at WP Admin > WP Agent.
+**Scope**: Settings page at WP Admin > JARVIS AI.
 
 **New/modified files:**
 ```
@@ -708,27 +708,27 @@ src/admin/settings/
 **Note:** Usage dashboard deferred to Phase 2. No usage display in Phase 1 (silent rate limiting).
 
 **Settings stored in `wp_options`:**
-- `wp_agent_api_key` - Encrypted OpenRouter API key
-- `wp_agent_default_model` - Default model tier (fast/balanced/powerful)
-- `wp_agent_rate_limit` - Requests per minute per user
-- `wp_agent_daily_limit` - Requests per day per user
-- `wp_agent_allowed_roles` - Array of WP roles that can use the agent
+- `jarvis_ai_api_key` - Encrypted OpenRouter API key
+- `jarvis_ai_default_model` - Default model tier (fast/balanced/powerful)
+- `jarvis_ai_rate_limit` - Requests per minute per user
+- `jarvis_ai_daily_limit` - Requests per day per user
+- `jarvis_ai_allowed_roles` - Array of WP roles that can use the agent
 
 **API key flow:**
 1. User enters key in settings form
-2. POST to `/wp-agent/v1/settings` with key
+2. POST to `/jarvis-ai/v1/settings` with key
 3. PHP encrypts with `openssl_encrypt()` using `wp_salt('auth')` as key
 4. Stored encrypted in `wp_options`
 5. Client JS only receives `hasApiKey: true/false` (never the actual key)
 6. Validation: test call to OpenRouter `/models` endpoint
 
-**Verification:** Navigate to WP Admin > WP Agent > enter API key > see validation success > select model > save.
+**Verification:** Navigate to WP Admin > JARVIS AI > enter API key > see validation success > select model > save.
 
 ---
 
 ### Commit 11: `feat: CI workflow for code analysis`
 
-**Scope**: Update GitHub Actions for WP Agent specifics.
+**Scope**: Update GitHub Actions for JARVIS AI specifics.
 
 **Files modified:**
 - `.github/workflows/code-analysis.yml`
@@ -758,7 +758,7 @@ src/admin/settings/
 - Configuration (API key setup, model selection)
 - Usage guide (open sidebar, type message, confirm actions)
 - Available actions (create_post, update_settings, site_health)
-- Extending (custom actions via `wp_agent_register_actions` hook)
+- Extending (custom actions via `jarvis_ai_register_actions` hook)
 - Development setup
 - Architecture overview (brief)
 - FAQ
@@ -777,7 +777,7 @@ WordPress Admin / Gutenberg Editor
   |
   fetch() POST with ReadableStream (SSE parsing)
   |
-  REST API: POST /wp-agent/v1/stream
+  REST API: POST /jarvis-ai/v1/stream
   |
   Stream_Controller (PHP)
     -> set SSE headers, disable buffering, set_time_limit(0)
@@ -881,24 +881,24 @@ SHOW TABLES LIKE '%agent%';  -- Should return 4 tables
 ### After Commit 6 (REST):
 ```bash
 # Should return 401 (no auth)
-curl -s /wp-json/wp-agent/v1/settings | jq .code
+curl -s /wp-json/jarvis-ai/v1/settings | jq .code
 
 # Should return 200 with valid cookie/nonce
-curl -s /wp-json/wp-agent/v1/settings \
+curl -s /wp-json/jarvis-ai/v1/settings \
   -H "X-WP-Nonce: <nonce>" \
   -H "Cookie: <auth_cookie>"
 ```
 
 ### After Commit 9 (Chat UI):
 - Open Gutenberg editor on any post/page
-- Click WP Agent icon in toolbar -> sidebar opens
+- Click JARVIS AI icon in toolbar -> sidebar opens
 - Type message -> see streaming response
 - AI proposes actions -> plan viewer appears
 - Confirm action -> checkpoint created
 - Undo action -> state restored
 
 ### After Commit 10 (Settings):
-- Navigate to WP Admin > WP Agent
+- Navigate to WP Admin > JARVIS AI
 - Enter OpenRouter API key -> validation passes
 - Select default model -> saves
 - Configure role permissions -> saves
@@ -906,7 +906,7 @@ curl -s /wp-json/wp-agent/v1/settings \
 ### Full E2E:
 1. Install & activate plugin
 2. Open any post in Gutenberg editor
-3. Open WP Agent sidebar
+3. Open JARVIS AI sidebar
 4. See inline setup wizard (no API key yet)
 5. Enter OpenRouter API key + select model in wizard
 6. Type "Add a heading that says Hello World and a paragraph below it"
@@ -953,7 +953,7 @@ These features were discussed and scoped but deferred to keep Phase 1 focused an
 ### Phase 2e: Advanced Features
 - BSF shared API key via Cloudflare Worker proxy
 - Configurable per-action auto-execute (skip confirmation for trusted actions)
-- Filterable system prompt via `wp_agent_system_prompt` PHP hook
+- Filterable system prompt via `jarvis_ai_system_prompt` PHP hook
 - Configurable data retention period (7/30/90 days/forever)
 - Basic multisite support (per-site independent)
 - AI self-correction ("I notice that heading should have been H2...")

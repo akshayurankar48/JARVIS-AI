@@ -4,14 +4,14 @@
  *
  * Provides aggregate counts for the admin dashboard.
  *
- * @package WPAgent\REST
+ * @package JarvisAI\REST
  * @since   1.1.0
  */
 
-namespace WPAgent\REST;
+namespace JarvisAI\REST;
 
-use WPAgent\Core\Database;
-use WPAgent\Actions\Manage_Scheduled_Tasks;
+use JarvisAI\Core\Database;
+use JarvisAI\Actions\Manage_Scheduled_Tasks;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -30,7 +30,7 @@ class Stats_Controller extends \WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'wp-agent/v1';
+	protected $namespace = 'jarvis-ai/v1';
 
 	/**
 	 * REST route base.
@@ -61,7 +61,7 @@ class Stats_Controller extends \WP_REST_Controller {
 	}
 
 	/**
-	 * GET /wp-agent/v1/stats
+	 * GET /jarvis-ai/v1/stats
 	 *
 	 * Returns aggregate dashboard statistics for the current user.
 	 *
@@ -108,10 +108,10 @@ class Stats_Controller extends \WP_REST_Controller {
 		}
 
 		// Memory entries (stored in wp_options).
-		$memory_entries = count( get_option( 'wp_agent_memories', array() ) );
+		$memory_entries = count( get_option( 'jarvis_ai_memories', array() ) );
 
 		// Total registered actions.
-		$registry      = \WPAgent\Actions\Action_Registry::get_instance();
+		$registry      = \JarvisAI\Actions\Action_Registry::get_instance();
 		$total_actions = count( $registry->get_tool_definitions() );
 
 		// Token usage stats.

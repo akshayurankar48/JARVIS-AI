@@ -5,11 +5,11 @@
  * Lists and destroys user login sessions via the WP_Session_Tokens API.
  * Useful for security audits and forcing re-authentication.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -103,7 +103,7 @@ class Manage_Sessions implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Invalid user ID.', 'wp-agent' ),
+				'message' => __( 'Invalid user ID.', 'jarvis-ai' ),
 			);
 		}
 
@@ -114,7 +114,7 @@ class Manage_Sessions implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: user ID */
-					__( 'User #%d not found.', 'wp-agent' ),
+					__( 'User #%d not found.', 'jarvis-ai' ),
 					$user_id
 				),
 			);
@@ -136,7 +136,7 @@ class Manage_Sessions implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "list", "destroy_all", or "destroy_others".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "list", "destroy_all", or "destroy_others".', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -163,7 +163,7 @@ class Manage_Sessions implements Action_Interface {
 				),
 				'message' => sprintf(
 					/* translators: %s: username */
-					__( 'No active sessions for "%s".', 'wp-agent' ),
+					__( 'No active sessions for "%s".', 'jarvis-ai' ),
 					$user->display_name
 				),
 			);
@@ -189,7 +189,7 @@ class Manage_Sessions implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: username */
-				__( 'Found %1$d active session(s) for "%2$s".', 'wp-agent' ),
+				__( 'Found %1$d active session(s) for "%2$s".', 'jarvis-ai' ),
 				count( $results ),
 				$user->display_name
 			),
@@ -219,7 +219,7 @@ class Manage_Sessions implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: username */
-				__( 'Destroyed %1$d session(s) for "%2$s". User must log in again.', 'wp-agent' ),
+				__( 'Destroyed %1$d session(s) for "%2$s". User must log in again.', 'jarvis-ai' ),
 				$count,
 				$user->display_name
 			),
@@ -260,7 +260,7 @@ class Manage_Sessions implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: destroyed count, 2: username, 3: remaining */
-				__( 'Destroyed %1$d other session(s) for "%2$s". %3$d session(s) remaining.', 'wp-agent' ),
+				__( 'Destroyed %1$d other session(s) for "%2$s". %3$d session(s) remaining.', 'jarvis-ai' ),
 				$destroyed,
 				$user->display_name,
 				$remaining

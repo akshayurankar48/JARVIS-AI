@@ -2,11 +2,11 @@
 /**
  * Admin Menu.
  *
- * @package WPAgent\Admin
+ * @package JarvisAI\Admin
  * @since 1.0.0
  */
 
-namespace WPAgent\Admin;
+namespace JarvisAI\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -56,66 +56,66 @@ class Admin_Menu {
 	 */
 	public function register_menu() {
 		add_menu_page(
-			__( 'WP Agent', 'wp-agent' ),
-			__( 'WP Agent', 'wp-agent' ),
+			__( 'JARVIS AI', 'jarvis-ai' ),
+			__( 'JARVIS AI', 'jarvis-ai' ),
 			'manage_options',
-			'wp-agent',
+			'jarvis-ai',
 			array( $this, 'render_dashboard' ),
 			'dashicons-format-chat',
 			30
 		);
 
 		add_submenu_page(
-			'wp-agent',
-			__( 'Dashboard', 'wp-agent' ),
-			__( 'Dashboard', 'wp-agent' ),
+			'jarvis-ai',
+			__( 'Dashboard', 'jarvis-ai' ),
+			__( 'Dashboard', 'jarvis-ai' ),
 			'manage_options',
-			'wp-agent',
+			'jarvis-ai',
 			array( $this, 'render_dashboard' )
 		);
 
 		add_submenu_page(
-			'wp-agent',
-			__( 'Settings', 'wp-agent' ),
-			__( 'Settings', 'wp-agent' ),
+			'jarvis-ai',
+			__( 'Settings', 'jarvis-ai' ),
+			__( 'Settings', 'jarvis-ai' ),
 			'manage_options',
-			'wp-agent-settings',
+			'jarvis-ai-settings',
 			array( $this, 'render_settings' )
 		);
 
 		add_submenu_page(
-			'wp-agent',
-			__( 'History', 'wp-agent' ),
-			__( 'History', 'wp-agent' ),
+			'jarvis-ai',
+			__( 'History', 'jarvis-ai' ),
+			__( 'History', 'jarvis-ai' ),
 			'manage_options',
-			'wp-agent-history',
+			'jarvis-ai-history',
 			array( $this, 'render_history' )
 		);
 
 		add_submenu_page(
-			'wp-agent',
-			__( 'Schedules', 'wp-agent' ),
-			__( 'Schedules', 'wp-agent' ),
+			'jarvis-ai',
+			__( 'Schedules', 'jarvis-ai' ),
+			__( 'Schedules', 'jarvis-ai' ),
 			'manage_options',
-			'wp-agent-schedules',
+			'jarvis-ai-schedules',
 			array( $this, 'render_schedules' )
 		);
 
 		add_submenu_page(
-			'wp-agent',
-			__( 'Capabilities', 'wp-agent' ),
-			__( 'Capabilities', 'wp-agent' ),
+			'jarvis-ai',
+			__( 'Capabilities', 'jarvis-ai' ),
+			__( 'Capabilities', 'jarvis-ai' ),
 			'manage_options',
-			'wp-agent-capabilities',
+			'jarvis-ai-capabilities',
 			array( $this, 'render_capabilities' )
 		);
 
 		add_submenu_page(
-			'wp-agent',
-			__( 'Help', 'wp-agent' ),
-			__( 'Help', 'wp-agent' ),
+			'jarvis-ai',
+			__( 'Help', 'jarvis-ai' ),
+			__( 'Help', 'jarvis-ai' ),
 			'manage_options',
-			'wp-agent-help',
+			'jarvis-ai-help',
 			array( $this, 'render_help' )
 		);
 	}
@@ -128,7 +128,7 @@ class Admin_Menu {
 	 */
 	public function render_dashboard() {
 		?>
-		<div id="wp-agent-dashboard" class="wp-agent-wrap"></div>
+		<div id="jarvis-ai-dashboard" class="jarvis-ai-wrap"></div>
 		<?php
 	}
 
@@ -140,7 +140,7 @@ class Admin_Menu {
 	 */
 	public function render_settings() {
 		?>
-		<div id="wp-agent-settings" class="wp-agent-wrap"></div>
+		<div id="jarvis-ai-settings" class="jarvis-ai-wrap"></div>
 		<?php
 	}
 
@@ -152,7 +152,7 @@ class Admin_Menu {
 	 */
 	public function render_history() {
 		?>
-		<div id="wp-agent-history" class="wp-agent-wrap"></div>
+		<div id="jarvis-ai-history" class="jarvis-ai-wrap"></div>
 		<?php
 	}
 
@@ -164,7 +164,7 @@ class Admin_Menu {
 	 */
 	public function render_schedules() {
 		?>
-		<div id="wp-agent-schedules" class="wp-agent-wrap"></div>
+		<div id="jarvis-ai-schedules" class="jarvis-ai-wrap"></div>
 		<?php
 	}
 
@@ -176,7 +176,7 @@ class Admin_Menu {
 	 */
 	public function render_capabilities() {
 		?>
-		<div id="wp-agent-capabilities" class="wp-agent-wrap"></div>
+		<div id="jarvis-ai-capabilities" class="jarvis-ai-wrap"></div>
 		<?php
 	}
 
@@ -188,7 +188,7 @@ class Admin_Menu {
 	 */
 	public function render_help() {
 		?>
-		<div id="wp-agent-help" class="wp-agent-wrap"></div>
+		<div id="jarvis-ai-help" class="jarvis-ai-wrap"></div>
 		<?php
 	}
 }

@@ -7,11 +7,11 @@
  * (pages, posts, custom links, categories), removing items,
  * and assigning menus to theme locations.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -159,7 +159,7 @@ class Manage_Menus implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Must be one of: list, create, add_item, remove_item, assign_location.', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Must be one of: list, create, add_item, remove_item, assign_location.', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -215,7 +215,7 @@ class Manage_Menus implements Action_Interface {
 					'menus'     => array(),
 					'locations' => $locations_list,
 				),
-				'message' => __( 'No navigation menus found.', 'wp-agent' ),
+				'message' => __( 'No navigation menus found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -228,7 +228,7 @@ class Manage_Menus implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %d: number of menus */
-				__( 'Found %d navigation menu(s).', 'wp-agent' ),
+				__( 'Found %d navigation menu(s).', 'jarvis-ai' ),
 				count( $menu_list )
 			),
 		);
@@ -249,7 +249,7 @@ class Manage_Menus implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'menu_name is required for the "create" operation.', 'wp-agent' ),
+				'message' => __( 'menu_name is required for the "create" operation.', 'jarvis-ai' ),
 			);
 		}
 
@@ -275,7 +275,7 @@ class Manage_Menus implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: menu name, 2: menu ID */
-				__( 'Navigation menu "%1$s" created (ID: %2$d).', 'wp-agent' ),
+				__( 'Navigation menu "%1$s" created (ID: %2$d).', 'jarvis-ai' ),
 				$menu_name,
 				(int) $menu_id
 			),
@@ -297,7 +297,7 @@ class Manage_Menus implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'menu_id is required for the "add_item" operation.', 'wp-agent' ),
+				'message' => __( 'menu_id is required for the "add_item" operation.', 'jarvis-ai' ),
 			);
 		}
 
@@ -307,7 +307,7 @@ class Manage_Menus implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: menu ID */
-					__( 'Menu #%d not found.', 'wp-agent' ),
+					__( 'Menu #%d not found.', 'jarvis-ai' ),
 					$menu_id
 				),
 			);
@@ -319,7 +319,7 @@ class Manage_Menus implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'items array is required and must not be empty for the "add_item" operation.', 'wp-agent' ),
+				'message' => __( 'items array is required and must not be empty for the "add_item" operation.', 'jarvis-ai' ),
 			);
 		}
 
@@ -338,7 +338,7 @@ class Manage_Menus implements Action_Interface {
 					'index'  => $index,
 					'reason' => sprintf(
 						/* translators: %s: provided type */
-						__( 'Invalid type "%s". Must be one of: page, post, custom, category.', 'wp-agent' ),
+						__( 'Invalid type "%s". Must be one of: page, post, custom, category.', 'jarvis-ai' ),
 						$type
 					),
 				);
@@ -355,7 +355,7 @@ class Manage_Menus implements Action_Interface {
 							'index'  => $index,
 							'reason' => sprintf(
 								/* translators: %s: item type */
-								__( 'object_id is required for type "%s".', 'wp-agent' ),
+								__( 'object_id is required for type "%s".', 'jarvis-ai' ),
 								$type
 							),
 						);
@@ -368,7 +368,7 @@ class Manage_Menus implements Action_Interface {
 							'index'  => $index,
 							'reason' => sprintf(
 								/* translators: 1: type, 2: object ID */
-								__( '%1$s #%2$d not found.', 'wp-agent' ),
+								__( '%1$s #%2$d not found.', 'jarvis-ai' ),
 								ucfirst( $type ),
 								$object_id
 							),
@@ -389,7 +389,7 @@ class Manage_Menus implements Action_Interface {
 					if ( empty( $url ) ) {
 						$failed[] = array(
 							'index'  => $index,
-							'reason' => __( 'url is required for type "custom".', 'wp-agent' ),
+							'reason' => __( 'url is required for type "custom".', 'jarvis-ai' ),
 						);
 						continue 2;
 					}
@@ -397,7 +397,7 @@ class Manage_Menus implements Action_Interface {
 					if ( empty( $title ) ) {
 						$failed[] = array(
 							'index'  => $index,
-							'reason' => __( 'title is required for type "custom".', 'wp-agent' ),
+							'reason' => __( 'title is required for type "custom".', 'jarvis-ai' ),
 						);
 						continue 2;
 					}
@@ -411,7 +411,7 @@ class Manage_Menus implements Action_Interface {
 					if ( ! $object_id ) {
 						$failed[] = array(
 							'index'  => $index,
-							'reason' => __( 'object_id is required for type "category".', 'wp-agent' ),
+							'reason' => __( 'object_id is required for type "category".', 'jarvis-ai' ),
 						);
 						continue 2;
 					}
@@ -422,7 +422,7 @@ class Manage_Menus implements Action_Interface {
 							'index'  => $index,
 							'reason' => sprintf(
 								/* translators: %d: category ID */
-								__( 'Category #%d not found.', 'wp-agent' ),
+								__( 'Category #%d not found.', 'jarvis-ai' ),
 								$object_id
 							),
 						);
@@ -469,7 +469,7 @@ class Manage_Menus implements Action_Interface {
 				),
 				'message' => sprintf(
 					/* translators: %d: number of failed items */
-					__( 'Failed to add %d item(s) to the menu.', 'wp-agent' ),
+					__( 'Failed to add %d item(s) to the menu.', 'jarvis-ai' ),
 					$failed_count
 				),
 			);
@@ -477,7 +477,7 @@ class Manage_Menus implements Action_Interface {
 
 		$message = sprintf(
 			/* translators: 1: added count, 2: menu ID */
-			__( 'Added %1$d item(s) to menu #%2$d.', 'wp-agent' ),
+			__( 'Added %1$d item(s) to menu #%2$d.', 'jarvis-ai' ),
 			$added_count,
 			$menu_id
 		);
@@ -485,7 +485,7 @@ class Manage_Menus implements Action_Interface {
 		if ( $failed_count > 0 ) {
 			$message .= ' ' . sprintf(
 				/* translators: %d: failed count */
-				__( '%d item(s) could not be added.', 'wp-agent' ),
+				__( '%d item(s) could not be added.', 'jarvis-ai' ),
 				$failed_count
 			);
 		}
@@ -516,7 +516,7 @@ class Manage_Menus implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'item_id is required for the "remove_item" operation.', 'wp-agent' ),
+				'message' => __( 'item_id is required for the "remove_item" operation.', 'jarvis-ai' ),
 			);
 		}
 
@@ -529,7 +529,7 @@ class Manage_Menus implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: item ID */
-					__( 'Menu item #%d not found.', 'wp-agent' ),
+					__( 'Menu item #%d not found.', 'jarvis-ai' ),
 					$item_id
 				),
 			);
@@ -544,7 +544,7 @@ class Manage_Menus implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: item ID */
-					__( 'Failed to remove menu item #%d.', 'wp-agent' ),
+					__( 'Failed to remove menu item #%d.', 'jarvis-ai' ),
 					$item_id
 				),
 			);
@@ -557,7 +557,7 @@ class Manage_Menus implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: item title, 2: item ID */
-				__( 'Menu item "%1$s" (ID: %2$d) removed successfully.', 'wp-agent' ),
+				__( 'Menu item "%1$s" (ID: %2$d) removed successfully.', 'jarvis-ai' ),
 				$item_title,
 				$item_id
 			),
@@ -580,7 +580,7 @@ class Manage_Menus implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'menu_id is required for the "assign_location" operation.', 'wp-agent' ),
+				'message' => __( 'menu_id is required for the "assign_location" operation.', 'jarvis-ai' ),
 			);
 		}
 
@@ -588,7 +588,7 @@ class Manage_Menus implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'location is required for the "assign_location" operation.', 'wp-agent' ),
+				'message' => __( 'location is required for the "assign_location" operation.', 'jarvis-ai' ),
 			);
 		}
 
@@ -599,7 +599,7 @@ class Manage_Menus implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: menu ID */
-					__( 'Menu #%d not found.', 'wp-agent' ),
+					__( 'Menu #%d not found.', 'jarvis-ai' ),
 					$menu_id
 				),
 			);
@@ -614,9 +614,9 @@ class Manage_Menus implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: 1: requested location, 2: available locations */
-					__( 'Location "%1$s" is not registered by the active theme. Available locations: %2$s.', 'wp-agent' ),
+					__( 'Location "%1$s" is not registered by the active theme. Available locations: %2$s.', 'jarvis-ai' ),
 					$location,
-					$available ?: __( 'none', 'wp-agent' )
+					$available ?: __( 'none', 'jarvis-ai' )
 				),
 			);
 		}
@@ -641,7 +641,7 @@ class Manage_Menus implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: menu name, 2: location label */
-				__( 'Menu "%1$s" assigned to theme location "%2$s".', 'wp-agent' ),
+				__( 'Menu "%1$s" assigned to theme location "%2$s".', 'jarvis-ai' ),
 				$menu_name,
 				$location_label
 			),

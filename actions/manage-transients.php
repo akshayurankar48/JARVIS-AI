@@ -6,11 +6,11 @@
  * stored in the options table. Useful for cache management and
  * debugging.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -126,7 +126,7 @@ class Manage_Transients implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "list", "get", "delete", or "delete_expired".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "list", "get", "delete", or "delete_expired".', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -200,7 +200,7 @@ class Manage_Transients implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: shown count, 2: total count */
-				__( 'Showing %1$d of %2$d transient(s).', 'wp-agent' ),
+				__( 'Showing %1$d of %2$d transient(s).', 'jarvis-ai' ),
 				count( $transients ),
 				$total
 			),
@@ -222,7 +222,7 @@ class Manage_Transients implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Transient name is required.', 'wp-agent' ),
+				'message' => __( 'Transient name is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -234,7 +234,7 @@ class Manage_Transients implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: transient name */
-					__( 'Transient "%s" not found or expired.', 'wp-agent' ),
+					__( 'Transient "%s" not found or expired.', 'jarvis-ai' ),
 					$name
 				),
 			);
@@ -266,7 +266,7 @@ class Manage_Transients implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %s: transient name */
-				__( 'Retrieved transient "%s".', 'wp-agent' ),
+				__( 'Retrieved transient "%s".', 'jarvis-ai' ),
 				$name
 			),
 		);
@@ -287,7 +287,7 @@ class Manage_Transients implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Transient name is required.', 'wp-agent' ),
+				'message' => __( 'Transient name is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -303,12 +303,12 @@ class Manage_Transients implements Action_Interface {
 			'message' => $result
 				? sprintf(
 					/* translators: %s: transient name */
-					__( 'Transient "%s" deleted.', 'wp-agent' ),
+					__( 'Transient "%s" deleted.', 'jarvis-ai' ),
 					$name
 				)
 				: sprintf(
 					/* translators: %s: transient name */
-					__( 'Transient "%s" not found or already deleted.', 'wp-agent' ),
+					__( 'Transient "%s" not found or already deleted.', 'jarvis-ai' ),
 					$name
 				),
 		);
@@ -353,7 +353,7 @@ class Manage_Transients implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: deleted count, 2: found count */
-				__( 'Deleted %1$d of %2$d expired transient(s).', 'wp-agent' ),
+				__( 'Deleted %1$d of %2$d expired transient(s).', 'jarvis-ai' ),
 				$deleted,
 				count( $expired )
 			),

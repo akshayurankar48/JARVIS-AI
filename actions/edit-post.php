@@ -4,11 +4,11 @@
  *
  * Updates an existing WordPress post via wp_update_post().
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -145,7 +145,7 @@ class Edit_Post implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: post ID */
-					__( 'Post #%d not found.', 'wp-agent' ),
+					__( 'Post #%d not found.', 'jarvis-ai' ),
 					$post_id
 				),
 			);
@@ -155,7 +155,7 @@ class Edit_Post implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'You do not have permission to edit this post.', 'wp-agent' ),
+				'message' => __( 'You do not have permission to edit this post.', 'jarvis-ai' ),
 			);
 		}
 
@@ -188,7 +188,7 @@ class Edit_Post implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid post_date format. Use "YYYY-MM-DD HH:MM:SS".', 'wp-agent' ),
+					'message' => __( 'Invalid post_date format. Use "YYYY-MM-DD HH:MM:SS".', 'jarvis-ai' ),
 				);
 			}
 
@@ -245,7 +245,7 @@ class Edit_Post implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %d: post ID */
-				__( 'Updated post #%d.', 'wp-agent' ),
+				__( 'Updated post #%d.', 'jarvis-ai' ),
 				$result
 			),
 		);

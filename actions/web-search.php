@@ -6,13 +6,13 @@
  * competitor insights, and current information. Returns AI-optimized
  * search results with extracted text and relevance scores.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
-use WPAgent\AI\Open_Router_Client;
+use JarvisAI\AI\Open_Router_Client;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,7 +35,7 @@ class Web_Search implements Action_Interface {
 	 *
 	 * @var string
 	 */
-	const API_KEY_OPTION = 'wp_agent_tavily_api_key';
+	const API_KEY_OPTION = 'jarvis_ai_tavily_api_key';
 
 	/**
 	 * Request timeout in seconds.
@@ -204,7 +204,7 @@ class Web_Search implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: error message */
-					__( 'Web search request failed: %s', 'wp-agent' ),
+					__( 'Web search request failed: %s', 'jarvis-ai' ),
 					$response->get_error_message()
 				),
 			);
@@ -218,7 +218,7 @@ class Web_Search implements Action_Interface {
 			$error_message = ! empty( $data['detail'] ) ? $data['detail'] : "HTTP $response_code";
 
 			if ( 401 === $response_code || 403 === $response_code ) {
-				$error_message = __( 'Invalid Tavily API key. Please check your key in WP Agent > Settings.', 'wp-agent' );
+				$error_message = __( 'Invalid Tavily API key. Please check your key in JARVIS AI > Settings.', 'jarvis-ai' );
 			}
 
 			return array(
@@ -226,7 +226,7 @@ class Web_Search implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: error detail */
-					__( 'Web search failed: %s', 'wp-agent' ),
+					__( 'Web search failed: %s', 'jarvis-ai' ),
 					$error_message
 				),
 			);
@@ -236,7 +236,7 @@ class Web_Search implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Web search returned an invalid response.', 'wp-agent' ),
+				'message' => __( 'Web search returned an invalid response.', 'jarvis-ai' ),
 			);
 		}
 
@@ -254,13 +254,13 @@ class Web_Search implements Action_Interface {
 			'message' => $result_count > 0
 				? sprintf(
 					/* translators: 1: result count, 2: search query */
-					__( 'Found %1$d results for "%2$s". Use read_url to get full content from any result.', 'wp-agent' ),
+					__( 'Found %1$d results for "%2$s". Use read_url to get full content from any result.', 'jarvis-ai' ),
 					$result_count,
 					$query
 				)
 				: sprintf(
 					/* translators: %s: search query */
-					__( 'No results found for "%s". Try a different query.', 'wp-agent' ),
+					__( 'No results found for "%s". Try a different query.', 'jarvis-ai' ),
 					$query
 				),
 		);
@@ -278,7 +278,7 @@ class Web_Search implements Action_Interface {
 		if ( empty( $encrypted ) ) {
 			return new \WP_Error(
 				'missing_tavily_key',
-				__( 'Web search requires a Tavily API key. Add one in WP Agent > Settings.', 'wp-agent' )
+				__( 'Web search requires a Tavily API key. Add one in JARVIS AI > Settings.', 'jarvis-ai' )
 			);
 		}
 
@@ -287,7 +287,7 @@ class Web_Search implements Action_Interface {
 		if ( false === $api_key || empty( $api_key ) ) {
 			return new \WP_Error(
 				'decryption_failed',
-				__( 'Failed to decrypt the Tavily API key. Try re-saving it in Settings.', 'wp-agent' )
+				__( 'Failed to decrypt the Tavily API key. Try re-saving it in Settings.', 'jarvis-ai' )
 			);
 		}
 
@@ -308,7 +308,7 @@ class Web_Search implements Action_Interface {
 		if ( empty( $query ) ) {
 			return new \WP_Error(
 				'empty_query',
-				__( 'Search query is required.', 'wp-agent' )
+				__( 'Search query is required.', 'jarvis-ai' )
 			);
 		}
 

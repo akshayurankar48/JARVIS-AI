@@ -5,11 +5,11 @@
  * Checks sitemap status, generates a custom XML sitemap, or pings
  * search engines. Uses WP core sitemaps when available (WP 5.5+).
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -96,7 +96,7 @@ class Generate_Sitemap implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "status", "generate", or "ping".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "status", "generate", or "ping".', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -139,8 +139,8 @@ class Generate_Sitemap implements Action_Interface {
 				'published_pages'      => $published_pages,
 			),
 			'message' => $has_core_sitemaps
-				? sprintf( __( 'WordPress core sitemaps active at %s.', 'wp-agent' ), $sitemap_url )
-				: __( 'No active sitemap found.', 'wp-agent' ),
+				? sprintf( __( 'WordPress core sitemaps active at %s.', 'jarvis-ai' ), $sitemap_url )
+				: __( 'No active sitemap found.', 'jarvis-ai' ),
 		);
 	}
 
@@ -197,7 +197,7 @@ class Generate_Sitemap implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Failed to write sitemap.xml. Check file permissions.', 'wp-agent' ),
+				'message' => __( 'Failed to write sitemap.xml. Check file permissions.', 'jarvis-ai' ),
 			);
 		}
 
@@ -210,7 +210,7 @@ class Generate_Sitemap implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: URL count, 2: file size */
-				__( 'Sitemap generated with %1$d URLs (%2$s).', 'wp-agent' ),
+				__( 'Sitemap generated with %1$d URLs (%2$s).', 'jarvis-ai' ),
 				count( $posts ) + 1,
 				size_format( $written )
 			),
@@ -252,7 +252,7 @@ class Generate_Sitemap implements Action_Interface {
 				'sitemap_url' => $sitemap_url,
 				'results'     => $results,
 			),
-			'message' => __( 'Pinged search engines with sitemap URL.', 'wp-agent' ),
+			'message' => __( 'Pinged search engines with sitemap URL.', 'jarvis-ai' ),
 		);
 	}
 }

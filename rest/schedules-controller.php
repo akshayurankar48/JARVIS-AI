@@ -5,13 +5,13 @@
  * Provides endpoints for the admin Schedules page to list,
  * pause, resume, and delete scheduled tasks.
  *
- * @package WPAgent\REST
+ * @package JarvisAI\REST
  * @since   1.1.0
  */
 
-namespace WPAgent\REST;
+namespace JarvisAI\REST;
 
-use WPAgent\Actions\Manage_Scheduled_Tasks;
+use JarvisAI\Actions\Manage_Scheduled_Tasks;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -30,7 +30,7 @@ class Schedules_Controller extends \WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'wp-agent/v1';
+	protected $namespace = 'jarvis-ai/v1';
 
 	/**
 	 * REST route base.
@@ -93,7 +93,7 @@ class Schedules_Controller extends \WP_REST_Controller {
 	}
 
 	/**
-	 * GET /wp-agent/v1/schedules
+	 * GET /jarvis-ai/v1/schedules
 	 *
 	 * Returns all scheduled tasks with their status and next run time.
 	 *
@@ -124,7 +124,7 @@ class Schedules_Controller extends \WP_REST_Controller {
 	}
 
 	/**
-	 * POST /wp-agent/v1/schedules/{task_id}/{action}
+	 * POST /jarvis-ai/v1/schedules/{task_id}/{action}
 	 *
 	 * Pause, resume, or delete a scheduled task.
 	 *
@@ -145,7 +145,7 @@ class Schedules_Controller extends \WP_REST_Controller {
 
 		if ( ! $result['success'] ) {
 			return new \WP_Error(
-				'wp_agent_schedule_error',
+				'jarvis_ai_schedule_error',
 				$result['message'],
 				array( 'status' => 400 )
 			);

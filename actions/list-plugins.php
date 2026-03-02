@@ -5,11 +5,11 @@
  * Lists all installed WordPress plugins with their status,
  * version, and description.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -125,7 +125,7 @@ class List_Plugins implements Action_Interface {
 		}
 
 		$count_text = sprintf(
-			__( '%1$d plugin(s) found (%2$d active, %3$d inactive).', 'wp-agent' ),
+			__( '%1$d plugin(s) found (%2$d active, %3$d inactive).', 'jarvis-ai' ),
 			count( $results ),
 			count( array_filter( $results, fn( $p ) => 'active' === $p['status'] ) ),
 			count( array_filter( $results, fn( $p ) => 'inactive' === $p['status'] ) )

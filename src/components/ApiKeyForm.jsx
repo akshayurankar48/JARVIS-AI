@@ -2,7 +2,7 @@ import { useState } from '@wordpress/element';
 import { Container, Input, Button, Text, toast } from '@bsf/force-ui';
 import { KeyRound, CheckCircle, Search, ExternalLink, ShieldCheck } from 'lucide-react';
 
-const { restUrl, nonce } = window.wpAgentData || {};
+const { restUrl, nonce } = window.jarvisAiData || {};
 
 export default function ApiKeyForm( {
 	apiKey = '',

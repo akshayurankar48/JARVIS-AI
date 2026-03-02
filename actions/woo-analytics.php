@@ -2,11 +2,11 @@
 /**
  * WooCommerce Analytics Action.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -118,7 +118,7 @@ class Woo_Analytics implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation.', 'wp-agent' ),
+					'message' => __( 'Invalid operation.', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -182,7 +182,7 @@ class Woo_Analytics implements Action_Interface {
 				'net_sales'       => round( (float) ( $results['total_sales'] ?? 0 ) - (float) $refunds, 2 ),
 				'currency'        => get_woocommerce_currency(),
 			),
-			'message' => sprintf( __( 'Sales summary for %1$s to %2$s.', 'wp-agent' ), $from, $to ),
+			'message' => sprintf( __( 'Sales summary for %1$s to %2$s.', 'jarvis-ai' ), $from, $to ),
 		);
 	}
 
@@ -238,7 +238,7 @@ class Woo_Analytics implements Action_Interface {
 				'top_products' => $list,
 				'period'       => "$from to $to",
 			),
-			'message' => sprintf( __( 'Top %d products by revenue.', 'wp-agent' ), count( $list ) ),
+			'message' => sprintf( __( 'Top %d products by revenue.', 'jarvis-ai' ), count( $list ) ),
 		);
 	}
 
@@ -280,7 +280,7 @@ class Woo_Analytics implements Action_Interface {
 				'order_stats' => $status_map,
 				'period'      => "$from to $to",
 			),
-			'message' => __( 'Order statistics by status.', 'wp-agent' ),
+			'message' => __( 'Order statistics by status.', 'jarvis-ai' ),
 		);
 	}
 
@@ -316,7 +316,7 @@ class Woo_Analytics implements Action_Interface {
 				'total_customers'  => $total_customers,
 				'repeat_customers' => (int) $repeat,
 			),
-			'message' => sprintf( __( '%1$d total customers, %2$d repeat.', 'wp-agent' ), $total_customers, (int) $repeat ),
+			'message' => sprintf( __( '%1$d total customers, %2$d repeat.', 'jarvis-ai' ), $total_customers, (int) $repeat ),
 		);
 	}
 }

@@ -2,19 +2,19 @@
 /**
  * Settings REST Controller.
  *
- * Handles GET/POST /wp-agent/v1/settings for managing plugin configuration.
+ * Handles GET/POST /jarvis-ai/v1/settings for managing plugin configuration.
  * Requires manage_options capability (admin-only).
  *
- * @package WPAgent\REST
+ * @package JarvisAI\REST
  * @since   1.0.0
  */
 
-namespace WPAgent\REST;
+namespace JarvisAI\REST;
 
-use WPAgent\AI\Open_Router_Client;
-use WPAgent\AI\AI_Client_Adapter;
-use WPAgent\AI\Model_Router;
-use WPAgent\AI\Rate_Limiter;
+use JarvisAI\AI\Open_Router_Client;
+use JarvisAI\AI\AI_Client_Adapter;
+use JarvisAI\AI\Model_Router;
+use JarvisAI\AI\Rate_Limiter;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -30,7 +30,7 @@ class Settings_Controller {
 	 *
 	 * @var string
 	 */
-	const NAMESPACE = 'wp-agent/v1';
+	const NAMESPACE = 'jarvis-ai/v1';
 
 	/**
 	 * Route base.
@@ -44,28 +44,28 @@ class Settings_Controller {
 	 *
 	 * @var string
 	 */
-	const MODEL_OPTION = 'wp_agent_default_model';
+	const MODEL_OPTION = 'jarvis_ai_default_model';
 
 	/**
 	 * Option key for allowed roles.
 	 *
 	 * @var string
 	 */
-	const ROLES_OPTION = 'wp_agent_allowed_roles';
+	const ROLES_OPTION = 'jarvis_ai_allowed_roles';
 
 	/**
 	 * Option key for the encrypted Tavily API key.
 	 *
 	 * @var string
 	 */
-	const TAVILY_KEY_OPTION = 'wp_agent_tavily_api_key';
+	const TAVILY_KEY_OPTION = 'jarvis_ai_tavily_api_key';
 
 	/**
 	 * Option key for brand presets.
 	 *
 	 * @var string
 	 */
-	const BRAND_OPTION = 'wp_agent_brand_presets';
+	const BRAND_OPTION = 'jarvis_ai_brand_presets';
 
 	/**
 	 * Register REST routes.
@@ -126,7 +126,7 @@ class Settings_Controller {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new \WP_Error(
 				'rest_forbidden',
-				__( 'You do not have permission to manage settings.', 'wp-agent' ),
+				__( 'You do not have permission to manage settings.', 'jarvis-ai' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -135,7 +135,7 @@ class Settings_Controller {
 	}
 
 	/**
-	 * GET /wp-agent/v1/settings
+	 * GET /jarvis-ai/v1/settings
 	 *
 	 * Returns current plugin configuration.
 	 *
@@ -156,17 +156,17 @@ class Settings_Controller {
 				'default_model'        => $router->get_default_model(),
 				'allowed_roles'        => get_option( self::ROLES_OPTION, array( 'administrator' ) ),
 				'brand'                => get_option( self::BRAND_OPTION, array() ),
-				'rate_limit'           => (int) get_option( 'wp_agent_rate_limit', Rate_Limiter::DEFAULT_MINUTE_LIMIT ),
-				'daily_limit'          => (int) get_option( 'wp_agent_daily_limit', Rate_Limiter::DEFAULT_DAILY_LIMIT ),
-				'ai_backend'           => get_option( 'wp_agent_ai_backend', 'openrouter' ),
+				'rate_limit'           => (int) get_option( 'jarvis_ai_rate_limit', Rate_Limiter::DEFAULT_MINUTE_LIMIT ),
+				'daily_limit'          => (int) get_option( 'jarvis_ai_daily_limit', Rate_Limiter::DEFAULT_DAILY_LIMIT ),
+				'ai_backend'           => get_option( 'jarvis_ai_ai_backend', 'openrouter' ),
 				'configured_providers' => $adapter->get_configured_providers(),
-				'preferred_provider'   => get_option( 'wp_agent_preferred_provider', array( 'anthropic', 'openai', 'google' ) ),
+				'preferred_provider'   => get_option( 'jarvis_ai_preferred_provider', array( 'anthropic', 'openai', 'google' ) ),
 			)
 		);
 	}
 
 	/**
-	 * POST /wp-agent/v1/settings
+	 * POST /jarvis-ai/v1/settings
 	 *
 	 * Saves settings. Only provided fields are updated.
 	 *
@@ -198,7 +198,7 @@ class Settings_Controller {
 			if ( ! $router->is_valid_model( $model ) ) {
 				return new \WP_Error(
 					'invalid_model',
-					__( 'The specified model is not available.', 'wp-agent' ),
+					__( 'The specified model is not available.', 'jarvis-ai' ),
 					array( 'status' => 400 )
 				);
 			}
@@ -247,7 +247,7 @@ class Settings_Controller {
 		if ( $request->has_param( 'ai_backend' ) ) {
 			$backend = sanitize_text_field( $request->get_param( 'ai_backend' ) );
 			if ( in_array( $backend, array( 'openrouter', 'providers' ), true ) ) {
-				update_option( 'wp_agent_ai_backend', $backend );
+				update_option( 'jarvis_ai_ai_backend', $backend );
 				$updated['ai_backend'] = $backend;
 			}
 		}
@@ -271,7 +271,7 @@ class Settings_Controller {
 				$valid    = array( 'anthropic', 'openai', 'google' );
 				$filtered = array_values( array_intersect( $order, $valid ) );
 				if ( ! empty( $filtered ) ) {
-					update_option( 'wp_agent_preferred_provider', $filtered );
+					update_option( 'jarvis_ai_preferred_provider', $filtered );
 					$updated['preferred_provider'] = $filtered;
 				}
 			}
@@ -286,7 +286,7 @@ class Settings_Controller {
 	}
 
 	/**
-	 * POST /wp-agent/v1/verify-provider
+	 * POST /jarvis-ai/v1/verify-provider
 	 *
 	 * Validates a provider API key without saving it.
 	 *
@@ -312,7 +312,7 @@ class Settings_Controller {
 				'provider' => $provider,
 				'message'  => sprintf(
 				/* translators: %s: Provider name */
-					__( '%s API key is valid.', 'wp-agent' ),
+					__( '%s API key is valid.', 'jarvis-ai' ),
 					ucfirst( $provider )
 				),
 			)
@@ -350,7 +350,7 @@ class Settings_Controller {
 		if ( false === $encrypted ) {
 			return new \WP_Error(
 				'encryption_failed',
-				__( 'Failed to encrypt the API key. OpenSSL may not be available.', 'wp-agent' ),
+				__( 'Failed to encrypt the API key. OpenSSL may not be available.', 'jarvis-ai' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -372,7 +372,7 @@ class Settings_Controller {
 		if ( ! is_array( $roles ) ) {
 			return new \WP_Error(
 				'invalid_roles',
-				__( 'Allowed roles must be an array.', 'wp-agent' ),
+				__( 'Allowed roles must be an array.', 'jarvis-ai' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -418,7 +418,7 @@ class Settings_Controller {
 		if ( 0 !== strpos( $api_key, 'tvly-' ) ) {
 			return new \WP_Error(
 				'invalid_tavily_key',
-				__( 'Invalid Tavily API key format. Keys should start with "tvly-".', 'wp-agent' ),
+				__( 'Invalid Tavily API key format. Keys should start with "tvly-".', 'jarvis-ai' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -429,7 +429,7 @@ class Settings_Controller {
 		if ( false === $encrypted ) {
 			return new \WP_Error(
 				'encryption_failed',
-				__( 'Failed to encrypt the Tavily API key. OpenSSL may not be available.', 'wp-agent' ),
+				__( 'Failed to encrypt the Tavily API key. OpenSSL may not be available.', 'jarvis-ai' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -451,7 +451,7 @@ class Settings_Controller {
 		if ( ! is_array( $brand ) ) {
 			return new \WP_Error(
 				'invalid_brand',
-				__( 'Brand settings must be an object.', 'wp-agent' ),
+				__( 'Brand settings must be an object.', 'jarvis-ai' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -526,7 +526,7 @@ class Settings_Controller {
 		$option  = AI_Client_Adapter::KEY_OPTIONS[ $provider ] ?? '';
 
 		if ( empty( $option ) ) {
-			return new \WP_Error( 'invalid_provider', __( 'Unknown provider.', 'wp-agent' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'invalid_provider', __( 'Unknown provider.', 'jarvis-ai' ), array( 'status' => 400 ) );
 		}
 
 		if ( empty( $api_key ) ) {
@@ -548,7 +548,7 @@ class Settings_Controller {
 		if ( false === $encrypted ) {
 			return new \WP_Error(
 				'encryption_failed',
-				__( 'Failed to encrypt the API key. OpenSSL may not be available.', 'wp-agent' ),
+				__( 'Failed to encrypt the API key. OpenSSL may not be available.', 'jarvis-ai' ),
 				array( 'status' => 500 )
 			);
 		}

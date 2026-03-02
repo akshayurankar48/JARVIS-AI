@@ -5,11 +5,11 @@
  * Adds, lists, deletes, and tests URL redirects stored in wp_options.
  * Hooks into template_redirect to perform actual 301/302 redirects.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -25,7 +25,7 @@ class Manage_Redirects implements Action_Interface {
 	 *
 	 * @var string
 	 */
-	const OPTION_KEY = 'wp_agent_redirects';
+	const OPTION_KEY = 'jarvis_ai_redirects';
 
 	/**
 	 * Maximum number of redirects.
@@ -133,7 +133,7 @@ class Manage_Redirects implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "add", "list", "delete", or "test".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "add", "list", "delete", or "test".', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -155,7 +155,7 @@ class Manage_Redirects implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Both source and target are required.', 'wp-agent' ),
+				'message' => __( 'Both source and target are required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -169,7 +169,7 @@ class Manage_Redirects implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Invalid source URL path.', 'wp-agent' ),
+				'message' => __( 'Invalid source URL path.', 'jarvis-ai' ),
 			);
 		}
 
@@ -181,7 +181,7 @@ class Manage_Redirects implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: max redirects */
-					__( 'Maximum of %d redirects reached.', 'wp-agent' ),
+					__( 'Maximum of %d redirects reached.', 'jarvis-ai' ),
 					self::MAX_REDIRECTS
 				),
 			);
@@ -204,7 +204,7 @@ class Manage_Redirects implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: source, 2: target, 3: status code */
-				__( 'Redirect added: %1$s -> %2$s (%3$d).', 'wp-agent' ),
+				__( 'Redirect added: %1$s -> %2$s (%3$d).', 'jarvis-ai' ),
 				$source,
 				$target,
 				$status_code
@@ -239,7 +239,7 @@ class Manage_Redirects implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %d: redirect count */
-				__( '%d redirect(s) configured.', 'wp-agent' ),
+				__( '%d redirect(s) configured.', 'jarvis-ai' ),
 				count( $list )
 			),
 		);
@@ -260,7 +260,7 @@ class Manage_Redirects implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Source path is required for delete.', 'wp-agent' ),
+				'message' => __( 'Source path is required for delete.', 'jarvis-ai' ),
 			);
 		}
 
@@ -273,7 +273,7 @@ class Manage_Redirects implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: source path */
-					__( 'No redirect found for "%s".', 'wp-agent' ),
+					__( 'No redirect found for "%s".', 'jarvis-ai' ),
 					$source
 				),
 			);
@@ -287,7 +287,7 @@ class Manage_Redirects implements Action_Interface {
 			'data'    => array( 'deleted_source' => $source ),
 			'message' => sprintf(
 				/* translators: %s: source path */
-				__( 'Redirect for "%s" deleted.', 'wp-agent' ),
+				__( 'Redirect for "%s" deleted.', 'jarvis-ai' ),
 				$source
 			),
 		);
@@ -308,7 +308,7 @@ class Manage_Redirects implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Source path is required for test.', 'wp-agent' ),
+				'message' => __( 'Source path is required for test.', 'jarvis-ai' ),
 			);
 		}
 
@@ -326,7 +326,7 @@ class Manage_Redirects implements Action_Interface {
 				),
 				'message' => sprintf(
 					/* translators: 1: source, 2: target, 3: status code */
-					__( 'Match found: %1$s -> %2$s (%3$d).', 'wp-agent' ),
+					__( 'Match found: %1$s -> %2$s (%3$d).', 'jarvis-ai' ),
 					$source,
 					$redirects[ $source ]['target'],
 					$redirects[ $source ]['status_code']
@@ -342,7 +342,7 @@ class Manage_Redirects implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %s: source path */
-				__( 'No redirect matches "%s".', 'wp-agent' ),
+				__( 'No redirect matches "%s".', 'jarvis-ai' ),
 				$source
 			),
 		);

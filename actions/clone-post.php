@@ -5,11 +5,11 @@
  * Duplicates a post or page with all its content, post meta, taxonomies,
  * and featured image. The clone is always created as a draft by default.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -113,7 +113,7 @@ class Clone_Post implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'A valid post_id is required.', 'wp-agent' ),
+				'message' => __( 'A valid post_id is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -125,7 +125,7 @@ class Clone_Post implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: post ID */
-					__( 'Post #%d not found.', 'wp-agent' ),
+					__( 'Post #%d not found.', 'jarvis-ai' ),
 					$post_id
 				),
 			);
@@ -136,7 +136,7 @@ class Clone_Post implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'You do not have permission to read this post.', 'wp-agent' ),
+				'message' => __( 'You do not have permission to read this post.', 'jarvis-ai' ),
 			);
 		}
 
@@ -146,7 +146,7 @@ class Clone_Post implements Action_Interface {
 		} else {
 			$new_title = sprintf(
 				/* translators: %s: original post title */
-				__( 'Copy of %s', 'wp-agent' ),
+				__( 'Copy of %s', 'jarvis-ai' ),
 				sanitize_text_field( $source->post_title )
 			);
 		}
@@ -209,7 +209,7 @@ class Clone_Post implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: clone title, 2: clone ID, 3: original ID */
-				__( 'Cloned "%1$s" (Post #%2$d) from original Post #%3$d.', 'wp-agent' ),
+				__( 'Cloned "%1$s" (Post #%2$d) from original Post #%3$d.', 'jarvis-ai' ),
 				sanitize_text_field( $clone->post_title ),
 				$clone_id,
 				$post_id

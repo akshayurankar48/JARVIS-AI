@@ -5,11 +5,11 @@
  * Creates a new WordPress post via wp_insert_post().
  * Always defaults to 'draft' status for safety.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -135,7 +135,7 @@ class Create_Post implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: post type name */
-					__( 'Invalid post type: %s', 'wp-agent' ),
+					__( 'Invalid post type: %s', 'jarvis-ai' ),
 					$post_type
 				),
 			);
@@ -197,7 +197,7 @@ class Create_Post implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: post type, 2: post ID, 3: post status */
-				__( 'Created %1$s #%2$d with status "%3$s".', 'wp-agent' ),
+				__( 'Created %1$s #%2$d with status "%3$s".', 'jarvis-ai' ),
 				$post_type,
 				$result,
 				$args['post_status']

@@ -2,11 +2,11 @@
 /**
  * WooCommerce Manage Categories Action.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -122,7 +122,7 @@ class Woo_Manage_Categories implements Action_Interface {
 					'success' => true,
 					'data'    => array( 'categories' => $list ),
 					/* translators: %d: number of categories */
-					'message' => sprintf( __( '%d category(ies).', 'wp-agent' ), count( $list ) ),
+					'message' => sprintf( __( '%d category(ies).', 'jarvis-ai' ), count( $list ) ),
 				);
 
 			case 'create':
@@ -131,7 +131,7 @@ class Woo_Manage_Categories implements Action_Interface {
 					return array(
 						'success' => false,
 						'data'    => null,
-						'message' => __( 'name is required.', 'wp-agent' ),
+						'message' => __( 'name is required.', 'jarvis-ai' ),
 					);
 				}
 				$args = array();
@@ -156,7 +156,7 @@ class Woo_Manage_Categories implements Action_Interface {
 					'success' => true,
 					'data'    => array( 'category_id' => $result['term_id'] ),
 					/* translators: %s: category name */
-					'message' => sprintf( __( 'Category "%s" created.', 'wp-agent' ), $name ),
+					'message' => sprintf( __( 'Category "%s" created.', 'jarvis-ai' ), $name ),
 				);
 
 			case 'update':
@@ -165,7 +165,7 @@ class Woo_Manage_Categories implements Action_Interface {
 					return array(
 						'success' => false,
 						'data'    => null,
-						'message' => __( 'category_id required.', 'wp-agent' ),
+						'message' => __( 'category_id required.', 'jarvis-ai' ),
 					);
 				}
 				$args = array();
@@ -190,7 +190,7 @@ class Woo_Manage_Categories implements Action_Interface {
 					'success' => true,
 					'data'    => array( 'category_id' => $id ),
 					/* translators: %d: category ID */
-					'message' => sprintf( __( 'Category #%d updated.', 'wp-agent' ), $id ),
+					'message' => sprintf( __( 'Category #%d updated.', 'jarvis-ai' ), $id ),
 				);
 
 			case 'delete':
@@ -199,7 +199,7 @@ class Woo_Manage_Categories implements Action_Interface {
 					return array(
 						'success' => false,
 						'data'    => null,
-						'message' => __( 'category_id required.', 'wp-agent' ),
+						'message' => __( 'category_id required.', 'jarvis-ai' ),
 					);
 				}
 				$result = wp_delete_term( $id, 'product_cat' );
@@ -214,14 +214,14 @@ class Woo_Manage_Categories implements Action_Interface {
 					'success' => true,
 					'data'    => array( 'category_id' => $id ),
 					/* translators: %d: category ID */
-					'message' => sprintf( __( 'Category #%d deleted.', 'wp-agent' ), $id ),
+					'message' => sprintf( __( 'Category #%d deleted.', 'jarvis-ai' ), $id ),
 				);
 
 			default:
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation.', 'wp-agent' ),
+					'message' => __( 'Invalid operation.', 'jarvis-ai' ),
 				);
 		}
 	}

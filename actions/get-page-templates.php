@@ -7,11 +7,11 @@
  * this to pick the right template when creating or editing pages
  * (e.g. blank canvas for landing pages, full-width for marketing pages).
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -106,7 +106,7 @@ class Get_Page_Templates implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: post type slug */
-					__( 'Post type "%s" does not exist.', 'wp-agent' ),
+					__( 'Post type "%s" does not exist.', 'jarvis-ai' ),
 					$post_type
 				),
 			);
@@ -118,7 +118,7 @@ class Get_Page_Templates implements Action_Interface {
 		// Always include the default template first.
 		$templates[] = array(
 			'slug'   => 'default',
-			'name'   => __( 'Default Template', 'wp-agent' ),
+			'name'   => __( 'Default Template', 'jarvis-ai' ),
 			'source' => 'theme',
 			'type'   => 'template',
 		);
@@ -171,7 +171,7 @@ class Get_Page_Templates implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: number of templates, 2: post type slug */
-				__( 'Found %1$d template(s) for post type "%2$s".', 'wp-agent' ),
+				__( 'Found %1$d template(s) for post type "%2$s".', 'jarvis-ai' ),
 				$total,
 				$post_type
 			),

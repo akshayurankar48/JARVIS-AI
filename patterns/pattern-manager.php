@@ -7,11 +7,11 @@
  * provide production-grade block structures that the AI can customize
  * with variable overrides and theme token substitution.
  *
- * @package WPAgent\Patterns
+ * @package JarvisAI\Patterns
  * @since   1.0.0
  */
 
-namespace WPAgent\Patterns;
+namespace JarvisAI\Patterns;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -76,7 +76,7 @@ class Pattern_Manager {
 	 * @since 1.0.0
 	 */
 	private function __construct() {
-		$this->library_path = WP_AGENT_DIR . 'patterns/library/';
+		$this->library_path = JARVIS_AI_DIR . 'patterns/library/';
 	}
 
 	/**
@@ -201,6 +201,51 @@ class Pattern_Manager {
 		$this->blueprints[ $id ] = $blueprint;
 
 		return $blueprint;
+	}
+
+	/**
+	 * Get a fully composed blueprint with all section blocks pre-resolved.
+	 *
+	 * Loads a blueprint and resolves each section pattern with the given
+	 * overrides, returning all blocks merged into a single array ready
+	 * for insert_blocks.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param string $blueprint_id Blueprint ID (e.g. 'saas-landing').
+	 * @param array  $overrides    Optional variable overrides applied to all sections.
+	 * @return array|null Composed blueprint with blocks, or null if not found.
+	 */
+	public function get_blueprint_full( $blueprint_id, array $overrides = array() ) {
+		$blueprint = $this->get_blueprint( $blueprint_id );
+		if ( ! $blueprint ) {
+			return null;
+		}
+
+		$all_blocks = array();
+		$loaded     = array();
+		$failed     = array();
+
+		foreach ( $blueprint['sections'] as $section_id ) {
+			$pattern = $this->get_pattern( $section_id, $overrides );
+			if ( $pattern && ! empty( $pattern['blocks'] ) ) {
+				$all_blocks = array_merge( $all_blocks, $pattern['blocks'] );
+				$loaded[]   = $section_id;
+			} else {
+				$failed[] = $section_id;
+			}
+		}
+
+		return array(
+			'id'          => $blueprint['id'],
+			'name'        => $blueprint['name'],
+			'description' => $blueprint['description'],
+			'sections'    => $blueprint['sections'],
+			'loaded'      => $loaded,
+			'failed'      => $failed,
+			'blocks'      => $all_blocks,
+			'block_count' => count( $all_blocks ),
+		);
 	}
 
 	/**
@@ -373,7 +418,8 @@ class Pattern_Manager {
 						continue;
 					}
 					$slug            = sanitize_key( str_replace( '-', '_', $color['slug'] ) );
-					$tokens[ $slug ] = sanitize_hex_color( $color['color'] ) ?: $color['color'];
+					$sanitized       = sanitize_hex_color( $color['color'] );
+					$tokens[ $slug ] = $sanitized ? $sanitized : $color['color'];
 				}
 			}
 		}

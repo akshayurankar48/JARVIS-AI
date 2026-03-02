@@ -7,11 +7,11 @@
  * Returns the new attachment ID, local URL, and metadata so
  * the AI can immediately use it in page builds.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -166,7 +166,7 @@ class Import_Media implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: error message */
-					__( 'Failed to download image: %s', 'wp-agent' ),
+					__( 'Failed to download image: %s', 'jarvis-ai' ),
 					$response->get_error_message()
 				),
 			);
@@ -179,7 +179,7 @@ class Import_Media implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: HTTP status code */
-					__( 'Image URL returned HTTP %d.', 'wp-agent' ),
+					__( 'Image URL returned HTTP %d.', 'jarvis-ai' ),
 					$response_code
 				),
 			);
@@ -190,17 +190,17 @@ class Import_Media implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Downloaded file is empty.', 'wp-agent' ),
+				'message' => __( 'Downloaded file is empty.', 'jarvis-ai' ),
 			);
 		}
 
 		// Write to a temp file for validation and sideload.
-		$temp_file = wp_tempnam( 'wp-agent-import-' );
+		$temp_file = wp_tempnam( 'jarvis-ai-import-' );
 		if ( ! $temp_file ) {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Could not create temporary file.', 'wp-agent' ),
+				'message' => __( 'Could not create temporary file.', 'jarvis-ai' ),
 			);
 		}
 
@@ -215,7 +215,7 @@ class Import_Media implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Could not read downloaded file.', 'wp-agent' ),
+				'message' => __( 'Could not read downloaded file.', 'jarvis-ai' ),
 			);
 		}
 		if ( $file_size > self::MAX_FILE_SIZE ) {
@@ -225,7 +225,7 @@ class Import_Media implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: max file size */
-					__( 'Image exceeds maximum file size of %s.', 'wp-agent' ),
+					__( 'Image exceeds maximum file size of %s.', 'jarvis-ai' ),
 					size_format( self::MAX_FILE_SIZE )
 				),
 			);
@@ -238,7 +238,7 @@ class Import_Media implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'The downloaded file is not a valid image.', 'wp-agent' ),
+				'message' => __( 'The downloaded file is not a valid image.', 'jarvis-ai' ),
 			);
 		}
 
@@ -251,7 +251,7 @@ class Import_Media implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'The URL does not point to a supported image format (JPEG, PNG, GIF, or WebP).', 'wp-agent' ),
+				'message' => __( 'The URL does not point to a supported image format (JPEG, PNG, GIF, or WebP).', 'jarvis-ai' ),
 			);
 		}
 
@@ -274,7 +274,7 @@ class Import_Media implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: error message */
-					__( 'Failed to import image: %s', 'wp-agent' ),
+					__( 'Failed to import image: %s', 'jarvis-ai' ),
 					$attachment_id->get_error_message()
 				),
 			);
@@ -323,7 +323,7 @@ class Import_Media implements Action_Interface {
 			'data'    => $data,
 			'message' => sprintf(
 				/* translators: 1: image title, 2: attachment ID */
-				__( 'Image "%1$s" imported to media library (ID: %2$d). Use the local URL in your blocks.', 'wp-agent' ),
+				__( 'Image "%1$s" imported to media library (ID: %2$d). Use the local URL in your blocks.', 'jarvis-ai' ),
 				$data['title'],
 				$attachment_id
 			),
@@ -340,30 +340,30 @@ class Import_Media implements Action_Interface {
 	 */
 	private function validate_url( $url ) {
 		if ( empty( $url ) ) {
-			return new \WP_Error( 'missing_url', __( 'Image URL is required.', 'wp-agent' ) );
+			return new \WP_Error( 'missing_url', __( 'Image URL is required.', 'jarvis-ai' ) );
 		}
 
 		$url = esc_url_raw( trim( $url ) );
 
 		if ( empty( $url ) ) {
-			return new \WP_Error( 'invalid_url', __( 'The provided URL is not valid.', 'wp-agent' ) );
+			return new \WP_Error( 'invalid_url', __( 'The provided URL is not valid.', 'jarvis-ai' ) );
 		}
 
 		// Validate scheme.
 		$scheme = wp_parse_url( $url, PHP_URL_SCHEME );
 		if ( ! in_array( $scheme, self::ALLOWED_SCHEMES, true ) ) {
-			return new \WP_Error( 'invalid_scheme', __( 'Only http and https URLs are allowed.', 'wp-agent' ) );
+			return new \WP_Error( 'invalid_scheme', __( 'Only http and https URLs are allowed.', 'jarvis-ai' ) );
 		}
 
 		// Block localhost and private IPs (SSRF protection).
 		$host = wp_parse_url( $url, PHP_URL_HOST );
 		if ( empty( $host ) ) {
-			return new \WP_Error( 'invalid_host', __( 'The URL must contain a valid hostname.', 'wp-agent' ) );
+			return new \WP_Error( 'invalid_host', __( 'The URL must contain a valid hostname.', 'jarvis-ai' ) );
 		}
 
 		$ip = gethostbyname( $host );
 		if ( $ip && $this->is_private_ip( $ip ) ) {
-			return new \WP_Error( 'blocked_host', __( 'Cannot import from private or local network addresses.', 'wp-agent' ) );
+			return new \WP_Error( 'blocked_host', __( 'Cannot import from private or local network addresses.', 'jarvis-ai' ) );
 		}
 
 		return $url;

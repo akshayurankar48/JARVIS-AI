@@ -6,11 +6,11 @@
  * Read-only — does not modify the site. Skips async tests (loopback, dotorg)
  * to avoid slow external requests.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -118,7 +118,7 @@ class Site_Health implements Action_Interface {
 					'critical'    => 0,
 					'results'     => array(),
 				),
-				'message' => __( 'No direct Site Health tests available.', 'wp-agent' ),
+				'message' => __( 'No direct Site Health tests available.', 'jarvis-ai' ),
 			);
 		}
 
@@ -200,7 +200,7 @@ class Site_Health implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: total tests, 2: good count, 3: recommended count, 4: critical count */
-				__( 'Site Health: %1$d tests — %2$d good, %3$d recommended, %4$d critical.', 'wp-agent' ),
+				__( 'Site Health: %1$d tests — %2$d good, %3$d recommended, %4$d critical.', 'jarvis-ai' ),
 				$total,
 				$good,
 				$recommended,

@@ -5,11 +5,11 @@
  * Lists installed themes, gets the active theme info, or switches
  * to a different theme. Validates theme existence before switching.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -123,7 +123,7 @@ class Manage_Theme implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "list", "get_active", "switch", "update", or "delete".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "list", "get_active", "switch", "update", or "delete".', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -159,7 +159,7 @@ class Manage_Theme implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %d: theme count */
-				__( '%d theme(s) installed.', 'wp-agent' ),
+				__( '%d theme(s) installed.', 'jarvis-ai' ),
 				count( $results )
 			),
 		);
@@ -199,7 +199,7 @@ class Manage_Theme implements Action_Interface {
 			'data'    => $data,
 			'message' => sprintf(
 				/* translators: 1: theme name, 2: version */
-				__( 'Active theme: %1$s (v%2$s).', 'wp-agent' ),
+				__( 'Active theme: %1$s (v%2$s).', 'jarvis-ai' ),
 				$data['name'],
 				$data['version']
 			),
@@ -219,7 +219,7 @@ class Manage_Theme implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Theme stylesheet (slug) is required for switching.', 'wp-agent' ),
+				'message' => __( 'Theme stylesheet (slug) is required for switching.', 'jarvis-ai' ),
 			);
 		}
 
@@ -231,7 +231,7 @@ class Manage_Theme implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: theme stylesheet */
-					__( 'Theme "%s" is not installed.', 'wp-agent' ),
+					__( 'Theme "%s" is not installed.', 'jarvis-ai' ),
 					$stylesheet
 				),
 			);
@@ -244,7 +244,7 @@ class Manage_Theme implements Action_Interface {
 				'data'    => array( 'slug' => $stylesheet ),
 				'message' => sprintf(
 					/* translators: %s: theme name */
-					__( '"%s" is already the active theme.', 'wp-agent' ),
+					__( '"%s" is already the active theme.', 'jarvis-ai' ),
 					$themes[ $stylesheet ]->get( 'Name' )
 				),
 			);
@@ -259,7 +259,7 @@ class Manage_Theme implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Theme switch failed. The theme may have errors.', 'wp-agent' ),
+				'message' => __( 'Theme switch failed. The theme may have errors.', 'jarvis-ai' ),
 			);
 		}
 
@@ -275,7 +275,7 @@ class Manage_Theme implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: previous theme, 2: new theme */
-				__( 'Switched theme from "%1$s" to "%2$s".', 'wp-agent' ),
+				__( 'Switched theme from "%1$s" to "%2$s".', 'jarvis-ai' ),
 				$previous_theme,
 				$new_theme->get( 'Name' )
 			),
@@ -295,7 +295,7 @@ class Manage_Theme implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Theme stylesheet (slug) is required for updating.', 'wp-agent' ),
+				'message' => __( 'Theme stylesheet (slug) is required for updating.', 'jarvis-ai' ),
 			);
 		}
 
@@ -306,7 +306,7 @@ class Manage_Theme implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: theme stylesheet */
-					__( 'Theme "%s" is not installed.', 'wp-agent' ),
+					__( 'Theme "%s" is not installed.', 'jarvis-ai' ),
 					$stylesheet
 				),
 			);
@@ -348,7 +348,7 @@ class Manage_Theme implements Action_Interface {
 				),
 				'message' => sprintf(
 					/* translators: 1: theme name, 2: version */
-					__( '"%1$s" is already at the latest version (%2$s).', 'wp-agent' ),
+					__( '"%1$s" is already at the latest version (%2$s).', 'jarvis-ai' ),
 					$themes[ $stylesheet ]->get( 'Name' ),
 					$old_version
 				),
@@ -370,7 +370,7 @@ class Manage_Theme implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: theme name, 2: old version, 3: new version */
-				__( 'Updated "%1$s" from v%2$s to v%3$s.', 'wp-agent' ),
+				__( 'Updated "%1$s" from v%2$s to v%3$s.', 'jarvis-ai' ),
 				$themes[ $stylesheet ]->get( 'Name' ),
 				$old_version,
 				$new_version
@@ -391,7 +391,7 @@ class Manage_Theme implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Theme stylesheet (slug) is required for deletion.', 'wp-agent' ),
+				'message' => __( 'Theme stylesheet (slug) is required for deletion.', 'jarvis-ai' ),
 			);
 		}
 
@@ -402,7 +402,7 @@ class Manage_Theme implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: theme stylesheet */
-					__( 'Theme "%s" is not installed.', 'wp-agent' ),
+					__( 'Theme "%s" is not installed.', 'jarvis-ai' ),
 					$stylesheet
 				),
 			);
@@ -415,7 +415,7 @@ class Manage_Theme implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: theme name */
-					__( 'Cannot delete the active theme "%s". Switch to another theme first.', 'wp-agent' ),
+					__( 'Cannot delete the active theme "%s". Switch to another theme first.', 'jarvis-ai' ),
 					$themes[ $stylesheet ]->get( 'Name' )
 				),
 			);
@@ -428,7 +428,7 @@ class Manage_Theme implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: theme name */
-					__( 'Cannot delete "%s" because it is the parent of the active child theme.', 'wp-agent' ),
+					__( 'Cannot delete "%s" because it is the parent of the active child theme.', 'jarvis-ai' ),
 					$themes[ $stylesheet ]->get( 'Name' )
 				),
 			);
@@ -453,7 +453,7 @@ class Manage_Theme implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: theme name */
-					__( 'Failed to delete "%s". Check filesystem permissions.', 'wp-agent' ),
+					__( 'Failed to delete "%s". Check filesystem permissions.', 'jarvis-ai' ),
 					$theme_name
 				),
 			);
@@ -467,7 +467,7 @@ class Manage_Theme implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %s: theme name */
-				__( 'Deleted theme "%s" permanently.', 'wp-agent' ),
+				__( 'Deleted theme "%s" permanently.', 'jarvis-ai' ),
 				$theme_name
 			),
 		);

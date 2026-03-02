@@ -6,11 +6,11 @@
  * Drop-in alternative to Open_Router_Client — same interface, different backend.
  * OpenRouter remains fully functional and is NOT modified.
  *
- * @package WPAgent\AI
+ * @package JarvisAI\AI
  * @since   1.0.0
  */
 
-namespace WPAgent\AI;
+namespace JarvisAI\AI;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -47,9 +47,9 @@ class AI_Client_Adapter {
 	 * @var array<string, string>
 	 */
 	const KEY_OPTIONS = array(
-		'anthropic' => 'wp_agent_anthropic_api_key',
-		'openai'    => 'wp_agent_openai_api_key',
-		'google'    => 'wp_agent_google_api_key',
+		'anthropic' => 'jarvis_ai_anthropic_api_key',
+		'openai'    => 'jarvis_ai_openai_api_key',
+		'google'    => 'jarvis_ai_google_api_key',
 	);
 
 	/**
@@ -145,7 +145,7 @@ class AI_Client_Adapter {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			$tool_count = count( $tools );
 			$msg_count  = count( $messages );
-			error_log( "WP Agent [{$provider}] stream: model={$native_model}, tools={$tool_count}, messages={$msg_count}, temperature={$temperature}, max_tokens={$max_tokens}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( "JARVIS AI [{$provider}] stream: model={$native_model}, tools={$tool_count}, messages={$msg_count}, temperature={$temperature}, max_tokens={$max_tokens}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 
 		switch ( $provider ) {
@@ -214,7 +214,7 @@ class AI_Client_Adapter {
 		$key = trim( $key );
 
 		if ( empty( $key ) ) {
-			return new \WP_Error( 'empty_api_key', __( 'API key cannot be empty.', 'wp-agent' ) );
+			return new \WP_Error( 'empty_api_key', __( 'API key cannot be empty.', 'jarvis-ai' ) );
 		}
 
 		switch ( $provider ) {
@@ -292,7 +292,7 @@ class AI_Client_Adapter {
 			'unknown_model',
 			sprintf(
 				/* translators: %s: Model ID */
-				__( 'Cannot determine provider for model: %s', 'wp-agent' ),
+				__( 'Cannot determine provider for model: %s', 'jarvis-ai' ),
 				$model
 			)
 		);
@@ -307,7 +307,7 @@ class AI_Client_Adapter {
 	 * @return array{provider: string, model: string}|\WP_Error
 	 */
 	private function find_fallback_provider( $original_model ) {
-		$preferred_order = get_option( 'wp_agent_preferred_provider', array( 'anthropic', 'openai', 'google' ) );
+		$preferred_order = get_option( 'jarvis_ai_preferred_provider', array( 'anthropic', 'openai', 'google' ) );
 
 		if ( ! is_array( $preferred_order ) ) {
 			$preferred_order = array( 'anthropic', 'openai', 'google' );
@@ -331,7 +331,7 @@ class AI_Client_Adapter {
 
 		return new \WP_Error(
 			'no_provider_available',
-			__( 'No AI provider is configured. Please add at least one API key in WP Agent settings.', 'wp-agent' )
+			__( 'No AI provider is configured. Please add at least one API key in JARVIS AI settings.', 'jarvis-ai' )
 		);
 	}
 
@@ -453,7 +453,7 @@ class AI_Client_Adapter {
 
 		if ( $code >= 400 ) {
 			$msg = $data['error']['message'] ?? "HTTP {$code}";
-			return new \WP_Error( 'api_error', sprintf( __( 'AI request failed: %s', 'wp-agent' ), $msg ), array( 'status' => $code ) );
+			return new \WP_Error( 'api_error', sprintf( __( 'AI request failed: %s', 'jarvis-ai' ), $msg ), array( 'status' => $code ) );
 		}
 
 		return $this->normalize_anthropic_response( $data, $native_model );
@@ -877,7 +877,7 @@ class AI_Client_Adapter {
 
 		if ( $code >= 400 ) {
 			$msg = $data['error']['message'] ?? "HTTP {$code}";
-			return new \WP_Error( 'api_error', sprintf( __( 'AI request failed: %s', 'wp-agent' ), $msg ), array( 'status' => $code ) );
+			return new \WP_Error( 'api_error', sprintf( __( 'AI request failed: %s', 'jarvis-ai' ), $msg ), array( 'status' => $code ) );
 		}
 
 		$choice = $data['choices'][0] ?? array();
@@ -1069,7 +1069,7 @@ class AI_Client_Adapter {
 
 		if ( $code >= 400 ) {
 			$msg = $data['error']['message'] ?? "HTTP {$code}";
-			return new \WP_Error( 'api_error', sprintf( __( 'AI request failed: %s', 'wp-agent' ), $msg ), array( 'status' => $code ) );
+			return new \WP_Error( 'api_error', sprintf( __( 'AI request failed: %s', 'jarvis-ai' ), $msg ), array( 'status' => $code ) );
 		}
 
 		return $this->normalize_google_response( $data, $native_model );
@@ -1415,12 +1415,12 @@ class AI_Client_Adapter {
 			}
 
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( "WP Agent stream error: HTTP {$http_code} — {$upstream_message}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( "JARVIS AI stream error: HTTP {$http_code} — {$upstream_message}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 
 			return new \WP_Error(
 				'api_error',
-				sprintf( __( 'AI request failed: %s', 'wp-agent' ), $upstream_message ),
+				sprintf( __( 'AI request failed: %s', 'jarvis-ai' ), $upstream_message ),
 				array( 'status' => $http_code )
 			);
 		}
@@ -1454,7 +1454,7 @@ class AI_Client_Adapter {
 				'no_api_key',
 				sprintf(
 					/* translators: %s: Provider name */
-					__( '%s API key is not configured. Please add your API key in WP Agent settings.', 'wp-agent' ),
+					__( '%s API key is not configured. Please add your API key in JARVIS AI settings.', 'jarvis-ai' ),
 					ucfirst( $provider )
 				)
 			);
@@ -1465,7 +1465,7 @@ class AI_Client_Adapter {
 		if ( false === $key || empty( $key ) ) {
 			return new \WP_Error(
 				'decrypt_failed',
-				__( 'Failed to decrypt API key. You may need to re-enter it in settings.', 'wp-agent' )
+				__( 'Failed to decrypt API key. You may need to re-enter it in settings.', 'jarvis-ai' )
 			);
 		}
 
@@ -1514,7 +1514,7 @@ class AI_Client_Adapter {
 		$code = wp_remote_retrieve_response_code( $response );
 
 		if ( 401 === $code || 403 === $code ) {
-			return new \WP_Error( 'invalid_api_key', __( 'The Anthropic API key is invalid or has been revoked.', 'wp-agent' ) );
+			return new \WP_Error( 'invalid_api_key', __( 'The Anthropic API key is invalid or has been revoked.', 'jarvis-ai' ) );
 		}
 
 		// 200 or 429 (rate limit) both mean the key is valid.
@@ -1524,7 +1524,7 @@ class AI_Client_Adapter {
 
 		return new \WP_Error(
 			'api_error',
-			sprintf( __( 'Anthropic API returned HTTP %d during validation.', 'wp-agent' ), $code )
+			sprintf( __( 'Anthropic API returned HTTP %d during validation.', 'jarvis-ai' ), $code )
 		);
 	}
 
@@ -1550,7 +1550,7 @@ class AI_Client_Adapter {
 		$code = wp_remote_retrieve_response_code( $response );
 
 		if ( 401 === $code || 403 === $code ) {
-			return new \WP_Error( 'invalid_api_key', __( 'The OpenAI API key is invalid or has been revoked.', 'wp-agent' ) );
+			return new \WP_Error( 'invalid_api_key', __( 'The OpenAI API key is invalid or has been revoked.', 'jarvis-ai' ) );
 		}
 
 		if ( $code < 400 ) {
@@ -1559,7 +1559,7 @@ class AI_Client_Adapter {
 
 		return new \WP_Error(
 			'api_error',
-			sprintf( __( 'OpenAI API returned HTTP %d during validation.', 'wp-agent' ), $code )
+			sprintf( __( 'OpenAI API returned HTTP %d during validation.', 'jarvis-ai' ), $code )
 		);
 	}
 
@@ -1582,7 +1582,7 @@ class AI_Client_Adapter {
 		$code = wp_remote_retrieve_response_code( $response );
 
 		if ( 401 === $code || 403 === $code ) {
-			return new \WP_Error( 'invalid_api_key', __( 'The Google API key is invalid or has been revoked.', 'wp-agent' ) );
+			return new \WP_Error( 'invalid_api_key', __( 'The Google API key is invalid or has been revoked.', 'jarvis-ai' ) );
 		}
 
 		if ( $code < 400 ) {
@@ -1591,7 +1591,7 @@ class AI_Client_Adapter {
 
 		return new \WP_Error(
 			'api_error',
-			sprintf( __( 'Google API returned HTTP %d during validation.', 'wp-agent' ), $code )
+			sprintf( __( 'Google API returned HTTP %d during validation.', 'jarvis-ai' ), $code )
 		);
 	}
 }

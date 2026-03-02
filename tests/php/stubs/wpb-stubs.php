@@ -36,8 +36,8 @@ namespace WPB {
         /**
          * Load Plugin Text Domain.
          * This will load the translation textdomain depending on the file priorities.
-         *      1. Global Languages /wp-content/languages/wp-plugin-base/ folder
-         *      2. Local dorectory /wp-content/plugins/wp-plugin-base/languages/ folder
+         *      1. Global Languages /wp-content/languages/jarvis-ai/ folder
+         *      2. Local dorectory /wp-content/plugins/jarvis-ai/languages/ folder
          *
          * @since X.X.X
          * @return void
@@ -54,7 +54,7 @@ namespace {
      * Author: Sandesh
      * Version: 0.0.1
      * License: GPL v2
-     * Text Domain: wp-plugin-base
+     * Text Domain: jarvis-ai
      *
      * @package {{package}}
      */

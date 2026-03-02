@@ -9,11 +9,11 @@
  * Supports nested block structures (groups, columns, covers)
  * for building complex landing page layouts.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -30,6 +30,13 @@ class Insert_Blocks implements Action_Interface {
 	 * @var int
 	 */
 	const MAX_NESTING_DEPTH = 6;
+
+	/**
+	 * Warnings collected during block sanitization.
+	 *
+	 * @var array
+	 */
+	private $warnings = array();
 
 	/**
 	 * Get the action name.
@@ -210,7 +217,7 @@ class Insert_Blocks implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: post ID */
-					__( 'Post #%d not found. Verify the post_id is correct.', 'wp-agent' ),
+					__( 'Post #%d not found. Verify the post_id is correct.', 'jarvis-ai' ),
 					$post_id
 				),
 			);
@@ -220,7 +227,7 @@ class Insert_Blocks implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'You do not have permission to edit this post.', 'wp-agent' ),
+				'message' => __( 'You do not have permission to edit this post.', 'jarvis-ai' ),
 			);
 		}
 
@@ -228,9 +235,12 @@ class Insert_Blocks implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'No blocks provided. Provide at least one block with a blockName.', 'wp-agent' ),
+				'message' => __( 'No blocks provided. Provide at least one block with a blockName.', 'jarvis-ai' ),
 			);
 		}
+
+		// Reset warnings for this execution.
+		$this->warnings = array();
 
 		// Recursively sanitize the block tree.
 		$sanitized_blocks = array();
@@ -245,11 +255,14 @@ class Insert_Blocks implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'No valid blocks after sanitization. Ensure each block has a blockName.', 'wp-agent' ),
+				'message' => __( 'No valid blocks after sanitization. Ensure each block has a blockName.', 'jarvis-ai' ),
 			);
 		}
 
 		$block_count = $this->count_blocks( $sanitized_blocks );
+
+		// Validate animation classes and collect warnings.
+		$class_warnings = $this->collect_class_warnings( $sanitized_blocks );
 
 		// Server-side persistence: serialize blocks to WordPress markup and save.
 		// This ensures content is saved even when called from the admin drawer
@@ -265,23 +278,47 @@ class Insert_Blocks implements Action_Interface {
 			);
 		}
 
+		// Build enhanced response data.
+		$response_data = array(
+			'post_id'         => $post_id,
+			'blocks'          => $sanitized_blocks,
+			'position'        => $position,
+			'execution'       => 'client',
+			'blocks_inserted' => $block_count,
+			'post_url'        => get_permalink( $post_id ),
+			'edit_url'        => get_edit_post_link( $post_id, 'raw' ),
+		);
+
+		// Append warnings if any.
+		if ( ! empty( $class_warnings ) ) {
+			$response_data['class_warnings'] = $class_warnings;
+		}
+		if ( ! empty( $this->warnings ) ) {
+			$response_data['warnings'] = $this->warnings;
+		}
+
+		$message = sprintf(
+			/* translators: 1: total block count, 2: position, 3: post ID */
+			__( 'Inserted %1$d block(s) into post #%3$d (%2$s). Content saved.', 'jarvis-ai' ),
+			$block_count,
+			$position,
+			$post_id
+		);
+
+		if ( ! empty( $class_warnings ) ) {
+			$message .= ' ' . sprintf(
+				/* translators: %s: comma-separated unknown class names */
+				__( 'Warning: unknown CSS classes detected: %s', 'jarvis-ai' ),
+				implode( ', ', array_slice( $class_warnings, 0, 5 ) )
+			);
+		}
+
 		// Also return client-side data — the editor's useBlockActions hook uses
 		// this for live block insertion without requiring a page reload.
 		return array(
 			'success' => true,
-			'data'    => array(
-				'post_id'   => $post_id,
-				'blocks'    => $sanitized_blocks,
-				'position'  => $position,
-				'execution' => 'client',
-			),
-			'message' => sprintf(
-				/* translators: 1: total block count, 2: position, 3: post ID */
-				__( 'Inserted %1$d block(s) into post #%3$d (%2$s). Content saved.', 'wp-agent' ),
-				$block_count,
-				$position,
-				$post_id
-			),
+			'data'    => $response_data,
+			'message' => $message,
 		);
 	}
 
@@ -300,6 +337,12 @@ class Insert_Blocks implements Action_Interface {
 		}
 
 		if ( $depth > self::MAX_NESTING_DEPTH ) {
+			$this->warnings[] = sprintf(
+				/* translators: 1: block name, 2: max depth */
+				__( 'Block "%1$s" truncated: exceeded max nesting depth (%2$d).', 'jarvis-ai' ),
+				sanitize_text_field( $block['blockName'] ),
+				self::MAX_NESTING_DEPTH
+			);
 			return null;
 		}
 
@@ -349,166 +392,166 @@ class Insert_Blocks implements Action_Interface {
 		// Direct replacements: wrong class name => correct wpa-* class.
 		$class_map = array(
 			// Aurora/background effects.
-			'enhanced-aurora'      => 'wpa-aurora',
-			'aurora-bg'            => 'wpa-aurora',
-			'aurora-gradient'      => 'wpa-aurora',
-			'aurora'               => 'wpa-aurora',
-			'enhanced-noise'       => 'wpa-noise',
-			'noise-bg'             => 'wpa-noise',
-			'grain'                => 'wpa-noise',
-			'grain-texture'        => 'wpa-noise',
-			'blur-bg'              => 'wpa-blur-bg',
-			'blur-orb'             => 'wpa-blur-bg',
-			'mesh-gradient'        => 'wpa-mesh-gradient',
-			'mesh-bg'              => 'wpa-mesh-gradient',
-			'dots-bg'              => 'wpa-dots',
-			'dot-pattern'          => 'wpa-dots',
-			'grid-lines'           => 'wpa-grid-lines',
-			'grid-bg'              => 'wpa-grid-lines',
-			'gradient-orbs'        => 'wpa-gradient-orbs',
-			'orbs'                 => 'wpa-gradient-orbs',
-			'starfield'            => 'wpa-starfield',
-			'stars'                => 'wpa-starfield',
-			'star-bg'              => 'wpa-starfield',
-			'wave-divider'         => 'wpa-wave',
-			'wave-bottom'          => 'wpa-wave',
-			'wave-top'             => 'wpa-wave-top',
+			'enhanced-aurora'   => 'wpa-aurora',
+			'aurora-bg'         => 'wpa-aurora',
+			'aurora-gradient'   => 'wpa-aurora',
+			'aurora'            => 'wpa-aurora',
+			'enhanced-noise'    => 'wpa-noise',
+			'noise-bg'          => 'wpa-noise',
+			'grain'             => 'wpa-noise',
+			'grain-texture'     => 'wpa-noise',
+			'blur-bg'           => 'wpa-blur-bg',
+			'blur-orb'          => 'wpa-blur-bg',
+			'mesh-gradient'     => 'wpa-mesh-gradient',
+			'mesh-bg'           => 'wpa-mesh-gradient',
+			'dots-bg'           => 'wpa-dots',
+			'dot-pattern'       => 'wpa-dots',
+			'grid-lines'        => 'wpa-grid-lines',
+			'grid-bg'           => 'wpa-grid-lines',
+			'gradient-orbs'     => 'wpa-gradient-orbs',
+			'orbs'              => 'wpa-gradient-orbs',
+			'starfield'         => 'wpa-starfield',
+			'stars'             => 'wpa-starfield',
+			'star-bg'           => 'wpa-starfield',
+			'wave-divider'      => 'wpa-wave',
+			'wave-bottom'       => 'wpa-wave',
+			'wave-top'          => 'wpa-wave-top',
 
 			// Glass effects.
-			'enhanced-glass'       => 'wpa-glass',
-			'glassmorphism'        => 'wpa-glass',
-			'glassmorphic'         => 'wpa-glass',
-			'glass-card'           => 'wpa-glass',
-			'glass-panel'          => 'wpa-glass',
-			'frosted-glass'        => 'wpa-glass',
-			'glass-light'          => 'wpa-glass-light',
+			'enhanced-glass'    => 'wpa-glass',
+			'glassmorphism'     => 'wpa-glass',
+			'glassmorphic'      => 'wpa-glass',
+			'glass-card'        => 'wpa-glass',
+			'glass-panel'       => 'wpa-glass',
+			'frosted-glass'     => 'wpa-glass',
+			'glass-light'       => 'wpa-glass-light',
 
 			// Glow effects.
-			'enhanced-glow'        => 'wpa-glow',
-			'glow-effect'          => 'wpa-glow',
-			'neon-glow'            => 'wpa-glow',
-			'button-glow'          => 'wpa-glow',
-			'border-glow'          => 'wpa-border-glow',
-			'glow-border'          => 'wpa-border-glow',
+			'enhanced-glow'     => 'wpa-glow',
+			'glow-effect'       => 'wpa-glow',
+			'neon-glow'         => 'wpa-glow',
+			'button-glow'       => 'wpa-glow',
+			'border-glow'       => 'wpa-border-glow',
+			'glow-border'       => 'wpa-border-glow',
 
 			// Gradient text.
-			'gradient-text'        => 'wpa-gradient-text',
-			'text-gradient'        => 'wpa-gradient-text',
-			'gradient-heading'     => 'wpa-gradient-text',
-			'gradient-border'      => 'wpa-gradient-border',
-			'gradient-sunset'      => 'wpa-gradient-sunset',
-			'sunset-text'          => 'wpa-gradient-sunset',
-			'gradient-ocean'       => 'wpa-gradient-ocean',
-			'ocean-text'           => 'wpa-gradient-ocean',
-			'gradient-forest'      => 'wpa-gradient-forest',
-			'gradient-gold'        => 'wpa-gradient-gold',
-			'gold-text'            => 'wpa-gradient-gold',
-			'text-glow'            => 'wpa-text-glow',
-			'text-stroke'          => 'wpa-text-stroke',
-			'text-shadow'          => 'wpa-text-backdrop',
+			'gradient-text'     => 'wpa-gradient-text',
+			'text-gradient'     => 'wpa-gradient-text',
+			'gradient-heading'  => 'wpa-gradient-text',
+			'gradient-border'   => 'wpa-gradient-border',
+			'gradient-sunset'   => 'wpa-gradient-sunset',
+			'sunset-text'       => 'wpa-gradient-sunset',
+			'gradient-ocean'    => 'wpa-gradient-ocean',
+			'ocean-text'        => 'wpa-gradient-ocean',
+			'gradient-forest'   => 'wpa-gradient-forest',
+			'gradient-gold'     => 'wpa-gradient-gold',
+			'gold-text'         => 'wpa-gradient-gold',
+			'text-glow'         => 'wpa-text-glow',
+			'text-stroke'       => 'wpa-text-stroke',
+			'text-shadow'       => 'wpa-text-backdrop',
 
 			// Scroll animations — fade.
-			'nike-fade-in'         => 'wpa-fade-up',
-			'fade-in'              => 'wpa-fade-up',
-			'fade-up'              => 'wpa-fade-up',
-			'fade-in-up'           => 'wpa-fade-up',
-			'scroll-fade'          => 'wpa-fade-up',
-			'animate-fade-up'      => 'wpa-fade-up',
-			'fade-down'            => 'wpa-fade-down',
-			'fade-in-down'         => 'wpa-fade-down',
-			'fade-left'            => 'wpa-fade-left',
-			'fade-in-left'         => 'wpa-fade-left',
-			'fade-right'           => 'wpa-fade-right',
-			'fade-in-right'        => 'wpa-fade-right',
+			'nike-fade-in'      => 'wpa-fade-up',
+			'fade-in'           => 'wpa-fade-up',
+			'fade-up'           => 'wpa-fade-up',
+			'fade-in-up'        => 'wpa-fade-up',
+			'scroll-fade'       => 'wpa-fade-up',
+			'animate-fade-up'   => 'wpa-fade-up',
+			'fade-down'         => 'wpa-fade-down',
+			'fade-in-down'      => 'wpa-fade-down',
+			'fade-left'         => 'wpa-fade-left',
+			'fade-in-left'      => 'wpa-fade-left',
+			'fade-right'        => 'wpa-fade-right',
+			'fade-in-right'     => 'wpa-fade-right',
 
 			// Scroll animations — slide/scale/rotate.
-			'slide-in-left'        => 'wpa-slide-left',
-			'slide-left'           => 'wpa-slide-left',
-			'slide-in-right'       => 'wpa-slide-right',
-			'slide-right'          => 'wpa-slide-right',
-			'zoom-in'              => 'wpa-zoom-in',
-			'scale-up'             => 'wpa-scale-up',
-			'scale-in'             => 'wpa-scale-up',
-			'animate-zoom'         => 'wpa-zoom-in',
-			'scale-down'           => 'wpa-scale-down',
-			'rotate-in'            => 'wpa-rotate-in',
-			'flip-up'              => 'wpa-flip-up',
-			'flip-left'            => 'wpa-flip-left',
-			'blur-in'              => 'wpa-blur-in',
-			'blur-reveal'          => 'wpa-blur-in',
-			'clip-up'              => 'wpa-clip-up',
-			'clip-reveal'          => 'wpa-clip-up',
-			'clip-left'            => 'wpa-clip-left',
-			'clip-right'           => 'wpa-clip-right',
-			'clip-circle'          => 'wpa-clip-circle',
-			'circle-reveal'        => 'wpa-clip-circle',
-			'elastic-up'           => 'wpa-elastic-up',
-			'elastic-scale'        => 'wpa-elastic-scale',
-			'spring-up'            => 'wpa-elastic-up',
-			'spring-scale'         => 'wpa-elastic-scale',
-			'text-reveal'          => 'wpa-text-reveal',
+			'slide-in-left'     => 'wpa-slide-left',
+			'slide-left'        => 'wpa-slide-left',
+			'slide-in-right'    => 'wpa-slide-right',
+			'slide-right'       => 'wpa-slide-right',
+			'zoom-in'           => 'wpa-zoom-in',
+			'scale-up'          => 'wpa-scale-up',
+			'scale-in'          => 'wpa-scale-up',
+			'animate-zoom'      => 'wpa-zoom-in',
+			'scale-down'        => 'wpa-scale-down',
+			'rotate-in'         => 'wpa-rotate-in',
+			'flip-up'           => 'wpa-flip-up',
+			'flip-left'         => 'wpa-flip-left',
+			'blur-in'           => 'wpa-blur-in',
+			'blur-reveal'       => 'wpa-blur-in',
+			'clip-up'           => 'wpa-clip-up',
+			'clip-reveal'       => 'wpa-clip-up',
+			'clip-left'         => 'wpa-clip-left',
+			'clip-right'        => 'wpa-clip-right',
+			'clip-circle'       => 'wpa-clip-circle',
+			'circle-reveal'     => 'wpa-clip-circle',
+			'elastic-up'        => 'wpa-elastic-up',
+			'elastic-scale'     => 'wpa-elastic-scale',
+			'spring-up'         => 'wpa-elastic-up',
+			'spring-scale'      => 'wpa-elastic-scale',
+			'text-reveal'       => 'wpa-text-reveal',
 
 			// Stagger.
-			'nike-stagger'         => 'wpa-stagger-children',
-			'stagger'              => 'wpa-stagger-children',
-			'stagger-animation'    => 'wpa-stagger-children',
-			'stagger-fade'         => 'wpa-stagger-children',
-			'stagger-left'         => 'wpa-stagger-left',
+			'nike-stagger'      => 'wpa-stagger-children',
+			'stagger'           => 'wpa-stagger-children',
+			'stagger-animation' => 'wpa-stagger-children',
+			'stagger-fade'      => 'wpa-stagger-children',
+			'stagger-left'      => 'wpa-stagger-left',
 
 			// Interactive / hover.
-			'floating-element'     => 'wpa-float',
-			'float-animation'      => 'wpa-float',
-			'floating'             => 'wpa-float',
-			'magnetic'             => 'wpa-hover-magnetic',
-			'tilt-effect'          => 'wpa-tilt',
-			'hover-tilt'           => 'wpa-tilt',
-			'hover-lift'           => 'wpa-lift',
-			'card-lift'            => 'wpa-lift',
-			'lift-effect'          => 'wpa-lift',
-			'shimmer'              => 'wpa-shine',
-			'shine-effect'         => 'wpa-shine',
-			'hover-glow'           => 'wpa-hover-glow',
-			'hover-zoom'           => 'wpa-hover-zoom',
-			'hover-border'         => 'wpa-hover-border',
-			'hover-shadow'         => 'wpa-hover-shadow',
-			'hover-bright'         => 'wpa-hover-bright',
-			'ripple'               => 'wpa-ripple',
-			'ripple-effect'        => 'wpa-ripple',
+			'floating-element'  => 'wpa-float',
+			'float-animation'   => 'wpa-float',
+			'floating'          => 'wpa-float',
+			'magnetic'          => 'wpa-hover-magnetic',
+			'tilt-effect'       => 'wpa-tilt',
+			'hover-tilt'        => 'wpa-tilt',
+			'hover-lift'        => 'wpa-lift',
+			'card-lift'         => 'wpa-lift',
+			'lift-effect'       => 'wpa-lift',
+			'shimmer'           => 'wpa-shine',
+			'shine-effect'      => 'wpa-shine',
+			'hover-glow'        => 'wpa-hover-glow',
+			'hover-zoom'        => 'wpa-hover-zoom',
+			'hover-border'      => 'wpa-hover-border',
+			'hover-shadow'      => 'wpa-hover-shadow',
+			'hover-bright'      => 'wpa-hover-bright',
+			'ripple'            => 'wpa-ripple',
+			'ripple-effect'     => 'wpa-ripple',
 
 			// 3D effects.
-			'card-3d'              => 'wpa-card-3d',
-			'3d-card'              => 'wpa-card-3d',
-			'flip-card'            => 'wpa-flip-card',
-			'parallax'             => 'wpa-parallax-slow',
-			'parallax-slow'        => 'wpa-parallax-slow',
-			'perspective'          => 'wpa-perspective',
+			'card-3d'           => 'wpa-card-3d',
+			'3d-card'           => 'wpa-card-3d',
+			'flip-card'         => 'wpa-flip-card',
+			'parallax'          => 'wpa-parallax-slow',
+			'parallax-slow'     => 'wpa-parallax-slow',
+			'perspective'       => 'wpa-perspective',
 
 			// Continuous animations.
-			'pulse'                => 'wpa-pulse',
-			'pulse-animation'      => 'wpa-pulse',
-			'heartbeat'            => 'wpa-heartbeat',
-			'bounce'               => 'wpa-bounce',
-			'bounce-animation'     => 'wpa-bounce',
-			'orbit'                => 'wpa-orbit',
-			'spin'                 => 'wpa-spin',
-			'spin-slow'            => 'wpa-spin-slow',
-			'color-cycle'          => 'wpa-color-cycle',
-			'morph'                => 'wpa-morph',
-			'blob-morph'           => 'wpa-morph',
-			'spotlight'            => 'wpa-spotlight',
+			'pulse'             => 'wpa-pulse',
+			'pulse-animation'   => 'wpa-pulse',
+			'heartbeat'         => 'wpa-heartbeat',
+			'bounce'            => 'wpa-bounce',
+			'bounce-animation'  => 'wpa-bounce',
+			'orbit'             => 'wpa-orbit',
+			'spin'              => 'wpa-spin',
+			'spin-slow'         => 'wpa-spin-slow',
+			'color-cycle'       => 'wpa-color-cycle',
+			'morph'             => 'wpa-morph',
+			'blob-morph'        => 'wpa-morph',
+			'spotlight'         => 'wpa-spotlight',
 
 			// Layout.
-			'bento'                => 'wpa-bento-grid',
-			'bento-layout'         => 'wpa-bento-grid',
-			'bento-grid'           => 'wpa-bento-grid',
-			'asymmetric-grid'      => 'wpa-grid-asymmetric',
-			'masonry'              => 'wpa-grid-masonry',
-			'masonry-grid'         => 'wpa-grid-masonry',
-			'offset-grid'          => 'wpa-grid-offset',
-			'overlap'              => 'wpa-overlap',
-			'marquee'              => 'wpa-marquee',
-			'marquee-scroll'       => 'wpa-marquee',
-			'marquee-reverse'      => 'wpa-marquee-reverse',
+			'bento'             => 'wpa-bento-grid',
+			'bento-layout'      => 'wpa-bento-grid',
+			'bento-grid'        => 'wpa-bento-grid',
+			'asymmetric-grid'   => 'wpa-grid-asymmetric',
+			'masonry'           => 'wpa-grid-masonry',
+			'masonry-grid'      => 'wpa-grid-masonry',
+			'offset-grid'       => 'wpa-grid-offset',
+			'overlap'           => 'wpa-overlap',
+			'marquee'           => 'wpa-marquee',
+			'marquee-scroll'    => 'wpa-marquee',
+			'marquee-reverse'   => 'wpa-marquee-reverse',
 		);
 
 		// Regex patterns for prefixed wrong names.
@@ -556,6 +599,73 @@ class Insert_Blocks implements Action_Interface {
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Collect unknown CSS class warnings from all blocks recursively.
+	 *
+	 * Validates className values against known prefixes (wpa-*, wp-block-*,
+	 * is-*, has-*, align*) and returns any unrecognized class names.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param array $blocks Array of sanitized blocks.
+	 * @return array Unique unknown class names found.
+	 */
+	private function collect_class_warnings( array $blocks ) {
+		$unknown = array();
+
+		foreach ( $blocks as $block ) {
+			if ( is_array( $block['attrs'] ) && ! empty( $block['attrs']['className'] ) ) {
+				$warnings = $this->validate_class_names( $block['attrs']['className'] );
+				$unknown  = array_merge( $unknown, $warnings );
+			}
+
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$inner_warnings = $this->collect_class_warnings( $block['innerBlocks'] );
+				$unknown        = array_merge( $unknown, $inner_warnings );
+			}
+		}
+
+		return array_values( array_unique( $unknown ) );
+	}
+
+	/**
+	 * Validate CSS class names against known valid prefixes.
+	 *
+	 * Returns class names that don't match any recognized prefix,
+	 * which may indicate AI-invented or invalid class names.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param string $class_string Space-separated CSS class names.
+	 * @return array Unknown class names.
+	 */
+	private function validate_class_names( $class_string ) {
+		$valid_prefixes = array( 'wpa-', 'wp-block-', 'wp-element-', 'is-', 'has-', 'align' );
+		$classes        = explode( ' ', $class_string );
+		$unknown        = array();
+
+		foreach ( $classes as $class ) {
+			$class = trim( $class );
+			if ( '' === $class ) {
+				continue;
+			}
+
+			$is_valid = false;
+			foreach ( $valid_prefixes as $prefix ) {
+				if ( 0 === strpos( $class, $prefix ) ) {
+					$is_valid = true;
+					break;
+				}
+			}
+
+			if ( ! $is_valid ) {
+				$unknown[] = $class;
+			}
+		}
+
+		return $unknown;
 	}
 
 	/**
@@ -1029,7 +1139,7 @@ class Insert_Blocks implements Action_Interface {
 	private function save_to_post( int $post_id, string $content, string $position ) {
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return new \WP_Error( 'post_not_found', __( 'Post not found for saving.', 'wp-agent' ) );
+			return new \WP_Error( 'post_not_found', __( 'Post not found for saving.', 'jarvis-ai' ) );
 		}
 
 		$existing = $post->post_content;

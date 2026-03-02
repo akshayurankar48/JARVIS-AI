@@ -6,11 +6,11 @@
  * (wp_remote_post) transports. Handles API key encryption, SSE parsing,
  * and response normalization.
  *
- * @package WPAgent\AI
+ * @package JarvisAI\AI
  * @since   1.0.0
  */
 
-namespace WPAgent\AI;
+namespace JarvisAI\AI;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -49,7 +49,7 @@ class Open_Router_Client {
 	 *
 	 * @var string
 	 */
-	const API_KEY_OPTION = 'wp_agent_openrouter_api_key';
+	const API_KEY_OPTION = 'jarvis_ai_openrouter_api_key';
 
 	/**
 	 * Encryption cipher.
@@ -117,7 +117,7 @@ class Open_Router_Client {
 			$tool_count = count( $tools );
 			$msg_count  = count( $messages );
 			$system_len = ! empty( $messages[0]['content'] ) ? strlen( $messages[0]['content'] ) : 0;
-			error_log( "WP Agent stream: model={$model}, tools={$tool_count}, messages={$msg_count}, system_prompt_chars={$system_len}, temperature={$temperature}, max_tokens={$max_tokens}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( "JARVIS AI stream: model={$model}, tools={$tool_count}, messages={$msg_count}, system_prompt_chars={$system_len}, temperature={$temperature}, max_tokens={$max_tokens}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 
 		$headers  = $this->get_request_headers( $api_key );
@@ -166,7 +166,7 @@ class Open_Router_Client {
 					// SSE comments (e.g. ": OPENROUTER PROCESSING") — log in debug mode.
 					if ( 0 === strpos( $line, ':' ) ) {
 						if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-							error_log( 'WP Agent SSE comment: ' . trim( substr( $line, 1 ) ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+							error_log( 'JARVIS AI SSE comment: ' . trim( substr( $line, 1 ) ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 						}
 						continue;
 					}
@@ -247,15 +247,15 @@ class Open_Router_Client {
 			}
 
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( "WP Agent stream error: HTTP {$http_code} — {$upstream_message}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( 'WP Agent stream raw body: ' . substr( $raw_body, 0, 1000 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( "JARVIS AI stream error: HTTP {$http_code} — {$upstream_message}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'JARVIS AI stream raw body: ' . substr( $raw_body, 0, 1000 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 
 			return new \WP_Error(
 				'api_error',
 				sprintf(
 					/* translators: %s: Error message from OpenRouter */
-					__( 'AI request failed: %s', 'wp-agent' ),
+					__( 'AI request failed: %s', 'jarvis-ai' ),
 					$upstream_message
 				),
 				array( 'status' => $http_code )
@@ -265,7 +265,7 @@ class Open_Router_Client {
 		// Log success details when debugging.
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			$body_len = strlen( $raw_body );
-			error_log( "WP Agent stream complete: HTTP {$http_code}, body_length={$body_len}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( "JARVIS AI stream complete: HTTP {$http_code}, body_length={$body_len}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 
 		return true;
@@ -335,14 +335,14 @@ class Open_Router_Client {
 		if ( $code >= 400 ) {
 			$upstream_message = isset( $data['error']['message'] ) ? $data['error']['message'] : "HTTP {$code}";
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( "WP Agent chat error: HTTP {$code} — {$upstream_message}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( 'WP Agent chat raw body: ' . substr( $body, 0, 1000 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( "JARVIS AI chat error: HTTP {$code} — {$upstream_message}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'JARVIS AI chat raw body: ' . substr( $body, 0, 1000 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 			return new \WP_Error(
 				'api_error',
 				sprintf(
 					/* translators: %s: Error message from the AI provider */
-					__( 'AI request failed: %s', 'wp-agent' ),
+					__( 'AI request failed: %s', 'jarvis-ai' ),
 					$upstream_message
 				),
 				array( 'status' => $code )
@@ -350,7 +350,7 @@ class Open_Router_Client {
 		}
 
 		if ( null === $data || empty( $data['choices'] ) ) {
-			return new \WP_Error( 'invalid_response', __( 'Invalid response from OpenRouter API.', 'wp-agent' ) );
+			return new \WP_Error( 'invalid_response', __( 'Invalid response from OpenRouter API.', 'jarvis-ai' ) );
 		}
 
 		$choice = $data['choices'][0];
@@ -376,7 +376,7 @@ class Open_Router_Client {
 		$key = trim( $key );
 
 		if ( empty( $key ) ) {
-			return new \WP_Error( 'empty_api_key', __( 'API key cannot be empty.', 'wp-agent' ) );
+			return new \WP_Error( 'empty_api_key', __( 'API key cannot be empty.', 'jarvis-ai' ) );
 		}
 
 		$response = wp_remote_get(
@@ -396,7 +396,7 @@ class Open_Router_Client {
 		$code = wp_remote_retrieve_response_code( $response );
 
 		if ( 401 === $code || 403 === $code ) {
-			return new \WP_Error( 'invalid_api_key', __( 'The API key is invalid or has been revoked.', 'wp-agent' ) );
+			return new \WP_Error( 'invalid_api_key', __( 'The API key is invalid or has been revoked.', 'jarvis-ai' ) );
 		}
 
 		if ( $code >= 400 ) {
@@ -404,7 +404,7 @@ class Open_Router_Client {
 				'api_error',
 				sprintf(
 					/* translators: %d: HTTP status code */
-					__( 'OpenRouter API returned HTTP %d during validation.', 'wp-agent' ),
+					__( 'OpenRouter API returned HTTP %d during validation.', 'jarvis-ai' ),
 					$code
 				)
 			);
@@ -503,7 +503,7 @@ class Open_Router_Client {
 		if ( ! $this->has_api_key() ) {
 			return new \WP_Error(
 				'no_api_key',
-				__( 'OpenRouter API key is not configured. Please add your API key in WP Agent settings.', 'wp-agent' )
+				__( 'OpenRouter API key is not configured. Please add your API key in JARVIS AI settings.', 'jarvis-ai' )
 			);
 		}
 
@@ -513,7 +513,7 @@ class Open_Router_Client {
 		if ( false === $key || empty( $key ) ) {
 			return new \WP_Error(
 				'decrypt_failed',
-				__( 'Failed to decrypt API key. You may need to re-enter it in settings.', 'wp-agent' )
+				__( 'Failed to decrypt API key. You may need to re-enter it in settings.', 'jarvis-ai' )
 			);
 		}
 
@@ -533,7 +533,7 @@ class Open_Router_Client {
 			'Content-Type'  => 'application/json',
 			'Authorization' => 'Bearer ' . $api_key,
 			'HTTP-Referer'  => home_url(),
-			'X-Title'       => 'WP Agent',
+			'X-Title'       => 'JARVIS AI',
 		);
 	}
 

@@ -15,14 +15,14 @@ import {
 } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 
-const { adminUrl } = window.wpAgentData || {};
+const { adminUrl } = window.jarvisAiData || {};
 
 const STEPS = [
 	{
 		number: '1',
 		icon: Zap,
 		title: 'Install the plugin',
-		description: 'You\'re here, so this step is already done. WP Agent is installed and active.',
+		description: 'You\'re here, so this step is already done. JARVIS AI is installed and active.',
 		color: { bg: 'bg-violet-50', text: 'text-violet-600', ring: 'ring-violet-200' },
 		done: true,
 	},
@@ -32,7 +32,7 @@ const STEPS = [
 		title: 'Configure your API key',
 		description: 'Go to Settings and enter your OpenRouter API key. This connects JARVIS to AI models.',
 		color: { bg: 'bg-blue-50', text: 'text-blue-600', ring: 'ring-blue-200' },
-		href: `${ adminUrl }admin.php?page=wp-agent-settings`,
+		href: `${ adminUrl }admin.php?page=jarvis-ai-settings`,
 	},
 	{
 		number: '3',
@@ -40,7 +40,7 @@ const STEPS = [
 		title: 'Choose a model',
 		description: 'Select your preferred AI model in Settings. Start with GPT-4o Mini for a good balance of speed and quality.',
 		color: { bg: 'bg-amber-50', text: 'text-amber-600', ring: 'ring-amber-200' },
-		href: `${ adminUrl }admin.php?page=wp-agent-settings`,
+		href: `${ adminUrl }admin.php?page=jarvis-ai-settings`,
 	},
 	{
 		number: '4',
@@ -57,21 +57,21 @@ const RESOURCES = [
 		icon: Github,
 		label: 'GitHub Repository',
 		description: 'Source code, issues, and releases',
-		href: 'https://github.com/akshayurankar48/WP-AGENT',
+		href: 'https://github.com/akshayurankar48/JARVIS-AI',
 		color: { bg: 'bg-slate-50', text: 'text-slate-600' },
 	},
 	{
 		icon: BookOpen,
 		label: 'Documentation',
 		description: 'Guides, API reference, and examples',
-		href: 'https://github.com/akshayurankar48/WP-AGENT#readme',
+		href: 'https://github.com/akshayurankar48/JARVIS-AI#readme',
 		color: { bg: 'bg-blue-50', text: 'text-blue-600' },
 	},
 	{
 		icon: Sparkles,
 		label: 'Capabilities',
 		description: 'Browse all 69+ actions JARVIS can perform',
-		href: `${ adminUrl }admin.php?page=wp-agent-capabilities`,
+		href: `${ adminUrl }admin.php?page=jarvis-ai-capabilities`,
 		isInternal: true,
 		color: { bg: 'bg-violet-50', text: 'text-violet-600' },
 	},
@@ -234,7 +234,7 @@ export default function Help() {
 						icon={ <Github className="size-4" /> }
 						onClick={ () => {
 							window.open(
-								'https://github.com/akshayurankar48/WP-AGENT/issues',
+								'https://github.com/akshayurankar48/JARVIS-AI/issues',
 								'_blank',
 								'noopener,noreferrer'
 							);

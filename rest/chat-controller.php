@@ -5,13 +5,13 @@
  * Non-streaming chat endpoint. Receives a message, calls the orchestrator,
  * and returns the full response synchronously.
  *
- * @package WPAgent\REST
+ * @package JarvisAI\REST
  * @since   1.0.0
  */
 
-namespace WPAgent\REST;
+namespace JarvisAI\REST;
 
-use WPAgent\AI\Orchestrator;
+use JarvisAI\AI\Orchestrator;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -27,7 +27,7 @@ class Chat_Controller {
 	 *
 	 * @var string
 	 */
-	const NAMESPACE = 'wp-agent/v1';
+	const NAMESPACE = 'jarvis-ai/v1';
 
 	/**
 	 * Route base.
@@ -67,7 +67,7 @@ class Chat_Controller {
 		if ( ! current_user_can( 'edit_posts' ) || ! REST_Permissions::current_user_has_allowed_role() ) {
 			return new \WP_Error(
 				'rest_forbidden',
-				__( 'You do not have permission to use the chat.', 'wp-agent' ),
+				__( 'You do not have permission to use the chat.', 'jarvis-ai' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -76,7 +76,7 @@ class Chat_Controller {
 	}
 
 	/**
-	 * POST /wp-agent/v1/chat
+	 * POST /jarvis-ai/v1/chat
 	 *
 	 * Sends a message to the AI orchestrator and returns the response.
 	 *
@@ -138,7 +138,7 @@ class Chat_Controller {
 					if ( empty( trim( $value ) ) ) {
 						return new \WP_Error(
 							'empty_message',
-							__( 'Message cannot be empty.', 'wp-agent' ),
+							__( 'Message cannot be empty.', 'jarvis-ai' ),
 							array( 'status' => 400 )
 						);
 					}

@@ -5,11 +5,11 @@
  * Analyzes and cleans the WordPress database: post revisions, transients,
  * spam/trash comments, and table optimization.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -114,7 +114,7 @@ class Database_Optimize implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation.', 'wp-agent' ),
+					'message' => __( 'Invalid operation.', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -191,7 +191,7 @@ class Database_Optimize implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: revisions, 2: transients, 3: spam, 4: overhead */
-				__( 'Database analysis: %1$d revisions, %2$d expired transients, %3$d spam comments, %4$s MB overhead.', 'wp-agent' ),
+				__( 'Database analysis: %1$d revisions, %2$d expired transients, %3$d spam comments, %4$s MB overhead.', 'jarvis-ai' ),
 				$revisions,
 				$transients,
 				$spam_comments,
@@ -246,7 +246,7 @@ class Database_Optimize implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: deleted count, 2: kept per post */
-				__( 'Deleted %1$d revision(s), keeping %2$d per post.', 'wp-agent' ),
+				__( 'Deleted %1$d revision(s), keeping %2$d per post.', 'jarvis-ai' ),
 				(int) $deleted,
 				$keep
 			),
@@ -286,7 +286,7 @@ class Database_Optimize implements Action_Interface {
 			'data'    => array( 'deleted' => $deleted ),
 			'message' => sprintf(
 				/* translators: %d: deleted count */
-				__( 'Deleted %d expired transient(s).', 'wp-agent' ),
+				__( 'Deleted %d expired transient(s).', 'jarvis-ai' ),
 				$deleted
 			),
 		);
@@ -311,7 +311,7 @@ class Database_Optimize implements Action_Interface {
 			'data'    => array( 'deleted' => (int) $deleted ),
 			'message' => sprintf(
 				/* translators: %d: deleted count */
-				__( 'Deleted %d spam comment(s).', 'wp-agent' ),
+				__( 'Deleted %d spam comment(s).', 'jarvis-ai' ),
 				(int) $deleted
 			),
 		);
@@ -351,7 +351,7 @@ class Database_Optimize implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: posts, 2: comments, 3: auto-drafts */
-				__( 'Cleaned: %1$d trashed post(s), %2$d trashed comment(s), %3$d auto-draft(s).', 'wp-agent' ),
+				__( 'Cleaned: %1$d trashed post(s), %2$d trashed comment(s), %3$d auto-draft(s).', 'jarvis-ai' ),
 				(int) $trash_posts,
 				(int) $trash_comments,
 				(int) $auto_drafts
@@ -392,7 +392,7 @@ class Database_Optimize implements Action_Interface {
 			'data'    => array( 'tables_optimized' => $optimized ),
 			'message' => sprintf(
 				/* translators: %d: table count */
-				__( 'Optimized %d database table(s).', 'wp-agent' ),
+				__( 'Optimized %d database table(s).', 'jarvis-ai' ),
 				$optimized
 			),
 		);

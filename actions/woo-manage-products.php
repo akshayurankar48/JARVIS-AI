@@ -2,11 +2,11 @@
 /**
  * WooCommerce Manage Products Action.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -152,7 +152,7 @@ class Woo_Manage_Products implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation.', 'wp-agent' ),
+					'message' => __( 'Invalid operation.', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -200,7 +200,7 @@ class Woo_Manage_Products implements Action_Interface {
 				'page'     => $page,
 			),
 			/* translators: %d: number of products found */
-			'message' => sprintf( __( '%d product(s) found.', 'wp-agent' ), count( $list ) ),
+			'message' => sprintf( __( '%d product(s) found.', 'jarvis-ai' ), count( $list ) ),
 		);
 	}
 
@@ -218,7 +218,7 @@ class Woo_Manage_Products implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Product name is required.', 'wp-agent' ),
+				'message' => __( 'Product name is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -259,7 +259,7 @@ class Woo_Manage_Products implements Action_Interface {
 				'name'       => $name,
 			),
 			/* translators: 1: product name, 2: product ID */
-			'message' => sprintf( __( 'Product "%1$s" created (ID: %2$d).', 'wp-agent' ), $name, $product_id ),
+			'message' => sprintf( __( 'Product "%1$s" created (ID: %2$d).', 'jarvis-ai' ), $name, $product_id ),
 		);
 	}
 
@@ -277,7 +277,7 @@ class Woo_Manage_Products implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'product_id is required.', 'wp-agent' ),
+				'message' => __( 'product_id is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -286,7 +286,7 @@ class Woo_Manage_Products implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Product not found.', 'wp-agent' ),
+				'message' => __( 'Product not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -323,7 +323,7 @@ class Woo_Manage_Products implements Action_Interface {
 				'updated'    => $updated,
 			),
 			/* translators: 1: product ID, 2: comma-separated list of updated fields */
-			'message' => sprintf( __( 'Product #%1$d updated (%2$s).', 'wp-agent' ), $product_id, implode( ', ', $updated ) ),
+			'message' => sprintf( __( 'Product #%1$d updated (%2$s).', 'jarvis-ai' ), $product_id, implode( ', ', $updated ) ),
 		);
 	}
 
@@ -341,7 +341,7 @@ class Woo_Manage_Products implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'product_id is required.', 'wp-agent' ),
+				'message' => __( 'product_id is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -350,7 +350,7 @@ class Woo_Manage_Products implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Product not found.', 'wp-agent' ),
+				'message' => __( 'Product not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -361,7 +361,7 @@ class Woo_Manage_Products implements Action_Interface {
 			'success' => true,
 			'data'    => array( 'product_id' => $product_id ),
 			/* translators: 1: product name, 2: product ID */
-			'message' => sprintf( __( 'Product "%1$s" (#%2$d) deleted.', 'wp-agent' ), $name, $product_id ),
+			'message' => sprintf( __( 'Product "%1$s" (#%2$d) deleted.', 'jarvis-ai' ), $name, $product_id ),
 		);
 	}
 }

@@ -18,7 +18,7 @@ import RolePermissions from '../components/RolePermissions';
 import BrandPresets from '../components/BrandPresets';
 import PageLayout from '../components/PageLayout';
 
-const { restUrl, nonce } = window.wpAgentData || {};
+const { restUrl, nonce } = window.jarvisAiData || {};
 
 const NAV_ITEMS = [
 	{ slug: 'general', label: 'API Keys', icon: KeyRound },
@@ -121,7 +121,7 @@ export default function Settings() {
 			}
 
 			toast.success( 'Settings saved successfully!', {
-				description: 'Your WP Agent configuration has been updated.',
+				description: 'Your JARVIS AI configuration has been updated.',
 			} );
 
 			if ( data.updated?.api_key ) {
@@ -200,7 +200,7 @@ export default function Settings() {
 							Settings
 						</h1>
 						<p className="text-xs text-text-tertiary mt-0.5">
-							Configure your WP Agent preferences
+							Configure your JARVIS AI preferences
 						</p>
 					</div>
 				</div>

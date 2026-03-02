@@ -7,11 +7,11 @@
  * WordPress media library. Returns the attachment ID and URL so the
  * image is immediately usable in blocks or as a featured image.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -180,7 +180,7 @@ class Generate_Image implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'A prompt is required to generate an image.', 'wp-agent' ),
+				'message' => __( 'A prompt is required to generate an image.', 'jarvis-ai' ),
 			);
 		}
 
@@ -190,7 +190,7 @@ class Generate_Image implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: maximum allowed characters */
-					__( 'Prompt must be %d characters or fewer.', 'wp-agent' ),
+					__( 'Prompt must be %d characters or fewer.', 'jarvis-ai' ),
 					self::MAX_PROMPT_LENGTH
 				),
 			);
@@ -215,23 +215,23 @@ class Generate_Image implements Action_Interface {
 		}
 
 		// --- 3. Retrieve and decrypt the API key --------------------------------------------.
-		$encrypted = get_option( \WPAgent\AI\Open_Router_Client::API_KEY_OPTION, '' );
+		$encrypted = get_option( \JarvisAI\AI\Open_Router_Client::API_KEY_OPTION, '' );
 
 		if ( empty( $encrypted ) ) {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'OpenRouter API key is not configured. Please add your API key in WP Agent settings.', 'wp-agent' ),
+				'message' => __( 'OpenRouter API key is not configured. Please add your API key in JARVIS AI settings.', 'jarvis-ai' ),
 			);
 		}
 
-		$api_key = \WPAgent\AI\Open_Router_Client::decrypt_api_key( $encrypted );
+		$api_key = \JarvisAI\AI\Open_Router_Client::decrypt_api_key( $encrypted );
 
 		if ( false === $api_key || '' === $api_key ) {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Failed to decrypt API key. You may need to re-enter it in settings.', 'wp-agent' ),
+				'message' => __( 'Failed to decrypt API key. You may need to re-enter it in settings.', 'jarvis-ai' ),
 			);
 		}
 
@@ -255,7 +255,7 @@ class Generate_Image implements Action_Interface {
 					'Content-Type'  => 'application/json',
 					'Authorization' => 'Bearer ' . $api_key,
 					'HTTP-Referer'  => home_url(),
-					'X-Title'       => 'WP Agent',
+					'X-Title'       => 'JARVIS AI',
 				),
 				'body'    => $request_body,
 				'timeout' => 120,
@@ -268,7 +268,7 @@ class Generate_Image implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: error message */
-					__( 'Image generation request failed: %s', 'wp-agent' ),
+					__( 'Image generation request failed: %s', 'jarvis-ai' ),
 					$api_response->get_error_message()
 				),
 			);
@@ -285,8 +285,8 @@ class Generate_Image implements Action_Interface {
 			}
 
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( "WP Agent generate_image error: HTTP {$response_code} — {$upstream_message}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( 'WP Agent generate_image raw body: ' . substr( $response_body, 0, 1000 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( "JARVIS AI generate_image error: HTTP {$response_code} — {$upstream_message}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'JARVIS AI generate_image raw body: ' . substr( $response_body, 0, 1000 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 
 			return array(
@@ -294,7 +294,7 @@ class Generate_Image implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: upstream error message */
-					__( 'Image generation failed: %s', 'wp-agent' ),
+					__( 'Image generation failed: %s', 'jarvis-ai' ),
 					$upstream_message
 				),
 			);
@@ -305,7 +305,7 @@ class Generate_Image implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Image generation succeeded but returned no image URL.', 'wp-agent' ),
+				'message' => __( 'Image generation succeeded but returned no image URL.', 'jarvis-ai' ),
 			);
 		}
 
@@ -315,7 +315,7 @@ class Generate_Image implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Image generation returned an invalid URL.', 'wp-agent' ),
+				'message' => __( 'Image generation returned an invalid URL.', 'jarvis-ai' ),
 			);
 		}
 
@@ -343,7 +343,7 @@ class Generate_Image implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: error message */
-					__( 'Failed to download generated image: %s', 'wp-agent' ),
+					__( 'Failed to download generated image: %s', 'jarvis-ai' ),
 					$img_response->get_error_message()
 				),
 			);
@@ -356,7 +356,7 @@ class Generate_Image implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: HTTP status code */
-					__( 'Generated image URL returned HTTP %d.', 'wp-agent' ),
+					__( 'Generated image URL returned HTTP %d.', 'jarvis-ai' ),
 					$img_code
 				),
 			);
@@ -367,17 +367,17 @@ class Generate_Image implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Downloaded image file is empty.', 'wp-agent' ),
+				'message' => __( 'Downloaded image file is empty.', 'jarvis-ai' ),
 			);
 		}
 
 		// --- 8. Write to a temp file ---------------------------------------------------------.
-		$temp_file = wp_tempnam( 'wp-agent-dalle-' );
+		$temp_file = wp_tempnam( 'jarvis-ai-dalle-' );
 		if ( ! $temp_file ) {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Could not create a temporary file for the image.', 'wp-agent' ),
+				'message' => __( 'Could not create a temporary file for the image.', 'jarvis-ai' ),
 			);
 		}
 
@@ -392,7 +392,7 @@ class Generate_Image implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Could not read the downloaded image file.', 'wp-agent' ),
+				'message' => __( 'Could not read the downloaded image file.', 'jarvis-ai' ),
 			);
 		}
 
@@ -403,7 +403,7 @@ class Generate_Image implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: maximum file size */
-					__( 'Generated image exceeds maximum file size of %s.', 'wp-agent' ),
+					__( 'Generated image exceeds maximum file size of %s.', 'jarvis-ai' ),
 					size_format( self::MAX_IMAGE_SIZE )
 				),
 			);
@@ -416,7 +416,7 @@ class Generate_Image implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'The downloaded file is not a valid image.', 'wp-agent' ),
+				'message' => __( 'The downloaded file is not a valid image.', 'jarvis-ai' ),
 			);
 		}
 
@@ -432,7 +432,7 @@ class Generate_Image implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Generated image is not a supported format (PNG or JPEG).', 'wp-agent' ),
+				'message' => __( 'Generated image is not a supported format (PNG or JPEG).', 'jarvis-ai' ),
 			);
 		}
 
@@ -457,7 +457,7 @@ class Generate_Image implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: error message */
-					__( 'Failed to save generated image to media library: %s', 'wp-agent' ),
+					__( 'Failed to save generated image to media library: %s', 'jarvis-ai' ),
 					$attachment_id->get_error_message()
 				),
 			);
@@ -490,7 +490,7 @@ class Generate_Image implements Action_Interface {
 			'data'    => $data,
 			'message' => sprintf(
 				/* translators: 1: attachment ID, 2: image URL */
-				__( 'Image generated and saved to media library (ID: %1$d). Use the URL in insert_blocks for core/image, core/cover, or set_featured_image.', 'wp-agent' ),
+				__( 'Image generated and saved to media library (ID: %1$d). Use the URL in insert_blocks for core/image, core/cover, or set_featured_image.', 'jarvis-ai' ),
 				$attachment_id
 			),
 		);

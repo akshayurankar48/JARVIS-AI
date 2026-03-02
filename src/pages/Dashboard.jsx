@@ -26,9 +26,11 @@ import {
 	Rocket,
 } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
+import AIPulse from '../components/AIPulse';
+import PromptGallery from '../components/PromptGallery';
 import { STORE_NAME } from '../store/constants';
 
-const { hasApiKey, adminUrl } = window.wpAgentData || {};
+const { hasApiKey, adminUrl } = window.jarvisAiData || {};
 
 /* ── Animated Counter ──────────────────────────────────────────── */
 
@@ -269,16 +271,16 @@ export default function Dashboard() {
 	const { loadConversation } = useDispatch( STORE_NAME );
 
 	useEffect( () => {
-		apiFetch( { path: '/wp-agent/v1/stats' } )
+		apiFetch( { path: '/jarvis-ai/v1/stats' } )
 			.then( setStats )
 			.catch( () => {} );
 	}, [] );
 
-	const editorUrl = `${ adminUrl }admin.php?page=wp-agent`;
-	const settingsUrl = `${ adminUrl }admin.php?page=wp-agent-settings`;
-	const historyUrl = `${ adminUrl }admin.php?page=wp-agent-history`;
-	const schedulesUrl = `${ adminUrl }admin.php?page=wp-agent-schedules`;
-	const usageUrl = `${ adminUrl }admin.php?page=wp-agent-history`;
+	const editorUrl = `${ adminUrl }admin.php?page=jarvis-ai`;
+	const settingsUrl = `${ adminUrl }admin.php?page=jarvis-ai-settings`;
+	const historyUrl = `${ adminUrl }admin.php?page=jarvis-ai-history`;
+	const schedulesUrl = `${ adminUrl }admin.php?page=jarvis-ai-schedules`;
+	const usageUrl = `${ adminUrl }admin.php?page=jarvis-ai-history`;
 
 	const openDrawerWithPrompt = useCallback( ( prompt ) => {
 		document.dispatchEvent( new CustomEvent( 'jarvis-open-drawer', {
@@ -344,7 +346,7 @@ export default function Dashboard() {
 							type="button"
 							className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/15 text-white font-semibold text-sm hover:bg-white/25 transition-colors duration-200 border border-solid border-white/30 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-indigo-600"
 							onClick={ () => {
-								window.location.href = `${ adminUrl }post-new.php?wp-agent-demo=saas-landing`;
+								window.location.href = `${ adminUrl }post-new.php?jarvis-ai-demo=saas-landing`;
 							} }
 						>
 							<Play className="size-4" />
@@ -422,8 +424,40 @@ export default function Dashboard() {
 				/>
 			</div>
 
-			{ /* Two-column grid: Activity Feed + Command Palette */ }
+			{ /* AI Pulse News Feed */ }
+			<div className="mb-6">
+				<AIPulse />
+			</div>
+
+			{ /* Prompt Templates Gallery */ }
+			<div className="mb-6">
+				<PromptGallery
+					onSelect={ openDrawerWithPrompt }
+					limit={ 6 }
+				/>
+			</div>
+
+			{ /* Two-column grid: Quick Actions + Recent Activity */ }
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
+				{ /* Command Palette */ }
+				<div className="bg-background-primary border border-solid border-border-subtle rounded-2xl shadow-sm p-6">
+					<div className="flex items-center gap-2 mb-4">
+						<Sparkles className="size-4 text-text-secondary" />
+						<h2 className="text-base font-bold text-text-primary">
+							Quick Actions
+						</h2>
+					</div>
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+						{ COMMANDS.map( ( cmd ) => (
+							<CommandCard
+								key={ cmd.label }
+								{ ...cmd }
+								onDispatch={ openDrawerWithPrompt }
+							/>
+						) ) }
+					</div>
+				</div>
+
 				{ /* Recent Activity */ }
 				<div className="bg-background-primary border border-solid border-border-subtle rounded-2xl shadow-sm p-6">
 					<div className="flex items-center justify-between mb-4">
@@ -461,25 +495,6 @@ export default function Dashboard() {
 							<p className="text-xs text-text-tertiary">Start chatting with JARVIS to see your activity here</p>
 						</div>
 					) }
-				</div>
-
-				{ /* Command Palette */ }
-				<div className="bg-background-primary border border-solid border-border-subtle rounded-2xl shadow-sm p-6">
-					<div className="flex items-center gap-2 mb-4">
-						<Sparkles className="size-4 text-text-secondary" />
-						<h2 className="text-base font-bold text-text-primary">
-							Quick Actions
-						</h2>
-					</div>
-					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-						{ COMMANDS.map( ( cmd ) => (
-							<CommandCard
-								key={ cmd.label }
-								{ ...cmd }
-								onDispatch={ openDrawerWithPrompt }
-							/>
-						) ) }
-					</div>
 				</div>
 			</div>
 

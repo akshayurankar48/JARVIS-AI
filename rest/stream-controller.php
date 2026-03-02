@@ -5,13 +5,13 @@
  * SSE (Server-Sent Events) streaming endpoint. Sends AI response chunks
  * in real time as they arrive from the OpenRouter API.
  *
- * @package WPAgent\REST
+ * @package JarvisAI\REST
  * @since   1.0.0
  */
 
-namespace WPAgent\REST;
+namespace JarvisAI\REST;
 
-use WPAgent\AI\Orchestrator;
+use JarvisAI\AI\Orchestrator;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -27,7 +27,7 @@ class Stream_Controller {
 	 *
 	 * @var string
 	 */
-	const NAMESPACE = 'wp-agent/v1';
+	const NAMESPACE = 'jarvis-ai/v1';
 
 	/**
 	 * Route base.
@@ -67,7 +67,7 @@ class Stream_Controller {
 		if ( ! current_user_can( 'edit_posts' ) || ! REST_Permissions::current_user_has_allowed_role() ) {
 			return new \WP_Error(
 				'rest_forbidden',
-				__( 'You do not have permission to use the chat.', 'wp-agent' ),
+				__( 'You do not have permission to use the chat.', 'jarvis-ai' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -76,7 +76,7 @@ class Stream_Controller {
 	}
 
 	/**
-	 * POST /wp-agent/v1/stream
+	 * POST /jarvis-ai/v1/stream
 	 *
 	 * Opens an SSE connection and streams AI response chunks.
 	 *
@@ -182,7 +182,7 @@ class Stream_Controller {
 					if ( empty( trim( $value ) ) ) {
 						return new \WP_Error(
 							'empty_message',
-							__( 'Message cannot be empty.', 'wp-agent' ),
+							__( 'Message cannot be empty.', 'jarvis-ai' ),
 							array( 'status' => 400 )
 						);
 					}

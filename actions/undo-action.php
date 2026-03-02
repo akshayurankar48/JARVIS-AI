@@ -5,13 +5,13 @@
  * Allows the AI to list recent undoable actions and revert them by
  * restoring the checkpoint snapshot taken before the action executed.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
-use WPAgent\Core\Checkpoint_Manager;
+use JarvisAI\Core\Checkpoint_Manager;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -111,7 +111,7 @@ class Undo_Action implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Invalid operation. Must be "list" or "undo".', 'wp-agent' ),
+				'message' => __( 'Invalid operation. Must be "list" or "undo".', 'jarvis-ai' ),
 			);
 		}
 
@@ -121,7 +121,7 @@ class Undo_Action implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Conversation ID is required. This should be automatically provided by the system.', 'wp-agent' ),
+				'message' => __( 'Conversation ID is required. This should be automatically provided by the system.', 'jarvis-ai' ),
 			);
 		}
 
@@ -146,7 +146,7 @@ class Undo_Action implements Action_Interface {
 			return array(
 				'success' => true,
 				'data'    => array( 'checkpoints' => array() ),
-				'message' => __( 'No undoable actions found in this conversation.', 'wp-agent' ),
+				'message' => __( 'No undoable actions found in this conversation.', 'jarvis-ai' ),
 			);
 		}
 
@@ -167,7 +167,7 @@ class Undo_Action implements Action_Interface {
 			'data'    => array( 'checkpoints' => $formatted ),
 			'message' => sprintf(
 				/* translators: %d: number of undoable checkpoints */
-				__( 'Found %d undoable action(s). Use the "undo" operation with a checkpoint_id to revert.', 'wp-agent' ),
+				__( 'Found %d undoable action(s). Use the "undo" operation with a checkpoint_id to revert.', 'jarvis-ai' ),
 				count( $formatted )
 			),
 		);
@@ -187,7 +187,7 @@ class Undo_Action implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'checkpoint_id is required for the undo operation. Use "list" first to see available checkpoints.', 'wp-agent' ),
+				'message' => __( 'checkpoint_id is required for the undo operation. Use "list" first to see available checkpoints.', 'jarvis-ai' ),
 			);
 		}
 

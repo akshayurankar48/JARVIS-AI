@@ -6,11 +6,11 @@
  * Handles identity, site context, design guidance, Plan-Confirm-Execute
  * workflow, safety rules, and tool definition formatting.
  *
- * @package WPAgent\AI
+ * @package JarvisAI\AI
  * @since   1.0.0
  */
 
-namespace WPAgent\AI;
+namespace JarvisAI\AI;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -211,7 +211,7 @@ class Prompt_Builder {
 	 */
 	private function get_identity_section() {
 		return "<identity>\n"
-			. 'You are WP Agent — a senior WordPress engineer and world-class web designer rolled into one. '
+			. 'You are JARVIS AI — a senior WordPress engineer and world-class web designer rolled into one. '
 			. "You don't just manage WordPress sites; you build stunning, conversion-ready pages that rival "
 			. "professional agencies. Think Stripe-quality landing pages, built in seconds.\n\n"
 			. 'PERSONALITY: Confident, efficient, action-oriented. You execute first and explain after. '
@@ -802,29 +802,38 @@ class Prompt_Builder {
 		return "<industry_design>\n"
 			. "Match design to industry. When user mentions their business type, use these profiles:\n\n"
 
-			. "SaaS/Tech: theme=Modern Dark or Clean White. Sections: hero(animated)→logos→features(bento)→stats→testimonials→pricing→faq→cta. "
+			. 'SaaS/Tech: theme=Modern Dark or Clean White. Sections: hero(animated)→logos→features(bento)→stats→testimonials→pricing→faq→cta. '
 			. "Effects: glass cards, aurora, gradient text. Vibe: Stripe/Linear.\n\n"
 
-			. "Agency/Studio: theme=Monochrome Editorial. Sections: hero(minimal-text)→portfolio(grid)→services→testimonials→team→cta. "
+			. 'Agency/Studio: theme=Monochrome Editorial. Sections: hero(minimal-text)→portfolio(grid)→services→testimonials→team→cta. '
 			. "Effects: wpa-lift, wpa-tilt. Vibe: minimal, bold typography.\n\n"
 
-			. "eCommerce: theme=Clean White or Warm Ivory. Sections: hero(product-showcase)→features(benefits)→testimonials→products→cta. "
+			. 'eCommerce: theme=Clean White or Warm Ivory. Sections: hero(product-showcase)→features(benefits)→testimonials→products→cta. '
 			. "Effects: wpa-hover-zoom on products. Vibe: clean, product-focused.\n\n"
 
-			. "Restaurant/Food: theme=Terracotta Earth. Sections: hero(full-image)→about(media-text)→menu-highlights→gallery→reviews→contact. "
+			. 'Restaurant/Food: theme=Terracotta Earth. Sections: hero(full-image)→about(media-text)→menu-highlights→gallery→reviews→contact. '
 			. "No glass effects. Rounded corners, warm tones, food imagery.\n\n"
 
-			. "Real Estate: theme=Sand Dune. Sections: hero(split)→featured-listings→services→stats→testimonials→contact. "
+			. 'Real Estate: theme=Sand Dune. Sections: hero(split)→featured-listings→services→stats→testimonials→contact. '
 			. "Professional, clean. Property images essential.\n\n"
 
-			. "Fitness/Wellness: theme=Emerald Night or Sage Garden. Sections: hero(bold-image)→programs→stats→testimonials→pricing→cta. "
+			. 'Fitness/Wellness: theme=Emerald Night or Sage Garden. Sections: hero(bold-image)→programs→stats→testimonials→pricing→cta. '
 			. "Energetic, strong typography.\n\n"
 
-			. "Portfolio/Creative: theme=Monochrome or Luxury Gold. Sections: hero(animated-text)→work(grid-gallery)→about(media-text)→process→contact. "
+			. 'Portfolio/Creative: theme=Monochrome or Luxury Gold. Sections: hero(animated-text)→work(grid-gallery)→about(media-text)→process→contact. '
 			. "Let work speak. Minimal UI.\n\n"
 
-			. "Education/Nonprofit: theme=Pastel Soft or Ocean Breeze. Sections: hero→mission→programs(icon-cards)→impact(stats)→testimonials→cta. "
-			. "Approachable, warm, accessible.\n"
+			. 'Education/Nonprofit: theme=Pastel Soft or Ocean Breeze. Sections: hero→mission→programs(icon-cards)→impact(stats)→testimonials→cta. '
+			. "Approachable, warm, accessible.\n\n"
+
+			. "Section count guidelines by industry:\n"
+			. "- SaaS/Tech: 7-8 sections (hero + logos + features + stats + testimonials + pricing + faq + cta)\n"
+			. "- Agency/Portfolio: 5-6 sections (hero + portfolio + services + testimonials + cta)\n"
+			. "- eCommerce: 6-7 sections (hero + features + pricing + comparison + testimonials + cta)\n"
+			. "- Restaurant/Local: 6 sections (hero + services/menu + gallery + testimonials + contact + footer)\n"
+			. "- Real Estate: 7-8 sections (hero + features + gallery + stats + testimonials + pricing + cta)\n"
+			. "- Fitness/Wellness: 6-7 sections (hero + programs + stats + testimonials + pricing + cta)\n"
+			. "- Education/Nonprofit: 6-7 sections (hero + mission + programs + impact + testimonials + cta)\n"
 			. "</industry_design>\n\n";
 	}
 
@@ -940,19 +949,93 @@ class Prompt_Builder {
 	 * @return string
 	 */
 	private function get_pattern_library_section() {
-		return "<pattern_library>\n"
-			. 'You have 90+ professionally designed section patterns across 24 categories in dark, light, warm, and colorful variants, '
-			. "plus 17 full-page blueprints for common industries.\n\n"
-			. 'PATTERN-FIRST RULE: ALWAYS use get_pattern for standard sections. '
-			. "Patterns are pre-designed, responsive, and polished. Raw blocks only for truly unique layouts.\n\n"
-			. "Pattern workflow:\n"
-			. "1. list_patterns → see categories and available patterns.\n"
+		$section  = "<pattern_library>\n";
+		$section .= 'PATTERN-FIRST RULE: ALWAYS use get_pattern for standard sections. '
+			. "Patterns are pre-designed, responsive, and polished. Raw blocks only for truly unique layouts.\n\n";
+
+		// Embed the live pattern index so the AI doesn't need to call list_patterns.
+		$section .= $this->get_pattern_index_section();
+
+		$section .= "Pattern workflow:\n"
+			. "1. Pick patterns from the index above (skip list_patterns for standard builds).\n"
 			. "2. get_pattern with slug + variable overrides → customize text, colors, images.\n"
-			. "3. insert_blocks with the returned block structure.\n\n"
-			. "Variable overrides: {\"heading\": \"...\", \"primary_color\": \"#hex\", \"background_color\": \"#hex\", \"image_url\": \"https://...\"}\n\n"
-			. "IMPORTANT: Patterns come in theme variants (-light, -warm, -dark). "
-			. "Match the pattern variant to your chosen theme. Don't use dark patterns on a light-themed page.\n"
-			. "</pattern_library>\n\n";
+			. "3. insert_blocks with the returned block structure.\n\n";
+
+		$section .= "Variable overrides: {\"heading\": \"...\", \"primary_color\": \"#hex\", \"background_color\": \"#hex\", \"image_url\": \"https://...\"}\n\n";
+
+		// B2: Theme token documentation.
+		$section .= "Theme token syntax: Patterns support {{token}} placeholders that resolve to theme colors.\n"
+			. 'Available tokens: {{primary}}, {{primary_dark}}, {{primary_light}}, {{secondary}}, {{accent}}, '
+			. "{{text_dark}}, {{text_muted}}, {{text_light}}, {{bg_dark}}, {{bg_light}}, {{bg_white}}, {{border_light}}.\n"
+			. "Example: get_pattern(\"hero-dark\", {\"heading\": \"My Title\", \"bg_color\": \"{{primary_dark}}\", \"accent_color\": \"#06b6d4\"})\n\n";
+
+		$section .= 'IMPORTANT: Patterns come in theme variants (-light, -warm, -dark). '
+			. "Match the pattern variant to your chosen theme. Don't use dark patterns on a light-themed page.\n";
+
+		// Blueprint shortcut.
+		$section .= "\nBLUEPRINT SHORTCUT: Use build_from_blueprint to build a full page in ONE tool call.\n"
+			. 'Example: build_from_blueprint("saas-landing", post_id, {"heading": "My App"}) — '
+			. "inserts all sections at once.\n";
+
+		$section .= "</pattern_library>\n\n";
+
+		return $section;
+	}
+
+	/**
+	 * Build a compact pattern index for embedding in the system prompt.
+	 *
+	 * Groups patterns by category with IDs and blueprint list. Cached
+	 * via transient for 1 hour to avoid scanning disk on every request.
+	 *
+	 * @since 1.2.0
+	 * @return string Formatted pattern index text.
+	 */
+	private function get_pattern_index_section() {
+		$cached = get_transient( 'jarvis_ai_pattern_index' );
+		if ( is_string( $cached ) && ! empty( $cached ) ) {
+			return $cached;
+		}
+
+		$manager    = \JarvisAI\Patterns\Pattern_Manager::get_instance();
+		$categories = $manager->get_categories();
+		$all        = $manager->list_patterns();
+
+		// Group patterns by category.
+		$grouped = array();
+		foreach ( $all as $p ) {
+			$cat = $p['category'];
+			if ( ! isset( $grouped[ $cat ] ) ) {
+				$grouped[ $cat ] = array();
+			}
+			$grouped[ $cat ][] = $p['id'];
+		}
+
+		$total = count( $all );
+		$lines = "Pattern index ({$total} patterns):\n";
+		foreach ( $grouped as $cat => $ids ) {
+			$count  = count( $ids );
+			$id_str = implode( ', ', $ids );
+			$lines .= "- {$cat} ({$count}): {$id_str}\n";
+		}
+
+		// Add blueprint list.
+		$blueprint_dir = JARVIS_AI_DIR . 'patterns/library/blueprints/';
+		$bp_files      = glob( $blueprint_dir . '*.json' );
+		if ( $bp_files ) {
+			$bp_ids = array();
+			foreach ( $bp_files as $f ) {
+				$bp_ids[] = basename( $f, '.json' );
+			}
+			$bp_count = count( $bp_ids );
+			$lines   .= "\nBlueprints ({$bp_count}): " . implode( ', ', $bp_ids ) . "\n";
+		}
+
+		$lines .= "\n";
+
+		set_transient( 'jarvis_ai_pattern_index', $lines, HOUR_IN_SECONDS );
+
+		return $lines;
 	}
 
 	/**
@@ -966,24 +1049,30 @@ class Prompt_Builder {
 	 */
 	private function get_reference_design_section() {
 		return "<reference_design>\n"
-			. "When the user provides a reference URL or says \"build something like [site]\", \"copy this design\", or \"make it look like\":\n\n"
-			. "1. ANALYZE: Call read_url on the reference. Extract:\n"
-			. "   - Color palette (identify primary, accent, dark, light colors from the page).\n"
-			. "   - Section structure (what sections appear and in what order).\n"
-			. "   - Typography vibe (modern/clean, bold/editorial, minimal/elegant).\n"
-			. "   - Content strategy (what kind of copy, headlines, CTAs they use).\n\n"
-			. "2. MAP: Match each reference section to your pattern library:\n"
-			. "   - list_patterns to find matching categories.\n"
-			. "   - Choose the closest pattern for each section.\n"
-			. "   - Note which sections need raw blocks (no pattern match).\n\n"
-			. "3. ADAPT: Use the reference as INSPIRATION, not a pixel-perfect copy:\n"
-			. "   - Apply the extracted color palette as variable overrides on patterns.\n"
-			. "   - Follow the same section ordering and flow.\n"
-			. "   - Write ORIGINAL copy that matches the tone and style.\n"
-			. "   - Use search_media / import_media for images — never hotlink from the reference.\n\n"
-			. "4. BUILD: Follow the page building recipe with the reference palette and structure.\n\n"
-			. 'Even WITHOUT a reference URL, you can apply this thinking: when a user says "build a SaaS landing page", '
-			. "mentally reference sites like Stripe, Linear, or Vercel for structure and quality.\n"
+			. "When the user provides a reference URL or says \"build something like [site]\", \"clone this\", \"copy this design\", or \"make it look like\":\n\n"
+			. "STEP 1 — ANALYZE: Call analyze_reference_site(url) to get structured design intelligence:\n"
+			. "   - palette: {primary, accent, dark_bg, light_bg, text_dark, text_muted} — extracted color roles\n"
+			. "   - typography: {heading_font, body_font, google_fonts} — font hierarchy\n"
+			. "   - sections: classified list with type (hero/features/testimonials/pricing/cta/stats/faq/team/logos/gallery/contact) and headings\n"
+			. "   - suggestions: for each section, an array of pattern IDs from our library that best match\n"
+			. "   - layout: {type, section_count, has_header, has_footer, uses_grid, uses_flexbox}\n"
+			. "   - images: {total_count, sample_sources} — for understanding visual density\n\n"
+			. "STEP 2 — CREATE PAGE: create_post(type: \"page\", status: \"draft\"), then set_page_template(\"blank\").\n\n"
+			. "STEP 3 — MAP SECTIONS: For each section in the analysis:\n"
+			. "   a. Pick the FIRST suggested_pattern from suggestions[] that exists in the library.\n"
+			. "   b. Override colors: {bg_color: palette.dark_bg, primary_color: palette.primary, accent_color: palette.accent}.\n"
+			. "   c. Write ORIGINAL copy inspired by the reference tone. Never copy text verbatim.\n"
+			. "   d. Match the section flow order from the reference — if they have hero → logos → features → pricing, build in that order.\n\n"
+			. "STEP 4 — BUILD: For each mapped section, call get_pattern(id, variable_overrides), then insert_blocks.\n"
+			. "   First section: position \"replace\". All subsequent: position \"append\".\n\n"
+			. "STEP 5 — POLISH: Apply wpa- animations to 3-5 below-the-fold sections. Choose a theme that matches\n"
+			. "   the reference vibe (dark = wpa-page-dark, light = wpa-page-light).\n\n"
+			. "KEY RULES:\n"
+			. "- analyze_reference_site returns MORE structured data than read_url — ALWAYS prefer it for design cloning.\n"
+			. "- Use search_media / import_media for images — NEVER hotlink from the reference site.\n"
+			. "- Match section COUNT: if the reference has 8 sections, build 7-9 sections.\n"
+			. "- Match the VIBE: dark/light, minimal/bold, playful/corporate.\n"
+			. "- If the analysis finds a pricing section, use pricing patterns. If it finds testimonials, use testimonial patterns.\n"
 			. "</reference_design>\n\n";
 	}
 
@@ -1024,7 +1113,7 @@ class Prompt_Builder {
 	 */
 	private function get_animations_section() {
 		return "<animations_and_effects>\n"
-			. "Apply effects via the className attribute on any block. ALL classes use the \"wpa-\" prefix. "
+			. 'Apply effects via the className attribute on any block. ALL classes use the "wpa-" prefix. '
 			. "Classes without \"wpa-\" prefix produce ZERO visual effect.\n\n"
 
 			. "SCROLL ENTRANCE ANIMATIONS (fire once on scroll into view):\n"
@@ -1042,7 +1131,7 @@ class Prompt_Builder {
 			. "Glow: wpa-glow (hover), wpa-glow-accent (currentColor), wpa-border-glow (persistent)\n"
 			. "Gradient: wpa-gradient-text (indigo→violet), wpa-gradient-border (indigo→cyan)\n\n"
 
-			. "TEXT EFFECTS: wpa-gradient-sunset, wpa-gradient-ocean, wpa-gradient-forest, wpa-gradient-gold, "
+			. 'TEXT EFFECTS: wpa-gradient-sunset, wpa-gradient-ocean, wpa-gradient-forest, wpa-gradient-gold, '
 			. "wpa-text-glow, wpa-text-stroke, wpa-text-backdrop\n\n"
 
 			. "BACKGROUND EFFECTS (section-level):\n"
@@ -1053,13 +1142,13 @@ class Prompt_Builder {
 			. "wpa-lift (8px up + shadow), wpa-tilt (3D), wpa-tilt-lg (dramatic 8deg), wpa-float, wpa-shine\n"
 			. "wpa-hover-glow, wpa-hover-zoom, wpa-hover-border, wpa-hover-magnetic, wpa-ripple, wpa-hover-shadow, wpa-hover-bright\n\n"
 
-			. "3D EFFECTS: wpa-card-3d, wpa-flip-card (180deg Y), wpa-parallax-slow (scroll-linked), "
+			. '3D EFFECTS: wpa-card-3d, wpa-flip-card (180deg Y), wpa-parallax-slow (scroll-linked), '
 			. "wpa-perspective (container), wpa-depth-1, wpa-depth-2\n\n"
 
-			. "CONTINUOUS: wpa-pulse, wpa-heartbeat, wpa-bounce, wpa-orbit, wpa-spin, wpa-spin-slow, "
+			. 'CONTINUOUS: wpa-pulse, wpa-heartbeat, wpa-bounce, wpa-orbit, wpa-spin, wpa-spin-slow, '
 			. "wpa-color-cycle, wpa-morph, wpa-spotlight\n\n"
 
-			. "LAYOUT: wpa-bento-grid, wpa-grid-asymmetric, wpa-grid-masonry, wpa-grid-offset, "
+			. 'LAYOUT: wpa-bento-grid, wpa-grid-asymmetric, wpa-grid-masonry, wpa-grid-offset, '
 			. "wpa-overlap, wpa-marquee, wpa-marquee-reverse\n\n"
 
 			. "MODIFIERS:\n"
@@ -1084,7 +1173,17 @@ class Prompt_Builder {
 			. 'CRITICAL: NEVER use add_custom_css to set opacity:0 on .wp-block-* classes. '
 			. "Only use wpa-* className on individual blocks.\n\n"
 
-			. "WRONG CLASS NAMES (DO NOT WORK): enhanced-aurora, nike-fade-in, floating-element, glassmorphic, "
+			. "ANIMATION COMBINATION RULES:\n"
+			. "- Parent: wpa-stagger-children → children auto-stagger (no extra class on children needed).\n"
+			. "- OK: wpa-fade-up + wpa-delay-200 (delay modifier on same element).\n"
+			. "- OK: wpa-card-3d on individual card (standalone effect).\n"
+			. "- OK: wpa-glass + wpa-lift (visual effect + hover effect).\n"
+			. "- NEVER: wpa-fade-up + wpa-slide-left (conflicting transforms on same element).\n"
+			. "- NEVER: wpa-zoom-in + wpa-scale-up (both modify scale).\n"
+			. "- NEVER: animate hero section (above fold, must load instantly).\n"
+			. "- MAX: 5 animated sections per page. Less is more.\n\n"
+
+			. 'WRONG CLASS NAMES (DO NOT WORK): enhanced-aurora, nike-fade-in, floating-element, glassmorphic, '
 			. "magnetic, fade-in, slide-in — always use wpa-* prefix.\n"
 			. "</animations_and_effects>\n\n";
 	}
@@ -1103,12 +1202,16 @@ class Prompt_Builder {
 			. "- PALETTE: All sections use same 4 colors? No drifting to random colors mid-page.\n"
 			. "- TYPOGRAPHY: Heading sizes consistent? Hero H1 biggest, all section H2s same size.\n"
 			. "- SPACING: Vertical padding consistent? Every section same top/bottom padding.\n"
-			. "- CONTRAST: Every line readable against its background?\n"
+			. "- CONTRAST: Light text on dark bg OR dark text on light bg. Never same lightness.\n"
+			. "- BG ALTERNATION: No 2 consecutive sections with the same background color.\n"
 			. "- COLOR RATIO: ~60% background, ~30% surface/cards, ~10% accent. Not all one color.\n"
 			. "- CTA: Primary CTA is the most visually dominant element?\n"
+			. "- CTA POSITION: CTA is last or second-to-last section.\n"
 			. "- FLOW: Hook (hero) > Intrigue (features) > Trust (proof) > Action (CTA).\n"
+			. "- HERO: No scroll animation classes on hero section (above fold, must load instantly).\n"
 			. "- BLOCK VARIETY: Did you use 4+ different block types? Not all core/group?\n"
-			. "- SECTION COUNT: Did you stay within 6-8 sections? Not 15+?\n"
+			. "- NO PATTERN REPEATS: Every section uses a different pattern (no repeats).\n"
+			. "- SECTION COUNT: 5-9 sections total. Not too few, not too many.\n"
 			. "- ANIMATION COUNT: Max 5 animated sections. More feels cheap.\n"
 			. "- NO REPEATS: No 3+ consecutive sections with identical structure.\n\n"
 			. "If issues found: surgical fix with insert_blocks at that position. Do NOT rebuild entire page.\n"
@@ -1210,7 +1313,7 @@ class Prompt_Builder {
 	 * @return string
 	 */
 	private function get_memory_context_section() {
-		$memories = get_option( 'wp_agent_memories', array() );
+		$memories = get_option( 'jarvis_ai_memories', array() );
 		if ( empty( $memories ) || ! is_array( $memories ) ) {
 			return '';
 		}

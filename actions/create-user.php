@@ -6,11 +6,11 @@
  * Validates username and email uniqueness, and restricts role assignment
  * based on the current user's capabilities.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -119,7 +119,7 @@ class Create_User implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Invalid username. Username must contain valid characters.', 'wp-agent' ),
+				'message' => __( 'Invalid username. Username must contain valid characters.', 'jarvis-ai' ),
 			);
 		}
 
@@ -128,7 +128,7 @@ class Create_User implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Invalid email address.', 'wp-agent' ),
+				'message' => __( 'Invalid email address.', 'jarvis-ai' ),
 			);
 		}
 
@@ -139,7 +139,7 @@ class Create_User implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: username */
-					__( 'Username "%s" already exists.', 'wp-agent' ),
+					__( 'Username "%s" already exists.', 'jarvis-ai' ),
 					$user_login
 				),
 			);
@@ -152,7 +152,7 @@ class Create_User implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: email address */
-					__( 'Email "%s" is already registered.', 'wp-agent' ),
+					__( 'Email "%s" is already registered.', 'jarvis-ai' ),
 					$user_email
 				),
 			);
@@ -166,7 +166,7 @@ class Create_User implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: role name */
-					__( 'Invalid role "%s".', 'wp-agent' ),
+					__( 'Invalid role "%s".', 'jarvis-ai' ),
 					$role
 				),
 			);
@@ -177,7 +177,7 @@ class Create_User implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'You do not have permission to assign the administrator role.', 'wp-agent' ),
+				'message' => __( 'You do not have permission to assign the administrator role.', 'jarvis-ai' ),
 			);
 		}
 
@@ -210,7 +210,7 @@ class Create_User implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: error message */
-					__( 'Failed to create user: %s', 'wp-agent' ),
+					__( 'Failed to create user: %s', 'jarvis-ai' ),
 					$user_id->get_error_message()
 				),
 			);
@@ -226,7 +226,7 @@ class Create_User implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: username, 2: role */
-				__( 'Created user "%1$s" with the "%2$s" role. A password was auto-generated.', 'wp-agent' ),
+				__( 'Created user "%1$s" with the "%2$s" role. A password was auto-generated.', 'jarvis-ai' ),
 				$user_login,
 				$valid_roles[ $role ]
 			),

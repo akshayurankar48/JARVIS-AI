@@ -349,8 +349,8 @@ export default function DrawerPanel( { onClose, pendingPromptRef } ) {
 
 	const hasMessages = messages.length > 0;
 
-	// Get model name from wpAgentData.
-	const modelName = window.wpAgentData?.defaultModel || '';
+	// Get model name from jarvisAiData.
+	const modelName = window.jarvisAiData?.defaultModel || '';
 	const shortModel = modelName ? modelName.split( '/' ).pop() : '';
 
 	return (
@@ -439,7 +439,7 @@ export default function DrawerPanel( { onClose, pendingPromptRef } ) {
 						<p className={ welcomeSub }>
 							{ hasApiKey
 								? 'Your WordPress AI assistant. Ask me anything about your site.'
-								: 'Configure your API key in WP Agent settings to get started.' }
+								: 'Configure your API key in JARVIS AI settings to get started.' }
 						</p>
 						{ hasApiKey && (
 							<div className={ promptGrid }>

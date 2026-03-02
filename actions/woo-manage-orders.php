@@ -2,11 +2,11 @@
 /**
  * WooCommerce Manage Orders Action.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -121,7 +121,7 @@ class Woo_Manage_Orders implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation.', 'wp-agent' ),
+					'message' => __( 'Invalid operation.', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -170,7 +170,7 @@ class Woo_Manage_Orders implements Action_Interface {
 				'orders' => $list,
 				'page'   => $page,
 			),
-			'message' => sprintf( __( '%d order(s) found.', 'wp-agent' ), count( $list ) ),
+			'message' => sprintf( __( '%d order(s) found.', 'jarvis-ai' ), count( $list ) ),
 		);
 	}
 
@@ -188,7 +188,7 @@ class Woo_Manage_Orders implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'order_id is required.', 'wp-agent' ),
+				'message' => __( 'order_id is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -197,7 +197,7 @@ class Woo_Manage_Orders implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Order not found.', 'wp-agent' ),
+				'message' => __( 'Order not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -224,7 +224,7 @@ class Woo_Manage_Orders implements Action_Interface {
 				'items'           => $items,
 				'date_created'    => $order->get_date_created() ? $order->get_date_created()->date( 'Y-m-d H:i:s' ) : '',
 			),
-			'message' => sprintf( __( 'Order #%d details.', 'wp-agent' ), $order_id ),
+			'message' => sprintf( __( 'Order #%d details.', 'jarvis-ai' ), $order_id ),
 		);
 	}
 
@@ -244,7 +244,7 @@ class Woo_Manage_Orders implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'order_id and status are required.', 'wp-agent' ),
+				'message' => __( 'order_id and status are required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -253,12 +253,12 @@ class Woo_Manage_Orders implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Order not found.', 'wp-agent' ),
+				'message' => __( 'Order not found.', 'jarvis-ai' ),
 			);
 		}
 
 		$old_status = $order->get_status();
-		$order->update_status( $status, __( 'Status updated via WP Agent.', 'wp-agent' ) );
+		$order->update_status( $status, __( 'Status updated via JARVIS AI.', 'jarvis-ai' ) );
 
 		return array(
 			'success' => true,
@@ -267,7 +267,7 @@ class Woo_Manage_Orders implements Action_Interface {
 				'old_status' => $old_status,
 				'new_status' => $status,
 			),
-			'message' => sprintf( __( 'Order #%1$d status: %2$s -> %3$s.', 'wp-agent' ), $order_id, $old_status, $status ),
+			'message' => sprintf( __( 'Order #%1$d status: %2$s -> %3$s.', 'jarvis-ai' ), $order_id, $old_status, $status ),
 		);
 	}
 
@@ -287,7 +287,7 @@ class Woo_Manage_Orders implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'order_id and note are required.', 'wp-agent' ),
+				'message' => __( 'order_id and note are required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -296,7 +296,7 @@ class Woo_Manage_Orders implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Order not found.', 'wp-agent' ),
+				'message' => __( 'Order not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -308,7 +308,7 @@ class Woo_Manage_Orders implements Action_Interface {
 				'order_id' => $order_id,
 				'note_id'  => $note_id,
 			),
-			'message' => sprintf( __( 'Note added to order #%d.', 'wp-agent' ), $order_id ),
+			'message' => sprintf( __( 'Note added to order #%d.', 'jarvis-ai' ), $order_id ),
 		);
 	}
 

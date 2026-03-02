@@ -5,11 +5,11 @@
  * Permanently deletes a WordPress plugin from the filesystem.
  * Auto-deactivates the plugin if it is currently active.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -40,7 +40,7 @@ class Delete_Plugin implements Action_Interface {
 		return 'Permanently delete a WordPress plugin from the filesystem. '
 			. 'If the plugin is active, it will be deactivated first. '
 			. 'Pass the plugin file path (e.g. "akismet/akismet.php"). '
-			. 'Cannot delete WP Agent itself.';
+			. 'Cannot delete JARVIS AI itself.';
 	}
 
 	/**
@@ -98,16 +98,16 @@ class Delete_Plugin implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Invalid plugin file path.', 'wp-agent' ),
+				'message' => __( 'Invalid plugin file path.', 'jarvis-ai' ),
 			);
 		}
 
 		// Self-deletion guard.
-		if ( defined( 'WP_AGENT_BASE' ) && WP_AGENT_BASE === $plugin ) {
+		if ( defined( 'JARVIS_AI_BASE' ) && JARVIS_AI_BASE === $plugin ) {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Cannot delete WP Agent through its own action system.', 'wp-agent' ),
+				'message' => __( 'Cannot delete JARVIS AI through its own action system.', 'jarvis-ai' ),
 			);
 		}
 
@@ -122,7 +122,7 @@ class Delete_Plugin implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: plugin file */
-					__( 'Plugin "%s" is not installed.', 'wp-agent' ),
+					__( 'Plugin "%s" is not installed.', 'jarvis-ai' ),
 					$plugin
 				),
 			);
@@ -152,7 +152,7 @@ class Delete_Plugin implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: plugin name */
-					__( 'Failed to delete "%s". Check filesystem permissions.', 'wp-agent' ),
+					__( 'Failed to delete "%s". Check filesystem permissions.', 'jarvis-ai' ),
 					$plugin_name
 				),
 			);
@@ -166,7 +166,7 @@ class Delete_Plugin implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %s: plugin name */
-				__( 'Deleted plugin "%s" permanently.', 'wp-agent' ),
+				__( 'Deleted plugin "%s" permanently.', 'jarvis-ai' ),
 				$plugin_name
 			),
 		);

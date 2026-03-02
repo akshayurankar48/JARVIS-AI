@@ -5,11 +5,11 @@
  * Contract for all AI-executable actions. Each action the AI can call
  * must implement this interface to be registered in the Action_Registry.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 

@@ -5,11 +5,11 @@
  * Sets the featured image (post thumbnail) for a post or page
  * using an existing media library attachment.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -101,7 +101,7 @@ class Set_Featured_Image implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Both post_id and attachment_id are required.', 'wp-agent' ),
+				'message' => __( 'Both post_id and attachment_id are required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -112,7 +112,7 @@ class Set_Featured_Image implements Action_Interface {
 				'success' => false,
 				'data'    => null,
 				/* translators: %d: post ID */
-				'message' => sprintf( __( 'Post #%d not found.', 'wp-agent' ), $post_id ),
+				'message' => sprintf( __( 'Post #%d not found.', 'jarvis-ai' ), $post_id ),
 			);
 		}
 
@@ -120,7 +120,7 @@ class Set_Featured_Image implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'You do not have permission to edit this post.', 'wp-agent' ),
+				'message' => __( 'You do not have permission to edit this post.', 'jarvis-ai' ),
 			);
 		}
 
@@ -131,7 +131,7 @@ class Set_Featured_Image implements Action_Interface {
 				'success' => false,
 				'data'    => null,
 				/* translators: %d: attachment ID */
-				'message' => sprintf( __( 'Attachment #%d not found.', 'wp-agent' ), $attachment_id ),
+				'message' => sprintf( __( 'Attachment #%d not found.', 'jarvis-ai' ), $attachment_id ),
 			);
 		}
 
@@ -139,7 +139,7 @@ class Set_Featured_Image implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'The attachment is not an image.', 'wp-agent' ),
+				'message' => __( 'The attachment is not an image.', 'jarvis-ai' ),
 			);
 		}
 
@@ -150,7 +150,7 @@ class Set_Featured_Image implements Action_Interface {
 				'data'    => null,
 				/* translators: %s: post type name */
 				'message' => sprintf(
-					__( 'Post type "%s" does not support featured images.', 'wp-agent' ),
+					__( 'Post type "%s" does not support featured images.', 'jarvis-ai' ),
 					$post->post_type
 				),
 			);
@@ -162,7 +162,7 @@ class Set_Featured_Image implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Failed to set featured image.', 'wp-agent' ),
+				'message' => __( 'Failed to set featured image.', 'jarvis-ai' ),
 			);
 		}
 
@@ -177,7 +177,7 @@ class Set_Featured_Image implements Action_Interface {
 			),
 			/* translators: 1: post title, 2: post ID */
 			'message' => sprintf(
-				__( 'Featured image set for "%1$s" (Post #%2$d).', 'wp-agent' ),
+				__( 'Featured image set for "%1$s" (Post #%2$d).', 'jarvis-ai' ),
 				sanitize_text_field( $post->post_title ),
 				$post_id
 			),

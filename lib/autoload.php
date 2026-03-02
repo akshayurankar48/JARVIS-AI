@@ -6,7 +6,7 @@
  * only when the core WordPress equivalents are NOT already active.
  * Forward-compatible with WP 7.0 — when core ships the SDK, we defer to it.
  *
- * @package WPAgent
+ * @package JarvisAI
  * @since 1.0.0
  */
 
@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * @param string $prefix    Namespace prefix (with trailing backslash).
  * @param string $base_dir  Base directory (with trailing slash).
  */
-function wp_agent_register_psr4_autoloader( string $prefix, string $base_dir ): void {
+function jarvis_ai_register_psr4_autoloader( string $prefix, string $base_dir ): void {
 	spl_autoload_register(
 		static function ( string $class ) use ( $prefix, $base_dir ): void {
 			$len = strlen( $prefix );
@@ -45,7 +45,7 @@ $lib_dir = __DIR__ . '/';
 // 1. PHP AI Client SDK — only if WordPress core hasn't loaded it.
 // ---------------------------------------------------------------------------
 if ( ! class_exists( 'WordPress\\AiClient\\AiClient' ) ) {
-	wp_agent_register_psr4_autoloader(
+	jarvis_ai_register_psr4_autoloader(
 		'WordPress\\AiClient\\',
 		$lib_dir . 'php-ai-client/src/'
 	);
@@ -61,21 +61,21 @@ if ( ! class_exists( 'WordPress\\AiClient\\AiClient' ) ) {
 // 2. Provider packages — only if not already registered by standalone plugins.
 // ---------------------------------------------------------------------------
 if ( ! class_exists( 'WordPress\\AnthropicAiProvider\\Provider\\AnthropicProvider' ) ) {
-	wp_agent_register_psr4_autoloader(
+	jarvis_ai_register_psr4_autoloader(
 		'WordPress\\AnthropicAiProvider\\',
 		$lib_dir . 'providers/anthropic/src/'
 	);
 }
 
 if ( ! class_exists( 'WordPress\\OpenAiAiProvider\\Provider\\OpenAiProvider' ) ) {
-	wp_agent_register_psr4_autoloader(
+	jarvis_ai_register_psr4_autoloader(
 		'WordPress\\OpenAiAiProvider\\',
 		$lib_dir . 'providers/openai/src/'
 	);
 }
 
 if ( ! class_exists( 'WordPress\\GoogleAiProvider\\Provider\\GoogleProvider' ) ) {
-	wp_agent_register_psr4_autoloader(
+	jarvis_ai_register_psr4_autoloader(
 		'WordPress\\GoogleAiProvider\\',
 		$lib_dir . 'providers/google/src/'
 	);
@@ -89,7 +89,7 @@ if ( ! class_exists( 'WordPress\\AiClient\\ProviderImplementations\\Anthropic\\A
 	// if the SDK was loaded from core without the implementation directory.
 	$sdk_implementations = $lib_dir . 'php-ai-client/src/ProviderImplementations/';
 	if ( is_dir( $sdk_implementations ) ) {
-		wp_agent_register_psr4_autoloader(
+		jarvis_ai_register_psr4_autoloader(
 			'WordPress\\AiClient\\ProviderImplementations\\',
 			$sdk_implementations
 		);
@@ -100,7 +100,7 @@ if ( ! class_exists( 'WordPress\\AiClient\\ProviderImplementations\\Anthropic\\A
 // 4. MCP Adapter — only if WP core MCP Adapter is NOT active.
 // ---------------------------------------------------------------------------
 if ( ! class_exists( 'WP\\MCP\\Core\\McpAdapter' ) ) {
-	wp_agent_register_psr4_autoloader(
+	jarvis_ai_register_psr4_autoloader(
 		'WP\\MCP\\',
 		$lib_dir . 'mcp-adapter/includes/'
 	);

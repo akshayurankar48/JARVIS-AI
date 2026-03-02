@@ -5,11 +5,11 @@
  * Updates the WordPress permalink structure and flushes rewrite rules.
  * Validates that the structure contains at least one rewrite tag.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -120,7 +120,7 @@ class Manage_Permalinks implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Permalink structure must contain at least one rewrite tag (e.g. %postname%, %post_id%).', 'wp-agent' ),
+					'message' => __( 'Permalink structure must contain at least one rewrite tag (e.g. %postname%, %post_id%).', 'jarvis-ai' ),
 				);
 			}
 		}
@@ -138,7 +138,7 @@ class Manage_Permalinks implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: old permalink structure, 2: new permalink structure */
-				__( 'Permalink structure updated from "%1$s" to "%2$s". Rewrite rules flushed.', 'wp-agent' ),
+				__( 'Permalink structure updated from "%1$s" to "%2$s". Rewrite rules flushed.', 'jarvis-ai' ),
 				$old_structure,
 				$structure
 			),

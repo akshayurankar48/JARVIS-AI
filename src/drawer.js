@@ -14,7 +14,7 @@ import './store';
 
 domReady( () => {
 	const root = document.createElement( 'div' );
-	root.id = 'wp-agent-drawer-root';
+	root.id = 'jarvis-ai-drawer-root';
 	document.body.appendChild( root );
 	createRoot( root ).render( <AdminChatDrawer /> );
 } );

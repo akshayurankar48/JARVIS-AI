@@ -38,27 +38,27 @@ module.exports = function ( grunt ) {
 					'!webpack.config.js',
 					'!phpstan.neon',
 					'!phpstan-baseline.neon',
-					'!WP-AGENT-PRD.md',
-					'!WP-Agent-PR.md',
+					'!JARVIS-AI-PRD.md',
+					'!JARVIS-AI-PR.md',
 				],
-				dest: 'wp-agent/',
+				dest: 'jarvis-ai/',
 			},
 		},
 		compress: {
 			main: {
 				options: {
-					archive: 'wp-agent-<%= pkg.version %>.zip',
+					archive: 'jarvis-ai-<%= pkg.version %>.zip',
 					mode: 'zip',
 				},
 				files: [
 					{
-						src: [ './wp-agent/**' ],
+						src: [ './jarvis-ai/**' ],
 					},
 				],
 			},
 		},
 		clean: {
-			main: [ 'wp-agent' ],
+			main: [ 'jarvis-ai' ],
 			zip: [ '*.zip' ],
 		},
 	} );

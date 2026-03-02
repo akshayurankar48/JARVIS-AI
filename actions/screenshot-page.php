@@ -6,11 +6,11 @@
  * mShots service, saves the result to the media library, and returns the
  * attachment ID and URL so the AI can self-critique and iterate on designs.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -242,7 +242,7 @@ class Screenshot_Page implements Action_Interface {
 					'data'    => null,
 					'message' => sprintf(
 						/* translators: %d: post ID */
-						__( 'Post #%d not found.', 'wp-agent' ),
+						__( 'Post #%d not found.', 'jarvis-ai' ),
 						$post_id
 					),
 				);
@@ -255,7 +255,7 @@ class Screenshot_Page implements Action_Interface {
 					'data'    => null,
 					'message' => sprintf(
 						/* translators: %d: post ID */
-						__( 'Could not resolve permalink for post #%d.', 'wp-agent' ),
+						__( 'Could not resolve permalink for post #%d.', 'jarvis-ai' ),
 						$post_id
 					),
 				);
@@ -272,7 +272,7 @@ class Screenshot_Page implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'The provided URL is not valid.', 'wp-agent' ),
+					'message' => __( 'The provided URL is not valid.', 'jarvis-ai' ),
 				);
 			}
 
@@ -284,7 +284,7 @@ class Screenshot_Page implements Action_Interface {
 					'data'    => null,
 					'message' => sprintf(
 						/* translators: %s: allowed hostname */
-						__( 'Only URLs on this site (%s) can be screenshotted.', 'wp-agent' ),
+						__( 'Only URLs on this site (%s) can be screenshotted.', 'jarvis-ai' ),
 						$site_host
 					),
 				);
@@ -296,7 +296,7 @@ class Screenshot_Page implements Action_Interface {
 		return array(
 			'success' => false,
 			'data'    => null,
-			'message' => __( 'Provide either url or post_id.', 'wp-agent' ),
+			'message' => __( 'Provide either url or post_id.', 'jarvis-ai' ),
 		);
 	}
 
@@ -346,7 +346,7 @@ class Screenshot_Page implements Action_Interface {
 					'mshots_request_failed',
 					sprintf(
 						/* translators: %s: error message */
-						__( 'mShots request failed: %s', 'wp-agent' ),
+						__( 'mShots request failed: %s', 'jarvis-ai' ),
 						$response->get_error_message()
 					)
 				);
@@ -388,12 +388,12 @@ class Screenshot_Page implements Action_Interface {
 			require_once ABSPATH . 'wp-admin/includes/image.php';
 		}
 
-		$tmp_file = wp_tempnam( 'wp-agent-screenshot-' );
+		$tmp_file = wp_tempnam( 'jarvis-ai-screenshot-' );
 		if ( ! $tmp_file ) {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Could not create temporary file.', 'wp-agent' ),
+				'message' => __( 'Could not create temporary file.', 'jarvis-ai' ),
 			);
 		}
 
@@ -408,7 +408,7 @@ class Screenshot_Page implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'The screenshot response is not a valid image.', 'wp-agent' ),
+				'message' => __( 'The screenshot response is not a valid image.', 'jarvis-ai' ),
 			);
 		}
 
@@ -424,7 +424,7 @@ class Screenshot_Page implements Action_Interface {
 			$file_array,
 			0,
 			/* translators: %s: page URL */
-			sprintf( __( 'Screenshot of %s', 'wp-agent' ), esc_url( $url ) )
+			sprintf( __( 'Screenshot of %s', 'jarvis-ai' ), esc_url( $url ) )
 		);
 
 		if ( is_wp_error( $attachment_id ) ) {
@@ -436,7 +436,7 @@ class Screenshot_Page implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: error message */
-					__( 'Failed to save screenshot to media library: %s', 'wp-agent' ),
+					__( 'Failed to save screenshot to media library: %s', 'jarvis-ai' ),
 					$attachment_id->get_error_message()
 				),
 			);
@@ -450,7 +450,7 @@ class Screenshot_Page implements Action_Interface {
 				'page_url'       => $url,
 				'viewport'       => $viewport_width . 'x' . $viewport_height,
 			),
-			'message' => __( 'Screenshot captured and saved to media library.', 'wp-agent' ),
+			'message' => __( 'Screenshot captured and saved to media library.', 'jarvis-ai' ),
 		);
 	}
 }

@@ -6,11 +6,11 @@
  * competitor analysis, or content reference. Includes SSRF protection
  * to block private/local network addresses.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -148,7 +148,7 @@ class Read_Url implements Action_Interface {
 				'redirection'         => 3,
 				'reject_unsafe_urls'  => true,
 				'limit_response_size' => self::MAX_BODY_SIZE,
-				'user-agent'          => 'WP-Agent/1.0 (WordPress)',
+				'user-agent'          => 'JARVIS-AI/1.0 (WordPress)',
 			)
 		);
 
@@ -158,7 +158,7 @@ class Read_Url implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: error message */
-					__( 'Failed to fetch URL: %s', 'wp-agent' ),
+					__( 'Failed to fetch URL: %s', 'jarvis-ai' ),
 					$response->get_error_message()
 				),
 			);
@@ -171,7 +171,7 @@ class Read_Url implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: HTTP status code */
-					__( 'URL returned HTTP %d.', 'wp-agent' ),
+					__( 'URL returned HTTP %d.', 'jarvis-ai' ),
 					$response_code
 				),
 			);
@@ -182,7 +182,7 @@ class Read_Url implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'The URL returned an empty response.', 'wp-agent' ),
+				'message' => __( 'The URL returned an empty response.', 'jarvis-ai' ),
 			);
 		}
 
@@ -201,7 +201,7 @@ class Read_Url implements Action_Interface {
 				),
 				'message' => sprintf(
 					/* translators: 1: URL, 2: character count */
-					__( 'Fetched %1$s (%2$d characters of text content).', 'wp-agent' ),
+					__( 'Fetched %1$s (%2$d characters of text content).', 'jarvis-ai' ),
 					$url,
 					strlen( $text )
 				),
@@ -216,7 +216,7 @@ class Read_Url implements Action_Interface {
 			'data'    => $data,
 			'message' => sprintf(
 				/* translators: %s: URL */
-				__( 'Successfully extracted content from %s.', 'wp-agent' ),
+				__( 'Successfully extracted content from %s.', 'jarvis-ai' ),
 				$url
 			),
 		);
@@ -415,30 +415,30 @@ class Read_Url implements Action_Interface {
 	 */
 	private function validate_url( $url ) {
 		if ( empty( $url ) ) {
-			return new \WP_Error( 'missing_url', __( 'URL is required.', 'wp-agent' ) );
+			return new \WP_Error( 'missing_url', __( 'URL is required.', 'jarvis-ai' ) );
 		}
 
 		$url = esc_url_raw( trim( $url ) );
 
 		if ( empty( $url ) ) {
-			return new \WP_Error( 'invalid_url', __( 'The provided URL is not valid.', 'wp-agent' ) );
+			return new \WP_Error( 'invalid_url', __( 'The provided URL is not valid.', 'jarvis-ai' ) );
 		}
 
 		// Validate scheme.
 		$scheme = wp_parse_url( $url, PHP_URL_SCHEME );
 		if ( ! in_array( $scheme, self::ALLOWED_SCHEMES, true ) ) {
-			return new \WP_Error( 'invalid_scheme', __( 'Only http and https URLs are allowed.', 'wp-agent' ) );
+			return new \WP_Error( 'invalid_scheme', __( 'Only http and https URLs are allowed.', 'jarvis-ai' ) );
 		}
 
 		// Block localhost and private IPs (SSRF protection).
 		$host = wp_parse_url( $url, PHP_URL_HOST );
 		if ( empty( $host ) ) {
-			return new \WP_Error( 'invalid_host', __( 'The URL must contain a valid hostname.', 'wp-agent' ) );
+			return new \WP_Error( 'invalid_host', __( 'The URL must contain a valid hostname.', 'jarvis-ai' ) );
 		}
 
 		$ip = gethostbyname( $host );
 		if ( $ip && $this->is_private_ip( $ip ) ) {
-			return new \WP_Error( 'blocked_host', __( 'Cannot access private or local network addresses.', 'wp-agent' ) );
+			return new \WP_Error( 'blocked_host', __( 'Cannot access private or local network addresses.', 'jarvis-ai' ) );
 		}
 
 		return $url;

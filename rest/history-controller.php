@@ -5,13 +5,13 @@
  * Provides conversation list and detail endpoints for the current user.
  * All queries are scoped to the authenticated user — no cross-user access.
  *
- * @package WPAgent\REST
+ * @package JarvisAI\REST
  * @since   1.0.0
  */
 
-namespace WPAgent\REST;
+namespace JarvisAI\REST;
 
-use WPAgent\Core\Database;
+use JarvisAI\Core\Database;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -27,7 +27,7 @@ class History_Controller {
 	 *
 	 * @var string
 	 */
-	const NAMESPACE = 'wp-agent/v1';
+	const NAMESPACE = 'jarvis-ai/v1';
 
 	/**
 	 * Route base.
@@ -109,7 +109,7 @@ class History_Controller {
 							if ( empty( trim( $value ) ) ) {
 								return new \WP_Error(
 									'empty_title',
-									__( 'Title cannot be empty.', 'wp-agent' ),
+									__( 'Title cannot be empty.', 'jarvis-ai' ),
 									array( 'status' => 400 )
 								);
 							}
@@ -133,7 +133,7 @@ class History_Controller {
 		if ( ! current_user_can( 'edit_posts' ) || ! REST_Permissions::current_user_has_allowed_role() ) {
 			return new \WP_Error(
 				'rest_forbidden',
-				__( 'You do not have permission to view chat history.', 'wp-agent' ),
+				__( 'You do not have permission to view chat history.', 'jarvis-ai' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -142,7 +142,7 @@ class History_Controller {
 	}
 
 	/**
-	 * GET /wp-agent/v1/history
+	 * GET /jarvis-ai/v1/history
 	 *
 	 * Returns a paginated list of the current user's conversations.
 	 *
@@ -217,7 +217,7 @@ class History_Controller {
 	}
 
 	/**
-	 * GET /wp-agent/v1/history/<id>
+	 * GET /jarvis-ai/v1/history/<id>
 	 *
 	 * Returns a single conversation with its messages.
 	 * Verifies the current user owns the conversation.
@@ -251,7 +251,7 @@ class History_Controller {
 		if ( null === $conversation ) {
 			return new \WP_Error(
 				'not_found',
-				__( 'Conversation not found.', 'wp-agent' ),
+				__( 'Conversation not found.', 'jarvis-ai' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -259,7 +259,7 @@ class History_Controller {
 		if ( (int) $conversation['user_id'] !== $user_id ) {
 			return new \WP_Error(
 				'forbidden',
-				__( 'You do not have access to this conversation.', 'wp-agent' ),
+				__( 'You do not have access to this conversation.', 'jarvis-ai' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -311,7 +311,7 @@ class History_Controller {
 	}
 
 	/**
-	 * POST /wp-agent/v1/history/<id>/rename
+	 * POST /jarvis-ai/v1/history/<id>/rename
 	 *
 	 * Renames a conversation. Verifies ownership.
 	 *
@@ -341,7 +341,7 @@ class History_Controller {
 		if ( null === $owner_id ) {
 			return new \WP_Error(
 				'not_found',
-				__( 'Conversation not found.', 'wp-agent' ),
+				__( 'Conversation not found.', 'jarvis-ai' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -349,7 +349,7 @@ class History_Controller {
 		if ( (int) $owner_id !== $user_id ) {
 			return new \WP_Error(
 				'forbidden',
-				__( 'You do not have access to this conversation.', 'wp-agent' ),
+				__( 'You do not have access to this conversation.', 'jarvis-ai' ),
 				array( 'status' => 403 )
 			);
 		}

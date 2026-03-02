@@ -6,11 +6,11 @@
  * overrides and theme token resolution. The returned blocks are
  * ready to be passed directly to insert_blocks.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -102,7 +102,7 @@ class Get_Pattern implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Pattern ID is required.', 'wp-agent' ),
+				'message' => __( 'Pattern ID is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -113,7 +113,7 @@ class Get_Pattern implements Action_Interface {
 			}
 		}
 
-		$manager = \WPAgent\Patterns\Pattern_Manager::get_instance();
+		$manager = \JarvisAI\Patterns\Pattern_Manager::get_instance();
 		$pattern = $manager->get_pattern( $pattern_id, $overrides );
 
 		if ( ! $pattern ) {
@@ -122,7 +122,7 @@ class Get_Pattern implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: pattern ID */
-					__( 'Pattern "%s" not found. Call list_patterns to see available patterns.', 'wp-agent' ),
+					__( 'Pattern "%s" not found. Call list_patterns to see available patterns.', 'jarvis-ai' ),
 					$pattern_id
 				),
 			);
@@ -139,7 +139,7 @@ class Get_Pattern implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: pattern name, 2: block count */
-				__( 'Loaded pattern "%1$s" with %2$d block(s). Pass these blocks to insert_blocks.', 'wp-agent' ),
+				__( 'Loaded pattern "%1$s" with %2$d block(s). Pass these blocks to insert_blocks.', 'jarvis-ai' ),
 				$pattern['name'],
 				count( $pattern['blocks'] )
 			),

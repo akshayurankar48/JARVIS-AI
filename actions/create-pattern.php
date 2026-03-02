@@ -6,11 +6,11 @@
  * (wp_block post type). The saved pattern appears in the
  * WordPress inserter for reuse across pages and posts.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -126,7 +126,7 @@ class Create_Pattern implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Pattern name is required.', 'wp-agent' ),
+				'message' => __( 'Pattern name is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -134,7 +134,7 @@ class Create_Pattern implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Pattern content is required.', 'wp-agent' ),
+				'message' => __( 'Pattern content is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -162,7 +162,7 @@ class Create_Pattern implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: error message */
-					__( 'Failed to create pattern: %s', 'wp-agent' ),
+					__( 'Failed to create pattern: %s', 'jarvis-ai' ),
 					$post_id->get_error_message()
 				),
 			);
@@ -196,7 +196,7 @@ class Create_Pattern implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: pattern name, 2: post ID */
-				__( 'Pattern "%1$s" created successfully (ID: %2$d). It is now available in the block inserter.', 'wp-agent' ),
+				__( 'Pattern "%1$s" created successfully (ID: %2$d). It is now available in the block inserter.', 'jarvis-ai' ),
 				$name,
 				$post_id
 			),

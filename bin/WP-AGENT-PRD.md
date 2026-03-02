@@ -1,4 +1,4 @@
-# WP Agent — Product Requirements Document
+# JARVIS AI — Product Requirements Document
 
 **AI-Powered Autonomous Admin Assistant for WordPress**
 
@@ -33,9 +33,9 @@
 
 ## 1. Executive Summary
 
-**WP Agent** is an AI-powered autonomous admin assistant for WordPress. Users interact with their WordPress site through natural language — "Create a landing page for our Black Friday sale", "Update all plugins and check for conflicts", "Show me which pages have the highest bounce rate and suggest improvements." The AI understands the full site context (content, settings, plugins, theme, users, WooCommerce data) and can execute multi-step admin workflows autonomously.
+**JARVIS AI** is an AI-powered autonomous admin assistant for WordPress. Users interact with their WordPress site through natural language — "Create a landing page for our Black Friday sale", "Update all plugins and check for conflicts", "Show me which pages have the highest bounce rate and suggest improvements." The AI understands the full site context (content, settings, plugins, theme, users, WooCommerce data) and can execute multi-step admin workflows autonomously.
 
-**Thesis**: Every WordPress site owner becomes a power user. WP Agent collapses the expertise gap between a beginner and a seasoned WordPress developer. Instead of navigating 47 admin screens to accomplish a task, users describe what they want in plain English and the agent handles the rest.
+**Thesis**: Every WordPress site owner becomes a power user. JARVIS AI collapses the expertise gap between a beginner and a seasoned WordPress developer. Instead of navigating 47 admin screens to accomplish a task, users describe what they want in plain English and the agent handles the rest.
 
 **Company**: Brainstorm Force (BSF) — makers of Astra (5M+ active installs), Starter Templates, SureCart. 5M+ business reach, proven WordPress distribution.
 
@@ -88,13 +88,13 @@ WordPress powers 43% of the web, but managing a WordPress site is overwhelmingly
 
 ### The Command Bar
 
-WP Agent lives as an always-available floating command bar in the WordPress admin (triggered by `Cmd/Ctrl + K` or a floating button). Users type or speak what they want:
+JARVIS AI lives as an always-available floating command bar in the WordPress admin (triggered by `Cmd/Ctrl + K` or a floating button). Users type or speak what they want:
 
 ```
 User: "Create a new page called 'About Us' with a hero section, team grid,
        and a contact form at the bottom"
 
-WP Agent: I'll create that for you. Here's my plan:
+JARVIS AI: I'll create that for you. Here's my plan:
   1. Create new page "About Us"
   2. Add hero section with placeholder headline and description
   3. Add team grid block (I see you have 4 team members — I'll include them)
@@ -116,7 +116,7 @@ WP Agent: I'll create that for you. Here's my plan:
 
 ## 5. Competitive Landscape
 
-| Product | What It Does | Limitation | WP Agent Advantage |
+| Product | What It Does | Limitation | JARVIS AI Advantage |
 |---------|-------------|------------|-------------------|
 | **Jetpack AI** | Content writing in editor | Editor-only, content-only, $10/mo | Full admin control, not just content |
 | **Jeeves.ai** | AI admin chat ($120/yr) | Early stage, limited action set | Deeper WP integration, BSF distribution |
@@ -125,7 +125,7 @@ WP Agent: I'll create that for you. Here's my plan:
 | **AI Engine** | AI toolkit (chatbots, content) | Toolkit/framework, requires config | Zero-config, just talk to it |
 | **ChatGPT/Claude** | General AI assistants | No WordPress context or actions | Native WP integration, can take action |
 
-**Moat**: WP Agent's differentiation is **action, not just advice**. Other AI tools tell you what to do. WP Agent does it — safely, reversibly, in context.
+**Moat**: JARVIS AI's differentiation is **action, not just advice**. Other AI tools tell you what to do. JARVIS AI does it — safely, reversibly, in context.
 
 ---
 
@@ -207,7 +207,7 @@ Context is compressed to stay within token limits. Cached per-session (transient
 #### 4. Action Registry
 
 - Each "action" is a PHP class implementing `Agent_Action` interface
-- Actions are registered via `wp_agent_register_action` hook (extensible)
+- Actions are registered via `jarvis_ai_register_action` hook (extensible)
 - Each action declares: `name`, `description`, `parameters`, `capabilities_required`, `reversible`
 - The AI sees action descriptions and calls them via function calling
 - Actions validate parameters, execute, and return results
@@ -216,7 +216,7 @@ Context is compressed to stay within token limits. Cached per-session (transient
 
 - Before any state-changing action, a checkpoint is created
 - Checkpoint stores: action name, parameters, pre-state snapshot, timestamp
-- Stored in custom DB table `wp_agent_checkpoints`
+- Stored in custom DB table `jarvis_ai_checkpoints`
 - Users can undo any action from the history panel
 - Checkpoints auto-expire after 30 days
 
@@ -232,7 +232,7 @@ Context is compressed to stay within token limits. Cached per-session (transient
 
 | State | Description |
 |-------|-------------|
-| **Idle** | Input field with placeholder "Ask WP Agent anything..." |
+| **Idle** | Input field with placeholder "Ask JARVIS AI anything..." |
 | **Thinking** | Animated indicator, streaming text response |
 | **Plan** | Numbered action plan with [Execute All] [Modify] [Cancel] |
 | **Executing** | Progress bar per action step, live status updates |
@@ -328,12 +328,12 @@ Context is compressed to stay within token limits. Cached per-session (transient
 
 - **Session memory**: Within a session, the agent remembers context. "Create a page" followed by "Now add a hero section to it" — "it" refers to the just-created page.
 - **Action history**: Last 100 actions stored per user. Users can reference: "Undo that product I created yesterday."
-- **Site knowledge**: The agent builds a knowledge graph of the site over time — popular pages, common tasks, user preferences. Stored in `wp_agent_knowledge` table.
+- **Site knowledge**: The agent builds a knowledge graph of the site over time — popular pages, common tasks, user preferences. Stored in `jarvis_ai_knowledge` table.
 - **No cross-site data**: All data stays local to the WordPress installation. No cloud sync, no telemetry of conversation content.
 
 ### 7.4 Smart Suggestions
 
-When the command bar opens, WP Agent shows contextual suggestions based on:
+When the command bar opens, JARVIS AI shows contextual suggestions based on:
 
 - Current admin page context
 - Recent actions ("Continue where you left off")
@@ -347,7 +347,7 @@ Complex requests are decomposed into numbered steps:
 ```
 User: "Set up a WooCommerce store selling digital ebooks"
 
-WP Agent Plan:
+JARVIS AI Plan:
   1. Verify WooCommerce is installed and active (already active)
   2. Configure WooCommerce for digital products (disable shipping)
   3. Create product category "Ebooks"
@@ -394,7 +394,7 @@ Users never see model names. The plugin just "works." Advanced users can overrid
 
 ### Function Calling
 
-WP Agent uses OpenAI-compatible function calling (supported by all models via OpenRouter). Each registered action is exposed as a tool/function the AI can call:
+JARVIS AI uses OpenAI-compatible function calling (supported by all models via OpenRouter). Each registered action is exposed as a tool/function the AI can call:
 
 ```json
 {
@@ -436,7 +436,7 @@ WP Agent uses OpenAI-compatible function calling (supported by all models via Op
 
 - **Free tier**: 10,000 tokens/day (roughly 20-30 simple commands)
 - **Pro tier**: 500,000 tokens/day (hundreds of commands, including content generation)
-- **Usage dashboard**: Real-time token usage display in WP Admin > WP Agent > Usage
+- **Usage dashboard**: Real-time token usage display in WP Admin > JARVIS AI > Usage
 - **Overage handling**: Graceful degradation — downgrade to cheaper model, then show "daily limit reached" with upgrade CTA
 
 ---
@@ -481,7 +481,7 @@ User Input -> [WordPress REST API] -> Agent Orchestrator
 
 ### Permissions Model
 
-| WordPress Role | WP Agent Access |
+| WordPress Role | JARVIS AI Access |
 |---------------|----------------|
 | Super Admin | Full access — all actions |
 | Administrator | Full access — all actions |
@@ -568,7 +568,7 @@ Admins can customize per-role access in Settings.
 
 **Goal**: Production hardening, onboarding, and public launch.
 
-- Onboarding wizard ("What would you like WP Agent to help with?")
+- Onboarding wizard ("What would you like JARVIS AI to help with?")
 - Usage analytics dashboard (commands/day, tokens used, popular actions)
 - White-label mode for Agency tier
 - Comprehensive error handling and edge case coverage
@@ -584,8 +584,8 @@ Admins can customize per-role access in Settings.
 
 ### Post-Launch (V1.1+)
 
-- **Extensibility API**: `wp_agent_register_action()` hook for third-party plugins to add agent capabilities
-- **Marketplace**: Community-built action packs (e.g., "WP Agent for LearnDash", "WP Agent for MemberPress")
+- **Extensibility API**: `jarvis_ai_register_action()` hook for third-party plugins to add agent capabilities
+- **Marketplace**: Community-built action packs (e.g., "JARVIS AI for LearnDash", "JARVIS AI for MemberPress")
 - **Scheduled agents**: "Every Monday at 9am, generate a weekly content calendar"
 - **Multi-site support**: Manage multiple sites from one command bar
 - **Astra deep integration**: "Change my header layout to sticky transparent"
@@ -606,7 +606,7 @@ Admins can customize per-role access in Settings.
 | **Streaming** | Server-Sent Events via admin-ajax | WP REST doesn't support SSE. Admin-ajax allows progressive flush. |
 | **HTTP (PHP to AI)** | cURL with CURLOPT_WRITEFUNCTION | Required for streaming. wp_remote_post for non-streaming fallback. |
 | **HTTP (JS to PHP)** | @wordpress/api-fetch + fetch() for SSE | WordPress-native for REST, native fetch for SSE streaming. |
-| **Database** | WordPress custom tables | `wp_agent_checkpoints`, `wp_agent_history`, `wp_agent_knowledge` |
+| **Database** | WordPress custom tables | `jarvis_ai_checkpoints`, `jarvis_ai_history`, `jarvis_ai_knowledge` |
 | **Encryption** | AES-256-CBC (openssl) | API key encryption at rest. |
 | **Licensing** | SureCart | BSF's licensing infrastructure. |
 | **Proxy** | Cloudflare Workers or AWS Lambda | Stateless, edge-deployed, sub-10ms overhead. |
@@ -616,8 +616,8 @@ Admins can customize per-role access in Settings.
 ### Directory Structure
 
 ```
-wp-agent/
-|-- wp-agent.php                    # Plugin entry point
+jarvis-ai/
+|-- jarvis-ai.php                    # Plugin entry point
 |-- loader.php                      # PSR-4 autoloader
 |-- composer.json                   # PHP dependencies
 |-- package.json                    # JS dependencies
@@ -765,9 +765,9 @@ wp-agent/
 
 | BSF Product | Integration |
 |-------------|------------|
-| **Astra Theme** (5M+ installs) | Deep customizer integration. "Change header to sticky" works with Astra-specific options. Cross-promote WP Agent in Astra dashboard. |
+| **Astra Theme** (5M+ installs) | Deep customizer integration. "Change header to sticky" works with Astra-specific options. Cross-promote JARVIS AI in Astra dashboard. |
 | **Starter Templates** (1M+ installs) | "Apply the SaaS template" triggers Starter Templates import. Agent can customize template post-import. |
-| **SureCart** | License management for WP Agent Pro. Agent can manage SureCart products/orders if installed. |
+| **SureCart** | License management for JARVIS AI Pro. Agent can manage SureCart products/orders if installed. |
 | **Spectra Blocks** | Agent-aware block creation. "Add a pricing table" uses Spectra block if available. |
 | **Force UI** | Shared component library for consistent admin UI across BSF products. |
 | **Powerful Docs** | Agent can create and manage documentation. "Set up a knowledge base with 5 categories." |
@@ -775,7 +775,7 @@ wp-agent/
 ### Distribution Advantage
 
 - **Built-in audience**: BSF email list (2M+), existing customer base, plugin dashboards
-- **Cross-sell surface**: Every BSF plugin dashboard can show "Try WP Agent" banner
+- **Cross-sell surface**: Every BSF plugin dashboard can show "Try JARVIS AI" banner
 - **Trusted brand**: BSF has an established reputation in the WordPress ecosystem
 - **Support infrastructure**: Existing support team, documentation processes, community
 

@@ -6,11 +6,11 @@
  * variants, tracks impressions and clicks, and declares winners
  * based on performance data.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -26,7 +26,7 @@ class Manage_Ab_Test implements Action_Interface {
 	 *
 	 * @var string
 	 */
-	const OPTION_KEY = 'wp_agent_ab_tests';
+	const OPTION_KEY = 'jarvis_ai_ab_tests';
 
 	/**
 	 * Maximum number of active tests.
@@ -161,7 +161,7 @@ class Manage_Ab_Test implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation.', 'wp-agent' ),
+					'message' => __( 'Invalid operation.', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -182,7 +182,7 @@ class Manage_Ab_Test implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Test name is required.', 'wp-agent' ),
+				'message' => __( 'Test name is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -190,7 +190,7 @@ class Manage_Ab_Test implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'A valid post ID is required.', 'wp-agent' ),
+				'message' => __( 'A valid post ID is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -199,7 +199,7 @@ class Manage_Ab_Test implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'At least 2 variants are required for an A/B test.', 'wp-agent' ),
+				'message' => __( 'At least 2 variants are required for an A/B test.', 'jarvis-ai' ),
 			);
 		}
 
@@ -211,7 +211,7 @@ class Manage_Ab_Test implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: maximum tests */
-					__( 'Maximum of %d tests reached. End existing tests first.', 'wp-agent' ),
+					__( 'Maximum of %d tests reached. End existing tests first.', 'jarvis-ai' ),
 					self::MAX_TESTS
 				),
 			);
@@ -248,7 +248,7 @@ class Manage_Ab_Test implements Action_Interface {
 			'data'    => $test,
 			'message' => sprintf(
 				/* translators: 1: test name, 2: variant count */
-				__( 'A/B test "%1$s" created with %2$d variants.', 'wp-agent' ),
+				__( 'A/B test "%1$s" created with %2$d variants.', 'jarvis-ai' ),
 				$name,
 				count( $sanitized_variants )
 			),
@@ -297,7 +297,7 @@ class Manage_Ab_Test implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: total tests, 2: active tests */
-				__( '%1$d test(s) total, %2$d active.', 'wp-agent' ),
+				__( '%1$d test(s) total, %2$d active.', 'jarvis-ai' ),
 				count( $result ),
 				$active
 			),
@@ -319,7 +319,7 @@ class Manage_Ab_Test implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Test ID is required.', 'wp-agent' ),
+				'message' => __( 'Test ID is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -329,7 +329,7 @@ class Manage_Ab_Test implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Test not found.', 'wp-agent' ),
+				'message' => __( 'Test not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -360,7 +360,7 @@ class Manage_Ab_Test implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %s: test name */
-				__( 'Results for A/B test "%s".', 'wp-agent' ),
+				__( 'Results for A/B test "%s".', 'jarvis-ai' ),
 				$test['name']
 			),
 		);
@@ -381,7 +381,7 @@ class Manage_Ab_Test implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Test ID is required.', 'wp-agent' ),
+				'message' => __( 'Test ID is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -391,7 +391,7 @@ class Manage_Ab_Test implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Test not found.', 'wp-agent' ),
+				'message' => __( 'Test not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -399,7 +399,7 @@ class Manage_Ab_Test implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Test has already ended.', 'wp-agent' ),
+				'message' => __( 'Test has already ended.', 'jarvis-ai' ),
 			);
 		}
 
@@ -415,7 +415,7 @@ class Manage_Ab_Test implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %s: test name */
-				__( 'A/B test "%s" ended.', 'wp-agent' ),
+				__( 'A/B test "%s" ended.', 'jarvis-ai' ),
 				$tests[ $test_id ]['name']
 			),
 		);
@@ -437,7 +437,7 @@ class Manage_Ab_Test implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Test ID and winner ID are required.', 'wp-agent' ),
+				'message' => __( 'Test ID and winner ID are required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -447,7 +447,7 @@ class Manage_Ab_Test implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Test not found.', 'wp-agent' ),
+				'message' => __( 'Test not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -464,7 +464,7 @@ class Manage_Ab_Test implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Winner ID does not match any variant in this test.', 'wp-agent' ),
+				'message' => __( 'Winner ID does not match any variant in this test.', 'jarvis-ai' ),
 			);
 		}
 
@@ -481,7 +481,7 @@ class Manage_Ab_Test implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: winner ID, 2: test name */
-				__( 'Variant "%1$s" declared winner of test "%2$s".', 'wp-agent' ),
+				__( 'Variant "%1$s" declared winner of test "%2$s".', 'jarvis-ai' ),
 				$winner_id,
 				$tests[ $test_id ]['name']
 			),

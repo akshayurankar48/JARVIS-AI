@@ -7,11 +7,11 @@
  * (Yoast, AIOSEO, SEO Framework, Rank Math) or falls back to native
  * post meta with wp_head output.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -159,7 +159,7 @@ class Manage_Seo implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Invalid or missing post ID.', 'wp-agent' ),
+				'message' => __( 'Invalid or missing post ID.', 'jarvis-ai' ),
 			);
 		}
 
@@ -167,7 +167,7 @@ class Manage_Seo implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'You do not have permission to edit this post.', 'wp-agent' ),
+				'message' => __( 'You do not have permission to edit this post.', 'jarvis-ai' ),
 			);
 		}
 
@@ -183,7 +183,7 @@ class Manage_Seo implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'No SEO fields provided to update.', 'wp-agent' ),
+					'message' => __( 'No SEO fields provided to update.', 'jarvis-ai' ),
 				);
 			}
 			return $this->update_seo( $post_id, $fields, $provider );
@@ -192,7 +192,7 @@ class Manage_Seo implements Action_Interface {
 		return array(
 			'success' => false,
 			'data'    => null,
-			'message' => __( 'Invalid operation. Use "get" or "update".', 'wp-agent' ),
+			'message' => __( 'Invalid operation. Use "get" or "update".', 'jarvis-ai' ),
 		);
 	}
 
@@ -245,7 +245,7 @@ class Manage_Seo implements Action_Interface {
 			'data'    => $data,
 			'message' => sprintf(
 				/* translators: 1: post ID, 2: SEO provider */
-				__( 'SEO metadata for post #%1$d (provider: %2$s).', 'wp-agent' ),
+				__( 'SEO metadata for post #%1$d (provider: %2$s).', 'jarvis-ai' ),
 				$post_id,
 				$provider
 			),
@@ -284,7 +284,7 @@ class Manage_Seo implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'No valid SEO fields were updated.', 'wp-agent' ),
+				'message' => __( 'No valid SEO fields were updated.', 'jarvis-ai' ),
 			);
 		}
 
@@ -297,7 +297,7 @@ class Manage_Seo implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: field count, 2: post ID */
-				__( 'Updated %1$d SEO field(s) on post #%2$d.', 'wp-agent' ),
+				__( 'Updated %1$d SEO field(s) on post #%2$d.', 'jarvis-ai' ),
 				count( $updated ),
 				$post_id
 			),
@@ -364,14 +364,14 @@ class Manage_Seo implements Action_Interface {
 
 			default: // native
 				return array(
-					'meta_title'       => '_wp_agent_meta_title',
-					'meta_description' => '_wp_agent_meta_description',
-					'og_title'         => '_wp_agent_og_title',
-					'og_description'   => '_wp_agent_og_description',
-					'og_image'         => '_wp_agent_og_image',
-					'canonical_url'    => '_wp_agent_canonical_url',
-					'robots'           => '_wp_agent_robots',
-					'focus_keyword'    => '_wp_agent_focus_keyword',
+					'meta_title'       => '_jarvis_ai_meta_title',
+					'meta_description' => '_jarvis_ai_meta_description',
+					'og_title'         => '_jarvis_ai_og_title',
+					'og_description'   => '_jarvis_ai_og_description',
+					'og_image'         => '_jarvis_ai_og_image',
+					'canonical_url'    => '_jarvis_ai_canonical_url',
+					'robots'           => '_jarvis_ai_robots',
+					'focus_keyword'    => '_jarvis_ai_focus_keyword',
 				);
 		}
 	}

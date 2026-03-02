@@ -1,5 +1,5 @@
 /**
- * WP Agent A/B Testing Frontend.
+ * JARVIS AI A/B Testing Frontend.
  *
  * Lightweight script (<2KB) for cookie-based variant assignment
  * and click tracking on pages with active A/B tests.
@@ -10,8 +10,8 @@
 ( function() {
 	'use strict';
 
-	const COOKIE_PREFIX = 'wp_agent_ab_';
-	const REST_URL = ( window.wpAgentAB && window.wpAgentAB.restUrl ) || '/wp-json/wp-agent/v1/ab-track';
+	const COOKIE_PREFIX = 'jarvis_ai_ab_';
+	const REST_URL = ( window.wpAgentAB && window.wpAgentAB.restUrl ) || '/wp-json/jarvis-ai/v1/ab-track';
 	const TESTS = ( window.wpAgentAB && window.wpAgentAB.tests ) || [];
 
 	if ( ! TESTS.length ) {

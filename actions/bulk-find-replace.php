@@ -5,11 +5,11 @@
  * Searches and replaces text across post content, titles, excerpts, and meta.
  * Includes a preview (dry run) mode and a 500-post safety limit.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -116,7 +116,7 @@ class Bulk_Find_Replace implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'find text is required.', 'wp-agent' ),
+				'message' => __( 'find text is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -124,7 +124,7 @@ class Bulk_Find_Replace implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'find and replace texts are identical.', 'wp-agent' ),
+				'message' => __( 'find and replace texts are identical.', 'jarvis-ai' ),
 			);
 		}
 
@@ -276,7 +276,7 @@ class Bulk_Find_Replace implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: mode, 2: count, 3: find, 4: replace */
-				__( '%1$s: %2$d post(s) affected. Find: "%3$s" -> Replace: "%4$s".', 'wp-agent' ),
+				__( '%1$s: %2$d post(s) affected. Find: "%3$s" -> Replace: "%4$s".', 'jarvis-ai' ),
 				$mode,
 				count( $affected ),
 				$find,

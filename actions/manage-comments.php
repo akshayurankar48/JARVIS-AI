@@ -6,11 +6,11 @@
  * spam, trash, reply, and bulk operations. Includes email masking
  * in list output for privacy.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -168,7 +168,7 @@ class Manage_Comments implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation.', 'wp-agent' ),
+					'message' => __( 'Invalid operation.', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -237,7 +237,7 @@ class Manage_Comments implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: returned count, 2: pending count */
-				__( '%1$d comment(s) returned. %2$d pending moderation.', 'wp-agent' ),
+				__( '%1$d comment(s) returned. %2$d pending moderation.', 'jarvis-ai' ),
 				count( $results ),
 				(int) $counts->moderated
 			),
@@ -258,7 +258,7 @@ class Manage_Comments implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Comment ID is required.', 'wp-agent' ),
+				'message' => __( 'Comment ID is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -267,7 +267,7 @@ class Manage_Comments implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Comment not found.', 'wp-agent' ),
+				'message' => __( 'Comment not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -283,7 +283,7 @@ class Manage_Comments implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Invalid moderation action.', 'wp-agent' ),
+				'message' => __( 'Invalid moderation action.', 'jarvis-ai' ),
 			);
 		}
 
@@ -295,7 +295,7 @@ class Manage_Comments implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: action */
-					__( 'Failed to %s comment.', 'wp-agent' ),
+					__( 'Failed to %s comment.', 'jarvis-ai' ),
 					$action
 				),
 			);
@@ -309,7 +309,7 @@ class Manage_Comments implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: action (past tense), 2: comment ID */
-				__( 'Comment #%2$d %1$s.', 'wp-agent' ),
+				__( 'Comment #%2$d %1$s.', 'jarvis-ai' ),
 				$this->past_tense( $action ),
 				$comment_id
 			),
@@ -330,7 +330,7 @@ class Manage_Comments implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Comment ID is required.', 'wp-agent' ),
+				'message' => __( 'Comment ID is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -338,7 +338,7 @@ class Manage_Comments implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Reply content is required.', 'wp-agent' ),
+				'message' => __( 'Reply content is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -347,7 +347,7 @@ class Manage_Comments implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Parent comment not found.', 'wp-agent' ),
+				'message' => __( 'Parent comment not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -369,7 +369,7 @@ class Manage_Comments implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Failed to post reply.', 'wp-agent' ),
+				'message' => __( 'Failed to post reply.', 'jarvis-ai' ),
 			);
 		}
 
@@ -382,7 +382,7 @@ class Manage_Comments implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: reply ID, 2: parent comment ID */
-				__( 'Reply #%1$d posted to comment #%2$d.', 'wp-agent' ),
+				__( 'Reply #%1$d posted to comment #%2$d.', 'jarvis-ai' ),
 				$reply_id,
 				$comment_id
 			),
@@ -403,7 +403,7 @@ class Manage_Comments implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Comment IDs are required for bulk operations.', 'wp-agent' ),
+				'message' => __( 'Comment IDs are required for bulk operations.', 'jarvis-ai' ),
 			);
 		}
 
@@ -411,7 +411,7 @@ class Manage_Comments implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Invalid bulk action. Use "approve", "unapprove", "spam", or "trash".', 'wp-agent' ),
+				'message' => __( 'Invalid bulk action. Use "approve", "unapprove", "spam", or "trash".', 'jarvis-ai' ),
 			);
 		}
 
@@ -452,7 +452,7 @@ class Manage_Comments implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: success count, 2: total count, 3: action (past tense) */
-				__( '%1$d of %2$d comment(s) %3$s.', 'wp-agent' ),
+				__( '%1$d of %2$d comment(s) %3$s.', 'jarvis-ai' ),
 				$success_count,
 				count( $comment_ids ),
 				$this->past_tense( $action )

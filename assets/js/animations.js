@@ -1,5 +1,5 @@
 /**
- * WP Agent — Scroll Animation Observer.
+ * JARVIS AI — Scroll Animation Observer.
  *
  * Watches elements with wpa- animation classes and adds .wpa-visible
  * when they enter the viewport. Fires once per element.

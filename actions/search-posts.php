@@ -5,11 +5,11 @@
  * Queries WordPress posts and pages by title, type, and status.
  * Returns metadata for the AI to reference existing content.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -175,8 +175,8 @@ class Search_Posts implements Action_Interface {
 
 		if ( empty( $results ) ) {
 			$message = $search
-				? sprintf( __( 'No posts found matching "%s".', 'wp-agent' ), $search )
-				: __( 'No posts found.', 'wp-agent' );
+				? sprintf( __( 'No posts found matching "%s".', 'jarvis-ai' ), $search )
+				: __( 'No posts found.', 'jarvis-ai' );
 
 			return array(
 				'success' => true,
@@ -189,7 +189,7 @@ class Search_Posts implements Action_Interface {
 		}
 
 		$message = sprintf(
-			__( 'Found %d post(s).', 'wp-agent' ),
+			__( 'Found %d post(s).', 'jarvis-ai' ),
 			count( $results )
 		);
 

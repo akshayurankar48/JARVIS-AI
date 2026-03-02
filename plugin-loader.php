@@ -2,11 +2,11 @@
 /**
  * Plugin Loader.
  *
- * @package WPAgent
+ * @package JarvisAI
  * @since 1.0.0
  */
 
-namespace WPAgent;
+namespace JarvisAI;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -60,7 +60,7 @@ class Plugin_Loader {
 			)
 		);
 
-		$file = WP_AGENT_DIR . $filename . '.php';
+		$file = JARVIS_AI_DIR . $filename . '.php';
 
 		// If the file is readable, include it.
 		if ( is_readable( $file ) ) {
@@ -77,24 +77,24 @@ class Plugin_Loader {
 		spl_autoload_register( array( $this, 'autoload' ) );
 
 		// Load bundled libraries (SDK, providers, MCP adapter).
-		require_once WP_AGENT_DIR . 'lib/autoload.php';
+		require_once JARVIS_AI_DIR . 'lib/autoload.php';
 
 		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 		add_action( 'plugins_loaded', array( $this, 'load_admin' ) );
 		add_action( 'plugins_loaded', array( $this, 'load_frontend' ) );
-		add_action( 'admin_init', array( 'WPAgent\Core\Database', 'maybe_upgrade' ) );
+		add_action( 'admin_init', array( 'JarvisAI\Core\Database', 'maybe_upgrade' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
-		add_action( 'wp_agent_register_actions', array( $this, 'register_core_actions' ) );
+		add_action( 'jarvis_ai_register_actions', array( $this, 'register_core_actions' ) );
 
 		// Ecosystem integrations (conditional — only when APIs available).
 		add_action( 'init', array( $this, 'load_integrations' ) );
 
 		// Process URL redirects on frontend.
-		add_action( 'template_redirect', array( 'WPAgent\Actions\Manage_Redirects', 'process_redirects' ) );
+		add_action( 'template_redirect', array( 'JarvisAI\Actions\Manage_Redirects', 'process_redirects' ) );
 
 		// Cleanup export files.
 		add_action(
-			'wp_agent_cleanup_export',
+			'jarvis_ai_cleanup_export',
 			function ( $filepath ) {
 				if ( file_exists( $filepath ) ) {
 					wp_delete_file( $filepath );
@@ -139,6 +139,7 @@ class Plugin_Loader {
 		( new REST\Ab_Tracking_Controller() )->register_routes();
 		( new REST\Schedules_Controller() )->register_routes();
 		( new REST\Stats_Controller() )->register_routes();
+		( new REST\AI_Pulse_Controller() )->register_routes();
 	}
 
 	/**
@@ -146,7 +147,7 @@ class Plugin_Loader {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param \WPAgent\Actions\Action_Registry $registry The action registry.
+	 * @param \JarvisAI\Actions\Action_Registry $registry The action registry.
 	 * @return void
 	 */
 	public function register_core_actions( $registry ) {
@@ -235,6 +236,9 @@ class Plugin_Loader {
 		// Site cloner / reference builder.
 		$registry->register( new Actions\Analyze_Reference_Site() );
 
+		// Blueprint builder (single-action full-page composition).
+		$registry->register( new Actions\Build_From_Blueprint() );
+
 		// Scheduled tasks.
 		$registry->register( new Actions\Manage_Scheduled_Tasks() );
 
@@ -283,7 +287,7 @@ class Plugin_Loader {
 	 *
 	 * @since 1.1.0
 	 *
-	 * @param \WPAgent\Actions\Action_Registry $registry The action registry.
+	 * @param \JarvisAI\Actions\Action_Registry $registry The action registry.
 	 * @return void
 	 */
 	private function register_woo_actions( $registry ) {
@@ -333,22 +337,22 @@ class Plugin_Loader {
 	 * Load Plugin Text Domain.
 	 *
 	 * This will load the translation textdomain depending on the file priorities.
-	 *      1. Global Languages /wp-content/languages/wp-agent/ folder
-	 *      2. Local directory /wp-content/plugins/wp-agent/languages/ folder
+	 *      1. Global Languages /wp-content/languages/jarvis-ai/ folder
+	 *      2. Local directory /wp-content/plugins/jarvis-ai/languages/ folder
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public function load_textdomain() {
 		// Default languages directory.
-		$lang_dir = WP_AGENT_DIR . 'languages/';
+		$lang_dir = JARVIS_AI_DIR . 'languages/';
 
 		/**
 		 * Filters the languages directory path to use for plugin.
 		 *
 		 * @param string $lang_dir The languages directory path.
 		 */
-		$lang_dir = apply_filters( 'wp_agent_languages_directory', $lang_dir );
+		$lang_dir = apply_filters( 'jarvis_ai_languages_directory', $lang_dir );
 
 		// Traditional WordPress plugin locale filter.
 		global $wp_version;
@@ -366,22 +370,22 @@ class Plugin_Loader {
 		 * Uses get_user_locale() in WordPress 4.7 or greater,
 		 * otherwise uses get_locale().
 		 */
-		$locale = apply_filters( 'plugin_locale', $get_locale, 'wp-agent' );
-		$mofile = sprintf( '%1$s-%2$s.mo', 'wp-agent', $locale );
+		$locale = apply_filters( 'plugin_locale', $get_locale, 'jarvis-ai' );
+		$mofile = sprintf( '%1$s-%2$s.mo', 'jarvis-ai', $locale );
 
 		// Setup paths to current locale file.
 		$mofile_global = WP_LANG_DIR . '/plugins/' . $mofile;
 		$mofile_local  = $lang_dir . $mofile;
 
 		if ( file_exists( $mofile_global ) ) {
-			// Look in global /wp-content/languages/wp-agent/ folder.
-			load_textdomain( 'wp-agent', $mofile_global );
+			// Look in global /wp-content/languages/jarvis-ai/ folder.
+			load_textdomain( 'jarvis-ai', $mofile_global );
 		} elseif ( file_exists( $mofile_local ) ) {
-			// Look in local /wp-content/plugins/wp-agent/languages/ folder.
-			load_textdomain( 'wp-agent', $mofile_local );
+			// Look in local /wp-content/plugins/jarvis-ai/languages/ folder.
+			load_textdomain( 'jarvis-ai', $mofile_local );
 		} else {
 			// Load the default language files.
-			load_plugin_textdomain( 'wp-agent', false, $lang_dir );
+			load_plugin_textdomain( 'jarvis-ai', false, $lang_dir );
 		}
 	}
 }

@@ -297,6 +297,25 @@ const InputArea = ( { onSend, onStop, isStreaming, disabled, showChips, editorCo
 		setValue( voiceBufferRef.current );
 	}, [] );
 
+	// Voice input: auto-send when recording stops (silence detected).
+	const handleVoiceEnd = useCallback( () => {
+		const trimmed = ( voiceBufferRef.current || '' ).trim();
+		if ( trimmed && ! isStreaming && ! disabled ) {
+			// Small delay to ensure final transcript is processed.
+			setTimeout( () => {
+				const finalText = ( voiceBufferRef.current || '' ).trim();
+				if ( finalText ) {
+					onSend( finalText );
+					setValue( '' );
+					voiceBufferRef.current = '';
+					if ( textareaRef.current ) {
+						textareaRef.current.style.height = 'auto';
+					}
+				}
+			}, 150 );
+		}
+	}, [ isStreaming, disabled, onSend ] );
+
 	// Auto-resize textarea.
 	useEffect( () => {
 		const el = textareaRef.current;
@@ -350,6 +369,7 @@ const InputArea = ( { onSend, onStop, isStreaming, disabled, showChips, editorCo
 				<VoiceInput
 					onTranscript={ handleVoiceTranscript }
 					onFinalTranscript={ handleVoiceFinal }
+					onRecordingEnd={ handleVoiceEnd }
 					disabled={ disabled || isStreaming }
 				/>
 				{ isStreaming ? (

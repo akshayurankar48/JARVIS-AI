@@ -2,11 +2,11 @@
 /**
  * WooCommerce Manage Coupons Action.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -130,7 +130,7 @@ class Woo_Manage_Coupons implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation.', 'wp-agent' ),
+					'message' => __( 'Invalid operation.', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -149,7 +149,7 @@ class Woo_Manage_Coupons implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Coupon code is required.', 'wp-agent' ),
+				'message' => __( 'Coupon code is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -183,7 +183,7 @@ class Woo_Manage_Coupons implements Action_Interface {
 				'code'      => $code,
 			),
 			/* translators: 1: coupon code, 2: coupon ID */
-			'message' => sprintf( __( 'Coupon "%1$s" created (ID: %2$d).', 'wp-agent' ), $code, $coupon_id ),
+			'message' => sprintf( __( 'Coupon "%1$s" created (ID: %2$d).', 'jarvis-ai' ), $code, $coupon_id ),
 		);
 	}
 
@@ -219,7 +219,7 @@ class Woo_Manage_Coupons implements Action_Interface {
 			'success' => true,
 			'data'    => array( 'coupons' => $list ),
 			/* translators: %d: number of coupons found */
-			'message' => sprintf( __( '%d coupon(s) found.', 'wp-agent' ), count( $list ) ),
+			'message' => sprintf( __( '%d coupon(s) found.', 'jarvis-ai' ), count( $list ) ),
 		);
 	}
 
@@ -237,7 +237,7 @@ class Woo_Manage_Coupons implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'coupon_id is required.', 'wp-agent' ),
+				'message' => __( 'coupon_id is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -246,7 +246,7 @@ class Woo_Manage_Coupons implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Coupon not found.', 'wp-agent' ),
+				'message' => __( 'Coupon not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -269,7 +269,7 @@ class Woo_Manage_Coupons implements Action_Interface {
 			'success' => true,
 			'data'    => array( 'coupon_id' => $coupon_id ),
 			/* translators: %d: coupon ID */
-			'message' => sprintf( __( 'Coupon #%d updated.', 'wp-agent' ), $coupon_id ),
+			'message' => sprintf( __( 'Coupon #%d updated.', 'jarvis-ai' ), $coupon_id ),
 		);
 	}
 
@@ -287,7 +287,7 @@ class Woo_Manage_Coupons implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'coupon_id is required.', 'wp-agent' ),
+				'message' => __( 'coupon_id is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -296,7 +296,7 @@ class Woo_Manage_Coupons implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Coupon not found.', 'wp-agent' ),
+				'message' => __( 'Coupon not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -306,7 +306,7 @@ class Woo_Manage_Coupons implements Action_Interface {
 			'success' => true,
 			'data'    => array( 'coupon_id' => $coupon_id ),
 			/* translators: %d: coupon ID */
-			'message' => sprintf( __( 'Coupon #%d deleted.', 'wp-agent' ), $coupon_id ),
+			'message' => sprintf( __( 'Coupon #%d deleted.', 'jarvis-ai' ), $coupon_id ),
 		);
 	}
 }

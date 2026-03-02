@@ -5,11 +5,11 @@
  * Reads, tails, or clears the WordPress debug.log file.
  * Uses SplFileObject for memory-efficient tail reading on large logs.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -137,7 +137,7 @@ class Read_Debug_Log implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "read", "tail", or "clear".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "read", "tail", or "clear".', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -158,7 +158,7 @@ class Read_Debug_Log implements Action_Interface {
 					'content' => '',
 					'size'    => 0,
 				),
-				'message' => __( 'Debug log file does not exist. WP_DEBUG_LOG may not be enabled.', 'wp-agent' ),
+				'message' => __( 'Debug log file does not exist. WP_DEBUG_LOG may not be enabled.', 'jarvis-ai' ),
 			);
 		}
 
@@ -192,8 +192,8 @@ class Read_Debug_Log implements Action_Interface {
 			'message' => sprintf(
 				/* translators: 1: file size */
 				$truncated
-					? __( 'Debug log (%1$s). Showing last 100KB of content.', 'wp-agent' )
-					: __( 'Debug log (%1$s).', 'wp-agent' ),
+					? __( 'Debug log (%1$s). Showing last 100KB of content.', 'jarvis-ai' )
+					: __( 'Debug log (%1$s).', 'jarvis-ai' ),
 				size_format( $size )
 			),
 		);
@@ -216,7 +216,7 @@ class Read_Debug_Log implements Action_Interface {
 					'content' => '',
 					'lines'   => 0,
 				),
-				'message' => __( 'Debug log file does not exist. WP_DEBUG_LOG may not be enabled.', 'wp-agent' ),
+				'message' => __( 'Debug log file does not exist. WP_DEBUG_LOG may not be enabled.', 'jarvis-ai' ),
 			);
 		}
 
@@ -232,7 +232,7 @@ class Read_Debug_Log implements Action_Interface {
 						'content' => '',
 						'lines'   => 0,
 					),
-					'message' => __( 'Debug log is empty.', 'wp-agent' ),
+					'message' => __( 'Debug log is empty.', 'jarvis-ai' ),
 				);
 			}
 
@@ -252,7 +252,7 @@ class Read_Debug_Log implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: error message */
-					__( 'Failed to read debug log: %s', 'wp-agent' ),
+					__( 'Failed to read debug log: %s', 'jarvis-ai' ),
 					$e->getMessage()
 				),
 			);
@@ -267,7 +267,7 @@ class Read_Debug_Log implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: returned lines, 2: total lines */
-				__( 'Showing last %1$d lines of debug log (%2$d total).', 'wp-agent' ),
+				__( 'Showing last %1$d lines of debug log (%2$d total).', 'jarvis-ai' ),
 				count( $output ),
 				$total_lines
 			),
@@ -287,7 +287,7 @@ class Read_Debug_Log implements Action_Interface {
 			return array(
 				'success' => true,
 				'data'    => null,
-				'message' => __( 'Debug log does not exist. Nothing to clear.', 'wp-agent' ),
+				'message' => __( 'Debug log does not exist. Nothing to clear.', 'jarvis-ai' ),
 			);
 		}
 
@@ -305,7 +305,7 @@ class Read_Debug_Log implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Failed to clear debug log. Check filesystem permissions.', 'wp-agent' ),
+				'message' => __( 'Failed to clear debug log. Check filesystem permissions.', 'jarvis-ai' ),
 			);
 		}
 
@@ -317,7 +317,7 @@ class Read_Debug_Log implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %s: previous file size */
-				__( 'Debug log cleared (%s freed).', 'wp-agent' ),
+				__( 'Debug log cleared (%s freed).', 'jarvis-ai' ),
 				size_format( $old_size )
 			),
 		);

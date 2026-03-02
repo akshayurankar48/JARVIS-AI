@@ -6,11 +6,11 @@
  * recommendations with ratings, install counts, and compatibility
  * information. Mirrors recommend_plugin for themes.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -113,7 +113,7 @@ class Search_Theme implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Search query is required.', 'wp-agent' ),
+				'message' => __( 'Search query is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -149,7 +149,7 @@ class Search_Theme implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: error message */
-					__( 'Theme search failed: %s', 'wp-agent' ),
+					__( 'Theme search failed: %s', 'jarvis-ai' ),
 					$api_result->get_error_message()
 				),
 			);
@@ -187,7 +187,7 @@ class Search_Theme implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: theme count, 2: search query */
-				__( 'Found %1$d theme(s) for "%2$s". Use install_theme with the slug to install.', 'wp-agent' ),
+				__( 'Found %1$d theme(s) for "%2$s". Use install_theme with the slug to install.', 'jarvis-ai' ),
 				count( $results ),
 				$query
 			),

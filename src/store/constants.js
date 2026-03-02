@@ -5,7 +5,7 @@
  * @since 1.0.0
  */
 
-export const STORE_NAME = 'wp-agent/chat';
+export const STORE_NAME = 'jarvis-ai/chat';
 
 export const ACTION_TYPES = {
 	SET_CONVERSATION_ID: 'SET_CONVERSATION_ID',

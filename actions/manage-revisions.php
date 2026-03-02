@@ -5,11 +5,11 @@
  * Lists, restores, and compares post revisions. Restoring a revision
  * creates a new revision so the operation is safely reversible.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -113,7 +113,7 @@ class Manage_Revisions implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: post ID */
-					__( 'Post #%d not found.', 'wp-agent' ),
+					__( 'Post #%d not found.', 'jarvis-ai' ),
 					$post_id
 				),
 			);
@@ -123,7 +123,7 @@ class Manage_Revisions implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'You do not have permission to edit this post.', 'wp-agent' ),
+				'message' => __( 'You do not have permission to edit this post.', 'jarvis-ai' ),
 			);
 		}
 
@@ -144,7 +144,7 @@ class Manage_Revisions implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "list", "restore", or "compare".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "list", "restore", or "compare".', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -169,7 +169,7 @@ class Manage_Revisions implements Action_Interface {
 				),
 				'message' => sprintf(
 					/* translators: %d: post ID */
-					__( 'No revisions found for post #%d.', 'wp-agent' ),
+					__( 'No revisions found for post #%d.', 'jarvis-ai' ),
 					$post_id
 				),
 			);
@@ -194,7 +194,7 @@ class Manage_Revisions implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: post ID */
-				__( 'Found %1$d revision(s) for post #%2$d.', 'wp-agent' ),
+				__( 'Found %1$d revision(s) for post #%2$d.', 'jarvis-ai' ),
 				count( $results ),
 				$post_id
 			),
@@ -215,7 +215,7 @@ class Manage_Revisions implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'revision_id is required for restore operation.', 'wp-agent' ),
+				'message' => __( 'revision_id is required for restore operation.', 'jarvis-ai' ),
 			);
 		}
 
@@ -226,7 +226,7 @@ class Manage_Revisions implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %d: revision ID */
-					__( 'Revision #%d not found.', 'wp-agent' ),
+					__( 'Revision #%d not found.', 'jarvis-ai' ),
 					$revision_id
 				),
 			);
@@ -239,7 +239,7 @@ class Manage_Revisions implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: 1: revision ID, 2: post ID */
-					__( 'Revision #%1$d does not belong to post #%2$d.', 'wp-agent' ),
+					__( 'Revision #%1$d does not belong to post #%2$d.', 'jarvis-ai' ),
 					$revision_id,
 					$post_id
 				),
@@ -252,7 +252,7 @@ class Manage_Revisions implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Failed to restore revision.', 'wp-agent' ),
+				'message' => __( 'Failed to restore revision.', 'jarvis-ai' ),
 			);
 		}
 
@@ -265,7 +265,7 @@ class Manage_Revisions implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: post ID, 2: revision date */
-				__( 'Post #%1$d restored to revision from %2$s.', 'wp-agent' ),
+				__( 'Post #%1$d restored to revision from %2$s.', 'jarvis-ai' ),
 				$post_id,
 				$revision->post_date
 			),
@@ -287,7 +287,7 @@ class Manage_Revisions implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Both revision_id and compare_to are required for compare.', 'wp-agent' ),
+				'message' => __( 'Both revision_id and compare_to are required for compare.', 'jarvis-ai' ),
 			);
 		}
 
@@ -298,7 +298,7 @@ class Manage_Revisions implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'One or both revision IDs not found.', 'wp-agent' ),
+				'message' => __( 'One or both revision IDs not found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -307,7 +307,7 @@ class Manage_Revisions implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Both revisions must belong to the specified post.', 'wp-agent' ),
+				'message' => __( 'Both revisions must belong to the specified post.', 'jarvis-ai' ),
 			);
 		}
 
@@ -346,7 +346,7 @@ class Manage_Revisions implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: revision A ID, 2: revision B ID */
-				__( 'Compared revision #%1$d with revision #%2$d.', 'wp-agent' ),
+				__( 'Compared revision #%1$d with revision #%2$d.', 'jarvis-ai' ),
 				$revision_id,
 				$compare_to
 			),

@@ -2,17 +2,17 @@
 /**
  * Database schema and migration system.
  *
- * Creates and manages the 4 custom tables used by WP Agent:
+ * Creates and manages the 4 custom tables used by JARVIS AI:
  * - {prefix}agent_conversations  — Chat sessions (per-user, optionally per-post)
  * - {prefix}agent_messages       — Individual messages within conversations
  * - {prefix}agent_checkpoints    — Pre/post action snapshots for undo/rollback
  * - {prefix}agent_history        — Audit log of all executed actions
  *
- * @package WPAgent
+ * @package JarvisAI
  * @since   1.0.0
  */
 
-namespace WPAgent\Core;
+namespace JarvisAI\Core;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -39,12 +39,12 @@ class Database {
 	 *
 	 * @var string
 	 */
-	const VERSION_OPTION = 'wp_agent_db_version';
+	const VERSION_OPTION = 'jarvis_ai_db_version';
 
 	/**
 	 * Run on plugin activation.
 	 *
-	 * Called from register_activation_hook in wp-agent.php.
+	 * Called from register_activation_hook in jarvis-ai.php.
 	 *
 	 * @since 1.0.0
 	 * @return void

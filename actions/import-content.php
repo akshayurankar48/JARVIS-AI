@@ -6,11 +6,11 @@
  * Supports column mapping for CSV files and direct post field
  * mapping for JSON arrays.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -187,7 +187,7 @@ class Import_Content implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "parse_csv", "parse_json", or "import".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "parse_csv", "parse_json", or "import".', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -207,7 +207,7 @@ class Import_Content implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'File path is required.', 'wp-agent' ),
+				'message' => __( 'File path is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -220,7 +220,7 @@ class Import_Content implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'File must be within the WordPress uploads directory.', 'wp-agent' ),
+				'message' => __( 'File must be within the WordPress uploads directory.', 'jarvis-ai' ),
 			);
 		}
 
@@ -228,7 +228,7 @@ class Import_Content implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'File is not readable.', 'wp-agent' ),
+				'message' => __( 'File is not readable.', 'jarvis-ai' ),
 			);
 		}
 
@@ -237,7 +237,7 @@ class Import_Content implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'File exceeds maximum size of 2 MB.', 'wp-agent' ),
+				'message' => __( 'File exceeds maximum size of 2 MB.', 'jarvis-ai' ),
 			);
 		}
 
@@ -249,7 +249,7 @@ class Import_Content implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Failed to open CSV file.', 'wp-agent' ),
+				'message' => __( 'Failed to open CSV file.', 'jarvis-ai' ),
 			);
 		}
 
@@ -260,7 +260,7 @@ class Import_Content implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'CSV file has no headers.', 'wp-agent' ),
+				'message' => __( 'CSV file has no headers.', 'jarvis-ai' ),
 			);
 		}
 
@@ -295,7 +295,7 @@ class Import_Content implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: row count, 2: column count */
-				__( 'Parsed %1$d row(s) from CSV with %2$d columns.', 'wp-agent' ),
+				__( 'Parsed %1$d row(s) from CSV with %2$d columns.', 'jarvis-ai' ),
 				count( $posts ),
 				count( $headers )
 			),
@@ -317,7 +317,7 @@ class Import_Content implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'JSON data is required.', 'wp-agent' ),
+				'message' => __( 'JSON data is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -327,7 +327,7 @@ class Import_Content implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Invalid JSON data.', 'wp-agent' ),
+				'message' => __( 'Invalid JSON data.', 'jarvis-ai' ),
 			);
 		}
 
@@ -367,7 +367,7 @@ class Import_Content implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %d: post count */
-				__( 'Parsed %d post(s) from JSON data.', 'wp-agent' ),
+				__( 'Parsed %d post(s) from JSON data.', 'jarvis-ai' ),
 				count( $posts )
 			),
 		);
@@ -396,7 +396,7 @@ class Import_Content implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: post type */
-					__( 'Post type "%s" does not exist.', 'wp-agent' ),
+					__( 'Post type "%s" does not exist.', 'jarvis-ai' ),
 					$post_type
 				),
 			);
@@ -406,7 +406,7 @@ class Import_Content implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'No posts data provided. Use parse_csv or parse_json first.', 'wp-agent' ),
+				'message' => __( 'No posts data provided. Use parse_csv or parse_json first.', 'jarvis-ai' ),
 			);
 		}
 
@@ -420,7 +420,7 @@ class Import_Content implements Action_Interface {
 			if ( empty( $title ) ) {
 				$errors[] = sprintf(
 					/* translators: %d: row index */
-					__( 'Row %d: Missing title, skipped.', 'wp-agent' ),
+					__( 'Row %d: Missing title, skipped.', 'jarvis-ai' ),
 					$index + 1
 				);
 				continue;
@@ -439,7 +439,7 @@ class Import_Content implements Action_Interface {
 			if ( is_wp_error( $post_id ) ) {
 				$errors[] = sprintf(
 					/* translators: 1: title, 2: error message */
-					__( 'Failed to import "%1$s": %2$s', 'wp-agent' ),
+					__( 'Failed to import "%1$s": %2$s', 'jarvis-ai' ),
 					$title,
 					$post_id->get_error_message()
 				);
@@ -485,7 +485,7 @@ class Import_Content implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: created count, 2: total count, 3: error count */
-				__( 'Imported %1$d of %2$d post(s) as %3$s.', 'wp-agent' ),
+				__( 'Imported %1$d of %2$d post(s) as %3$s.', 'jarvis-ai' ),
 				count( $created ),
 				count( $posts ),
 				$post_status

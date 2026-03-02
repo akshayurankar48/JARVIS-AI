@@ -6,11 +6,11 @@
  * are key-value pairs with categories, stored in wp_options. Useful
  * for remembering user preferences, project context, and decisions.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -26,7 +26,7 @@ class Manage_Memory implements Action_Interface {
 	 *
 	 * @var string
 	 */
-	const OPTION_KEY = 'wp_agent_memories';
+	const OPTION_KEY = 'jarvis_ai_memories';
 
 	/**
 	 * Maximum number of memories.
@@ -149,7 +149,7 @@ class Manage_Memory implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "list", "remember", "forget", or "search".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "list", "remember", "forget", or "search".', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -199,7 +199,7 @@ class Manage_Memory implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %d: memory count */
-				__( '%d memory(ies) stored.', 'wp-agent' ),
+				__( '%d memory(ies) stored.', 'jarvis-ai' ),
 				count( $result )
 			),
 		);
@@ -222,7 +222,7 @@ class Manage_Memory implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Memory key is required.', 'wp-agent' ),
+				'message' => __( 'Memory key is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -230,7 +230,7 @@ class Manage_Memory implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Memory value is required.', 'wp-agent' ),
+				'message' => __( 'Memory value is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -264,7 +264,7 @@ class Manage_Memory implements Action_Interface {
 					'data'    => null,
 					'message' => sprintf(
 						/* translators: %d: max memories */
-						__( 'Maximum of %d memories reached. Forget some memories first.', 'wp-agent' ),
+						__( 'Maximum of %d memories reached. Forget some memories first.', 'jarvis-ai' ),
 						self::MAX_MEMORIES
 					),
 				);
@@ -292,12 +292,12 @@ class Manage_Memory implements Action_Interface {
 			'message' => $is_update
 				? sprintf(
 					/* translators: %s: memory key */
-					__( 'Memory "%s" updated.', 'wp-agent' ),
+					__( 'Memory "%s" updated.', 'jarvis-ai' ),
 					$key
 				)
 				: sprintf(
 					/* translators: %s: memory key */
-					__( 'Memory "%s" saved.', 'wp-agent' ),
+					__( 'Memory "%s" saved.', 'jarvis-ai' ),
 					$key
 				),
 		);
@@ -318,7 +318,7 @@ class Manage_Memory implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Memory key is required.', 'wp-agent' ),
+				'message' => __( 'Memory key is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -339,7 +339,7 @@ class Manage_Memory implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: memory key */
-					__( 'Memory "%s" not found.', 'wp-agent' ),
+					__( 'Memory "%s" not found.', 'jarvis-ai' ),
 					$key
 				),
 			);
@@ -354,7 +354,7 @@ class Manage_Memory implements Action_Interface {
 			'data'    => array( 'key' => $key ),
 			'message' => sprintf(
 				/* translators: %s: memory key */
-				__( 'Memory "%s" forgotten.', 'wp-agent' ),
+				__( 'Memory "%s" forgotten.', 'jarvis-ai' ),
 				$key
 			),
 		);
@@ -375,7 +375,7 @@ class Manage_Memory implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Search query is required.', 'wp-agent' ),
+				'message' => __( 'Search query is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -408,7 +408,7 @@ class Manage_Memory implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: match count, 2: search query */
-				__( 'Found %1$d memory(ies) matching "%2$s".', 'wp-agent' ),
+				__( 'Found %1$d memory(ies) matching "%2$s".', 'jarvis-ai' ),
 				count( $matches ),
 				$query
 			),

@@ -5,11 +5,11 @@
  * Gets, sets, deletes, and searches WordPress options with a blocklist
  * for sensitive options (auth keys, DB credentials, etc.).
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,8 +35,8 @@ class Manage_Options_Bulk implements Action_Interface {
 		'logged_in_salt',
 		'nonce_salt',
 		'db_password',
-		'wp_agent_openrouter_key',
-		'wp_agent_tavily_key',
+		'jarvis_ai_openrouter_key',
+		'jarvis_ai_tavily_key',
 		'siteurl',
 		'home',
 		'active_plugins',
@@ -118,7 +118,7 @@ class Manage_Options_Bulk implements Action_Interface {
 				),
 				'search'    => array(
 					'type'        => 'string',
-					'description' => 'Search pattern for option names (e.g., "wp_agent_"). Required for search.',
+					'description' => 'Search pattern for option names (e.g., "jarvis_ai_"). Required for search.',
 				),
 			),
 			'required'   => array( 'operation' ),
@@ -169,7 +169,7 @@ class Manage_Options_Bulk implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "get", "set", "delete", or "search".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "get", "set", "delete", or "search".', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -211,7 +211,7 @@ class Manage_Options_Bulk implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'options array is required.', 'wp-agent' ),
+				'message' => __( 'options array is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -241,7 +241,7 @@ class Manage_Options_Bulk implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: retrieved count, 2: blocked count */
-				__( 'Retrieved %1$d option(s). %2$d blocked.', 'wp-agent' ),
+				__( 'Retrieved %1$d option(s). %2$d blocked.', 'jarvis-ai' ),
 				count( $results ),
 				count( $blocked )
 			),
@@ -263,7 +263,7 @@ class Manage_Options_Bulk implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'options array is required.', 'wp-agent' ),
+				'message' => __( 'options array is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -302,7 +302,7 @@ class Manage_Options_Bulk implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: blocked count */
-				__( 'Updated %1$d option(s). %2$d blocked.', 'wp-agent' ),
+				__( 'Updated %1$d option(s). %2$d blocked.', 'jarvis-ai' ),
 				count( $updated ),
 				count( $blocked )
 			),
@@ -324,7 +324,7 @@ class Manage_Options_Bulk implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'options array is required.', 'wp-agent' ),
+				'message' => __( 'options array is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -354,7 +354,7 @@ class Manage_Options_Bulk implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: blocked count */
-				__( 'Deleted %1$d option(s). %2$d blocked.', 'wp-agent' ),
+				__( 'Deleted %1$d option(s). %2$d blocked.', 'jarvis-ai' ),
 				count( $deleted ),
 				count( $blocked )
 			),
@@ -378,7 +378,7 @@ class Manage_Options_Bulk implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'search pattern is required.', 'wp-agent' ),
+				'message' => __( 'search pattern is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -416,7 +416,7 @@ class Manage_Options_Bulk implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: pattern */
-				__( 'Found %1$d option(s) matching "%2$s".', 'wp-agent' ),
+				__( 'Found %1$d option(s) matching "%2$s".', 'jarvis-ai' ),
 				count( $options ),
 				$search
 			),

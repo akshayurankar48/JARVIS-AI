@@ -1,7 +1,7 @@
 /**
  * Chat bridge hook.
  *
- * Connects React components to the wp-agent/chat store
+ * Connects React components to the jarvis-ai/chat store
  * and syncs the current editor post ID.
  *
  * @package

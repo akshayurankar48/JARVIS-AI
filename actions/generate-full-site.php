@@ -6,11 +6,11 @@
  * specifications. Creates pages, sets a static homepage, and builds
  * a navigation menu linking all pages.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -142,13 +142,13 @@ class Generate_Full_Site implements Action_Interface {
 	public function execute( array $params ): array {
 		$business_type = ! empty( $params['business_type'] ) ? sanitize_text_field( $params['business_type'] ) : '';
 		$pages         = isset( $params['pages'] ) && is_array( $params['pages'] ) ? $params['pages'] : array();
-		$menu_name     = ! empty( $params['menu_name'] ) ? sanitize_text_field( $params['menu_name'] ) : __( 'Main Menu', 'wp-agent' );
+		$menu_name     = ! empty( $params['menu_name'] ) ? sanitize_text_field( $params['menu_name'] ) : __( 'Main Menu', 'jarvis-ai' );
 
 		if ( empty( $business_type ) ) {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Business type is required.', 'wp-agent' ),
+				'message' => __( 'Business type is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -156,7 +156,7 @@ class Generate_Full_Site implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'At least one page is required.', 'wp-agent' ),
+				'message' => __( 'At least one page is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -174,7 +174,7 @@ class Generate_Full_Site implements Action_Interface {
 			if ( empty( $title ) ) {
 				$errors[] = sprintf(
 					/* translators: %d: page index */
-					__( 'Page at index %d has no title, skipped.', 'wp-agent' ),
+					__( 'Page at index %d has no title, skipped.', 'jarvis-ai' ),
 					$index
 				);
 				continue;
@@ -190,8 +190,8 @@ class Generate_Full_Site implements Action_Interface {
 				'post_status'  => 'publish',
 				'post_type'    => 'page',
 				'meta_input'   => array(
-					'_wp_agent_business_type' => $business_type,
-					'_wp_agent_page_type'     => $type,
+					'_jarvis_ai_business_type' => $business_type,
+					'_jarvis_ai_page_type'     => $type,
 				),
 			);
 
@@ -200,7 +200,7 @@ class Generate_Full_Site implements Action_Interface {
 			if ( is_wp_error( $page_id ) ) {
 				$errors[] = sprintf(
 					/* translators: 1: page title, 2: error message */
-					__( 'Failed to create "%1$s": %2$s', 'wp-agent' ),
+					__( 'Failed to create "%1$s": %2$s', 'jarvis-ai' ),
 					$title,
 					$page_id->get_error_message()
 				);
@@ -224,7 +224,7 @@ class Generate_Full_Site implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => array( 'errors' => $errors ),
-				'message' => __( 'No pages were created.', 'wp-agent' ),
+				'message' => __( 'No pages were created.', 'jarvis-ai' ),
 			);
 		}
 
@@ -258,7 +258,7 @@ class Generate_Full_Site implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: page count, 2: business type */
-				__( 'Created %1$d page(s) for %2$s site with navigation menu.', 'wp-agent' ),
+				__( 'Created %1$d page(s) for %2$s site with navigation menu.', 'jarvis-ai' ),
 				count( $created_pages ),
 				$business_type
 			),
@@ -287,7 +287,7 @@ class Generate_Full_Site implements Action_Interface {
 					. '<!-- wp:paragraph -->'
 					. '<p>' . sprintf(
 						/* translators: %s: business type */
-						esc_html__( 'Welcome to our %s. We are dedicated to providing exceptional service.', 'wp-agent' ),
+						esc_html__( 'Welcome to our %s. We are dedicated to providing exceptional service.', 'jarvis-ai' ),
 						$escaped_business
 					) . '</p>'
 					. '<!-- /wp:paragraph -->';
@@ -297,7 +297,7 @@ class Generate_Full_Site implements Action_Interface {
 					. '<h1 class="wp-block-heading">' . $escaped_title . '</h1>'
 					. '<!-- /wp:heading -->'
 					. '<!-- wp:paragraph -->'
-					. '<p>' . esc_html__( 'Learn more about our story, mission, and the team behind our success.', 'wp-agent' ) . '</p>'
+					. '<p>' . esc_html__( 'Learn more about our story, mission, and the team behind our success.', 'jarvis-ai' ) . '</p>'
 					. '<!-- /wp:paragraph -->';
 
 			case 'services':
@@ -305,7 +305,7 @@ class Generate_Full_Site implements Action_Interface {
 					. '<h1 class="wp-block-heading">' . $escaped_title . '</h1>'
 					. '<!-- /wp:heading -->'
 					. '<!-- wp:paragraph -->'
-					. '<p>' . esc_html__( 'Explore our range of services designed to meet your needs.', 'wp-agent' ) . '</p>'
+					. '<p>' . esc_html__( 'Explore our range of services designed to meet your needs.', 'jarvis-ai' ) . '</p>'
 					. '<!-- /wp:paragraph -->';
 
 			case 'contact':
@@ -313,7 +313,7 @@ class Generate_Full_Site implements Action_Interface {
 					. '<h1 class="wp-block-heading">' . $escaped_title . '</h1>'
 					. '<!-- /wp:heading -->'
 					. '<!-- wp:paragraph -->'
-					. '<p>' . esc_html__( 'Get in touch with us. We would love to hear from you.', 'wp-agent' ) . '</p>'
+					. '<p>' . esc_html__( 'Get in touch with us. We would love to hear from you.', 'jarvis-ai' ) . '</p>'
 					. '<!-- /wp:paragraph -->';
 
 			case 'blog':
@@ -321,7 +321,7 @@ class Generate_Full_Site implements Action_Interface {
 					. '<h1 class="wp-block-heading">' . $escaped_title . '</h1>'
 					. '<!-- /wp:heading -->'
 					. '<!-- wp:paragraph -->'
-					. '<p>' . esc_html__( 'Stay updated with our latest news and insights.', 'wp-agent' ) . '</p>'
+					. '<p>' . esc_html__( 'Stay updated with our latest news and insights.', 'jarvis-ai' ) . '</p>'
 					. '<!-- /wp:paragraph -->';
 
 			default:

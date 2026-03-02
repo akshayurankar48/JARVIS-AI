@@ -5,11 +5,11 @@
  * Queries WordPress users with optional role filter.
  * Returns user metadata for the AI to reference.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -158,7 +158,7 @@ class List_Users implements Action_Interface {
 					'total' => 0,
 					'users' => array(),
 				),
-				'message' => __( 'No users found.', 'wp-agent' ),
+				'message' => __( 'No users found.', 'jarvis-ai' ),
 			);
 		}
 
@@ -169,7 +169,7 @@ class List_Users implements Action_Interface {
 				'users' => $results,
 			),
 			'message' => sprintf(
-				__( 'Found %d user(s).', 'wp-agent' ),
+				__( 'Found %d user(s).', 'jarvis-ai' ),
 				$total
 			),
 		);

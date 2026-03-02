@@ -6,11 +6,11 @@
  * or search term — if the exact slug is not found, falls back to a
  * keyword search and installs the best match.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -99,7 +99,7 @@ class Install_Theme implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Theme slug or search term is required.', 'wp-agent' ),
+				'message' => __( 'Theme slug or search term is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -127,7 +127,7 @@ class Install_Theme implements Action_Interface {
 				),
 				'message' => sprintf(
 					/* translators: %s: theme name */
-					__( 'Theme "%s" is already installed. Use manage_theme with operation "switch" to activate it.', 'wp-agent' ),
+					__( 'Theme "%s" is already installed. Use manage_theme with operation "switch" to activate it.', 'jarvis-ai' ),
 					$theme->get( 'Name' )
 				),
 			);
@@ -155,7 +155,7 @@ class Install_Theme implements Action_Interface {
 					'data'    => null,
 					'message' => sprintf(
 						/* translators: 1: search term, 2: error */
-						__( 'Could not find theme "%1$s" on WordPress.org. Searched by slug and keyword. %2$s', 'wp-agent' ),
+						__( 'Could not find theme "%1$s" on WordPress.org. Searched by slug and keyword. %2$s', 'jarvis-ai' ),
 						$slug,
 						$search_result->get_error_message()
 					),
@@ -178,7 +178,7 @@ class Install_Theme implements Action_Interface {
 				),
 				'message' => sprintf(
 					/* translators: 1: theme name, 2: original search */
-					__( 'Theme "%1$s" (matched from "%2$s") is already installed. Use manage_theme with operation "switch" to activate it.', 'wp-agent' ),
+					__( 'Theme "%1$s" (matched from "%2$s") is already installed. Use manage_theme with operation "switch" to activate it.', 'jarvis-ai' ),
 					$theme->get( 'Name' ),
 					$slug
 				),
@@ -219,7 +219,7 @@ class Install_Theme implements Action_Interface {
 		if ( empty( $themes ) ) {
 			return new \WP_Error(
 				'no_results',
-				__( 'No themes found matching that search term.', 'wp-agent' )
+				__( 'No themes found matching that search term.', 'jarvis-ai' )
 			);
 		}
 
@@ -230,7 +230,7 @@ class Install_Theme implements Action_Interface {
 		if ( empty( $best_slug ) ) {
 			return new \WP_Error(
 				'no_slug',
-				__( 'Search returned results but could not determine theme slug.', 'wp-agent' )
+				__( 'Search returned results but could not determine theme slug.', 'jarvis-ai' )
 			);
 		}
 
@@ -283,7 +283,7 @@ class Install_Theme implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: theme slug */
-					__( 'Failed to install theme "%s". Check filesystem permissions.', 'wp-agent' ),
+					__( 'Failed to install theme "%s". Check filesystem permissions.', 'jarvis-ai' ),
 					$api->slug ?? $original_slug
 				),
 			);
@@ -307,7 +307,7 @@ class Install_Theme implements Action_Interface {
 		$resolved_slug = $api->slug ?? '';
 		$message       = sprintf(
 			/* translators: 1: theme name, 2: theme version */
-			__( 'Installed "%1$s" (v%2$s) successfully. Use manage_theme with operation "switch" to activate it.', 'wp-agent' ),
+			__( 'Installed "%1$s" (v%2$s) successfully. Use manage_theme with operation "switch" to activate it.', 'jarvis-ai' ),
 			$name,
 			$version ? $version : 'unknown'
 		);
@@ -316,7 +316,7 @@ class Install_Theme implements Action_Interface {
 			$data['resolved_from'] = $original_slug;
 			$message              .= sprintf(
 				/* translators: 1: original search, 2: resolved slug */
-				__( ' (Resolved "%1$s" → slug "%2$s")', 'wp-agent' ),
+				__( ' (Resolved "%1$s" → slug "%2$s")', 'jarvis-ai' ),
 				$original_slug,
 				$resolved_slug
 			);

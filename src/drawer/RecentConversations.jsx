@@ -196,7 +196,7 @@ export default function RecentConversations() {
 			return;
 		}
 
-		const { restUrl, nonce } = window.wpAgentData || {};
+		const { restUrl, nonce } = window.jarvisAiData || {};
 		if ( ! restUrl || ! nonce ) {
 			return;
 		}
@@ -294,7 +294,7 @@ export default function RecentConversations() {
 						className={ viewAllStyle }
 						onClick={ () => {
 							setIsOpen( false );
-							window.location.href = 'admin.php?page=wp-agent-history';
+							window.location.href = 'admin.php?page=jarvis-ai-history';
 						} }
 					>
 						View all

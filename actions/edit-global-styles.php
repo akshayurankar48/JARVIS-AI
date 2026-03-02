@@ -5,11 +5,11 @@
  * Reads or updates the site's global styles (theme.json) — colors, typography,
  * spacing, and element styles. Controls the site-wide look and feel for block themes.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -197,7 +197,7 @@ class Edit_Global_Styles implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Invalid operation. Must be "get" or "update".', 'wp-agent' ),
+				'message' => __( 'Invalid operation. Must be "get" or "update".', 'jarvis-ai' ),
 			);
 		}
 
@@ -225,8 +225,8 @@ class Edit_Global_Styles implements Action_Interface {
 		$settings = wp_get_global_settings();
 
 		$message = $is_block_theme
-			? __( 'Global styles retrieved successfully.', 'wp-agent' )
-			: __( 'Global styles retrieved. Note: this is not a block theme — some styles may have limited effect.', 'wp-agent' );
+			? __( 'Global styles retrieved successfully.', 'jarvis-ai' )
+			: __( 'Global styles retrieved. Note: this is not a block theme — some styles may have limited effect.', 'jarvis-ai' );
 
 		return array(
 			'success' => true,
@@ -252,7 +252,7 @@ class Edit_Global_Styles implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'The "styles" parameter is required and must be an object for the update operation.', 'wp-agent' ),
+				'message' => __( 'The "styles" parameter is required and must be an object for the update operation.', 'jarvis-ai' ),
 			);
 		}
 
@@ -369,8 +369,8 @@ class Edit_Global_Styles implements Action_Interface {
 		}
 
 		$message = $is_block_theme
-			? __( 'Global styles updated successfully.', 'wp-agent' )
-			: __( 'Global styles updated. Note: this is not a block theme — some styles may have limited effect.', 'wp-agent' );
+			? __( 'Global styles updated successfully.', 'jarvis-ai' )
+			: __( 'Global styles updated. Note: this is not a block theme — some styles may have limited effect.', 'jarvis-ai' );
 
 		return array(
 			'success' => true,

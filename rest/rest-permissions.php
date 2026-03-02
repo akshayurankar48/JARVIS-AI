@@ -5,11 +5,11 @@
  * Shared permission check for role-based access control across
  * chat, stream, history, and action controllers.
  *
- * @package WPAgent\REST
+ * @package JarvisAI\REST
  * @since   1.0.0
  */
 
-namespace WPAgent\REST;
+namespace JarvisAI\REST;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -21,9 +21,9 @@ defined( 'ABSPATH' ) || exit;
 class REST_Permissions {
 
 	/**
-	 * Check if the current user has an allowed role for WP Agent access.
+	 * Check if the current user has an allowed role for JARVIS AI access.
 	 *
-	 * Checks the user's role against the wp_agent_allowed_roles option.
+	 * Checks the user's role against the jarvis_ai_allowed_roles option.
 	 * Defaults to administrator-only if no option is set.
 	 *
 	 * @since 1.0.0

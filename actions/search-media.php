@@ -6,11 +6,11 @@
  * Returns image URLs, IDs, alt text, titles, and dimensions
  * so the AI can use real uploaded images when building pages.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -157,10 +157,10 @@ class Search_Media implements Action_Interface {
 			$message = $search
 				? sprintf(
 					/* translators: %s: search term */
-					__( 'No media found matching "%s".', 'wp-agent' ),
+					__( 'No media found matching "%s".', 'jarvis-ai' ),
 					$search
 				)
-				: __( 'No media found in the library.', 'wp-agent' );
+				: __( 'No media found in the library.', 'jarvis-ai' );
 
 			return array(
 				'success' => true,
@@ -175,13 +175,13 @@ class Search_Media implements Action_Interface {
 		$message = $search
 			? sprintf(
 				/* translators: 1: result count, 2: search term */
-				__( 'Found %1$d media item(s) matching "%2$s".', 'wp-agent' ),
+				__( 'Found %1$d media item(s) matching "%2$s".', 'jarvis-ai' ),
 				count( $results ),
 				$search
 			)
 			: sprintf(
 				/* translators: %d: result count */
-				__( 'Found %d recent media item(s).', 'wp-agent' ),
+				__( 'Found %d recent media item(s).', 'jarvis-ai' ),
 				count( $results )
 			);
 

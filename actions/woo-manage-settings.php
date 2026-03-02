@@ -2,11 +2,11 @@
 /**
  * WooCommerce Manage Settings Action.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -110,7 +110,7 @@ class Woo_Manage_Settings implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Invalid section.', 'wp-agent' ),
+				'message' => __( 'Invalid section.', 'jarvis-ai' ),
 			);
 		}
 
@@ -124,7 +124,7 @@ class Woo_Manage_Settings implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'settings object required.', 'wp-agent' ),
+					'message' => __( 'settings object required.', 'jarvis-ai' ),
 				);
 			}
 			return $this->update_settings( $section, $settings );
@@ -133,7 +133,7 @@ class Woo_Manage_Settings implements Action_Interface {
 		return array(
 			'success' => false,
 			'data'    => null,
-			'message' => __( 'Invalid operation.', 'wp-agent' ),
+			'message' => __( 'Invalid operation.', 'jarvis-ai' ),
 		);
 	}
 
@@ -159,7 +159,7 @@ class Woo_Manage_Settings implements Action_Interface {
 				'section'  => $section,
 				'settings' => $values,
 			),
-			'message' => sprintf( __( 'WooCommerce %s settings.', 'wp-agent' ), $section ),
+			'message' => sprintf( __( 'WooCommerce %s settings.', 'jarvis-ai' ), $section ),
 		);
 	}
 
@@ -191,7 +191,7 @@ class Woo_Manage_Settings implements Action_Interface {
 				'section' => $section,
 				'updated' => $updated,
 			),
-			'message' => sprintf( __( 'Updated %1$d WooCommerce %2$s setting(s).', 'wp-agent' ), count( $updated ), $section ),
+			'message' => sprintf( __( 'Updated %1$d WooCommerce %2$s setting(s).', 'jarvis-ai' ), count( $updated ), $section ),
 		);
 	}
 

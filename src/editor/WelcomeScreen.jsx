@@ -12,7 +12,7 @@
  * @since 1.0.0
  */
 
-import { useMemo } from '@wordpress/element';
+import { useState, useMemo } from '@wordpress/element';
 import { css } from '@emotion/css';
 import {
 	Bot,
@@ -29,8 +29,11 @@ import {
 	Rocket,
 	Type,
 	Wrench,
+	ChevronDown,
+	ChevronUp,
 } from 'lucide-react';
 import { colors, radii, spacing, fontSizes, fadeIn, focusRing } from './styles';
+import templateData from '../data/prompt-templates.json';
 
 /* ── Styles ─────────────────────────────────────────────────────── */
 
@@ -152,6 +155,73 @@ const promptLabel = css`
 	font-size: ${ fontSizes.sm };
 	color: ${ colors.textSecondary };
 	font-weight: 450;
+`;
+
+const templateToggle = css`
+	${ focusRing };
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: ${ spacing.sm } ${ spacing.md };
+	background: ${ colors.primaryLight };
+	border: 1px solid ${ colors.primaryLighter };
+	border-radius: ${ radii.md };
+	cursor: pointer;
+	font-size: ${ fontSizes.xs };
+	font-weight: 500;
+	color: ${ colors.primary };
+	transition: all 0.15s ease;
+	margin-bottom: ${ spacing.md };
+
+	&:hover {
+		background: ${ colors.primaryLighter };
+		border-color: ${ colors.primary };
+	}
+`;
+
+const templateGrid = css`
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: ${ spacing.xs };
+	margin-bottom: ${ spacing.md };
+	max-height: 240px;
+	overflow-y: auto;
+	animation: ${ fadeIn } 0.2s ease-out;
+`;
+
+const templateItem = css`
+	${ focusRing };
+	width: 100%;
+	display: flex;
+	align-items: center;
+	gap: ${ spacing.sm };
+	padding: ${ spacing.sm } ${ spacing.md };
+	background: ${ colors.bg };
+	border: 1px solid ${ colors.border };
+	border-radius: ${ radii.md };
+	cursor: pointer;
+	text-align: left;
+	transition: all 0.15s ease;
+
+	&:hover {
+		border-color: ${ colors.primaryLighter };
+		background: ${ colors.primaryLight };
+	}
+`;
+
+const templateTitle = css`
+	font-size: ${ fontSizes.xs };
+	font-weight: 500;
+	color: ${ colors.text };
+`;
+
+const templateDesc = css`
+	font-size: 10px;
+	color: ${ colors.textMuted };
+	line-height: 1.3;
 `;
 
 /* ── Prompt Sets (Categorized) ─────────────────────────────────── */
@@ -317,8 +387,8 @@ function getSubtitle( context ) {
 /* ── Helpers ────────────────────────────────────────────────────── */
 
 const getSafeSettingsUrl = () => {
-	const { adminUrl } = window.wpAgentData || {};
-	const fallback = '/wp-admin/admin.php?page=wp-agent-settings';
+	const { adminUrl } = window.jarvisAiData || {};
+	const fallback = '/wp-admin/admin.php?page=jarvis-ai-settings';
 
 	if ( ! adminUrl ) {
 		return fallback;
@@ -330,7 +400,7 @@ const getSafeSettingsUrl = () => {
 			return fallback;
 		}
 		const base = parsed.href.endsWith( '/' ) ? parsed.href : parsed.href + '/';
-		return `${ base }admin.php?page=wp-agent-settings`;
+		return `${ base }admin.php?page=jarvis-ai-settings`;
 	} catch {
 		return fallback;
 	}
@@ -339,6 +409,8 @@ const getSafeSettingsUrl = () => {
 /* ── Component ──────────────────────────────────────────────────── */
 
 const WelcomeScreen = ( { hasApiKey, onSendMessage, editorContext } ) => {
+	const [ showTemplates, setShowTemplates ] = useState( false );
+
 	const categories = useMemo(
 		() => getPromptsForContext( editorContext ),
 		[ editorContext.type, editorContext.postType ]
@@ -347,6 +419,14 @@ const WelcomeScreen = ( { hasApiKey, onSendMessage, editorContext } ) => {
 	const subtitleText = useMemo(
 		() => getSubtitle( editorContext ),
 		[ editorContext.type, editorContext.postType ]
+	);
+
+	// Filter templates relevant to page building for the editor.
+	const pageTemplates = useMemo(
+		() => templateData.templates.filter( ( t ) =>
+			[ 'landing-pages', 'saas', 'ecommerce', 'portfolio', 'restaurant', 'agency', 'startup' ].includes( t.category )
+		).slice( 0, 10 ),
+		[]
 	);
 
 	if ( ! hasApiKey ) {
@@ -379,6 +459,36 @@ const WelcomeScreen = ( { hasApiKey, onSendMessage, editorContext } ) => {
 			</div>
 			<h3 className={ title }>Hi! I&apos;m JARVIS.</h3>
 			<p className={ subtitle }>{ subtitleText }</p>
+
+			{ /* Browse Templates toggle */ }
+			<button
+				type="button"
+				onClick={ () => setShowTemplates( ! showTemplates ) }
+				className={ templateToggle }
+			>
+				<LayoutGrid size={ 14 } />
+				{ showTemplates ? 'Hide' : 'Browse' } Templates ({ pageTemplates.length })
+				{ showTemplates ? <ChevronUp size={ 12 } /> : <ChevronDown size={ 12 } /> }
+			</button>
+
+			{ showTemplates && (
+				<div className={ templateGrid }>
+					{ pageTemplates.map( ( t ) => (
+						<button
+							key={ t.id }
+							type="button"
+							onClick={ () => onSendMessage( t.prompt ) }
+							className={ templateItem }
+						>
+							<div style={ { flex: 1, minWidth: 0 } }>
+								<div className={ templateTitle }>{ t.title }</div>
+								<div className={ templateDesc }>{ t.description }</div>
+							</div>
+						</button>
+					) ) }
+				</div>
+			) }
+
 			{ categories.map( ( cat ) => (
 				<div key={ cat.category } style={ { width: '100%' } }>
 					<p className={ categoryLabel }>{ cat.category }</p>

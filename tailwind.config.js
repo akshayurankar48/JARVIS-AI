@@ -6,5 +6,5 @@ module.exports = withTW( {
 		preflight: false,
 	},
 	important:
-		':is(#wp-agent-dashboard, #wp-agent-settings, #wp-agent-history, #wp-agent-schedules, #wp-agent-capabilities, #wp-agent-help, #wp-agent-sidebar, [data-floating-ui-portal])',
+		':is(#jarvis-ai-dashboard, #jarvis-ai-settings, #jarvis-ai-history, #jarvis-ai-schedules, #jarvis-ai-capabilities, #jarvis-ai-help, #jarvis-ai-sidebar, [data-floating-ui-portal])',
 } );

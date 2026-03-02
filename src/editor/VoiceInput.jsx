@@ -24,10 +24,12 @@ const micButtonStyle = css`
 	justify-content: center;
 	transition: all 0.2s ease;
 	border: none !important;
-	background: transparent !important;
+	background: rgba(79, 70, 229, 0.08) !important;
+	color: #6366f1 !important;
 
 	&:hover {
-		background: rgba(0, 0, 0, 0.05) !important;
+		background: rgba(79, 70, 229, 0.15) !important;
+		transform: scale(1.08);
 	}
 
 	svg {
@@ -38,13 +40,14 @@ const micButtonStyle = css`
 `;
 
 const recordingStyle = css`
-	background: rgba(239, 68, 68, 0.1) !important;
+	background: rgba(239, 68, 68, 0.15) !important;
 	color: #ef4444 !important;
-	animation: pulse-recording 1.5s ease-in-out infinite;
+	animation: pulse-recording 1.2s ease-in-out infinite;
+	box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
 
 	@keyframes pulse-recording {
-		0%, 100% { opacity: 1; }
-		50% { opacity: 0.5; }
+		0%, 100% { opacity: 1; transform: scale(1); }
+		50% { opacity: 0.7; transform: scale(1.05); }
 	}
 `;
 
@@ -61,7 +64,7 @@ const MicOffIcon = () => (
 	</svg>
 );
 
-export default function VoiceInput( { onTranscript, onFinalTranscript, disabled } ) {
+export default function VoiceInput( { onTranscript, onFinalTranscript, onRecordingEnd, disabled } ) {
 	const [ isRecording, setIsRecording ] = useState( false );
 	const recognitionRef = useRef( null );
 	const silenceTimerRef = useRef( null );
@@ -81,7 +84,10 @@ export default function VoiceInput( { onTranscript, onFinalTranscript, disabled 
 			silenceTimerRef.current = null;
 		}
 		setIsRecording( false );
-	}, [] );
+		if ( onRecordingEnd ) {
+			onRecordingEnd();
+		}
+	}, [ onRecordingEnd ] );
 
 	const startRecording = useCallback( () => {
 		const recognition = new SpeechRecognition();

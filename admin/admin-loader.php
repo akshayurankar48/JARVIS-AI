@@ -2,11 +2,11 @@
 /**
  * Admin Loader.
  *
- * @package WPAgent\Admin
+ * @package JarvisAI\Admin
  * @since 1.0.0
  */
 
-namespace WPAgent\Admin;
+namespace JarvisAI\Admin;
 
 defined( 'ABSPATH' ) || exit;
 

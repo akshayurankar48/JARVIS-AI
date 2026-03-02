@@ -1,14 +1,14 @@
 <?php
 /**
- * WP Agent constants for PHPStan analysis.
+ * JARVIS AI constants for PHPStan analysis.
  *
- * @package WPAgent
+ * @package JarvisAI
  */
 
 define( 'WP_LANG_DIR', '' );
-define( 'WP_AGENT_FILE', '' );
-define( 'WP_AGENT_BASE', '' );
-define( 'WP_AGENT_DIR', '' );
-define( 'WP_AGENT_URL', '' );
-define( 'WP_AGENT_VER', '1.0.0' );
-define( 'WP_AGENT_DB_VER', '1.0.0' );
+define( 'JARVIS_AI_FILE', '' );
+define( 'JARVIS_AI_BASE', '' );
+define( 'JARVIS_AI_DIR', '' );
+define( 'JARVIS_AI_URL', '' );
+define( 'JARVIS_AI_VER', '1.0.0' );
+define( 'JARVIS_AI_DB_VER', '1.0.0' );

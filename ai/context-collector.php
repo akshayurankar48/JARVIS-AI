@@ -8,11 +8,11 @@
  * Security: Never exposes passwords, API keys, wp-config values, or raw
  * option dumps.
  *
- * @package WPAgent\AI
+ * @package JarvisAI\AI
  * @since   1.0.0
  */
 
-namespace WPAgent\AI;
+namespace JarvisAI\AI;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -91,7 +91,7 @@ class Context_Collector {
 	 */
 	public function collect( $user_id, $admin_page = '', $post_id = 0 ) {
 		$user_id   = (int) $user_id;
-		$cache_key = 'wp_agent_ctx_' . $user_id;
+		$cache_key = 'jarvis_ai_ctx_' . $user_id;
 		$cached    = get_transient( $cache_key );
 
 		if ( false !== $cached && is_array( $cached ) ) {
@@ -136,7 +136,7 @@ class Context_Collector {
 	 * @return void
 	 */
 	public function invalidate_cache( $user_id ) {
-		delete_transient( 'wp_agent_ctx_' . (int) $user_id );
+		delete_transient( 'jarvis_ai_ctx_' . (int) $user_id );
 	}
 
 	/**
@@ -403,13 +403,13 @@ class Context_Collector {
 	 * Get brand preset settings from wp_options.
 	 *
 	 * Returns the sanitized brand configuration stored by the user
-	 * in WP Agent > Settings > Brand tab.
+	 * in JARVIS AI > Settings > Brand tab.
 	 *
 	 * @since 1.1.0
 	 * @return array Brand settings (empty array if not configured).
 	 */
 	private function get_brand_settings() {
-		$brand = get_option( 'wp_agent_brand_presets', array() );
+		$brand = get_option( 'jarvis_ai_brand_presets', array() );
 
 		if ( ! is_array( $brand ) || empty( $brand ) ) {
 			return array();

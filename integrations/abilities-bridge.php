@@ -5,13 +5,13 @@
  * Registers all JARVIS actions as WordPress Abilities (WP 6.9+).
  * Conditional — only loads when Abilities API is available.
  *
- * @package WPAgent\Integrations
+ * @package JarvisAI\Integrations
  * @since   1.0.0
  */
 
-namespace WPAgent\Integrations;
+namespace JarvisAI\Integrations;
 
-use WPAgent\Actions\Action_Registry;
+use JarvisAI\Actions\Action_Registry;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -69,10 +69,10 @@ class Abilities_Bridge {
 		// Register category.
 		if ( function_exists( 'wp_register_ability_category' ) ) {
 			wp_register_ability_category(
-				'wp-agent',
+				'jarvis-ai',
 				array(
-					'label'       => __( 'WP Agent (JARVIS)', 'wp-agent' ),
-					'description' => __( 'AI-powered WordPress management actions.', 'wp-agent' ),
+					'label'       => __( 'JARVIS AI (JARVIS)', 'jarvis-ai' ),
+					'description' => __( 'AI-powered WordPress management actions.', 'jarvis-ai' ),
 				)
 			);
 		}
@@ -100,11 +100,11 @@ class Abilities_Bridge {
 			}
 
 			wp_register_ability(
-				"wp-agent/{$name}",
+				"jarvis-ai/{$name}",
 				array(
 					'label'               => $this->get_first_sentence( $description ),
 					'description'         => $description,
-					'category'            => 'wp-agent',
+					'category'            => 'jarvis-ai',
 					'input_schema'        => $parameters,
 					'output_schema'       => array(
 						'type'       => 'object',

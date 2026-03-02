@@ -9,7 +9,7 @@ import {
 	ToggleRight,
 } from 'lucide-react';
 
-const { restUrl, nonce } = window.wpAgentData || {};
+const { restUrl, nonce } = window.jarvisAiData || {};
 
 const PROVIDERS = [
 	{

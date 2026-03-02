@@ -125,7 +125,7 @@ export default function Schedules() {
 	const fetchTasks = useCallback( async () => {
 		try {
 			setLoading( true );
-			const data = await apiFetch( { path: '/wp-agent/v1/schedules' } );
+			const data = await apiFetch( { path: '/jarvis-ai/v1/schedules' } );
 			setTasks( data );
 		} catch {
 			toast.error( 'Failed to load scheduled tasks.' );
@@ -146,7 +146,7 @@ export default function Schedules() {
 		try {
 			setActionLoading( true );
 			await apiFetch( {
-				path: `/wp-agent/v1/schedules/${ taskId }/${ action }`,
+				path: `/jarvis-ai/v1/schedules/${ taskId }/${ action }`,
 				method: 'POST',
 			} );
 			toast.success(

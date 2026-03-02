@@ -23,7 +23,7 @@
  *   15. manage_theme switch back to original
  *   16. activate_plugin works on installed plugin
  *
- * @package WPAgent\Tests
+ * @package JarvisAI\Tests
  */
 
 // Ensure we're running inside WordPress.
@@ -36,11 +36,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 wp_set_current_user( 1 );
 
 // Load action registry — use fully qualified name.
-if ( ! class_exists( 'WPAgent\Actions\Action_Registry' ) ) {
-	echo "ERROR: WPAgent\\Actions\\Action_Registry class not found. Is the plugin active?\n";
+if ( ! class_exists( 'JarvisAI\Actions\Action_Registry' ) ) {
+	echo "ERROR: JarvisAI\\Actions\\Action_Registry class not found. Is the plugin active?\n";
 	exit( 1 );
 }
-$registry = \WPAgent\Actions\Action_Registry::get_instance();
+$registry = \JarvisAI\Actions\Action_Registry::get_instance();
 if ( ! $registry ) {
 	echo "ERROR: Could not get Action_Registry instance.\n";
 	exit( 1 );
@@ -58,7 +58,7 @@ function run_test( $name, $action_name, $params, $expect_success, $expect_contai
 	global $pass, $fail, $total;
 	$total++;
 
-	$registry = \WPAgent\Actions\Action_Registry::get_instance();
+	$registry = \JarvisAI\Actions\Action_Registry::get_instance();
 	$result   = $registry->dispatch( $action_name, $params );
 	if ( is_wp_error( $result ) ) {
 		$result = [
@@ -97,7 +97,7 @@ function run_test( $name, $action_name, $params, $expect_success, $expect_contai
 
 echo "\n";
 echo "============================================\n";
-echo " WP Agent — Install Actions Test Suite\n";
+echo " JARVIS AI — Install Actions Test Suite\n";
 echo "============================================\n\n";
 
 // ---- Plugin Tests ----

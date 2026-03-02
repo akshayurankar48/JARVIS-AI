@@ -5,11 +5,11 @@
  * Lists all registered shortcodes, previews their output, and finds
  * which posts contain specific shortcodes. Read-only.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.1.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -115,7 +115,7 @@ class Manage_Shortcodes implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation.', 'wp-agent' ),
+					'message' => __( 'Invalid operation.', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -159,7 +159,7 @@ class Manage_Shortcodes implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %d: count */
-				__( '%d shortcode(s) registered.', 'wp-agent' ),
+				__( '%d shortcode(s) registered.', 'jarvis-ai' ),
 				count( $shortcodes )
 			),
 		);
@@ -182,7 +182,7 @@ class Manage_Shortcodes implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'shortcode tag is required.', 'wp-agent' ),
+				'message' => __( 'shortcode tag is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -192,7 +192,7 @@ class Manage_Shortcodes implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: shortcode tag */
-					__( 'Shortcode [%s] is not registered.', 'wp-agent' ),
+					__( 'Shortcode [%s] is not registered.', 'jarvis-ai' ),
 					$tag
 				),
 			);
@@ -220,7 +220,7 @@ class Manage_Shortcodes implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %s: shortcode */
-				__( 'Preview of %s rendered.', 'wp-agent' ),
+				__( 'Preview of %s rendered.', 'jarvis-ai' ),
 				$shortcode
 			),
 		);
@@ -243,7 +243,7 @@ class Manage_Shortcodes implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'shortcode tag is required.', 'wp-agent' ),
+				'message' => __( 'shortcode tag is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -280,7 +280,7 @@ class Manage_Shortcodes implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: count, 2: shortcode */
-				__( 'Found [%2$s] in %1$d post(s).', 'wp-agent' ),
+				__( 'Found [%2$s] in %1$d post(s).', 'jarvis-ai' ),
 				count( $results ),
 				$tag
 			),

@@ -4,13 +4,13 @@
  *
  * Stores registered actions, checks user capabilities, and dispatches
  * tool calls from the AI. Uses lazy initialization via the
- * 'wp_agent_register_actions' hook so plugins can register actions.
+ * 'jarvis_ai_register_actions' hook so plugins can register actions.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -120,7 +120,7 @@ class Action_Registry {
 				'unknown_action',
 				sprintf(
 					/* translators: %s: action name */
-					__( 'Unknown action: %s', 'wp-agent' ),
+					__( 'Unknown action: %s', 'jarvis-ai' ),
 					$name
 				)
 			);
@@ -133,7 +133,7 @@ class Action_Registry {
 				'insufficient_permissions',
 				sprintf(
 					/* translators: %s: action name */
-					__( 'You do not have permission to execute: %s', 'wp-agent' ),
+					__( 'You do not have permission to execute: %s', 'jarvis-ai' ),
 					$name
 				),
 				array( 'status' => 403 )
@@ -172,7 +172,7 @@ class Action_Registry {
 	/**
 	 * Lazy initialization.
 	 *
-	 * Fires the 'wp_agent_register_actions' hook on first access so
+	 * Fires the 'jarvis_ai_register_actions' hook on first access so
 	 * plugins and extensions can register their actions.
 	 *
 	 * @since 1.0.0
@@ -192,6 +192,6 @@ class Action_Registry {
 		 *
 		 * @param Action_Registry $registry The action registry instance.
 		 */
-		do_action( 'wp_agent_register_actions', $this );
+		do_action( 'jarvis_ai_register_actions', $this );
 	}
 }

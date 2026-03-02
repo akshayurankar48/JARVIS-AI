@@ -45,8 +45,8 @@ export default function Usage() {
 		try {
 			setLoading( true );
 			const [ statsRes, historyRes ] = await Promise.all( [
-				apiFetch( { path: '/wp-agent/v1/stats' } ),
-				apiFetch( { path: '/wp-agent/v1/history?per_page=100' } ),
+				apiFetch( { path: '/jarvis-ai/v1/stats' } ),
+				apiFetch( { path: '/jarvis-ai/v1/history?per_page=100' } ),
 			] );
 			setStats( statsRes );
 			setHistory( historyRes );

@@ -6,11 +6,11 @@
  * in block themes. Uses the WordPress block template API to read
  * and modify template parts.
  *
- * @package WPAgent\Actions
+ * @package JarvisAI\Actions
  * @since   1.0.0
  */
 
-namespace WPAgent\Actions;
+namespace JarvisAI\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -111,7 +111,7 @@ class Edit_Template_Parts implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Template parts are only available in block themes (Full Site Editing). The current theme is not a block theme.', 'wp-agent' ),
+				'message' => __( 'Template parts are only available in block themes (Full Site Editing). The current theme is not a block theme.', 'jarvis-ai' ),
 			);
 		}
 
@@ -135,7 +135,7 @@ class Edit_Template_Parts implements Action_Interface {
 				return array(
 					'success' => false,
 					'data'    => null,
-					'message' => __( 'Invalid operation. Use "list", "get", or "update".', 'wp-agent' ),
+					'message' => __( 'Invalid operation. Use "list", "get", or "update".', 'jarvis-ai' ),
 				);
 		}
 	}
@@ -168,7 +168,7 @@ class Edit_Template_Parts implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %d: part count */
-				__( '%d template part(s) found.', 'wp-agent' ),
+				__( '%d template part(s) found.', 'jarvis-ai' ),
 				count( $results )
 			),
 		);
@@ -187,7 +187,7 @@ class Edit_Template_Parts implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Template part slug is required.', 'wp-agent' ),
+				'message' => __( 'Template part slug is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -199,7 +199,7 @@ class Edit_Template_Parts implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: template part slug */
-					__( 'Template part "%s" not found.', 'wp-agent' ),
+					__( 'Template part "%s" not found.', 'jarvis-ai' ),
 					$slug
 				),
 			);
@@ -216,7 +216,7 @@ class Edit_Template_Parts implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: %s: template part slug */
-				__( 'Template part "%s" retrieved.', 'wp-agent' ),
+				__( 'Template part "%s" retrieved.', 'jarvis-ai' ),
 				$slug
 			),
 		);
@@ -237,7 +237,7 @@ class Edit_Template_Parts implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Template part slug is required.', 'wp-agent' ),
+				'message' => __( 'Template part slug is required.', 'jarvis-ai' ),
 			);
 		}
 
@@ -245,7 +245,7 @@ class Edit_Template_Parts implements Action_Interface {
 			return array(
 				'success' => false,
 				'data'    => null,
-				'message' => __( 'Content is required for update.', 'wp-agent' ),
+				'message' => __( 'Content is required for update.', 'jarvis-ai' ),
 			);
 		}
 
@@ -261,7 +261,7 @@ class Edit_Template_Parts implements Action_Interface {
 				'data'    => null,
 				'message' => sprintf(
 					/* translators: %s: template part slug */
-					__( 'Template part "%s" not found.', 'wp-agent' ),
+					__( 'Template part "%s" not found.', 'jarvis-ai' ),
 					$slug
 				),
 			);
@@ -298,7 +298,7 @@ class Edit_Template_Parts implements Action_Interface {
 					'data'    => null,
 					'message' => sprintf(
 						/* translators: %s: error message */
-						__( 'Failed to update template part: %s', 'wp-agent' ),
+						__( 'Failed to update template part: %s', 'jarvis-ai' ),
 						$result->get_error_message()
 					),
 				);
@@ -327,7 +327,7 @@ class Edit_Template_Parts implements Action_Interface {
 					'data'    => null,
 					'message' => sprintf(
 						/* translators: %s: error message */
-						__( 'Failed to create template part override: %s', 'wp-agent' ),
+						__( 'Failed to create template part override: %s', 'jarvis-ai' ),
 						$result->get_error_message()
 					),
 				);
@@ -348,7 +348,7 @@ class Edit_Template_Parts implements Action_Interface {
 			),
 			'message' => sprintf(
 				/* translators: 1: template part slug, 2: mode */
-				__( 'Template part "%1$s" updated (%2$s).', 'wp-agent' ),
+				__( 'Template part "%1$s" updated (%2$s).', 'jarvis-ai' ),
 				$slug,
 				$mode
 			),
