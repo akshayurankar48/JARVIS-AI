@@ -5,20 +5,44 @@
  * All scroll animations are invisible until triggered, ensuring no layout shift.
  * Visual effects (glass, glow, gradient, etc.) are always active.
  *
+ * ~100 classes total: scroll entrance, 3D, continuous, text, background,
+ * interactive hover, layout helpers, and modifiers.
+ *
  * @package WPAgent
  * @since   1.0.0
  */
 
-/* ── Base state (hidden until observed) ─────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════
+   1. SCROLL ENTRANCE ANIMATIONS — hidden until IntersectionObserver
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Base state: all scroll-triggered classes start hidden ────────── */
 .wpa-fade-up,
 .wpa-fade-down,
+.wpa-fade-left,
+.wpa-fade-right,
 .wpa-slide-left,
 .wpa-slide-right,
-.wpa-zoom-in {
+.wpa-zoom-in,
+.wpa-scale-up,
+.wpa-scale-down,
+.wpa-rotate-in,
+.wpa-flip-up,
+.wpa-flip-left,
+.wpa-blur-in,
+.wpa-clip-up,
+.wpa-clip-left,
+.wpa-clip-right,
+.wpa-clip-circle,
+.wpa-elastic-up,
+.wpa-elastic-scale,
+.wpa-text-reveal {
 	opacity: 0;
 	transition:
 		opacity 0.6s ease,
-		transform 0.6s ease;
+		transform 0.6s ease,
+		filter 0.6s ease,
+		clip-path 0.6s ease;
 	will-change: opacity, transform;
 }
 
@@ -29,6 +53,12 @@
 .wpa-fade-down {
 	transform: translateY( -30px );
 }
+.wpa-fade-left {
+	transform: translateX( -30px );
+}
+.wpa-fade-right {
+	transform: translateX( 30px );
+}
 .wpa-slide-left {
 	transform: translateX( -40px );
 }
@@ -38,15 +68,89 @@
 .wpa-zoom-in {
 	transform: scale( 0.92 );
 }
+.wpa-scale-up {
+	transform: scale( 0.8 );
+}
+.wpa-scale-down {
+	transform: scale( 1.1 );
+}
+.wpa-rotate-in {
+	transform: rotate( -8deg );
+}
+.wpa-flip-up {
+	transform: perspective( 800px ) rotateX( 20deg );
+}
+.wpa-flip-left {
+	transform: perspective( 800px ) rotateY( 20deg );
+}
+.wpa-blur-in {
+	filter: blur( 12px );
+}
+.wpa-clip-up {
+	clip-path: inset( 100% 0 0 0 );
+}
+.wpa-clip-left {
+	clip-path: inset( 0 100% 0 0 );
+}
+.wpa-clip-right {
+	clip-path: inset( 0 0 0 100% );
+}
+.wpa-clip-circle {
+	clip-path: circle( 0% at 50% 50% );
+}
+.wpa-elastic-up {
+	transform: translateY( 40px );
+}
+.wpa-elastic-scale {
+	transform: scale( 0.7 );
+}
+.wpa-text-reveal {
+	clip-path: inset( 0 100% 0 0 );
+}
 
 /* ── Visible state (applied by IntersectionObserver) ────────────── */
 .wpa-fade-up.wpa-visible,
 .wpa-fade-down.wpa-visible,
+.wpa-fade-left.wpa-visible,
+.wpa-fade-right.wpa-visible,
 .wpa-slide-left.wpa-visible,
 .wpa-slide-right.wpa-visible,
-.wpa-zoom-in.wpa-visible {
+.wpa-zoom-in.wpa-visible,
+.wpa-scale-up.wpa-visible,
+.wpa-scale-down.wpa-visible,
+.wpa-rotate-in.wpa-visible,
+.wpa-flip-up.wpa-visible,
+.wpa-flip-left.wpa-visible,
+.wpa-elastic-up.wpa-visible,
+.wpa-elastic-scale.wpa-visible {
 	opacity: 1;
-	transform: translate( 0 ) scale( 1 );
+	transform: none;
+}
+
+.wpa-blur-in.wpa-visible {
+	opacity: 1;
+	filter: blur( 0 );
+}
+
+.wpa-clip-up.wpa-visible,
+.wpa-clip-left.wpa-visible,
+.wpa-clip-right.wpa-visible,
+.wpa-text-reveal.wpa-visible {
+	opacity: 1;
+	clip-path: inset( 0 0 0 0 );
+}
+
+.wpa-clip-circle.wpa-visible {
+	opacity: 1;
+	clip-path: circle( 100% at 50% 50% );
+}
+
+/* Spring easing overrides for elastic animations */
+.wpa-elastic-up {
+	transition-timing-function: cubic-bezier( 0.34, 1.56, 0.64, 1 );
+}
+.wpa-elastic-scale {
+	transition-timing-function: cubic-bezier( 0.34, 1.56, 0.64, 1 );
 }
 
 /* ── Stagger children ───────────────────────────────────────────── */
@@ -82,39 +186,41 @@
 	transform: translateY( 0 );
 }
 
-/* ── Delay modifiers ────────────────────────────────────────────── */
-.wpa-delay-100 {
-	transition-delay: 0.1s !important;
-}
-.wpa-delay-200 {
-	transition-delay: 0.2s !important;
-}
-.wpa-delay-300 {
-	transition-delay: 0.3s !important;
-}
-.wpa-delay-400 {
-	transition-delay: 0.4s !important;
-}
-.wpa-delay-500 {
-	transition-delay: 0.5s !important;
+/* ── Stagger from left ──────────────────────────────────────────── */
+.wpa-stagger-left > * {
+	opacity: 0;
+	transform: translateX( -20px );
+	transition:
+		opacity 0.5s ease,
+		transform 0.5s ease;
 }
 
-/* ── Duration modifiers ─────────────────────────────────────────── */
-.wpa-duration-300 {
-	transition-duration: 0.3s !important;
+.wpa-stagger-left.wpa-visible > *:nth-child( 1 ) {
+	transition-delay: 0s;
 }
-.wpa-duration-500 {
-	transition-duration: 0.5s !important;
+.wpa-stagger-left.wpa-visible > *:nth-child( 2 ) {
+	transition-delay: 0.1s;
 }
-.wpa-duration-700 {
-	transition-duration: 0.7s !important;
+.wpa-stagger-left.wpa-visible > *:nth-child( 3 ) {
+	transition-delay: 0.15s;
 }
-.wpa-duration-1000 {
-	transition-duration: 1s !important;
+.wpa-stagger-left.wpa-visible > *:nth-child( 4 ) {
+	transition-delay: 0.2s;
+}
+.wpa-stagger-left.wpa-visible > *:nth-child( 5 ) {
+	transition-delay: 0.25s;
+}
+.wpa-stagger-left.wpa-visible > *:nth-child( 6 ) {
+	transition-delay: 0.3s;
+}
+
+.wpa-stagger-left.wpa-visible > * {
+	opacity: 1;
+	transform: translateX( 0 );
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   VISUAL EFFECTS — always active, no scroll trigger needed
+   2. VISUAL EFFECTS — always active, no scroll trigger
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ── Glassmorphism ─────────────────────────────────────────────── */
@@ -175,7 +281,59 @@
 	background-clip: padding-box, border-box;
 }
 
-/* ── Background effects ────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════
+   3. TEXT EFFECTS
+   ═══════════════════════════════════════════════════════════════════ */
+
+.wpa-gradient-sunset {
+	background: linear-gradient( 135deg, #f97316, #ef4444, #ec4899 );
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+.wpa-gradient-ocean {
+	background: linear-gradient( 135deg, #06b6d4, #3b82f6, #8b5cf6 );
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+.wpa-gradient-forest {
+	background: linear-gradient( 135deg, #22c55e, #10b981, #059669 );
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+.wpa-gradient-gold {
+	background: linear-gradient( 135deg, #d4af37, #f59e0b, #fbbf24 );
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+.wpa-text-glow {
+	text-shadow:
+		0 0 20px currentColor,
+		0 0 40px currentColor;
+}
+
+.wpa-text-stroke {
+	-webkit-text-stroke: 1px currentColor;
+	-webkit-text-fill-color: transparent;
+}
+
+.wpa-text-backdrop {
+	text-shadow:
+		0 2px 4px rgba( 0, 0, 0, 0.3 ),
+		0 4px 12px rgba( 0, 0, 0, 0.15 );
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   4. BACKGROUND EFFECTS — apply to section-level groups
+   ═══════════════════════════════════════════════════════════════════ */
+
 @keyframes wpa-aurora-shift {
 	0%,
 	100% {
@@ -217,7 +375,117 @@
 	z-index: 0;
 }
 
-/* ── Interactive effects ───────────────────────────────────────── */
+@keyframes wpa-mesh-shift {
+	0%,
+	100% {
+		background-position: 0% 50%;
+	}
+	25% {
+		background-position: 100% 0%;
+	}
+	50% {
+		background-position: 50% 100%;
+	}
+	75% {
+		background-position: 0% 0%;
+	}
+}
+
+.wpa-mesh-gradient {
+	background: radial-gradient( at 40% 20%, rgba( 99, 102, 241, 0.2 ) 0%, transparent 50% ), radial-gradient( at 80% 0%, rgba( 6, 182, 212, 0.15 ) 0%, transparent 50% ), radial-gradient( at 0% 50%, rgba( 236, 72, 153, 0.15 ) 0%, transparent 50% ), radial-gradient( at 80% 50%, rgba( 139, 92, 246, 0.1 ) 0%, transparent 50% ), radial-gradient( at 0% 100%, rgba( 99, 102, 241, 0.15 ) 0%, transparent 50% );
+	background-size: 200% 200%;
+	animation: wpa-mesh-shift 20s ease infinite;
+}
+
+.wpa-dots {
+	background-image: radial-gradient( circle, rgba( 255, 255, 255, 0.08 ) 1px, transparent 1px );
+	background-size: 24px 24px;
+}
+
+.wpa-grid-lines {
+	background-image: linear-gradient( rgba( 255, 255, 255, 0.03 ) 1px, transparent 1px ), linear-gradient( 90deg, rgba( 255, 255, 255, 0.03 ) 1px, transparent 1px );
+	background-size: 60px 60px;
+}
+
+.wpa-gradient-orbs {
+	position: relative;
+	overflow: hidden;
+}
+.wpa-gradient-orbs::before,
+.wpa-gradient-orbs::after {
+	content: "";
+	position: absolute;
+	width: 400px;
+	height: 400px;
+	border-radius: 50%;
+	filter: blur( 100px );
+	opacity: 0.3;
+	pointer-events: none;
+	z-index: 0;
+}
+.wpa-gradient-orbs::before {
+	top: -100px;
+	right: -100px;
+	background: rgba( 99, 102, 241, 0.4 );
+}
+.wpa-gradient-orbs::after {
+	bottom: -100px;
+	left: -100px;
+	background: rgba( 6, 182, 212, 0.3 );
+}
+
+@keyframes wpa-star-twinkle {
+	0%,
+	100% {
+		opacity: 0.3;
+	}
+	50% {
+		opacity: 1;
+	}
+}
+
+.wpa-starfield {
+	background-image: radial-gradient( 1px 1px at 10% 20%, rgba( 255, 255, 255, 0.8 ), transparent ), radial-gradient( 1px 1px at 30% 60%, rgba( 255, 255, 255, 0.6 ), transparent ), radial-gradient( 1px 1px at 50% 30%, rgba( 255, 255, 255, 0.7 ), transparent ), radial-gradient( 1px 1px at 70% 70%, rgba( 255, 255, 255, 0.5 ), transparent ), radial-gradient( 1px 1px at 90% 10%, rgba( 255, 255, 255, 0.9 ), transparent ), radial-gradient( 1px 1px at 20% 80%, rgba( 255, 255, 255, 0.4 ), transparent ),
+		radial-gradient( 1px 1px at 60% 50%, rgba( 255, 255, 255, 0.6 ), transparent ), radial-gradient( 1px 1px at 80% 40%, rgba( 255, 255, 255, 0.7 ), transparent );
+	background-size: 200px 200px;
+}
+
+.wpa-wave {
+	position: relative;
+}
+.wpa-wave::after {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 80px;
+	background: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100'%3E%3Cpath fill='%23ffffff' d='M0,40 C360,100 1080,0 1440,40 L1440,100 L0,100 Z'/%3E%3C/svg%3E" ) no-repeat bottom center;
+	background-size: 100% 100%;
+	pointer-events: none;
+	z-index: 2;
+}
+
+.wpa-wave-top {
+	position: relative;
+}
+.wpa-wave-top::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 80px;
+	background: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100'%3E%3Cpath fill='%23ffffff' d='M0,60 C360,0 1080,100 1440,60 L1440,0 L0,0 Z'/%3E%3C/svg%3E" ) no-repeat top center;
+	background-size: 100% 100%;
+	pointer-events: none;
+	z-index: 2;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   5. INTERACTIVE EFFECTS — hover and motion
+   ═══════════════════════════════════════════════════════════════════ */
+
 @keyframes wpa-float-anim {
 	0%,
 	100% {
@@ -237,6 +505,13 @@
 }
 .wpa-tilt:hover {
 	transform: perspective( 1000px ) rotateX( 3deg ) rotateY( -5deg );
+}
+
+.wpa-tilt-lg {
+	transition: transform 0.3s ease;
+}
+.wpa-tilt-lg:hover {
+	transform: perspective( 800px ) rotateX( 5deg ) rotateY( -8deg );
 }
 
 .wpa-lift {
@@ -275,7 +550,235 @@
 	z-index: 1;
 }
 
-/* ── Bento grid layout ─────────────────────────────────────────── */
+.wpa-hover-glow {
+	transition: box-shadow 0.3s ease;
+}
+.wpa-hover-glow:hover {
+	box-shadow: 0 0 40px rgba( 99, 102, 241, 0.25 );
+}
+
+.wpa-hover-zoom {
+	transition: transform 0.3s ease;
+	overflow: hidden;
+}
+.wpa-hover-zoom:hover {
+	transform: scale( 1.05 );
+}
+.wpa-hover-zoom img {
+	transition: transform 0.3s ease;
+}
+.wpa-hover-zoom:hover img {
+	transform: scale( 1.08 );
+}
+
+.wpa-hover-border {
+	border: 2px solid transparent;
+	transition: border-color 0.3s ease;
+}
+.wpa-hover-border:hover {
+	border-color: rgba( 99, 102, 241, 0.5 );
+}
+
+.wpa-hover-magnetic {
+	transition: transform 0.2s ease-out;
+}
+
+.wpa-ripple {
+	position: relative;
+	overflow: hidden;
+}
+
+.wpa-hover-shadow {
+	transition: box-shadow 0.3s ease;
+}
+.wpa-hover-shadow:hover {
+	box-shadow:
+		0 10px 30px rgba( 0, 0, 0, 0.12 ),
+		0 4px 8px rgba( 0, 0, 0, 0.06 );
+}
+
+.wpa-hover-bright {
+	transition: filter 0.3s ease;
+}
+.wpa-hover-bright:hover {
+	filter: brightness( 1.1 );
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   6. 3D EFFECTS
+   ═══════════════════════════════════════════════════════════════════ */
+
+.wpa-card-3d {
+	transition: transform 0.4s ease;
+	transform-style: preserve-3d;
+}
+.wpa-card-3d:hover {
+	transform: perspective( 800px ) rotateX( 5deg ) rotateY( -5deg ) scale( 1.02 );
+}
+
+.wpa-flip-card {
+	perspective: 1000px;
+}
+.wpa-flip-card > * {
+	transition: transform 0.6s ease;
+	transform-style: preserve-3d;
+}
+.wpa-flip-card:hover > * {
+	transform: rotateY( 180deg );
+}
+
+.wpa-parallax-slow {
+	transform: translateY( calc( var( --wpa-scroll-y, 0 ) * 0.3 ) );
+	will-change: transform;
+}
+
+.wpa-perspective {
+	perspective: 1000px;
+	transform-style: preserve-3d;
+}
+
+.wpa-depth-1 {
+	transform: translateZ( 20px );
+}
+
+.wpa-depth-2 {
+	transform: translateZ( 40px );
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   7. CONTINUOUS / AMBIENT ANIMATIONS
+   ═══════════════════════════════════════════════════════════════════ */
+
+@keyframes wpa-pulse-anim {
+	0%,
+	100% {
+		transform: scale( 1 );
+		opacity: 1;
+	}
+	50% {
+		transform: scale( 1.05 );
+		opacity: 0.8;
+	}
+}
+.wpa-pulse {
+	animation: wpa-pulse-anim 2s ease-in-out infinite;
+}
+
+@keyframes wpa-heartbeat-anim {
+	0%,
+	100% {
+		transform: scale( 1 );
+	}
+	14% {
+		transform: scale( 1.1 );
+	}
+	28% {
+		transform: scale( 1 );
+	}
+	42% {
+		transform: scale( 1.1 );
+	}
+	70% {
+		transform: scale( 1 );
+	}
+}
+.wpa-heartbeat {
+	animation: wpa-heartbeat-anim 1.5s ease-in-out infinite;
+}
+
+@keyframes wpa-bounce-anim {
+	0%,
+	100% {
+		transform: translateY( 0 );
+	}
+	50% {
+		transform: translateY( -15px );
+	}
+}
+.wpa-bounce {
+	animation: wpa-bounce-anim 2s ease-in-out infinite;
+}
+
+@keyframes wpa-orbit-anim {
+	from {
+		transform: rotate( 0deg ) translateX( 20px ) rotate( 0deg );
+	}
+	to {
+		transform: rotate( 360deg ) translateX( 20px ) rotate( -360deg );
+	}
+}
+.wpa-orbit {
+	animation: wpa-orbit-anim 8s linear infinite;
+}
+
+.wpa-spin {
+	animation: wpa-spin-anim 2s linear infinite;
+}
+.wpa-spin-slow {
+	animation: wpa-spin-anim 8s linear infinite;
+}
+@keyframes wpa-spin-anim {
+	from {
+		transform: rotate( 0deg );
+	}
+	to {
+		transform: rotate( 360deg );
+	}
+}
+
+@keyframes wpa-color-cycle-anim {
+	0% {
+		filter: hue-rotate( 0deg );
+	}
+	100% {
+		filter: hue-rotate( 360deg );
+	}
+}
+.wpa-color-cycle {
+	animation: wpa-color-cycle-anim 10s linear infinite;
+}
+
+@keyframes wpa-morph-anim {
+	0%,
+	100% {
+		border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+	}
+	25% {
+		border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%;
+	}
+	50% {
+		border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%;
+	}
+	75% {
+		border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%;
+	}
+}
+.wpa-morph {
+	animation: wpa-morph-anim 8s ease-in-out infinite;
+}
+
+@keyframes wpa-spotlight-anim {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+.wpa-spotlight {
+	background: radial-gradient( ellipse at 50% 50%, rgba( 255, 255, 255, 0.1 ) 0%, transparent 60% );
+	background-size: 200% 200%;
+	animation: wpa-spotlight-anim 6s ease infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   8. LAYOUT HELPERS
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Bento grid ─────────────────────────────────────────────────── */
 .wpa-bento-grid {
 	display: grid;
 	grid-template-columns: repeat( 12, 1fr );
@@ -300,39 +803,225 @@
 	grid-column: span 8;
 }
 
+/* ── Asymmetric grid ────────────────────────────────────────────── */
+.wpa-grid-asymmetric {
+	display: grid;
+	grid-template-columns: 2fr 1fr;
+	gap: 24px;
+}
+
+/* ── Masonry-like grid ──────────────────────────────────────────── */
+.wpa-grid-masonry {
+	display: grid;
+	grid-template-columns: repeat( 3, 1fr );
+	gap: 16px;
+}
+.wpa-grid-masonry > *:nth-child( odd ) {
+	transform: translateY( 20px );
+}
+
+/* ── Offset grid ────────────────────────────────────────────────── */
+.wpa-grid-offset {
+	display: grid;
+	grid-template-columns: repeat( 2, 1fr );
+	gap: 32px;
+}
+.wpa-grid-offset > *:nth-child( even ) {
+	transform: translateY( 60px );
+}
+
+/* ── Overlap ────────────────────────────────────────────────────── */
+.wpa-overlap {
+	position: relative;
+}
+.wpa-overlap > *:nth-child( 2 ) {
+	position: relative;
+	margin-top: -60px;
+	z-index: 1;
+}
+
+/* ── Marquee ────────────────────────────────────────────────────── */
+@keyframes wpa-marquee-scroll {
+	from {
+		transform: translateX( 0 );
+	}
+	to {
+		transform: translateX( -50% );
+	}
+}
+
+.wpa-marquee {
+	overflow: hidden;
+	white-space: nowrap;
+}
+.wpa-marquee > * {
+	display: inline-flex;
+	animation: wpa-marquee-scroll 30s linear infinite;
+}
+
+.wpa-marquee-reverse {
+	overflow: hidden;
+	white-space: nowrap;
+}
+.wpa-marquee-reverse > * {
+	display: inline-flex;
+	animation: wpa-marquee-scroll 30s linear infinite reverse;
+}
+
 @media ( max-width: 768px ) {
-	.wpa-bento-grid {
+	.wpa-bento-grid,
+	.wpa-grid-asymmetric,
+	.wpa-grid-masonry,
+	.wpa-grid-offset {
 		grid-template-columns: 1fr;
 	}
-	.wpa-bento-grid > * {
+	.wpa-bento-grid > *,
+	.wpa-grid-masonry > *:nth-child( odd ),
+	.wpa-grid-offset > *:nth-child( even ) {
 		grid-column: span 1 !important;
+		transform: none;
 	}
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   LANDING PAGE — seamless dark sections
+   9. MODIFIERS — delays, durations, easings
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Delay modifiers ────────────────────────────────────────────── */
+.wpa-delay-100 {
+	transition-delay: 0.1s !important;
+}
+.wpa-delay-200 {
+	transition-delay: 0.2s !important;
+}
+.wpa-delay-300 {
+	transition-delay: 0.3s !important;
+}
+.wpa-delay-400 {
+	transition-delay: 0.4s !important;
+}
+.wpa-delay-500 {
+	transition-delay: 0.5s !important;
+}
+.wpa-delay-600 {
+	transition-delay: 0.6s !important;
+}
+.wpa-delay-700 {
+	transition-delay: 0.7s !important;
+}
+.wpa-delay-800 {
+	transition-delay: 0.8s !important;
+}
+.wpa-delay-900 {
+	transition-delay: 0.9s !important;
+}
+.wpa-delay-1000 {
+	transition-delay: 1s !important;
+}
+
+/* ── Duration modifiers ─────────────────────────────────────────── */
+.wpa-duration-300 {
+	transition-duration: 0.3s !important;
+}
+.wpa-duration-500 {
+	transition-duration: 0.5s !important;
+}
+.wpa-duration-700 {
+	transition-duration: 0.7s !important;
+}
+.wpa-duration-1000 {
+	transition-duration: 1s !important;
+}
+.wpa-duration-1500 {
+	transition-duration: 1.5s !important;
+}
+
+/* ── Easing modifiers ───────────────────────────────────────────── */
+.wpa-ease-elastic {
+	transition-timing-function: cubic-bezier( 0.34, 1.56, 0.64, 1 ) !important;
+}
+.wpa-ease-bounce {
+	transition-timing-function: cubic-bezier( 0.68, -0.55, 0.27, 1.55 ) !important;
+}
+.wpa-ease-spring {
+	transition-timing-function: cubic-bezier( 0.175, 0.885, 0.32, 1.275 ) !important;
+}
+.wpa-ease-smooth {
+	transition-timing-function: cubic-bezier( 0.4, 0, 0.2, 1 ) !important;
+}
+
+/* ── Direction modifier ─────────────────────────────────────────── */
+.wpa-reverse {
+	animation-direction: reverse !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   10. LANDING PAGE — seamless sections (dark AND light)
    ═══════════════════════════════════════════════════════════════════ */
 
 /**
- * When the page body has .wpa-page (set by animations.js), remove
- * the theme's block-gap between consecutive full-width sections so
- * dark backgrounds flow edge-to-edge without white lines.
+ * Dark page mode — set by animations.js when first section is dark.
+ * Removes theme block-gap and forces dark body.
  */
+body.wpa-page-dark {
+	background-color: #0a0a0a;
+}
+
+body.wpa-page-dark .wp-block-template-part:last-child {
+	background-color: #0a0a0a;
+}
+
+body.wpa-page-dark .wp-block-template-part:last-child,
+body.wpa-page-dark .wp-block-template-part:last-child * {
+	color: #666;
+}
+
+body.wpa-page-dark .wp-block-template-part:last-child a {
+	color: #888;
+}
+
+/**
+ * Light page mode — no forced dark bg. Just remove gaps.
+ */
+body.wpa-page-light {
+	/* No background override — theme default preserved. */
+}
+
+/* Shared rules for both dark and light page modes */
+body.wpa-page-dark .wp-block-post-content > .alignfull + .alignfull,
+body.wpa-page-light .wp-block-post-content > .alignfull + .alignfull {
+	margin-block-start: 0 !important;
+}
+
+body.wpa-page-dark .wp-block-post-content > .alignfull:first-child,
+body.wpa-page-light .wp-block-post-content > .alignfull:first-child {
+	margin-block-start: 0 !important;
+}
+
+/* Transparent header overlay for both modes */
+body.wpa-page-dark .wp-block-template-part:has( .wp-block-navigation ),
+body.wpa-page-light .wp-block-template-part:has( .wp-block-navigation ) {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 100;
+	background: transparent !important;
+}
+
+/* Backwards compat: .wpa-page maps to dark behavior */
 body.wpa-page {
 	background-color: #0a0a0a;
 }
 
-/* Remove theme block-gap between full-width sections */
 body.wpa-page .wp-block-post-content > .alignfull + .alignfull {
 	margin-block-start: 0 !important;
 }
 
-/* Also handle the first alignfull block (theme may add top margin) */
 body.wpa-page .wp-block-post-content > .alignfull:first-child {
 	margin-block-start: 0 !important;
 }
 
-/* Hide the theme header/nav on animated landing pages for cleaner look */
 body.wpa-page .wp-block-template-part:has( .wp-block-navigation ) {
 	position: absolute;
 	top: 0;
@@ -342,7 +1031,6 @@ body.wpa-page .wp-block-template-part:has( .wp-block-navigation ) {
 	background: transparent !important;
 }
 
-/* Make theme footer blend with dark pages */
 body.wpa-page .wp-block-template-part:last-child {
 	background-color: #0a0a0a;
 }
@@ -356,24 +1044,52 @@ body.wpa-page .wp-block-template-part:last-child a {
 	color: #888;
 }
 
-/* ── Respect reduced-motion preference ──────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════
+   11. REDUCED MOTION — respect user preference
+   ═══════════════════════════════════════════════════════════════════ */
+
 @media ( prefers-reduced-motion: reduce ) {
 	.wpa-fade-up,
 	.wpa-fade-down,
+	.wpa-fade-left,
+	.wpa-fade-right,
 	.wpa-slide-left,
 	.wpa-slide-right,
 	.wpa-zoom-in,
-	.wpa-stagger-children > * {
+	.wpa-scale-up,
+	.wpa-scale-down,
+	.wpa-rotate-in,
+	.wpa-flip-up,
+	.wpa-flip-left,
+	.wpa-blur-in,
+	.wpa-clip-up,
+	.wpa-clip-left,
+	.wpa-clip-right,
+	.wpa-clip-circle,
+	.wpa-elastic-up,
+	.wpa-elastic-scale,
+	.wpa-text-reveal,
+	.wpa-stagger-children > *,
+	.wpa-stagger-left > * {
 		opacity: 1 !important;
 		transform: none !important;
+		filter: none !important;
+		clip-path: none !important;
 		transition: none !important;
 	}
 
-	.wpa-aurora {
-		animation: none !important;
-	}
-
-	.wpa-float {
+	.wpa-aurora,
+	.wpa-float,
+	.wpa-pulse,
+	.wpa-heartbeat,
+	.wpa-bounce,
+	.wpa-orbit,
+	.wpa-spin,
+	.wpa-spin-slow,
+	.wpa-color-cycle,
+	.wpa-morph,
+	.wpa-spotlight,
+	.wpa-mesh-gradient {
 		animation: none !important;
 	}
 
@@ -382,8 +1098,16 @@ body.wpa-page .wp-block-template-part:last-child a {
 		display: none;
 	}
 
+	.wpa-marquee > *,
+	.wpa-marquee-reverse > * {
+		animation: none !important;
+	}
+
 	.wpa-tilt:hover,
-	.wpa-lift:hover {
+	.wpa-tilt-lg:hover,
+	.wpa-lift:hover,
+	.wpa-card-3d:hover,
+	.wpa-hover-zoom:hover {
 		transform: none !important;
 	}
 }

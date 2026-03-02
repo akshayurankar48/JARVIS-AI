@@ -82,6 +82,11 @@ class Prompt_Builder {
 		// Page-building knowledge is always included so the AI can build pages
 		// from BOTH the editor (current_post) and the admin drawer (no post).
 		$prompt .= $this->get_block_editor_section( $context );
+		$prompt .= $this->get_design_system_section();
+		$prompt .= $this->get_design_themes_section();
+		$prompt .= $this->get_section_patterns_section();
+		$prompt .= $this->get_media_free_design_section();
+		$prompt .= $this->get_industry_design_section();
 		$prompt .= $this->get_pattern_library_section();
 		$prompt .= $this->get_reference_design_section();
 		$prompt .= $this->get_page_building_recipe_section();
@@ -458,11 +463,6 @@ class Prompt_Builder {
 			$section .= "\n";
 		}
 
-		// Design standards.
-		$section .= 'DESIGN STANDARD: Every page you create must look like it was built by a top agency — '
-			. 'think Stripe, Linear, Vercel. Clean typography, bold color contrast, generous whitespace, '
-			. "professional section composition. Never produce bare unstyled blocks.\n\n";
-
 		// Pattern-first rule (highest priority).
 		$section .= 'PATTERN-FIRST RULE (HIGHEST PRIORITY): ALWAYS check the pattern library BEFORE building raw blocks. '
 			. 'For any standard section (hero, features, testimonials, pricing, CTA, stats, FAQ, footer), '
@@ -470,7 +470,25 @@ class Prompt_Builder {
 			. 'Only build raw blocks for truly unique layouts that no pattern covers. '
 			. "Building raw blocks when a matching pattern exists is a MISTAKE.\n\n";
 
-		// Tool preference and execution behavior.
+		// Section count and block variety — the most critical rules.
+		$section .= "SECTION COUNT LIMITS (MANDATORY — NEVER EXCEED):\n"
+			. "- Landing page: 6-8 sections. NEVER more than 10.\n"
+			. "- About page: 5-7 sections.\n"
+			. "- Single section edit: 1 section only.\n"
+			. "- STOP BUILDING after the planned section count. More sections does NOT equal better.\n"
+			. "- Plan your section list BEFORE building. Decide the count upfront and commit to it.\n\n"
+
+			. "BLOCK VARIETY (MANDATORY — enforced by self-critique):\n"
+			. "- Every page MUST use at least 4 different block types from: core/group, core/cover, core/columns, core/media-text, core/buttons, core/quote, core/details, core/image, core/list, core/separator.\n"
+			. "- NEVER build 3+ consecutive sections with the same block structure.\n"
+			. "- Use core/cover for heroes (not core/group with just a background color).\n"
+			. "- Use core/media-text for any image-beside-text layout.\n"
+			. "- Use core/quote or core/pullquote for testimonials.\n"
+			. "- Use core/details for FAQ sections (not paragraphs).\n"
+			. "- Use core/columns only when you need 2-4 equal items side by side.\n"
+			. "- Each section must look DIFFERENT from the previous one (different block types, layout, visual weight).\n\n";
+
+		// Execution rules.
 		$section .= "EXECUTION RULES:\n"
 			. "- When asked to create/build/design: call the tools IMMEDIATELY. Do NOT describe what you plan to build. Just build it.\n"
 			. "- ALWAYS use insert_blocks (not edit_post) for content. \"replace\" for full pages, \"append\" for additions.\n"
@@ -483,86 +501,40 @@ class Prompt_Builder {
 
 		// Available blocks reference.
 		$section .= "AVAILABLE BLOCKS:\n"
-			. "Layout containers (use innerBlocks for children, never innerHTML):\n"
-			. "- core/group: Section wrapper. Set align:\"full\" for full-width. Use for backgrounds, padding, and section divisions.\n"
+			. "Layout containers (use innerBlocks, never innerHTML):\n"
+			. "- core/group: Section wrapper. Set align:\"full\" for full-width.\n"
 			. "- core/columns: Multi-column grid. Contains core/column children only.\n"
-			. "- core/column: Single column inside core/columns. Set width attribute for custom column widths (e.g. \"33.33%\").\n"
-			. "- core/cover: Hero/banner with background image + overlay. Key attrs: url (image URL), dimRatio (overlay opacity 0-100), overlayColor, minHeight (e.g. \"600px\"). Content goes in innerBlocks on top of the image.\n"
-			. "- core/media-text: Side-by-side media + text layout. Attrs: mediaUrl, mediaAlt, mediaType (\"image\"), mediaPosition (\"left\" or \"right\"), isStackedOnMobile (true). Text content goes in innerBlocks.\n"
-			. "- core/buttons: Button group. Contains core/button children. Use layout.type:\"flex\" with justifyContent.\n\n"
+			. "- core/column: Single column. Set width attr (e.g. \"33.33%\").\n"
+			. "- core/cover: Hero/banner with bg image + overlay. Attrs: url, dimRatio (0-100), customOverlayColor, minHeight.\n"
+			. "- core/media-text: Side-by-side media + text. Attrs: mediaUrl, mediaType:\"image\", mediaPosition:\"left\"|\"right\", isStackedOnMobile:true.\n"
+			. "- core/buttons: Button group. Contains core/button children.\n\n"
 
-			. "Content blocks (use innerHTML for text, attrs for styling):\n"
-			. "- core/heading: level (1-6), textAlign (\"left\",\"center\",\"right\").\n"
-			. "- core/paragraph: align (\"left\",\"center\",\"right\").\n"
-			. "- core/button: innerHTML is the button label. Set url for link, attrs for styling.\n"
-			. "- core/image: Set url, alt, caption in attrs. No innerHTML needed.\n"
-			. "- core/list: Contains core/list-item children via innerBlocks.\n"
-			. "- core/quote: Styled blockquote. innerHTML maps to the quote text. Use citation attr for attribution.\n"
-			. "- core/pullquote: Large decorative pullquote. innerHTML maps to the quote text. Great for testimonial highlights and key statements.\n"
-			. "- core/details: Expandable accordion/disclosure. summary attr = visible title (the clickable question). Answer content in innerBlocks (e.g. core/paragraph). Perfect for FAQ sections.\n"
-			. "- core/spacer: Set height in attrs (e.g. \"60px\"). Use between sections.\n"
-			. "- core/separator: Visual divider. Set style.color.background for color.\n\n";
+			. "Content blocks (innerHTML for text, attrs for styling):\n"
+			. "- core/heading: level (1-6), textAlign.\n"
+			. "- core/paragraph: align.\n"
+			. "- core/button: innerHTML = label. url for link.\n"
+			. "- core/image: url, alt, sizeSlug in attrs.\n"
+			. "- core/list: Contains core/list-item children.\n"
+			. "- core/quote: Blockquote. citation attr for attribution.\n"
+			. "- core/pullquote: Large decorative quote for testimonial highlights.\n"
+			. "- core/details: Accordion. summary attr = clickable title, answer in innerBlocks.\n"
+			. "- core/spacer: height in attrs (e.g. \"60px\").\n"
+			. "- core/separator: Visual divider.\n\n";
 
-		// Styling reference.
-		$section .= "STYLING ATTRIBUTES (use in attrs object):\n"
+		// Styling reference (condensed).
+		$section .= "STYLING ATTRS:\n"
 			. "Colors: {\"style\":{\"color\":{\"background\":\"#hex\",\"text\":\"#hex\",\"gradient\":\"linear-gradient(...)\"}}}\n"
-			. "Typography: {\"style\":{\"typography\":{\"fontSize\":\"48px\",\"fontWeight\":\"700\",\"letterSpacing\":\"-0.02em\",\"textTransform\":\"uppercase\",\"lineHeight\":\"1.2\"}}}\n"
-			. "Spacing: {\"style\":{\"spacing\":{\"padding\":{\"top\":\"80px\",\"bottom\":\"80px\",\"left\":\"40px\",\"right\":\"40px\"},\"margin\":{\"top\":\"0\",\"bottom\":\"0\"},\"blockGap\":\"24px\"}}}\n"
+			. "Typography: {\"style\":{\"typography\":{\"fontSize\":\"48px\",\"fontWeight\":\"700\",\"letterSpacing\":\"-0.02em\",\"lineHeight\":\"1.2\"}}}\n"
+			. "Spacing: {\"style\":{\"spacing\":{\"padding\":{\"top\":\"80px\",\"bottom\":\"80px\",\"left\":\"40px\",\"right\":\"40px\"},\"blockGap\":\"24px\"}}}\n"
 			. "Borders: {\"style\":{\"border\":{\"radius\":\"8px\",\"width\":\"2px\",\"color\":\"#hex\"}}}\n"
-			. "Layout: {\"align\":\"full\"} for full-width, {\"layout\":{\"type\":\"constrained\"}} for centered content, {\"layout\":{\"type\":\"flex\",\"justifyContent\":\"center\",\"orientation\":\"horizontal\"}} for flex\n\n";
+			. "Layout: {\"align\":\"full\"}, {\"layout\":{\"type\":\"constrained\"}}, {\"layout\":{\"type\":\"flex\",\"justifyContent\":\"center\"}}\n\n";
 
-		// Design principles.
-		$section .= "DESIGN PRINCIPLES:\n"
-			. "- Use full-width core/group blocks as section containers with generous padding (80-120px vertical, 40-60px horizontal).\n"
-			. "- Create visual contrast: alternate between dark and light background sections.\n"
-			. "- Typography hierarchy: hero headings 48-72px bold, section headings 32-42px semibold, body text 16-18px regular.\n"
-			. "- Whitespace is a feature: use core/spacer (40-80px) between sections, generous padding within.\n"
-			. "- Buttons: bold background color, generous padding (16px 40px), rounded corners (8-100px), uppercase or semibold text.\n"
-			. "- For hero sections: dark background (#0a0a0a to #1a1a2e), large heading, lighter subtitle, prominent CTA button.\n"
-			. "- For feature grids: use core/columns with 2-4 columns, each with icon/heading/description pattern.\n"
-			. "- Always apply consistent spacing — never leave blocks without padding/margin styling.\n\n"
+		// Copywriting and images.
+		$section .= 'COPYWRITING: Write compelling copy, not placeholder text. Use specific numbers ("50,000+ customers"), '
+			. "power verbs, benefit-driven language. Headlines: 3-8 words. Subheadings: one-sentence value prop.\n\n"
 
-			. "COLOR PALETTES (choose ONE based on site type, or derive from reference URL):\n"
-			. "- Modern Dark (DEFAULT for SaaS/tech): primary #6366f1, accent #06b6d4, dark #0c0c14, surface #141420, light #f8fafc\n"
-			. "- SaaS/Tech: primary #6366f1, accent #06b6d4, dark #0f172a, light #f8fafc\n"
-			. "- Corporate: primary #2563eb, accent #f59e0b, dark #111827, light #ffffff\n"
-			. "- Creative: primary #ec4899, accent #8b5cf6, dark #1e1b4b, light #fdf4ff\n"
-			. "- Luxury: primary #d4af37, accent #1a1a2e, dark #0a0a0a, light #faf9f6\n"
-			. "- Health/Wellness: primary #10b981, accent #f97316, dark #064e3b, light #ecfdf5\n"
-			. "- Minimal/Agency: primary #171717, accent #a3a3a3, dark #000000, light #fafafa\n"
-			. 'Use primary for CTAs and key elements, accent for highlights, dark for hero/footer backgrounds, '
-			. 'light for alternating sections. Stay consistent across ALL sections. '
-			. "When theme colors are available, prefer those over presets.\n\n"
-
-			. "SECTION COMPOSITION (pair sections for maximum impact):\n"
-			. "- Modern SaaS (use blueprint modern-saas): hero-aurora > logo-bar-glass > features-bento > stats-gradient > testimonials-modern > pricing-glass > faq-modern > cta-aurora\n"
-			. "- Agency Portfolio (use blueprint agency-portfolio): hero-glass > features-glass > content-glass-cards > testimonials-modern > process-modern > cta-aurora\n"
-			. "- Product Launch (use blueprint product-launch): hero-aurora > logo-bar-glass > features-glass > stats-gradient > pricing-glass > faq-modern > cta-aurora\n"
-			. "- Landing page: hero > features > social-proof > benefits > pricing > FAQ > CTA\n"
-			. "- About/Story: hero > mission > team/media-text > timeline > values > CTA\n"
-			. 'RULES: Never put two similar sections back-to-back (e.g. two feature grids). '
-			. "Alternate background colors: dark > light > dark > light. Every page ends with a strong CTA section.\n\n"
-
-			. "ANTI-PATTERNS (never do these):\n"
-			. "- Bare unstyled blocks without section wrappers\n"
-			. "- All sections with the same background color (creates a wall of text)\n"
-			. "- Inconsistent heading sizes across sections\n"
-			. "- Tiny buttons with no padding\n"
-			. "- Feature grids without icons or visual anchors (just text columns)\n"
-			. "- More than 4 columns (2-3 is optimal for readability)\n\n"
-
-			. 'COPYWRITING: Write real, compelling copy — not placeholder text. Use specific numbers ("50,000+ customers"), '
-			. 'power verbs ("Transform", "Unleash", "Accelerate"), and benefit-driven language. '
-			. "Headlines: punchy (3-8 words). Subheadings: one-sentence value proposition. Body: concrete and persuasive.\n\n"
-
-			. 'IMAGES: ALWAYS call search_media first to find real images from the media library. '
-			. 'If the user provides a specific image URL, use import_media to download it first. '
-			. 'Only fall back to placeholder URLs if no suitable images exist. '
-			. "Placeholder syntax: \"https://placehold.co/WIDTHxHEIGHT/BGHEX/TEXTHEX\" (no # in hex).\n\n"
-
-			. 'BLOCK VARIETY: Use the right block for the job. core/cover for hero banners, '
-			. 'core/media-text for side-by-side, core/quote for testimonials, core/details for FAQ. '
-			. "Don't default to core/columns for everything.\n\n";
+			. 'IMAGES: ALWAYS call search_media first. If user provides a URL, use import_media. '
+			. "Fallback: \"https://placehold.co/WIDTHxHEIGHT/BGHEX/TEXTHEX\" (no # in hex).\n\n";
 
 		// Few-shot examples.
 		$section .= $this->get_block_examples();
@@ -580,21 +552,249 @@ class Prompt_Builder {
 	 */
 	private function get_block_examples() {
 		return "<examples>\n"
-			. "<example name=\"WRONG - never do this\">\n"
-			. "NEVER create bare unstyled blocks like:\n"
-			. "[{ blockName: \"core/heading\", innerHTML: \"Title\" }, { blockName: \"core/paragraph\", innerHTML: \"Text.\" }]\n"
-			. "This produces ugly unstyled content. ALWAYS wrap content in a styled core/group with background color, padding, and typography.\n"
+			. "<example name=\"WRONG - anti-pattern\">\n"
+			. "NEVER: bare unstyled blocks, 3+ sections with identical structure, 10+ sections, only core/group+heading+paragraph.\n"
+			. "ALWAYS: wrap in styled sections, vary block types, cap at 6-8 sections, use cover/media-text/quote/details.\n"
 			. "</example>\n\n"
-			. "<example name=\"Modern glassmorphic section\">\n"
-			. "Premium dark section with glass card, gradient text, and glow button:\n"
-			. "core/group (align:\"full\", className:\"wpa-aurora wpa-noise\", bg:#0c0c14, padding 120px) > constrained layout >\n"
-			. "  core/heading (className:\"wpa-gradient-text\", 72px, weight 800, -0.04em tracking) +\n"
-			. "  core/paragraph (18px, color #a1a1aa, 1.6 line-height) +\n"
-			. "  core/buttons > core/button (className:\"wpa-glow\", bg:#6366f1, radius 100px, padding 18px 48px)\n"
-			. "Feature cards: core/columns (className:\"wpa-stagger-children\") > core/column > core/group (className:\"wpa-glass wpa-lift\", padding 32px)\n"
-			. "PREFER patterns: hero-aurora, features-glass, pricing-glass, cta-aurora, etc. for standard sections.\n"
+
+			. "<example name=\"Dark SaaS hero (aurora)\">\n"
+			. "core/cover (align:full, minHeight:100vh, customOverlayColor:#0c0c14, className:\"wpa-aurora wpa-noise\") >\n"
+			. "  constrained inner > core/heading (className:\"wpa-gradient-text\", 64px, -0.04em) +\n"
+			. "  core/paragraph (18px, #a1a1aa) + core/buttons > core/button (className:\"wpa-glow\", bg:#6366f1, radius:100px)\n"
+			. "</example>\n\n"
+
+			. "<example name=\"Light minimal hero\">\n"
+			. "core/cover (align:full, minHeight:90vh, customOverlayColor:#ffffff) >\n"
+			. "  constrained inner > core/heading (56px, #111827, -0.03em) +\n"
+			. "  core/paragraph (18px, #6b7280) + core/buttons > core/button (bg:#111827, text:#fff, radius:8px)\n"
+			. "</example>\n\n"
+
+			. "<example name=\"Warm earth feature cards\">\n"
+			. "core/group (align:full, bg:#faf5f0, padding:100px) > constrained >\n"
+			. "  core/heading (36px, #92400e, center) +\n"
+			. "  core/columns (className:\"wpa-stagger-children\") > 3x core/column > core/group (bg:#fff, padding:32px, radius:16px, shadow) >\n"
+			. "    core/paragraph (fontSize:32px = emoji icon) + core/heading (20px, #92400e) + core/paragraph (16px, #78716c)\n"
+			. "</example>\n\n"
+
+			. "<example name=\"Glass feature cards (dark)\">\n"
+			. "core/group (align:full, bg:#0c0c14, padding:100px) > constrained >\n"
+			. "  core/columns (className:\"wpa-stagger-children\") > 3x core/column >\n"
+			. "    core/group (className:\"wpa-glass wpa-lift\", padding:32px) > heading + paragraph\n"
+			. "</example>\n\n"
+
+			. "<example name=\"Stats bar (accent background)\">\n"
+			. "core/group (align:full, bg:#6366f1, padding:60px) > constrained > core/columns > 4x core/column >\n"
+			. "  core/heading (48px, #fff, center, bold) + core/paragraph (14px, rgba(255,255,255,0.8), center, uppercase)\n"
+			. "</example>\n\n"
+
+			. "<example name=\"Light testimonial (quote block)\">\n"
+			. "core/group (align:full, bg:#f9fafb, padding:100px) > constrained >\n"
+			. "  core/quote (className:\"wpa-fade-up\", fontSize:20px, #374151, italic, borderLeft:4px solid #6366f1) >\n"
+			. "    innerHTML: quote text + cite: \"Jane Doe, CEO at Acme\"\n"
+			. "</example>\n\n"
+
+			. "<example name=\"CTA section (gradient)\">\n"
+			. "core/group (align:full, gradient:\"linear-gradient(135deg,#6366f1,#8b5cf6)\", padding:100px, center) > constrained >\n"
+			. "  core/heading (42px, #fff) + core/paragraph (18px, rgba(255,255,255,0.9)) +\n"
+			. "  core/buttons > core/button (bg:#fff, text:#6366f1, radius:100px, padding:16px 48px)\n"
+			. "</example>\n\n"
+
+			. "<example name=\"Media-text section\">\n"
+			. "core/media-text (align:full, mediaUrl:\"...\", mediaPosition:\"right\", isStackedOnMobile:true, bg:#f9fafb) >\n"
+			. "  core/heading (36px, #111827) + core/paragraph (16px, #6b7280) + core/buttons > core/button\n"
 			. "</example>\n"
 			. "</examples>\n\n";
+	}
+
+	/**
+	 * Get the design system section with concrete spacing, typography, and color rules.
+	 *
+	 * Replaces vague "generous whitespace" with actionable design system specs.
+	 *
+	 * @since 1.2.0
+	 * @return string
+	 */
+	private function get_design_system_section() {
+		return "<design_system>\n"
+			. "SPACING (8pt grid): 4/8/16/24/32/48/64/80/100/120/160px.\n"
+			. "- Section padding: 80-120px vertical, 40px horizontal.\n"
+			. "- Card padding: 24-40px. Card gap: 24-32px. Element gap: 8-16px.\n"
+			. "- Section divider: 0px (seamless) or 1px border.\n\n"
+
+			. "TYPOGRAPHY SCALE:\n"
+			. "- Display/Hero H1: 56-72px, weight 800, tracking -0.04em, line-height 1.1\n"
+			. "- Section H2: 36-48px, weight 700, tracking -0.02em, line-height 1.2\n"
+			. "- Card H3: 20-24px, weight 600, line-height 1.3\n"
+			. "- Body: 16-18px, weight 400, line-height 1.6\n"
+			. "- Small/Caption: 14px, weight 400\n"
+			. "- Overline/Label: 12-14px, weight 600, uppercase, tracking 0.08em\n\n"
+
+			. "COLOR 60-30-10 RULE:\n"
+			. "- 60% background (dark-bg or light-bg depending on theme)\n"
+			. "- 30% surface/cards (slightly offset from background)\n"
+			. "- 10% accent/primary (CTAs, highlights, links)\n"
+			. "Use ONE palette consistently across ALL sections. Never drift to random colors.\n\n"
+
+			. "VISUAL HIERARCHY (strongest to weakest): size > weight > color > position > whitespace.\n"
+			. "Hero heading = largest + boldest. CTA button = brightest accent color. Body text = neutral/muted.\n"
+			. "</design_system>\n\n";
+	}
+
+	/**
+	 * Get the design themes section with 16 diverse color palettes.
+	 *
+	 * Replaces 7 dark-only palettes with balanced dark/light/warm/vibrant options.
+	 *
+	 * @since 1.2.0
+	 * @return string
+	 */
+	private function get_design_themes_section() {
+		return "<design_themes>\n"
+			. "Choose a theme based on site type, user request, or reference URL. Each has 6 hex values.\n"
+			. "Format: primary | accent | dark-bg | light-bg | text | muted\n\n"
+
+			. "DARK THEMES:\n"
+			. "Modern Dark (SaaS/tech default): #6366f1 | #06b6d4 | #0c0c14 | #f8fafc | #e2e8f0 | #64748b\n"
+			. "Midnight Blue (corporate tech): #3b82f6 | #f59e0b | #0f172a | #f8fafc | #e2e8f0 | #94a3b8\n"
+			. "Cyberpunk Neon (gaming/crypto): #f43f5e | #22d3ee | #09090b | #fafafa | #e4e4e7 | #71717a\n"
+			. "Emerald Night (fintech/health): #10b981 | #a78bfa | #022c22 | #ecfdf5 | #d1fae5 | #6ee7b7\n\n"
+
+			. "LIGHT THEMES:\n"
+			. "Clean White (minimal SaaS): #111827 | #6366f1 | #111827 | #ffffff | #111827 | #6b7280\n"
+			. "Soft Gray (corporate): #2563eb | #f59e0b | #1e293b | #f1f5f9 | #1e293b | #64748b\n"
+			. "Warm Ivory (premium/editorial): #92400e | #b45309 | #1c1917 | #faf5f0 | #292524 | #78716c\n\n"
+
+			. "WARM/EARTH THEMES:\n"
+			. "Terracotta Earth (restaurant/artisan): #c2410c | #15803d | #431407 | #fff7ed | #431407 | #a8a29e\n"
+			. "Sage Garden (wellness/organic): #166534 | #ca8a04 | #14532d | #f0fdf4 | #14532d | #6b7280\n"
+			. "Sand Dune (real estate/luxury): #a16207 | #1e3a5f | #422006 | #fefce8 | #422006 | #a8a29e\n\n"
+
+			. "VIBRANT THEMES:\n"
+			. "Sunset Gradient (creative/event): #e11d48 | #f59e0b | #1e1b4b | #fff1f2 | #1e1b4b | #6b7280\n"
+			. "Ocean Breeze (travel/lifestyle): #0891b2 | #6366f1 | #164e63 | #ecfeff | #164e63 | #6b7280\n"
+			. "Pastel Soft (education/kids): #7c3aed | #ec4899 | #581c87 | #faf5ff | #3b0764 | #a78bfa\n\n"
+
+			. "SPECIAL THEMES:\n"
+			. "Monochrome Editorial (portfolio/agency): #171717 | #a3a3a3 | #000000 | #fafafa | #171717 | #737373\n"
+			. "Luxury Gold (high-end/fashion): #d4af37 | #1a1a2e | #0a0a0a | #faf9f6 | #1a1a2e | #737373\n"
+			. "Brutalist Raw (design studio): #dc2626 | #171717 | #fafafa | #fafafa | #000000 | #525252\n\n"
+
+			. "THEME PAIRING RULES:\n"
+			. "- Dark themes: use wpa-glass, wpa-aurora, wpa-glow effects. Cards = glass on dark bg.\n"
+			. "- Light themes: use box-shadow for depth, wpa-glass-light for cards, wpa-lift for hover.\n"
+			. "- Warm themes: use solid-colored cards, rounded corners (16px), no glass effects.\n"
+			. "- Vibrant themes: gradient CTAs, bold accent blocks, wpa-gradient-text headings.\n"
+			. "When theme colors are available from design tokens, prefer those over presets.\n"
+			. "</design_themes>\n\n";
+	}
+
+	/**
+	 * Get the section patterns section with 30+ design patterns.
+	 *
+	 * Teaches the AI to compose varied sections from blocks, not just core/group.
+	 *
+	 * @since 1.2.0
+	 * @return string
+	 */
+	private function get_section_patterns_section() {
+		return "<section_patterns>\n"
+			. "HEROES (pick ONE per page):\n"
+			. "- Split hero: 2-column (text left, image right via core/media-text). Clean, corporate.\n"
+			. "- Gradient mesh: core/cover with gradient overlay + centered text. Bold, modern.\n"
+			. "- Animated text: large heading with wpa-gradient-text + minimal body. Agency feel.\n"
+			. "- Product showcase: core/cover with product image + overlay text + CTA. E-commerce.\n"
+			. "- Minimal text: centered heading (72px) + one-line subhead + button. Stripe-like.\n"
+			. "- Full image: core/cover with full background image, overlay, centered content.\n\n"
+
+			. "FEATURES (1-2 per page):\n"
+			. "- Bento grid: wpa-bento-grid with mixed-size cards (8/4/6/6 spans). Tech/SaaS.\n"
+			. "- Icon cards: core/columns (3 cols) each with emoji icon (32px) + heading + text.\n"
+			. "- Alternating media-text: 2-3 core/media-text blocks alternating image position.\n"
+			. "- Large spotlight: one feature per row with big image + text. Apple-style.\n"
+			. "- Checklist: core/list with check mark emojis + descriptions.\n\n"
+
+			. "SOCIAL PROOF (1 per page):\n"
+			. "- Logo bar: core/columns (5-6 cols) with company logos/names. Adds credibility.\n"
+			. "- Testimonial cards: core/columns (2-3 cols) each with core/quote block.\n"
+			. "- Stats bar: core/columns (3-4 cols) with big numbers + labels. Accent bg.\n"
+			. "- Rating showcase: star rating + quote + author. Single testimonial.\n\n"
+
+			. "CTAs (1 per page, always last or second-to-last):\n"
+			. "- Gradient banner: core/group with gradient bg + centered heading + button.\n"
+			. "- Split CTA: core/media-text with compelling image + text + button.\n"
+			. "- Minimal centered: heading + short text + large button on neutral bg.\n"
+			. "- Floating card: core/group with card (wpa-glass or shadow) + CTA inside.\n\n"
+
+			. "CONTENT:\n"
+			. "- Timeline: vertical numbered steps using core/group blocks.\n"
+			. "- Steps/Process: horizontal core/columns with numbered headings.\n"
+			. "- Accordion FAQ: core/details blocks inside a core/group.\n"
+			. "- Grid gallery: core/columns with core/image blocks.\n\n"
+
+			. "PRICING (1 per page):\n"
+			. "- 3-tier: core/columns (3 cols), middle column highlighted (wpa-border-glow or accent bg).\n"
+			. "- Single highlight: one featured plan large + centered, secondary plans below.\n"
+			. "</section_patterns>\n\n";
+	}
+
+	/**
+	 * Get the media-free design section for pages without images.
+	 *
+	 * Teaches the AI to build beautiful pages when search_media returns nothing.
+	 *
+	 * @since 1.2.0
+	 * @return string
+	 */
+	private function get_media_free_design_section() {
+		return "<media_free_design>\n"
+			. "When search_media returns no results, build visually rich pages WITHOUT images:\n"
+			. "- Emoji icons (32-48px paragraph): visual anchors for feature cards.\n"
+			. "- CSS gradients as backgrounds: linear-gradient(135deg, #6366f1, #8b5cf6) on sections.\n"
+			. "- Oversized typography as visual element: 72-96px hero headings with wpa-gradient-text.\n"
+			. "- Decorative numbers: 64px bold accent-colored numbers for process/step sections.\n"
+			. "- Unicode shapes as bullets: arrows, circles, diamonds in lists.\n"
+			. "- core/separator + core/spacer as design elements between sections.\n"
+			. "- RULE: Every section must have a visual element beyond plain text.\n"
+			. "- NEVER use broken image URLs or placeholder images on a media-free page.\n"
+			. "</media_free_design>\n\n";
+	}
+
+	/**
+	 * Get the industry design section with 8 industry profiles.
+	 *
+	 * Maps business types to recommended themes, section sequences, and design tips.
+	 *
+	 * @since 1.2.0
+	 * @return string
+	 */
+	private function get_industry_design_section() {
+		return "<industry_design>\n"
+			. "Match design to industry. When user mentions their business type, use these profiles:\n\n"
+
+			. "SaaS/Tech: theme=Modern Dark or Clean White. Sections: hero(animated)→logos→features(bento)→stats→testimonials→pricing→faq→cta. "
+			. "Effects: glass cards, aurora, gradient text. Vibe: Stripe/Linear.\n\n"
+
+			. "Agency/Studio: theme=Monochrome Editorial. Sections: hero(minimal-text)→portfolio(grid)→services→testimonials→team→cta. "
+			. "Effects: wpa-lift, wpa-tilt. Vibe: minimal, bold typography.\n\n"
+
+			. "eCommerce: theme=Clean White or Warm Ivory. Sections: hero(product-showcase)→features(benefits)→testimonials→products→cta. "
+			. "Effects: wpa-hover-zoom on products. Vibe: clean, product-focused.\n\n"
+
+			. "Restaurant/Food: theme=Terracotta Earth. Sections: hero(full-image)→about(media-text)→menu-highlights→gallery→reviews→contact. "
+			. "No glass effects. Rounded corners, warm tones, food imagery.\n\n"
+
+			. "Real Estate: theme=Sand Dune. Sections: hero(split)→featured-listings→services→stats→testimonials→contact. "
+			. "Professional, clean. Property images essential.\n\n"
+
+			. "Fitness/Wellness: theme=Emerald Night or Sage Garden. Sections: hero(bold-image)→programs→stats→testimonials→pricing→cta. "
+			. "Energetic, strong typography.\n\n"
+
+			. "Portfolio/Creative: theme=Monochrome or Luxury Gold. Sections: hero(animated-text)→work(grid-gallery)→about(media-text)→process→contact. "
+			. "Let work speak. Minimal UI.\n\n"
+
+			. "Education/Nonprofit: theme=Pastel Soft or Ocean Breeze. Sections: hero→mission→programs(icon-cards)→impact(stats)→testimonials→cta. "
+			. "Approachable, warm, accessible.\n"
+			. "</industry_design>\n\n";
 	}
 
 	/**
@@ -710,20 +910,17 @@ class Prompt_Builder {
 	 */
 	private function get_pattern_library_section() {
 		return "<pattern_library>\n"
-			. 'You have access to a curated library of 42+ professionally designed patterns across 15 categories, '
-			. "plus 7 full-page blueprints (landing-page, saas-landing, startup-page, about-page, modern-saas, agency-portfolio, product-launch).\n\n"
-			. 'PATTERN-FIRST RULE: For standard page sections, ALWAYS use get_pattern instead of building raw blocks. '
-			. "Patterns are pre-designed, responsive, and visually polished. Use them for:\n"
-			. "- Heroes, features, testimonials, pricing, CTAs, stats, FAQ, footers, headers, content sections.\n\n"
+			. 'You have 100+ professionally designed patterns across 20 categories in dark, light, warm, and colorful variants, '
+			. "plus 17 full-page blueprints for common industries.\n\n"
+			. 'PATTERN-FIRST RULE: ALWAYS use get_pattern for standard sections. '
+			. "Patterns are pre-designed, responsive, and polished. Raw blocks only for truly unique layouts.\n\n"
 			. "Pattern workflow:\n"
-			. "1. list_patterns to see available patterns and their categories.\n"
-			. "2. get_pattern with the pattern slug and variable overrides to customize text, colors, and images.\n"
+			. "1. list_patterns → see categories and available patterns.\n"
+			. "2. get_pattern with slug + variable overrides → customize text, colors, images.\n"
 			. "3. insert_blocks with the returned block structure.\n\n"
-			. "Variable overrides let you customize ANY pattern without editing raw blocks:\n"
-			. "- Text: {\"heading\": \"Your Title\", \"description\": \"Your text\"}\n"
-			. "- Colors: {\"primary_color\": \"#hex\", \"background_color\": \"#hex\"}\n"
-			. "- Images: {\"image_url\": \"https://...\"}\n\n"
-			. "Only build raw blocks for truly unique/custom sections that no pattern covers.\n"
+			. "Variable overrides: {\"heading\": \"...\", \"primary_color\": \"#hex\", \"background_color\": \"#hex\", \"image_url\": \"https://...\"}\n\n"
+			. "IMPORTANT: Patterns come in theme variants (-light, -warm, -dark). "
+			. "Match the pattern variant to your chosen theme. Don't use dark patterns on a light-themed page.\n"
 			. "</pattern_library>\n\n";
 	}
 
@@ -796,94 +993,68 @@ class Prompt_Builder {
 	 */
 	private function get_animations_section() {
 		return "<animations_and_effects>\n"
-			. "You have a powerful visual effects library. Apply effects via the className attribute on any block.\n\n"
+			. "Apply effects via the className attribute on any block. ALL classes use the \"wpa-\" prefix. "
+			. "Classes without \"wpa-\" prefix produce ZERO visual effect.\n\n"
 
-			. 'CRITICAL CLASS NAMING RULE: ALL animation/effect classes use the "wpa-" prefix. '
-			. 'ONLY classes starting with "wpa-" will work. Do NOT invent your own class names — '
-			. 'classes like "enhanced-aurora", "nike-fade-in", "floating-element", "glassmorphic", "magnetic" '
-			. "DO NOT EXIST and produce NO visual effect. ONLY use the exact class names listed below.\n\n"
+			. "SCROLL ENTRANCE ANIMATIONS (fire once on scroll into view):\n"
+			. "Fade: wpa-fade-up, wpa-fade-down, wpa-fade-left, wpa-fade-right\n"
+			. "Scale: wpa-scale-up (0.8→1), wpa-scale-down (1.1→1), wpa-zoom-in (0.92→1)\n"
+			. "Slide: wpa-slide-left, wpa-slide-right\n"
+			. "3D: wpa-rotate-in (-8deg), wpa-flip-up (rotateX), wpa-flip-left (rotateY)\n"
+			. "Reveal: wpa-blur-in (blur→sharp), wpa-clip-up, wpa-clip-left, wpa-clip-right, wpa-clip-circle\n"
+			. "Spring: wpa-elastic-up, wpa-elastic-scale\n"
+			. "Text: wpa-text-reveal (clip-path text reveal)\n"
+			. "Stagger: wpa-stagger-children (children animate one-by-one), wpa-stagger-left (from left)\n\n"
 
-			. "SCROLL ANIMATIONS (fire once on scroll into view):\n"
-			. "- wpa-fade-up: Fades in while sliding up (best for most sections).\n"
-			. "- wpa-fade-down: Fades in while sliding down (headers, top elements).\n"
-			. "- wpa-slide-left: Slides in from the left (left-side content, images).\n"
-			. "- wpa-slide-right: Slides in from the right (right-side content, images).\n"
-			. "- wpa-zoom-in: Scales up from 92% (cards, images, CTA blocks).\n"
-			. "- wpa-stagger-children: Animates child elements one by one (feature grids, card rows).\n\n"
+			. "VISUAL EFFECTS (always active):\n"
+			. "Glass: wpa-glass (dark bg frosted), wpa-glass-light (light bg frosted)\n"
+			. "Glow: wpa-glow (hover), wpa-glow-accent (currentColor), wpa-border-glow (persistent)\n"
+			. "Gradient: wpa-gradient-text (indigo→violet), wpa-gradient-border (indigo→cyan)\n\n"
 
-			. "VISUAL EFFECTS (always active, no scroll trigger):\n"
-			. "- wpa-glass: Glassmorphic card — frosted glass with blur, subtle border. Use on dark backgrounds for premium cards.\n"
-			. "- wpa-glass-light: Light glassmorphic — white frosted glass for light backgrounds.\n"
-			. "- wpa-glow: Indigo glow on hover. Apply to primary CTA buttons for attention.\n"
-			. "- wpa-glow-accent: Glow using the element's current text color.\n"
-			. "- wpa-border-glow: Persistent glowing border — great for highlighted pricing tiers or featured cards.\n"
-			. "- wpa-gradient-text: Gradient text (indigo to violet). Apply to hero H1 headings for premium feel.\n"
-			. "- wpa-gradient-border: Gradient border (indigo to cyan). Use on numbered circles, featured elements.\n\n"
+			. "TEXT EFFECTS: wpa-gradient-sunset, wpa-gradient-ocean, wpa-gradient-forest, wpa-gradient-gold, "
+			. "wpa-text-glow, wpa-text-stroke, wpa-text-backdrop\n\n"
 
-			. "BACKGROUND EFFECTS (apply to section-level groups):\n"
-			. "- wpa-aurora: Animated aurora gradient (purple/cyan/violet blobs). Perfect for hero and CTA sections.\n"
-			. "- wpa-noise: Grain texture overlay (5% opacity). Adds depth to dark sections. Requires position:relative on parent.\n"
-			. "- wpa-blur-bg: Decorative blur orb. Use as absolute-positioned child element for ambient glow.\n\n"
+			. "BACKGROUND EFFECTS (section-level):\n"
+			. "wpa-aurora (animated gradient), wpa-noise (grain overlay), wpa-blur-bg (blur orb)\n"
+			. "wpa-mesh-gradient, wpa-dots, wpa-grid-lines, wpa-gradient-orbs, wpa-starfield, wpa-wave, wpa-wave-top\n\n"
 
-			. "INTERACTIVE EFFECTS (hover/motion):\n"
-			. "- wpa-lift: Lifts element 8px on hover with enhanced shadow. Use on interactive cards (pricing, features).\n"
-			. "- wpa-tilt: 3D tilt on hover. Use on standalone cards or images for depth.\n"
-			. "- wpa-float: Gentle floating animation (continuous). Use on decorative elements, icons.\n"
-			. "- wpa-shine: Shimmer sweep across element. Use on featured pricing or highlight cards.\n\n"
+			. "INTERACTIVE (hover/motion):\n"
+			. "wpa-lift (8px up + shadow), wpa-tilt (3D), wpa-tilt-lg (dramatic 8deg), wpa-float, wpa-shine\n"
+			. "wpa-hover-glow, wpa-hover-zoom, wpa-hover-border, wpa-hover-magnetic, wpa-ripple, wpa-hover-shadow, wpa-hover-bright\n\n"
 
-			. "LAYOUT:\n"
-			. "- wpa-bento-grid: CSS Grid bento layout (8/4/6/6/4/8 column spans). Use for bento feature grids.\n\n"
+			. "3D EFFECTS: wpa-card-3d, wpa-flip-card (180deg Y), wpa-parallax-slow (scroll-linked), "
+			. "wpa-perspective (container), wpa-depth-1, wpa-depth-2\n\n"
 
-			. "MODIFIERS (combine with any animation class):\n"
-			. "- Delay: wpa-delay-100, wpa-delay-200, wpa-delay-300, wpa-delay-400, wpa-delay-500\n"
-			. "- Duration: wpa-duration-300 (fast), wpa-duration-500, wpa-duration-700, wpa-duration-1000 (slow)\n\n"
+			. "CONTINUOUS: wpa-pulse, wpa-heartbeat, wpa-bounce, wpa-orbit, wpa-spin, wpa-spin-slow, "
+			. "wpa-color-cycle, wpa-morph, wpa-spotlight\n\n"
 
-			. "COMPLETE LIST OF VALID CLASSES (nothing else works):\n"
-			. 'wpa-fade-up, wpa-fade-down, wpa-slide-left, wpa-slide-right, wpa-zoom-in, wpa-stagger-children, '
-			. 'wpa-glass, wpa-glass-light, wpa-glow, wpa-glow-accent, wpa-border-glow, wpa-gradient-text, '
-			. 'wpa-gradient-border, wpa-aurora, wpa-noise, wpa-blur-bg, wpa-lift, wpa-tilt, wpa-float, wpa-shine, '
-			. 'wpa-bento-grid, wpa-delay-100, wpa-delay-200, wpa-delay-300, wpa-delay-400, wpa-delay-500, '
-			. "wpa-duration-300, wpa-duration-500, wpa-duration-700, wpa-duration-1000\n\n"
+			. "LAYOUT: wpa-bento-grid, wpa-grid-asymmetric, wpa-grid-masonry, wpa-grid-offset, "
+			. "wpa-overlap, wpa-marquee, wpa-marquee-reverse\n\n"
 
-			. "MODERN DESIGN RULES (2026-GRADE):\n"
-			. "- For SaaS/tech pages: DEFAULT to dark backgrounds (#0c0c14) with glassmorphic cards and aurora effects.\n"
-			. "- Apply wpa-gradient-text to hero H1 headings for premium feel.\n"
-			. "- Use wpa-glass cards instead of plain colored cards when building on dark backgrounds.\n"
-			. "- Apply wpa-glow to the primary CTA button and wpa-border-glow to featured pricing tiers.\n"
-			. "- Apply wpa-lift to interactive cards (pricing, features) for hover feedback.\n"
-			. "- Use wpa-aurora + wpa-noise on hero and CTA sections for depth.\n"
-			. "- Combine effects: className: \"wpa-glass wpa-lift wpa-border-glow\" for a premium featured card.\n"
-			. "- Do NOT apply scroll animations to hero sections (above the fold).\n"
-			. "- Apply scroll animations to 3-5 below-fold sections. Use wpa-stagger-children on card grids.\n"
-			. 'CRITICAL: NEVER use add_custom_css to set opacity:0 on .wp-block-* classes. This hides ALL content site-wide with no JavaScript to reveal it. '
-			. "For animations, ONLY use wpa-* className attributes on individual blocks — the IntersectionObserver script handles the rest automatically.\n\n"
+			. "MODIFIERS:\n"
+			. "Delay: wpa-delay-100 through wpa-delay-500, wpa-delay-600, wpa-delay-700, wpa-delay-800, wpa-delay-900, wpa-delay-1000\n"
+			. "Duration: wpa-duration-300, wpa-duration-500, wpa-duration-700, wpa-duration-1000, wpa-duration-1500\n"
+			. "Easing: wpa-ease-elastic, wpa-ease-bounce, wpa-ease-spring, wpa-ease-smooth\n"
+			. "Other: wpa-reverse\n\n"
 
-			. "ANTI-PATTERN — WRONG CLASS NAMES (these DO NOT WORK):\n"
-			. "- enhanced-aurora, enhanced-glow, enhanced-glass (WRONG — use wpa-aurora, wpa-glow, wpa-glass)\n"
-			. "- nike-fade-in, nike-stagger, nike-button (WRONG — use wpa-fade-up, wpa-stagger-children, wpa-glow)\n"
-			. "- floating-element, magnetic, glassmorphic (WRONG — use wpa-float, wpa-tilt, wpa-glass)\n"
-			. "- fade-in, slide-in, zoom, glow, glass (WRONG — always prefix with wpa-)\n"
-			. "ANY class name that does not start with \"wpa-\" produces ZERO visual effect.\n\n"
+			. "ANIMATION CHOREOGRAPHY:\n"
+			. "- Hero: NO scroll animations (above fold). Use wpa-aurora/wpa-noise for bg, wpa-gradient-text for H1.\n"
+			. "- Feature cards: wpa-stagger-children on the columns, wpa-glass/wpa-lift on each card.\n"
+			. "- Stats: wpa-fade-up or wpa-scale-up on the section.\n"
+			. "- Testimonials: wpa-fade-up with wpa-delay-200.\n"
+			. "- CTA: wpa-zoom-in or wpa-scale-up for entrance, wpa-glow on the button.\n"
+			. "- Max 5 animated sections per page. Over-animation feels cheap.\n\n"
 
-			. "Example glass card: {\"blockName\":\"core/group\",\"attrs\":{\"className\":\"wpa-glass wpa-lift\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"32px\",\"bottom\":\"32px\",\"left\":\"28px\",\"right\":\"28px\"}}}},\"innerBlocks\":[...]}\n"
-			. "Example aurora hero: {\"blockName\":\"core/group\",\"attrs\":{\"className\":\"wpa-aurora wpa-noise\",\"align\":\"full\",\"style\":{\"color\":{\"background\":\"#0c0c14\"}}},\"innerBlocks\":[...]}\n\n"
+			. "SEAMLESS PAGE RULES:\n"
+			. "- EVERY section: align:full + explicit background color. No missing backgrounds (causes white gaps).\n"
+			. "- For dark pages: body gets wpa-page-dark automatically. For light pages: wpa-page-light (no forced dark bg).\n"
+			. "- Consistent section padding: 80-120px vertical, 40px horizontal.\n"
+			. "- Wrap inner content in constrained layout: {\"layout\":{\"type\":\"constrained\",\"contentSize\":\"1200px\"}}.\n"
+			. 'CRITICAL: NEVER use add_custom_css to set opacity:0 on .wp-block-* classes. '
+			. "Only use wpa-* className on individual blocks.\n\n"
 
-			. "SEAMLESS DARK LANDING PAGE RULES (CRITICAL):\n"
-			. "When building a full-page layout, follow these rules for a polished, seamless look:\n"
-			. "1. EVERY section must use align:full — set {\"align\":\"full\"} on every top-level core/group and core/cover.\n"
-			. "2. EVERY section must have a dark background — set style.color.background to \"#0a0a0a\" or \"#0c0c14\".\n"
-			. "   Never leave a section without a background color. A missing background creates visible white gaps.\n"
-			. "3. For core/cover blocks, use \"customOverlayColor\":\"#0a0a0a\" (NOT \"overlayColor\" with a hex value).\n"
-			. "4. Use consistent section padding: {\"spacing\":{\"padding\":{\"top\":\"100px\",\"bottom\":\"100px\",\"left\":\"40px\",\"right\":\"40px\"}}}.\n"
-			. "5. Wrap inner content in a constrained group: {\"layout\":{\"type\":\"constrained\",\"contentSize\":\"1200px\"}}.\n"
-			. "6. Alternate between section styles to create visual rhythm:\n"
-			. "   - Hero: core/cover with wpa-aurora wpa-noise, full-viewport (minHeight:100vh)\n"
-			. "   - Content sections: core/group with align:full and #0a0a0a background\n"
-			. "   - CTA: core/cover with background image, wpa-aurora wpa-noise\n"
-			. "   - Footer: core/group with #0a0a0a background, smaller padding\n"
-			. "7. Build at least 6-8 sections for a complete landing page.\n"
-			. "8. The animation system automatically sets the page body to dark and removes gaps between sections.\n\n"
-
+			. "WRONG CLASS NAMES (DO NOT WORK): enhanced-aurora, nike-fade-in, floating-element, glassmorphic, "
+			. "magnetic, fade-in, slide-in — always use wpa-* prefix.\n"
 			. "</animations_and_effects>\n\n";
 	}
 
@@ -897,16 +1068,20 @@ class Prompt_Builder {
 	 */
 	private function get_self_critique_section() {
 		return "<self_critique>\n"
-			. "After building a full page (5+ sections), use screenshot_page and evaluate:\n"
-			. "- PALETTE: Do all sections use the same 4 colors? If a section drifts, fix it with insert_blocks at that position.\n"
-			. "- TYPOGRAPHY: Are heading sizes consistent (same level = same size)? Hero H1 should be biggest, section H2s all equal.\n"
-			. "- RHYTHM: Is vertical spacing consistent? Every section should have the same top/bottom padding.\n"
-			. "- CONTRAST: Can you read every line of text against its background? Light text on dark, dark text on light.\n"
-			. "- CTA: Is the primary call-to-action the most visually dominant element? Bold color, large size, clear label.\n"
-			. "- FLOW: Does the page tell a story? Hook (hero) > Intrigue (features) > Trust (proof) > Action (CTA).\n\n"
-			. 'If issues are found: call insert_blocks with the specific position to fix just the broken section. '
-			. "Do NOT rebuild the entire page — surgical fixes only.\n"
-			. "Skip self-critique for single-section edits or non-page tasks.\n"
+			. "After building a full page (5+ sections), screenshot_page and check:\n"
+			. "- PALETTE: All sections use same 4 colors? No drifting to random colors mid-page.\n"
+			. "- TYPOGRAPHY: Heading sizes consistent? Hero H1 biggest, all section H2s same size.\n"
+			. "- SPACING: Vertical padding consistent? Every section same top/bottom padding.\n"
+			. "- CONTRAST: Every line readable against its background?\n"
+			. "- COLOR RATIO: ~60% background, ~30% surface/cards, ~10% accent. Not all one color.\n"
+			. "- CTA: Primary CTA is the most visually dominant element?\n"
+			. "- FLOW: Hook (hero) > Intrigue (features) > Trust (proof) > Action (CTA).\n"
+			. "- BLOCK VARIETY: Did you use 4+ different block types? Not all core/group?\n"
+			. "- SECTION COUNT: Did you stay within 6-8 sections? Not 15+?\n"
+			. "- ANIMATION COUNT: Max 5 animated sections. More feels cheap.\n"
+			. "- NO REPEATS: No 3+ consecutive sections with identical structure.\n\n"
+			. "If issues found: surgical fix with insert_blocks at that position. Do NOT rebuild entire page.\n"
+			. "Skip for single-section edits.\n"
 			. "</self_critique>\n\n";
 	}
 
