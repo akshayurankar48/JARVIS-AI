@@ -36,8 +36,10 @@ class Edit_Post implements Action_Interface {
 	 * @return string
 	 */
 	public function get_description(): string {
-		return 'Update metadata of an existing WordPress post or page (title, status, excerpt, slug, categories, tags). '
+		return 'Update metadata of an existing WordPress post or page (title, status, excerpt, slug, categories, tags, scheduled date). '
 			. 'Only the fields you provide will be changed. '
+			. 'To schedule a post, set post_date to a future datetime (e.g. "2025-12-25 09:00:00") — '
+			. 'the status will automatically be set to "future". '
 			. 'IMPORTANT: Do NOT use this tool to set post_content when the user is in the Gutenberg editor — use insert_blocks instead, '
 			. 'which produces properly structured blocks with styling. '
 			. 'Use edit_post only for metadata changes like publishing a draft, changing the title, or updating the excerpt.';
@@ -72,7 +74,15 @@ class Edit_Post implements Action_Interface {
 				'post_status'   => [
 					'type'        => 'string',
 					'description' => 'New status for the post.',
-					'enum'        => [ 'draft', 'publish', 'pending', 'private' ],
+					'enum'        => [ 'draft', 'publish', 'pending', 'private', 'future' ],
+				],
+				'post_date'     => [
+					'type'        => 'string',
+					'description' => 'Post date in "YYYY-MM-DD HH:MM:SS" format. Set to a future date to schedule the post.',
+				],
+				'post_date_gmt' => [
+					'type'        => 'string',
+					'description' => 'Post date in GMT. If omitted but post_date is set, GMT is calculated automatically.',
 				],
 				'post_name'     => [
 					'type'        => 'string',
@@ -164,10 +174,40 @@ class Edit_Post implements Action_Interface {
 		}
 
 		if ( ! empty( $params['post_status'] ) ) {
-			$allowed_statuses = [ 'draft', 'publish', 'pending', 'private' ];
+			$allowed_statuses = [ 'draft', 'publish', 'pending', 'private', 'future' ];
 			$status           = sanitize_text_field( $params['post_status'] );
 			if ( in_array( $status, $allowed_statuses, true ) ) {
 				$args['post_status'] = $status;
+			}
+		}
+
+		// Handle scheduling via post_date.
+		if ( ! empty( $params['post_date'] ) ) {
+			$timestamp = strtotime( $params['post_date'] );
+			if ( false === $timestamp ) {
+				return [
+					'success' => false,
+					'data'    => null,
+					'message' => __( 'Invalid post_date format. Use "YYYY-MM-DD HH:MM:SS".', 'wp-agent' ),
+				];
+			}
+
+			$args['post_date']    = gmdate( 'Y-m-d H:i:s', $timestamp );
+			$args['edit_date']    = true;
+
+			if ( ! empty( $params['post_date_gmt'] ) ) {
+				$gmt_timestamp         = strtotime( $params['post_date_gmt'] );
+				$args['post_date_gmt'] = false !== $gmt_timestamp ? gmdate( 'Y-m-d H:i:s', $gmt_timestamp ) : '';
+			} else {
+				$args['post_date_gmt'] = get_gmt_from_date( $args['post_date'] );
+			}
+
+			// Auto-set status to 'future' when date is in the future and status is 'publish' or not explicitly set.
+			if ( $timestamp > time() ) {
+				$explicit_status = $params['post_status'] ?? '';
+				if ( empty( $explicit_status ) || 'publish' === $explicit_status ) {
+					$args['post_status'] = 'future';
+				}
 			}
 		}
 
