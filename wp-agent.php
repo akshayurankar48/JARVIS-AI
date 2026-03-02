@@ -55,7 +55,14 @@ register_deactivation_hook(
 	function () {
 		// Clean up transients.
 		global $wpdb;
-		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_wp_agent_%' OR option_name LIKE '_transient_timeout_wp_agent_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+				$wpdb->esc_like( '_transient_wp_agent_' ) . '%',
+				$wpdb->esc_like( '_transient_timeout_wp_agent_' ) . '%'
+			)
+		);
 
 		flush_rewrite_rules();
 	}

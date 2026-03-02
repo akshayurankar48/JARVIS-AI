@@ -22,16 +22,31 @@ class Bulk_Find_Replace implements Action_Interface {
 
 	const MAX_POSTS = 500;
 
+	/**
+	 * Get the action name.
+	 *
+	 * @return string Action identifier.
+	 */
 	public function get_name(): string {
 		return 'bulk_find_replace';
 	}
 
+	/**
+	 * Get the action description.
+	 *
+	 * @return string Human-readable description.
+	 */
 	public function get_description(): string {
 		return 'Find and replace text across multiple posts. Supports post_content, post_title, '
 			. 'post_excerpt, and post meta. Use "preview" for a dry run first, then "execute" to apply. '
 			. 'Maximum 500 posts per run.';
 	}
 
+	/**
+	 * Get the parameter schema for this action.
+	 *
+	 * @return array JSON Schema definition for action parameters.
+	 */
 	public function get_parameters(): array {
 		return array(
 			'type'       => 'object',
@@ -66,14 +81,30 @@ class Bulk_Find_Replace implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Get the WordPress capability required to run this action.
+	 *
+	 * @return string Required capability.
+	 */
 	public function get_capabilities_required(): string {
 		return 'manage_options';
 	}
 
+	/**
+	 * Whether this action can be undone.
+	 *
+	 * @return bool True if reversible.
+	 */
 	public function is_reversible(): bool {
 		return true;
 	}
 
+	/**
+	 * Execute the bulk find and replace action.
+	 *
+	 * @param array $params Action parameters including operation, find, replace, scope, and post_type.
+	 * @return array Result with success status, data, and message.
+	 */
 	public function execute( array $params ): array {
 		$operation = $params['operation'] ?? '';
 		$find      = $params['find'] ?? '';
@@ -102,6 +133,16 @@ class Bulk_Find_Replace implements Action_Interface {
 		return $this->find_and_replace( $find, $replace, $scope, $post_type, $dry_run );
 	}
 
+	/**
+	 * Perform the find and replace across posts and meta.
+	 *
+	 * @param string $find      Text to search for.
+	 * @param string $replace   Replacement text.
+	 * @param array  $scope     Fields to search in.
+	 * @param string $post_type Limit to a specific post type.
+	 * @param bool   $dry_run   Whether to preview without applying changes.
+	 * @return array Result with success status, data, and message.
+	 */
 	private function find_and_replace( string $find, string $replace, array $scope, string $post_type, bool $dry_run ) {
 		global $wpdb;
 

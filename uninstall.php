@@ -18,6 +18,8 @@ $tables = array(
 	$wpdb->prefix . 'agent_messages',
 	$wpdb->prefix . 'agent_checkpoints',
 	$wpdb->prefix . 'agent_history',
+	$wpdb->prefix . 'agent_scheduled_tasks',
+	$wpdb->prefix . 'agent_memory',
 );
 
 foreach ( $tables as $table ) {
@@ -25,7 +27,20 @@ foreach ( $tables as $table ) {
 }
 
 // Delete all plugin options.
-$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE 'wp_agent_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+$wpdb->query(
+	$wpdb->prepare(
+		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+		$wpdb->esc_like( 'wp_agent_' ) . '%'
+	)
+);
 
 // Delete all plugin transients.
-$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_wp_agent_%' OR option_name LIKE '_transient_timeout_wp_agent_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+$wpdb->query(
+	$wpdb->prepare(
+		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+		$wpdb->esc_like( '_transient_wp_agent_' ) . '%',
+		$wpdb->esc_like( '_transient_timeout_wp_agent_' ) . '%'
+	)
+);

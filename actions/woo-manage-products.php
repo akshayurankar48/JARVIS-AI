@@ -10,17 +10,43 @@ namespace WPAgent\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Class Woo_Manage_Products
+ *
+ * Handles WooCommerce product management including list, create, update, and delete operations.
+ *
+ * @package WP_Agent
+ * @since   1.1.0
+ */
 class Woo_Manage_Products implements Action_Interface {
 
+	/**
+	 * Get the action identifier.
+	 *
+	 * @since  1.1.0
+	 * @return string Action identifier.
+	 */
 	public function get_name(): string {
 		return 'woo_manage_products';
 	}
 
+	/**
+	 * Get the human-readable description.
+	 *
+	 * @since  1.1.0
+	 * @return string Human-readable description.
+	 */
 	public function get_description(): string {
 		return 'Manage WooCommerce products. List, create, update, or delete products. '
 			. 'Supports simple and variable product types with pricing, stock, categories, and images.';
 	}
 
+	/**
+	 * Get the JSON Schema definition for action parameters.
+	 *
+	 * @since  1.1.0
+	 * @return array JSON Schema definition for action parameters.
+	 */
 	public function get_parameters(): array {
 		return array(
 			'type'       => 'object',
@@ -82,14 +108,34 @@ class Woo_Manage_Products implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Get the required WordPress capability.
+	 *
+	 * @since  1.1.0
+	 * @return string Required capability.
+	 */
 	public function get_capabilities_required(): string {
 		return 'manage_woocommerce';
 	}
 
+	/**
+	 * Check whether this action is reversible.
+	 *
+	 * @since  1.1.0
+	 * @return bool True if reversible.
+	 */
 	public function is_reversible(): bool {
 		return true;
 	}
 
+	/**
+	 * Execute the product management action.
+	 *
+	 * @since  1.1.0
+	 *
+	 * @param  array $params Action parameters.
+	 * @return array Result with success status, data, and message.
+	 */
 	public function execute( array $params ): array {
 		$operation = $params['operation'] ?? '';
 
@@ -111,6 +157,14 @@ class Woo_Manage_Products implements Action_Interface {
 		}
 	}
 
+	/**
+	 * List published WooCommerce products with pagination.
+	 *
+	 * @since  1.1.0
+	 *
+	 * @param  array $params Action parameters including per_page and page.
+	 * @return array Result with paginated list of products.
+	 */
 	private function list_products( array $params ) {
 		$per_page = isset( $params['per_page'] ) ? min( absint( $params['per_page'] ), 50 ) : 20;
 		$page     = isset( $params['page'] ) ? absint( $params['page'] ) : 1;
@@ -149,6 +203,14 @@ class Woo_Manage_Products implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Create a new WooCommerce product.
+	 *
+	 * @since  1.1.0
+	 *
+	 * @param  array $params Action parameters including name, type, price, and other product fields.
+	 * @return array Result with new product_id and name.
+	 */
 	private function create_product( array $params ) {
 		$name = sanitize_text_field( $params['name'] ?? '' );
 		if ( empty( $name ) ) {
@@ -199,6 +261,14 @@ class Woo_Manage_Products implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Update an existing WooCommerce product.
+	 *
+	 * @since  1.1.0
+	 *
+	 * @param  array $params Action parameters including product_id and fields to update.
+	 * @return array Result with product_id and list of updated fields.
+	 */
 	private function update_product( array $params ) {
 		$product_id = absint( $params['product_id'] ?? 0 );
 		if ( ! $product_id ) {
@@ -254,6 +324,14 @@ class Woo_Manage_Products implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Permanently delete a WooCommerce product.
+	 *
+	 * @since  1.1.0
+	 *
+	 * @param  array $params Action parameters including product_id.
+	 * @return array Result with deleted product_id.
+	 */
 	private function delete_product( array $params ) {
 		$product_id = absint( $params['product_id'] ?? 0 );
 		if ( ! $product_id ) {

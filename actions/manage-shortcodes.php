@@ -20,15 +20,33 @@ defined( 'ABSPATH' ) || exit;
  */
 class Manage_Shortcodes implements Action_Interface {
 
+	/**
+	 * Get the action name.
+	 *
+	 * @since 1.1.0
+	 * @return string
+	 */
 	public function get_name(): string {
 		return 'manage_shortcodes';
 	}
 
+	/**
+	 * Get the action description.
+	 *
+	 * @since 1.1.0
+	 * @return string
+	 */
 	public function get_description(): string {
 		return 'List all registered shortcodes, preview a shortcode\'s rendered output, '
 			. 'or find which posts use a specific shortcode. Read-only — does not modify content.';
 	}
 
+	/**
+	 * Get the JSON Schema for parameters.
+	 *
+	 * @since 1.1.0
+	 * @return array
+	 */
 	public function get_parameters(): array {
 		return array(
 			'type'       => 'object',
@@ -55,14 +73,34 @@ class Manage_Shortcodes implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Get the required capability.
+	 *
+	 * @since 1.1.0
+	 * @return string
+	 */
 	public function get_capabilities_required(): string {
 		return 'edit_posts';
 	}
 
+	/**
+	 * Whether this action is reversible.
+	 *
+	 * @since 1.1.0
+	 * @return bool
+	 */
 	public function is_reversible(): bool {
 		return false;
 	}
 
+	/**
+	 * Execute the action.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $params Validated parameters.
+	 * @return array Execution result.
+	 */
 	public function execute( array $params ): array {
 		$operation = $params['operation'] ?? '';
 
@@ -82,6 +120,12 @@ class Manage_Shortcodes implements Action_Interface {
 		}
 	}
 
+	/**
+	 * List all registered shortcodes with their callback sources.
+	 *
+	 * @since 1.1.0
+	 * @return array Execution result.
+	 */
 	private function list_shortcodes() {
 		global $shortcode_tags;
 
@@ -121,6 +165,14 @@ class Manage_Shortcodes implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Render a shortcode and return its HTML output.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $params Action parameters including shortcode tag, attributes, and content.
+	 * @return array Execution result.
+	 */
 	private function preview_shortcode( array $params ) {
 		$tag        = sanitize_text_field( $params['shortcode'] ?? '' );
 		$attributes = isset( $params['attributes'] ) && is_array( $params['attributes'] ) ? $params['attributes'] : array();
@@ -174,6 +226,14 @@ class Manage_Shortcodes implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Find posts that contain a specific shortcode.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $params Action parameters including shortcode tag.
+	 * @return array Execution result.
+	 */
 	private function find_usage( array $params ) {
 		global $wpdb;
 

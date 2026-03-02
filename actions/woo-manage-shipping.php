@@ -10,16 +10,42 @@ namespace WPAgent\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Class Woo_Manage_Shipping
+ *
+ * Handles WooCommerce shipping zone and method management operations.
+ *
+ * @package WP_Agent
+ * @since   1.1.0
+ */
 class Woo_Manage_Shipping implements Action_Interface {
 
+	/**
+	 * Get the action identifier.
+	 *
+	 * @since  1.1.0
+	 * @return string Action identifier.
+	 */
 	public function get_name(): string {
 		return 'woo_manage_shipping';
 	}
 
+	/**
+	 * Get the human-readable description.
+	 *
+	 * @since  1.1.0
+	 * @return string Human-readable description.
+	 */
 	public function get_description(): string {
 		return 'Manage WooCommerce shipping zones and methods. List zones, list methods in a zone, add zones, and add shipping methods.';
 	}
 
+	/**
+	 * Get the JSON Schema definition for action parameters.
+	 *
+	 * @since  1.1.0
+	 * @return array JSON Schema definition for action parameters.
+	 */
 	public function get_parameters(): array {
 		return array(
 			'type'       => 'object',
@@ -44,14 +70,34 @@ class Woo_Manage_Shipping implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Get the required WordPress capability.
+	 *
+	 * @since  1.1.0
+	 * @return string Required capability.
+	 */
 	public function get_capabilities_required(): string {
 		return 'manage_woocommerce';
 	}
 
+	/**
+	 * Check whether this action is reversible.
+	 *
+	 * @since  1.1.0
+	 * @return bool True if reversible.
+	 */
 	public function is_reversible(): bool {
 		return true;
 	}
 
+	/**
+	 * Execute the shipping management action.
+	 *
+	 * @since  1.1.0
+	 *
+	 * @param  array $params Action parameters.
+	 * @return array Result with success status, data, and message.
+	 */
 	public function execute( array $params ): array {
 		$operation = $params['operation'] ?? '';
 

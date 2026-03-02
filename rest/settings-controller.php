@@ -513,12 +513,6 @@ class Settings_Controller {
 	}
 
 	/**
-	 * Define argument schema for POST /settings.
-	 *
-	 * @since 1.0.0
-	 * @return array
-	 */
-	/**
 	 * Validate and save a provider API key.
 	 *
 	 * @since 1.0.0
@@ -564,6 +558,12 @@ class Settings_Controller {
 		return true;
 	}
 
+	/**
+	 * Define argument schema for POST /settings.
+	 *
+	 * @since 1.0.0
+	 * @return array
+	 */
 	private function get_update_args() {
 		return array(
 			'api_key'            => array(

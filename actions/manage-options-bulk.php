@@ -37,6 +37,19 @@ class Manage_Options_Bulk implements Action_Interface {
 		'db_password',
 		'wp_agent_openrouter_key',
 		'wp_agent_tavily_key',
+		'siteurl',
+		'home',
+		'active_plugins',
+		'users_can_register',
+		'default_role',
+		'template',
+		'stylesheet',
+		'wp_user_roles',
+		'admin_email',
+		'mailserver_pass',
+		'db_user',
+		'db_host',
+		'db_name',
 	);
 
 	/**
@@ -52,15 +65,33 @@ class Manage_Options_Bulk implements Action_Interface {
 		'_api_key',
 	);
 
+	/**
+	 * Get the action name.
+	 *
+	 * @since 1.1.0
+	 * @return string
+	 */
 	public function get_name(): string {
 		return 'manage_options_bulk';
 	}
 
+	/**
+	 * Get the action description.
+	 *
+	 * @since 1.1.0
+	 * @return string
+	 */
 	public function get_description(): string {
 		return 'Get, set, delete, or search WordPress options. Sensitive options (API keys, passwords, salts) '
 			. 'are blocked for security. Use "search" to find options by name pattern.';
 	}
 
+	/**
+	 * Get the JSON Schema for parameters.
+	 *
+	 * @since 1.1.0
+	 * @return array
+	 */
 	public function get_parameters(): array {
 		return array(
 			'type'       => 'object',
@@ -94,14 +125,34 @@ class Manage_Options_Bulk implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Get the required capability.
+	 *
+	 * @since 1.1.0
+	 * @return string
+	 */
 	public function get_capabilities_required(): string {
 		return 'manage_options';
 	}
 
+	/**
+	 * Whether this action is reversible.
+	 *
+	 * @since 1.1.0
+	 * @return bool
+	 */
 	public function is_reversible(): bool {
 		return true;
 	}
 
+	/**
+	 * Execute the action.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $params Validated parameters.
+	 * @return array Execution result.
+	 */
 	public function execute( array $params ): array {
 		$operation = $params['operation'] ?? '';
 
@@ -123,6 +174,14 @@ class Manage_Options_Bulk implements Action_Interface {
 		}
 	}
 
+	/**
+	 * Check whether an option name is blocked from access.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param string $name Option name to check.
+	 * @return bool True if the option is blocked.
+	 */
 	private function is_blocked( string $name ) {
 		if ( in_array( $name, self::BLOCKLIST, true ) ) {
 			return true;
@@ -137,6 +196,14 @@ class Manage_Options_Bulk implements Action_Interface {
 		return false;
 	}
 
+	/**
+	 * Retrieve multiple WordPress options by name.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $params Action parameters containing options array.
+	 * @return array Execution result.
+	 */
 	private function get_options( array $params ) {
 		$options = isset( $params['options'] ) && is_array( $params['options'] ) ? $params['options'] : array();
 
@@ -181,6 +248,14 @@ class Manage_Options_Bulk implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Set multiple WordPress options.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $params Action parameters containing options array with name-value pairs.
+	 * @return array Execution result.
+	 */
 	private function set_options( array $params ) {
 		$options = isset( $params['options'] ) && is_array( $params['options'] ) ? $params['options'] : array();
 
@@ -209,6 +284,10 @@ class Manage_Options_Bulk implements Action_Interface {
 			$value = $opt['value'];
 			if ( is_string( $value ) ) {
 				$value = sanitize_text_field( $value );
+			} elseif ( is_array( $value ) ) {
+				$value = map_deep( $value, 'sanitize_text_field' );
+			} elseif ( ! is_bool( $value ) && ! is_int( $value ) && ! is_float( $value ) ) {
+				continue; // Skip unsupported types.
 			}
 
 			update_option( $name, $value );
@@ -230,6 +309,14 @@ class Manage_Options_Bulk implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Delete multiple WordPress options by name.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $params Action parameters containing options array.
+	 * @return array Execution result.
+	 */
 	private function delete_options( array $params ) {
 		$options = isset( $params['options'] ) && is_array( $params['options'] ) ? $params['options'] : array();
 
@@ -274,6 +361,14 @@ class Manage_Options_Bulk implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Search WordPress options by name pattern.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $params Action parameters containing search pattern.
+	 * @return array Execution result.
+	 */
 	private function search_options( array $params ) {
 		global $wpdb;
 

@@ -10,16 +10,42 @@ namespace WPAgent\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Class Woo_Manage_Orders
+ *
+ * Handles WooCommerce order management including listing, details, status updates, and notes.
+ *
+ * @package WP_Agent
+ * @since   1.1.0
+ */
 class Woo_Manage_Orders implements Action_Interface {
 
+	/**
+	 * Get the action identifier.
+	 *
+	 * @since  1.1.0
+	 * @return string Action identifier.
+	 */
 	public function get_name(): string {
 		return 'woo_manage_orders';
 	}
 
+	/**
+	 * Get the human-readable description.
+	 *
+	 * @since  1.1.0
+	 * @return string Human-readable description.
+	 */
 	public function get_description(): string {
 		return 'Manage WooCommerce orders. List recent orders, get order details, update order status, or add order notes.';
 	}
 
+	/**
+	 * Get the JSON Schema definition for action parameters.
+	 *
+	 * @since  1.1.0
+	 * @return array JSON Schema definition for action parameters.
+	 */
 	public function get_parameters(): array {
 		return array(
 			'type'       => 'object',
@@ -51,14 +77,34 @@ class Woo_Manage_Orders implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Get the required WordPress capability.
+	 *
+	 * @since  1.1.0
+	 * @return string Required capability.
+	 */
 	public function get_capabilities_required(): string {
 		return 'manage_woocommerce';
 	}
 
+	/**
+	 * Check whether this action is reversible.
+	 *
+	 * @since  1.1.0
+	 * @return bool True if reversible.
+	 */
 	public function is_reversible(): bool {
 		return true;
 	}
 
+	/**
+	 * Execute the order management action.
+	 *
+	 * @since  1.1.0
+	 *
+	 * @param  array $params Action parameters.
+	 * @return array Result with success status, data, and message.
+	 */
 	public function execute( array $params ): array {
 		$operation = $params['operation'] ?? '';
 
@@ -80,6 +126,14 @@ class Woo_Manage_Orders implements Action_Interface {
 		}
 	}
 
+	/**
+	 * List recent WooCommerce orders with optional status filtering.
+	 *
+	 * @since  1.1.0
+	 *
+	 * @param  array $params Action parameters including per_page, page, and filter_status.
+	 * @return array Result with paginated list of orders.
+	 */
 	private function list_orders( array $params ) {
 		$per_page = isset( $params['per_page'] ) ? min( absint( $params['per_page'] ), 50 ) : 20;
 		$page     = isset( $params['page'] ) ? absint( $params['page'] ) : 1;
@@ -120,6 +174,14 @@ class Woo_Manage_Orders implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Get detailed information for a single order.
+	 *
+	 * @since  1.1.0
+	 *
+	 * @param  array $params Action parameters including order_id.
+	 * @return array Result with order details including items, billing, and shipping.
+	 */
 	private function get_order( array $params ) {
 		$order_id = absint( $params['order_id'] ?? 0 );
 		if ( ! $order_id ) {
@@ -166,6 +228,14 @@ class Woo_Manage_Orders implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Update the status of a WooCommerce order.
+	 *
+	 * @since  1.1.0
+	 *
+	 * @param  array $params Action parameters including order_id and status.
+	 * @return array Result with old and new status values.
+	 */
 	private function update_status( array $params ) {
 		$order_id = absint( $params['order_id'] ?? 0 );
 		$status   = sanitize_text_field( $params['status'] ?? '' );
@@ -201,6 +271,14 @@ class Woo_Manage_Orders implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Add a note to a WooCommerce order.
+	 *
+	 * @since  1.1.0
+	 *
+	 * @param  array $params Action parameters including order_id and note text.
+	 * @return array Result with order_id and note_id.
+	 */
 	private function add_note( array $params ) {
 		$order_id = absint( $params['order_id'] ?? 0 );
 		$note     = sanitize_textarea_field( $params['note'] ?? '' );
@@ -234,6 +312,14 @@ class Woo_Manage_Orders implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Mask an email address for privacy by hiding part of the local portion.
+	 *
+	 * @since  1.1.0
+	 *
+	 * @param  string $email The email address to mask.
+	 * @return string Masked email address.
+	 */
 	private function mask_email( $email ) {
 		if ( empty( $email ) || strpos( $email, '@' ) === false ) {
 			return '***';

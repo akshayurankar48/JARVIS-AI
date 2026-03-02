@@ -103,9 +103,20 @@ class Export_Site implements Action_Interface {
 		$status       = isset( $params['status'] ) ? sanitize_text_field( $params['status'] ) : 'all';
 
 		$upload_dir = wp_upload_dir();
-		$filename   = 'wp-agent-export-' . gmdate( 'Y-m-d-His' ) . '.xml';
-		$filepath   = trailingslashit( $upload_dir['basedir'] ) . $filename;
-		$file_url   = trailingslashit( $upload_dir['baseurl'] ) . $filename;
+		$secret     = wp_generate_password( 32, false );
+		$filename   = 'wp-agent-export-' . gmdate( 'Y-m-d-His' ) . '-' . $secret . '.xml';
+		$export_dir = trailingslashit( $upload_dir['basedir'] ) . 'wp-agent-exports';
+		wp_mkdir_p( $export_dir );
+
+		// Protect the directory from direct browsing.
+		$htaccess = $export_dir . '/.htaccess';
+		if ( ! file_exists( $htaccess ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			file_put_contents( $htaccess, "Options -Indexes\nDeny from all" );
+		}
+
+		$filepath = trailingslashit( $export_dir ) . $filename;
+		$file_url = admin_url( 'admin-ajax.php?action=wp_agent_download_export&file=' . rawurlencode( $filename ) . '&nonce=' . wp_create_nonce( 'wp_agent_export_' . $filename ) );
 
 		$args = array(
 			'content' => 'all' === $content_type ? 'all' : $content_type,
@@ -128,8 +139,13 @@ class Export_Site implements Action_Interface {
 			);
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		$written = file_put_contents( $filepath, $xml_content );
+		global $wp_filesystem;
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		WP_Filesystem();
+
+		$written = $wp_filesystem->put_contents( $filepath, $xml_content, FS_CHMOD_FILE );
 
 		if ( false === $written ) {
 			return array(
@@ -139,6 +155,8 @@ class Export_Site implements Action_Interface {
 			);
 		}
 
+		$file_size = $wp_filesystem->size( $filepath );
+
 		// Schedule cleanup after 1 hour.
 		wp_schedule_single_event( time() + HOUR_IN_SECONDS, 'wp_agent_cleanup_export', array( $filepath ) );
 
@@ -147,13 +165,13 @@ class Export_Site implements Action_Interface {
 			'data'    => array(
 				'download_url' => $file_url,
 				'filename'     => $filename,
-				'size'         => size_format( $written ),
+				'size'         => size_format( $file_size ),
 				'content_type' => $content_type,
 			),
 			'message' => sprintf(
 				/* translators: 1: file size, 2: content type */
 				__( 'Site export complete (%1$s, content: %2$s). Download link is valid for 1 hour.', 'wp-agent' ),
-				size_format( $written ),
+				size_format( $file_size ),
 				$content_type
 			),
 		);

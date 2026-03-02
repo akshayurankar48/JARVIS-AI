@@ -15,11 +15,35 @@ use WPAgent\Actions\Manage_Scheduled_Tasks;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Class Schedules_Controller
+ *
+ * Manages scheduled task operations via REST API.
+ *
+ * @package WP_Agent
+ * @since   1.1.0
+ */
 class Schedules_Controller extends \WP_REST_Controller {
 
+	/**
+	 * REST API namespace.
+	 *
+	 * @var string
+	 */
 	protected $namespace = 'wp-agent/v1';
+
+	/**
+	 * REST route base.
+	 *
+	 * @var string
+	 */
 	protected $rest_base = 'schedules';
 
+	/**
+	 * Register REST routes for scheduled tasks.
+	 *
+	 * @return void
+	 */
 	public function register_routes() {
 		register_rest_route(
 			$this->namespace,
@@ -59,10 +83,22 @@ class Schedules_Controller extends \WP_REST_Controller {
 		);
 	}
 
+	/**
+	 * Check if the current user can manage scheduled tasks.
+	 *
+	 * @return bool True if user has manage_options capability.
+	 */
 	public function check_permission() {
 		return current_user_can( 'manage_options' );
 	}
 
+	/**
+	 * GET /wp-agent/v1/schedules
+	 *
+	 * Returns all scheduled tasks with their status and next run time.
+	 *
+	 * @return \WP_REST_Response
+	 */
 	public function get_tasks() {
 		$tasks  = get_option( Manage_Scheduled_Tasks::OPTION_KEY, array() );
 		$result = array();
@@ -87,6 +123,14 @@ class Schedules_Controller extends \WP_REST_Controller {
 		return rest_ensure_response( $result );
 	}
 
+	/**
+	 * POST /wp-agent/v1/schedules/{task_id}/{action}
+	 *
+	 * Pause, resume, or delete a scheduled task.
+	 *
+	 * @param \WP_REST_Request $request The request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
 	public function update_task( $request ) {
 		$task_id = $request->get_param( 'task_id' );
 		$action  = $request->get_param( 'action' );

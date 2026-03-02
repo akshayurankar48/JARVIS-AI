@@ -10,16 +10,42 @@ namespace WPAgent\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Class Woo_Manage_Categories
+ *
+ * Handles WooCommerce product category management including list, create, update, and delete.
+ *
+ * @package WP_Agent
+ * @since   1.1.0
+ */
 class Woo_Manage_Categories implements Action_Interface {
 
+	/**
+	 * Get the action identifier.
+	 *
+	 * @since  1.1.0
+	 * @return string Action identifier.
+	 */
 	public function get_name(): string {
 		return 'woo_manage_categories';
 	}
 
+	/**
+	 * Get the action description.
+	 *
+	 * @since 1.1.0
+	 * @return string
+	 */
 	public function get_description(): string {
 		return 'Manage WooCommerce product categories. List, create, update, or delete product categories.';
 	}
 
+	/**
+	 * Get the JSON Schema for parameters.
+	 *
+	 * @since 1.1.0
+	 * @return array
+	 */
 	public function get_parameters(): array {
 		return array(
 			'type'       => 'object',
@@ -41,14 +67,34 @@ class Woo_Manage_Categories implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Get the required capability.
+	 *
+	 * @since 1.1.0
+	 * @return string
+	 */
 	public function get_capabilities_required(): string {
 		return 'manage_woocommerce';
 	}
 
+	/**
+	 * Whether this action is reversible.
+	 *
+	 * @since 1.1.0
+	 * @return bool
+	 */
 	public function is_reversible(): bool {
 		return true;
 	}
 
+	/**
+	 * Execute the action.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $params Validated parameters.
+	 * @return array Execution result.
+	 */
 	public function execute( array $params ): array {
 		$operation = $params['operation'] ?? '';
 
@@ -75,6 +121,7 @@ class Woo_Manage_Categories implements Action_Interface {
 				return array(
 					'success' => true,
 					'data'    => array( 'categories' => $list ),
+					/* translators: %d: number of categories */
 					'message' => sprintf( __( '%d category(ies).', 'wp-agent' ), count( $list ) ),
 				);
 

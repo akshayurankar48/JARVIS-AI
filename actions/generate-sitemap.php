@@ -20,15 +20,30 @@ defined( 'ABSPATH' ) || exit;
  */
 class Generate_Sitemap implements Action_Interface {
 
+	/**
+	 * Get the action name.
+	 *
+	 * @return string Action identifier.
+	 */
 	public function get_name(): string {
 		return 'generate_sitemap';
 	}
 
+	/**
+	 * Get the action description.
+	 *
+	 * @return string Human-readable description.
+	 */
 	public function get_description(): string {
 		return 'Check sitemap status, generate a sitemap XML file, or ping search engines (Google, Bing) '
 			. 'with your sitemap URL. Uses WordPress core sitemaps (WP 5.5+) when available.';
 	}
 
+	/**
+	 * Get the parameter schema for this action.
+	 *
+	 * @return array JSON Schema definition for action parameters.
+	 */
 	public function get_parameters(): array {
 		return array(
 			'type'       => 'object',
@@ -43,14 +58,30 @@ class Generate_Sitemap implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Get the WordPress capability required to run this action.
+	 *
+	 * @return string Required capability.
+	 */
 	public function get_capabilities_required(): string {
 		return 'manage_options';
 	}
 
+	/**
+	 * Whether this action can be undone.
+	 *
+	 * @return bool True if reversible.
+	 */
 	public function is_reversible(): bool {
 		return false;
 	}
 
+	/**
+	 * Execute the sitemap action based on the operation parameter.
+	 *
+	 * @param array $params Action parameters including operation type.
+	 * @return array Result with success status, data, and message.
+	 */
 	public function execute( array $params ): array {
 		$operation = $params['operation'] ?? '';
 
@@ -70,6 +101,11 @@ class Generate_Sitemap implements Action_Interface {
 		}
 	}
 
+	/**
+	 * Check the current sitemap status.
+	 *
+	 * @return array Result with sitemap availability information.
+	 */
 	private function check_status() {
 		$has_core_sitemaps = function_exists( 'wp_sitemaps_get_server' );
 		$sitemap_url       = home_url( '/wp-sitemap.xml' );
@@ -108,6 +144,11 @@ class Generate_Sitemap implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Generate a custom XML sitemap file.
+	 *
+	 * @return array Result with sitemap URL and URL count.
+	 */
 	private function generate() {
 		global $wpdb;
 
@@ -176,6 +217,11 @@ class Generate_Sitemap implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Ping search engines with the sitemap URL.
+	 *
+	 * @return array Result with ping status for each search engine.
+	 */
 	private function ping_search_engines() {
 		$sitemap_url = home_url( '/wp-sitemap.xml' );
 

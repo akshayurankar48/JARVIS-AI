@@ -15,10 +15,28 @@ use WPAgent\Actions\Action_Registry;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Class Abilities_Bridge
+ *
+ * Bridges JARVIS actions to the WordPress Abilities API.
+ *
+ * @package WP_Agent
+ * @since   1.0.0
+ */
 class Abilities_Bridge {
 
+	/**
+	 * Singleton instance.
+	 *
+	 * @var self|null
+	 */
 	private static $instance = null;
 
+	/**
+	 * Get the singleton instance.
+	 *
+	 * @return self
+	 */
 	public static function get_instance() {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -26,6 +44,9 @@ class Abilities_Bridge {
 		return self::$instance;
 	}
 
+	/**
+	 * Constructor. Hooks into abilities API init.
+	 */
 	public function __construct() {
 		add_action( 'wp_abilities_api_init', array( $this, 'register_abilities' ) );
 
@@ -35,6 +56,11 @@ class Abilities_Bridge {
 		}
 	}
 
+	/**
+	 * Register all JARVIS actions as WordPress abilities.
+	 *
+	 * @return void
+	 */
 	public function register_abilities() {
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			return;
@@ -106,6 +132,12 @@ class Abilities_Bridge {
 		}
 	}
 
+	/**
+	 * Extract the first sentence from a text string.
+	 *
+	 * @param string $text The full text.
+	 * @return string First sentence or first 120 characters.
+	 */
 	private function get_first_sentence( $text ) {
 		$pos = strpos( $text, '.' );
 		if ( false !== $pos && $pos < 120 ) {

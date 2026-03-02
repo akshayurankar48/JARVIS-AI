@@ -15,11 +15,35 @@ use WPAgent\Actions\Manage_Scheduled_Tasks;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Class Stats_Controller
+ *
+ * Provides dashboard statistics via REST API.
+ *
+ * @package WP_Agent
+ * @since   1.1.0
+ */
 class Stats_Controller extends \WP_REST_Controller {
 
+	/**
+	 * REST API namespace.
+	 *
+	 * @var string
+	 */
 	protected $namespace = 'wp-agent/v1';
+
+	/**
+	 * REST route base.
+	 *
+	 * @var string
+	 */
 	protected $rest_base = 'stats';
 
+	/**
+	 * Register REST routes for dashboard stats.
+	 *
+	 * @return void
+	 */
 	public function register_routes() {
 		register_rest_route(
 			$this->namespace,
@@ -36,6 +60,13 @@ class Stats_Controller extends \WP_REST_Controller {
 		);
 	}
 
+	/**
+	 * GET /wp-agent/v1/stats
+	 *
+	 * Returns aggregate dashboard statistics for the current user.
+	 *
+	 * @return \WP_REST_Response
+	 */
 	public function get_stats() {
 		global $wpdb;
 

@@ -1051,18 +1051,6 @@ class Orchestrator {
 	}
 
 	/**
-	 * Resolve which model to use.
-	 *
-	 * Priority: explicit option > auto-route based on message complexity.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param array  $options      Options with optional model override.
-	 * @param string $user_message The user's message.
-	 * @param array  $history      Conversation history.
-	 * @return string OpenRouter model ID.
-	 */
-	/**
 	 * Get the appropriate AI client based on backend setting.
 	 *
 	 * Returns AI_Client_Adapter when providers are configured,
@@ -1087,6 +1075,18 @@ class Orchestrator {
 		return Open_Router_Client::get_instance();
 	}
 
+	/**
+	 * Resolve which model to use.
+	 *
+	 * Priority: explicit option > auto-route based on message complexity.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array  $options      Options with optional model override.
+	 * @param string $user_message The user's message.
+	 * @param array  $history      Conversation history.
+	 * @return string Model identifier.
+	 */
 	private function resolve_model( array $options, $user_message, array $history ) {
 		if ( ! empty( $options['model'] ) ) {
 			$router = Model_Router::get_instance();

@@ -26,15 +26,33 @@ class Manage_Roles implements Action_Interface {
 	 */
 	const PROTECTED_ROLES = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
 
+	/**
+	 * Get the action name.
+	 *
+	 * @since 1.1.0
+	 * @return string
+	 */
 	public function get_name(): string {
 		return 'manage_roles';
 	}
 
+	/**
+	 * Get the action description.
+	 *
+	 * @since 1.1.0
+	 * @return string
+	 */
 	public function get_description(): string {
 		return 'Manage WordPress user roles. List all roles with capabilities, create new roles, '
 			. 'delete custom roles, clone existing roles, add or remove capabilities from roles.';
 	}
 
+	/**
+	 * Get the JSON Schema for parameters.
+	 *
+	 * @since 1.1.0
+	 * @return array
+	 */
 	public function get_parameters(): array {
 		return array(
 			'type'       => 'object',
@@ -66,14 +84,34 @@ class Manage_Roles implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Get the required capability.
+	 *
+	 * @since 1.1.0
+	 * @return string
+	 */
 	public function get_capabilities_required(): string {
 		return 'promote_users';
 	}
 
+	/**
+	 * Whether this action is reversible.
+	 *
+	 * @since 1.1.0
+	 * @return bool
+	 */
 	public function is_reversible(): bool {
 		return true;
 	}
 
+	/**
+	 * Execute the action.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $params Validated parameters.
+	 * @return array Execution result.
+	 */
 	public function execute( array $params ): array {
 		$operation = $params['operation'] ?? '';
 
@@ -99,6 +137,12 @@ class Manage_Roles implements Action_Interface {
 		}
 	}
 
+	/**
+	 * List all registered WordPress roles with capabilities and user counts.
+	 *
+	 * @since 1.1.0
+	 * @return array Execution result.
+	 */
 	private function list_roles() {
 		global $wp_roles;
 
@@ -131,6 +175,14 @@ class Manage_Roles implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Create a new WordPress role with specified capabilities.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $params Action parameters including role, display_name, and capabilities.
+	 * @return array Execution result.
+	 */
 	private function create_role( array $params ) {
 		$role         = sanitize_key( $params['role'] ?? '' );
 		$display_name = sanitize_text_field( $params['display_name'] ?? '' );
@@ -186,6 +238,14 @@ class Manage_Roles implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Delete a custom WordPress role.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $params Action parameters including role slug.
+	 * @return array Execution result.
+	 */
 	private function delete_role( array $params ) {
 		$role = sanitize_key( $params['role'] ?? '' );
 
@@ -230,6 +290,15 @@ class Manage_Roles implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Add or remove capabilities from a role.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $params Action parameters including role and capabilities.
+	 * @param bool  $add    Whether to add (true) or remove (false) capabilities.
+	 * @return array Execution result.
+	 */
 	private function modify_caps( array $params, bool $add ) {
 		$role_slug    = sanitize_key( $params['role'] ?? '' );
 		$capabilities = isset( $params['capabilities'] ) && is_array( $params['capabilities'] ) ? $params['capabilities'] : array();
@@ -285,6 +354,14 @@ class Manage_Roles implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Clone an existing role into a new role with identical capabilities.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $params Action parameters including role, display_name, and source_role.
+	 * @return array Execution result.
+	 */
 	private function clone_role( array $params ) {
 		$new_role     = sanitize_key( $params['role'] ?? '' );
 		$display_name = sanitize_text_field( $params['display_name'] ?? '' );

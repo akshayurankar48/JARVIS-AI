@@ -10,16 +10,42 @@ namespace WPAgent\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Class Woo_Manage_Inventory
+ *
+ * Handles WooCommerce product inventory management including stock checks, updates, and reports.
+ *
+ * @package WP_Agent
+ * @since   1.1.0
+ */
 class Woo_Manage_Inventory implements Action_Interface {
 
+	/**
+	 * Get the action identifier.
+	 *
+	 * @since  1.1.0
+	 * @return string Action identifier.
+	 */
 	public function get_name(): string {
 		return 'woo_manage_inventory';
 	}
 
+	/**
+	 * Get the human-readable description.
+	 *
+	 * @since  1.1.0
+	 * @return string Human-readable description.
+	 */
 	public function get_description(): string {
 		return 'Manage WooCommerce product inventory. Check stock levels, update stock quantities, get low stock reports, or bulk update inventory.';
 	}
 
+	/**
+	 * Get the JSON Schema definition for action parameters.
+	 *
+	 * @since  1.1.0
+	 * @return array JSON Schema definition for action parameters.
+	 */
 	public function get_parameters(): array {
 		return array(
 			'type'       => 'object',
@@ -53,14 +79,34 @@ class Woo_Manage_Inventory implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Get the required WordPress capability.
+	 *
+	 * @since  1.1.0
+	 * @return string Required capability.
+	 */
 	public function get_capabilities_required(): string {
 		return 'manage_woocommerce';
 	}
 
+	/**
+	 * Check whether this action is reversible.
+	 *
+	 * @since  1.1.0
+	 * @return bool True if reversible.
+	 */
 	public function is_reversible(): bool {
 		return true;
 	}
 
+	/**
+	 * Execute the inventory management action.
+	 *
+	 * @since  1.1.0
+	 *
+	 * @param  array $params Action parameters.
+	 * @return array Result with success status, data, and message.
+	 */
 	public function execute( array $params ): array {
 		$operation = $params['operation'] ?? '';
 
@@ -82,6 +128,14 @@ class Woo_Manage_Inventory implements Action_Interface {
 		}
 	}
 
+	/**
+	 * Check the stock level for a specific product.
+	 *
+	 * @since  1.1.0
+	 *
+	 * @param  array $params Action parameters including product_id.
+	 * @return array Result with stock quantity, status, and backorder info.
+	 */
 	private function check_stock( array $params ) {
 		$product_id = absint( $params['product_id'] ?? 0 );
 		if ( ! $product_id ) {
@@ -115,6 +169,14 @@ class Woo_Manage_Inventory implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Update the stock quantity for a specific product.
+	 *
+	 * @since  1.1.0
+	 *
+	 * @param  array $params Action parameters including product_id and quantity.
+	 * @return array Result with old and new quantity values.
+	 */
 	private function update_stock( array $params ) {
 		$product_id = absint( $params['product_id'] ?? 0 );
 		$quantity   = isset( $params['quantity'] ) ? (int) $params['quantity'] : null;
@@ -152,6 +214,14 @@ class Woo_Manage_Inventory implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Generate a report of products with stock at or below a threshold.
+	 *
+	 * @since  1.1.0
+	 *
+	 * @param  array $params Action parameters including optional threshold.
+	 * @return array Result with list of low-stock products.
+	 */
 	private function low_stock_report( array $params ) {
 		$threshold = isset( $params['threshold'] ) ? absint( $params['threshold'] ) : 5;
 
@@ -190,6 +260,14 @@ class Woo_Manage_Inventory implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Bulk update stock quantities for multiple products.
+	 *
+	 * @since  1.1.0
+	 *
+	 * @param  array $params Action parameters including updates array of product_id and quantity pairs.
+	 * @return array Result with list of updated products.
+	 */
 	private function bulk_update( array $params ) {
 		$updates = isset( $params['updates'] ) && is_array( $params['updates'] ) ? $params['updates'] : array();
 

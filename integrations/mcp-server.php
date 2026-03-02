@@ -15,10 +15,28 @@ use WPAgent\Actions\Action_Registry;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Class MCP_Server
+ *
+ * Registers JARVIS abilities as MCP tools for external AI clients.
+ *
+ * @package WP_Agent
+ * @since   1.0.0
+ */
 class MCP_Server {
 
+	/**
+	 * Singleton instance.
+	 *
+	 * @var self|null
+	 */
 	private static $instance = null;
 
+	/**
+	 * Get the singleton instance.
+	 *
+	 * @return self
+	 */
 	public static function get_instance() {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -26,10 +44,18 @@ class MCP_Server {
 		return self::$instance;
 	}
 
+	/**
+	 * Constructor. Hooks into MCP adapter init.
+	 */
 	public function __construct() {
 		add_action( 'mcp_adapter_init', array( $this, 'register_mcp_server' ) );
 	}
 
+	/**
+	 * Register the MCP server with all JARVIS abilities as tools.
+	 *
+	 * @return void
+	 */
 	public function register_mcp_server() {
 		if ( ! class_exists( 'WP\\MCP\\Core\\McpAdapter' ) ) {
 			return;

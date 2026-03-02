@@ -10,16 +10,42 @@ namespace WPAgent\Actions;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Class Woo_Analytics
+ *
+ * Provides WooCommerce analytics including sales summaries, top products, and customer statistics.
+ *
+ * @package WP_Agent
+ * @since   1.1.0
+ */
 class Woo_Analytics implements Action_Interface {
 
+	/**
+	 * Get the action identifier.
+	 *
+	 * @since  1.1.0
+	 * @return string Action identifier.
+	 */
 	public function get_name(): string {
 		return 'woo_analytics';
 	}
 
+	/**
+	 * Get the action description.
+	 *
+	 * @since 1.1.0
+	 * @return string
+	 */
 	public function get_description(): string {
 		return 'Get WooCommerce analytics. Sales summary, top products, order statistics, and customer stats with date range filtering.';
 	}
 
+	/**
+	 * Get the JSON Schema for parameters.
+	 *
+	 * @since 1.1.0
+	 * @return array
+	 */
 	public function get_parameters(): array {
 		return array(
 			'type'       => 'object',
@@ -45,14 +71,34 @@ class Woo_Analytics implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Get the required capability.
+	 *
+	 * @since 1.1.0
+	 * @return string
+	 */
 	public function get_capabilities_required(): string {
 		return 'view_woocommerce_reports';
 	}
 
+	/**
+	 * Whether this action is reversible.
+	 *
+	 * @since 1.1.0
+	 * @return bool
+	 */
 	public function is_reversible(): bool {
 		return false;
 	}
 
+	/**
+	 * Execute the action.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $params Validated parameters.
+	 * @return array Execution result.
+	 */
 	public function execute( array $params ): array {
 		$operation = $params['operation'] ?? '';
 		$date_from = sanitize_text_field( $params['date_from'] ?? gmdate( 'Y-m-d', strtotime( '-30 days' ) ) );
@@ -77,6 +123,15 @@ class Woo_Analytics implements Action_Interface {
 		}
 	}
 
+	/**
+	 * Get sales summary for a date range.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param string $from Start date in YYYY-MM-DD format.
+	 * @param string $to   End date in YYYY-MM-DD format.
+	 * @return array Execution result.
+	 */
 	private function sales_summary( string $from, string $to ) {
 		global $wpdb;
 
@@ -131,6 +186,16 @@ class Woo_Analytics implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Get top-selling products by revenue for a date range.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param string $from  Start date in YYYY-MM-DD format.
+	 * @param string $to    End date in YYYY-MM-DD format.
+	 * @param int    $limit Maximum number of products to return.
+	 * @return array Execution result.
+	 */
 	private function top_products( string $from, string $to, int $limit ) {
 		global $wpdb;
 
@@ -177,6 +242,15 @@ class Woo_Analytics implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Get order statistics grouped by status for a date range.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param string $from Start date in YYYY-MM-DD format.
+	 * @param string $to   End date in YYYY-MM-DD format.
+	 * @return array Execution result.
+	 */
 	private function order_stats( string $from, string $to ) {
 		global $wpdb;
 
@@ -210,6 +284,12 @@ class Woo_Analytics implements Action_Interface {
 		);
 	}
 
+	/**
+	 * Get customer statistics including total and repeat customer counts.
+	 *
+	 * @since 1.1.0
+	 * @return array Execution result.
+	 */
 	private function customer_stats() {
 		$total_customers = count(
 			get_users(
