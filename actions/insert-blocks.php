@@ -312,6 +312,11 @@ class Insert_Blocks implements Action_Interface {
 			'innerBlocks' => [],
 		];
 
+		// Auto-correct AI-invented CSS class names to valid wpa-* equivalents.
+		if ( is_array( $sanitized['attrs'] ) && ! empty( $sanitized['attrs']['className'] ) ) {
+			$sanitized['attrs']['className'] = $this->autocorrect_animation_classes( $sanitized['attrs']['className'] );
+		}
+
 		// Recursively sanitize inner blocks.
 		if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
 			foreach ( $block['innerBlocks'] as $inner_block ) {
@@ -326,6 +331,145 @@ class Insert_Blocks implements Action_Interface {
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Auto-correct AI-invented animation class names to valid wpa-* equivalents.
+	 *
+	 * AI models frequently invent class names like "enhanced-aurora", "nike-fade-in",
+	 * "floating-element" instead of using the actual wpa-* prefix classes. This method
+	 * maps common wrong patterns to the correct animation classes.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param string $class_string Space-separated CSS class names.
+	 * @return string Corrected class names.
+	 */
+	private function autocorrect_animation_classes( string $class_string ): string {
+		// Direct replacements: wrong class name => correct wpa-* class.
+		$class_map = [
+			// Aurora/background effects.
+			'enhanced-aurora'    => 'wpa-aurora',
+			'aurora-bg'          => 'wpa-aurora',
+			'aurora-gradient'    => 'wpa-aurora',
+			'aurora'             => 'wpa-aurora',
+			'enhanced-noise'     => 'wpa-noise',
+			'noise-bg'           => 'wpa-noise',
+			'grain'              => 'wpa-noise',
+			'grain-texture'      => 'wpa-noise',
+			'blur-bg'            => 'wpa-blur-bg',
+			'blur-orb'           => 'wpa-blur-bg',
+
+			// Glass effects.
+			'enhanced-glass'     => 'wpa-glass',
+			'glassmorphism'      => 'wpa-glass',
+			'glassmorphic'       => 'wpa-glass',
+			'glass-card'         => 'wpa-glass',
+			'glass-panel'        => 'wpa-glass',
+			'frosted-glass'      => 'wpa-glass',
+			'glass-light'        => 'wpa-glass-light',
+
+			// Glow effects.
+			'enhanced-glow'      => 'wpa-glow',
+			'glow-effect'        => 'wpa-glow',
+			'neon-glow'          => 'wpa-glow',
+			'button-glow'        => 'wpa-glow',
+			'border-glow'        => 'wpa-border-glow',
+			'glow-border'        => 'wpa-border-glow',
+
+			// Gradient text.
+			'gradient-text'      => 'wpa-gradient-text',
+			'text-gradient'      => 'wpa-gradient-text',
+			'gradient-heading'   => 'wpa-gradient-text',
+			'gradient-border'    => 'wpa-gradient-border',
+
+			// Scroll animations.
+			'nike-fade-in'       => 'wpa-fade-up',
+			'fade-in'            => 'wpa-fade-up',
+			'fade-up'            => 'wpa-fade-up',
+			'fade-in-up'         => 'wpa-fade-up',
+			'scroll-fade'        => 'wpa-fade-up',
+			'animate-fade-up'    => 'wpa-fade-up',
+			'fade-down'          => 'wpa-fade-down',
+			'fade-in-down'       => 'wpa-fade-down',
+			'slide-in-left'      => 'wpa-slide-left',
+			'slide-left'         => 'wpa-slide-left',
+			'slide-in-right'     => 'wpa-slide-right',
+			'slide-right'        => 'wpa-slide-right',
+			'zoom-in'            => 'wpa-zoom-in',
+			'scale-up'           => 'wpa-zoom-in',
+			'animate-zoom'       => 'wpa-zoom-in',
+
+			// Stagger.
+			'nike-stagger'       => 'wpa-stagger-children',
+			'stagger'            => 'wpa-stagger-children',
+			'stagger-animation'  => 'wpa-stagger-children',
+			'stagger-fade'       => 'wpa-stagger-children',
+
+			// Interactive.
+			'floating-element'   => 'wpa-float',
+			'float-animation'    => 'wpa-float',
+			'floating'           => 'wpa-float',
+			'magnetic'           => 'wpa-tilt',
+			'tilt-effect'        => 'wpa-tilt',
+			'hover-tilt'         => 'wpa-tilt',
+			'hover-lift'         => 'wpa-lift',
+			'card-lift'          => 'wpa-lift',
+			'lift-effect'        => 'wpa-lift',
+			'shimmer'            => 'wpa-shine',
+			'shine-effect'       => 'wpa-shine',
+
+			// Layout.
+			'bento'              => 'wpa-bento-grid',
+			'bento-layout'       => 'wpa-bento-grid',
+			'bento-grid'         => 'wpa-bento-grid',
+		];
+
+		// Regex patterns for prefixed wrong names.
+		$prefix_patterns = [
+			'/\bnike-button\b/'   => 'wpa-glow',
+			'/\bnike-card\b/'     => 'wpa-glass wpa-lift',
+			'/\bnike-hero\b/'     => 'wpa-aurora wpa-noise',
+		];
+
+		$classes = explode( ' ', $class_string );
+		$result  = [];
+		$seen    = [];
+
+		foreach ( $classes as $class ) {
+			$class = trim( $class );
+			if ( '' === $class ) {
+				continue;
+			}
+
+			// Check direct mapping.
+			if ( isset( $class_map[ $class ] ) ) {
+				$mapped = $class_map[ $class ];
+				// Mapped value might contain multiple classes.
+				foreach ( explode( ' ', $mapped ) as $mc ) {
+					if ( ! isset( $seen[ $mc ] ) ) {
+						$result[] = $mc;
+						$seen[ $mc ] = true;
+					}
+				}
+				continue;
+			}
+
+			// Keep valid classes (wpa-*, wp-*, is-*, has-*, align*).
+			if ( ! isset( $seen[ $class ] ) ) {
+				$result[]      = $class;
+				$seen[ $class ] = true;
+			}
+		}
+
+		$output = implode( ' ', $result );
+
+		// Apply regex patterns.
+		foreach ( $prefix_patterns as $pattern => $replacement ) {
+			$output = preg_replace( $pattern, $replacement, $output );
+		}
+
+		return $output;
 	}
 
 	/**

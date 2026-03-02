@@ -78,6 +78,7 @@ class Plugin_Loader {
 
 		add_action( 'plugins_loaded', [ $this, 'load_textdomain' ] );
 		add_action( 'plugins_loaded', [ $this, 'load_admin' ] );
+		add_action( 'plugins_loaded', [ $this, 'load_frontend' ] );
 		add_action( 'admin_init', [ 'WPAgent\Core\Database', 'maybe_upgrade' ] );
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
 		add_action( 'wp_agent_register_actions', [ $this, 'register_core_actions' ] );
@@ -264,6 +265,22 @@ class Plugin_Loader {
 	public function load_admin() {
 		if ( is_admin() ) {
 			Admin\Admin_Loader::get_instance();
+		}
+	}
+
+	/**
+	 * Load frontend classes.
+	 *
+	 * Initializes assets that must enqueue on frontend pages (e.g. animation
+	 * CSS/JS). Separated from load_admin() because Assets_Manager registers
+	 * wp_enqueue_scripts hooks that only fire on non-admin requests.
+	 *
+	 * @since 1.1.0
+	 * @return void
+	 */
+	public function load_frontend() {
+		if ( ! is_admin() ) {
+			Admin\Assets_Manager::get_instance();
 		}
 	}
 

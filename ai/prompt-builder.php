@@ -798,6 +798,11 @@ class Prompt_Builder {
 		return "<animations_and_effects>\n"
 			. "You have a powerful visual effects library. Apply effects via the className attribute on any block.\n\n"
 
+			. "CRITICAL CLASS NAMING RULE: ALL animation/effect classes use the \"wpa-\" prefix. "
+			. "ONLY classes starting with \"wpa-\" will work. Do NOT invent your own class names — "
+			. "classes like \"enhanced-aurora\", \"nike-fade-in\", \"floating-element\", \"glassmorphic\", \"magnetic\" "
+			. "DO NOT EXIST and produce NO visual effect. ONLY use the exact class names listed below.\n\n"
+
 			. "SCROLL ANIMATIONS (fire once on scroll into view):\n"
 			. "- wpa-fade-up: Fades in while sliding up (best for most sections).\n"
 			. "- wpa-fade-down: Fades in while sliding down (headers, top elements).\n"
@@ -829,9 +834,16 @@ class Prompt_Builder {
 			. "LAYOUT:\n"
 			. "- wpa-bento-grid: CSS Grid bento layout (8/4/6/6/4/8 column spans). Use for bento feature grids.\n\n"
 
-			. "MODIFIERS (combine with any class):\n"
+			. "MODIFIERS (combine with any animation class):\n"
 			. "- Delay: wpa-delay-100, wpa-delay-200, wpa-delay-300, wpa-delay-400, wpa-delay-500\n"
 			. "- Duration: wpa-duration-300 (fast), wpa-duration-500, wpa-duration-700, wpa-duration-1000 (slow)\n\n"
+
+			. "COMPLETE LIST OF VALID CLASSES (nothing else works):\n"
+			. "wpa-fade-up, wpa-fade-down, wpa-slide-left, wpa-slide-right, wpa-zoom-in, wpa-stagger-children, "
+			. "wpa-glass, wpa-glass-light, wpa-glow, wpa-glow-accent, wpa-border-glow, wpa-gradient-text, "
+			. "wpa-gradient-border, wpa-aurora, wpa-noise, wpa-blur-bg, wpa-lift, wpa-tilt, wpa-float, wpa-shine, "
+			. "wpa-bento-grid, wpa-delay-100, wpa-delay-200, wpa-delay-300, wpa-delay-400, wpa-delay-500, "
+			. "wpa-duration-300, wpa-duration-500, wpa-duration-700, wpa-duration-1000\n\n"
 
 			. "MODERN DESIGN RULES (2026-GRADE):\n"
 			. "- For SaaS/tech pages: DEFAULT to dark backgrounds (#0c0c14) with glassmorphic cards and aurora effects.\n"
@@ -845,6 +857,13 @@ class Prompt_Builder {
 			. "- Apply scroll animations to 3-5 below-fold sections. Use wpa-stagger-children on card grids.\n"
 			. "CRITICAL: NEVER use add_custom_css to set opacity:0 on .wp-block-* classes. This hides ALL content site-wide with no JavaScript to reveal it. "
 			. "For animations, ONLY use wpa-* className attributes on individual blocks — the IntersectionObserver script handles the rest automatically.\n\n"
+
+			. "ANTI-PATTERN — WRONG CLASS NAMES (these DO NOT WORK):\n"
+			. "- enhanced-aurora, enhanced-glow, enhanced-glass (WRONG — use wpa-aurora, wpa-glow, wpa-glass)\n"
+			. "- nike-fade-in, nike-stagger, nike-button (WRONG — use wpa-fade-up, wpa-stagger-children, wpa-glow)\n"
+			. "- floating-element, magnetic, glassmorphic (WRONG — use wpa-float, wpa-tilt, wpa-glass)\n"
+			. "- fade-in, slide-in, zoom, glow, glass (WRONG — always prefix with wpa-)\n"
+			. "ANY class name that does not start with \"wpa-\" produces ZERO visual effect.\n\n"
 
 			. "Example glass card: {\"blockName\":\"core/group\",\"attrs\":{\"className\":\"wpa-glass wpa-lift\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"32px\",\"bottom\":\"32px\",\"left\":\"28px\",\"right\":\"28px\"}}}},\"innerBlocks\":[...]}\n"
 			. "Example aurora hero: {\"blockName\":\"core/group\",\"attrs\":{\"className\":\"wpa-aurora wpa-noise\",\"align\":\"full\",\"style\":{\"color\":{\"background\":\"#0c0c14\"}}},\"innerBlocks\":[...]}\n"
