@@ -39,6 +39,7 @@ export function useChat() {
 			isLoading: store.getIsLoading(),
 			hasApiKey: store.getHasApiKey(),
 			actionProgress: store.getActionProgress(),
+			completedSteps: store.getCompletedSteps(),
 		};
 	}, [] );
 
@@ -83,6 +84,7 @@ export function useChat() {
 		isLoading,
 		hasApiKey,
 		actionProgress,
+		completedSteps,
 		postId,
 		sendMessage,
 		stopStreaming,

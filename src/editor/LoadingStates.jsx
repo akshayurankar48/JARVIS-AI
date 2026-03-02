@@ -10,7 +10,7 @@
  */
 
 import { css } from '@emotion/css';
-import { Bot, Blocks } from 'lucide-react';
+import { Bot, Blocks, Check, AlertCircle } from 'lucide-react';
 import { colors, radii, spacing, fontSizes, fadeIn, pulse, shimmer } from './styles';
 
 /* ── ThinkingIndicator ──────────────────────────────────────────── */
@@ -144,6 +144,91 @@ export const ActionIndicator = ( { label = 'Working on it...' } ) => (
 		<div className={ actionBubble }>
 			<Blocks size={ 14 } className={ spinnerIcon } />
 			<span className={ actionLabel }>{ label }</span>
+		</div>
+	</div>
+);
+
+/* ── StepperIndicator ──────────────────────────────────────────── */
+
+const stepperWrap = css`
+	display: flex;
+	align-items: flex-start;
+	gap: ${ spacing.sm };
+	margin-bottom: ${ spacing.md };
+	animation: ${ fadeIn } 0.25s ease-out;
+`;
+
+const stepperAvatar = css`
+	flex-shrink: 0;
+	width: 28px;
+	height: 28px;
+	border-radius: ${ radii.full };
+	background: ${ colors.primaryLight };
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: ${ colors.primary };
+`;
+
+const stepperBody = css`
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: ${ spacing.sm } ${ spacing.md };
+	border-radius: ${ radii.lg };
+	border-top-left-radius: 4px;
+	background: ${ colors.primaryLight };
+	border: 1px solid ${ colors.primaryLighter };
+	min-width: 180px;
+`;
+
+const stepRow = css`
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: ${ fontSizes.xs };
+	line-height: 1.4;
+`;
+
+const stepDone = css`
+	color: #16a34a;
+	flex-shrink: 0;
+`;
+
+const stepError = css`
+	color: #dc2626;
+	flex-shrink: 0;
+`;
+
+const stepLabel = css`
+	color: ${ colors.textSecondary };
+	font-weight: 500;
+`;
+
+const stepCurrent = css`
+	color: ${ colors.primary };
+	font-weight: 600;
+`;
+
+export const StepperIndicator = ( { completedSteps = [], currentLabel = 'Working on it...' } ) => (
+	<div className={ stepperWrap }>
+		<div className={ stepperAvatar }>
+			<Bot size={ 14 } />
+		</div>
+		<div className={ stepperBody }>
+			{ completedSteps.map( ( step, i ) => (
+				<div key={ i } className={ stepRow }>
+					{ step.success
+						? <Check size={ 13 } className={ stepDone } />
+						: <AlertCircle size={ 13 } className={ stepError } />
+					}
+					<span className={ stepLabel }>{ step.label }</span>
+				</div>
+			) ) }
+			<div className={ stepRow }>
+				<Blocks size={ 13 } className={ spinnerIcon } />
+				<span className={ stepCurrent }>{ currentLabel }</span>
+			</div>
 		</div>
 	</div>
 );

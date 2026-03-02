@@ -8,7 +8,7 @@
 import { useRef, useEffect } from '@wordpress/element';
 import { css } from '@emotion/css';
 import MessageBubble from './MessageBubble';
-import { ThinkingIndicator, ActionIndicator, SkeletonMessages } from './LoadingStates';
+import { ThinkingIndicator, ActionIndicator, StepperIndicator, SkeletonMessages } from './LoadingStates';
 import { spacing, scrollbar } from './styles';
 
 /* -- Styles --------------------------------------------------------- */
@@ -66,7 +66,7 @@ const getActionLabel = ( progress ) => {
 
 /* -- Component ------------------------------------------------------ */
 
-const MessageList = ( { messages, isStreaming, streamingContent, isLoading, actionProgress } ) => {
+const MessageList = ( { messages, isStreaming, streamingContent, isLoading, actionProgress, completedSteps = [] } ) => {
 	const bottomRef = useRef( null );
 
 	// Auto-scroll to bottom when messages change or streaming content updates.
@@ -85,6 +85,13 @@ const MessageList = ( { messages, isStreaming, streamingContent, isLoading, acti
 
 	const showThinking = isStreaming && ! streamingContent && ! actionProgress;
 	const showAction = isStreaming && actionProgress && actionProgress.stage === 'action_start';
+	const showStepper = isStreaming && actionProgress && completedSteps.length > 0;
+
+	// Build step labels for the stepper.
+	const stepLabels = completedSteps.map( ( step ) => ( {
+		...step,
+		label: ACTION_LABELS[ step.action ] || step.action.replace( /_/g, ' ' ),
+	} ) );
 
 	return (
 		<div className={ list }>
@@ -108,8 +115,16 @@ const MessageList = ( { messages, isStreaming, streamingContent, isLoading, acti
 			{ /* Thinking indicator: AI processing, no text yet */ }
 			{ showThinking && <ThinkingIndicator /> }
 
-			{ /* Action indicator: AI executing tool calls */ }
-			{ showAction && <ActionIndicator label={ getActionLabel( actionProgress ) } /> }
+			{ /* Stepper indicator: multi-step progress with completed steps */ }
+			{ showStepper && (
+				<StepperIndicator
+					completedSteps={ stepLabels }
+					currentLabel={ getActionLabel( actionProgress ) }
+				/>
+			) }
+
+			{ /* Simple action indicator: single action, no history yet */ }
+			{ showAction && ! showStepper && <ActionIndicator label={ getActionLabel( actionProgress ) } /> }
 
 			<div ref={ bottomRef } />
 		</div>

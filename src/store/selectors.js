@@ -15,3 +15,4 @@ export const getIsLoading = ( state ) => state.isLoading;
 export const getHasApiKey = ( state ) => state.hasApiKey;
 export const getPendingActions = ( state ) => state.pendingActions;
 export const getActionProgress = ( state ) => state.actionProgress;
+export const getCompletedSteps = ( state ) => state.completedSteps;

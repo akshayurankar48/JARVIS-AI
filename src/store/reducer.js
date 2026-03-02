@@ -20,6 +20,7 @@ const DEFAULT_STATE = {
 	hasApiKey: !! hasApiKey,
 	pendingActions: [],
 	actionProgress: null,
+	completedSteps: [],
 };
 
 const reducer = ( state = DEFAULT_STATE, action ) => {
@@ -82,6 +83,7 @@ const reducer = ( state = DEFAULT_STATE, action ) => {
 				isStreaming: false,
 				pendingActions: [],
 				actionProgress: null,
+				completedSteps: [],
 			};
 
 		case ACTION_TYPES.ADD_PENDING_ACTION:
@@ -93,11 +95,29 @@ const reducer = ( state = DEFAULT_STATE, action ) => {
 		case ACTION_TYPES.CLEAR_PENDING_ACTIONS:
 			return { ...state, pendingActions: [] };
 
-		case ACTION_TYPES.SET_ACTION_PROGRESS:
-			return { ...state, actionProgress: action.progress };
+		case ACTION_TYPES.SET_ACTION_PROGRESS: {
+			const progress = action.progress;
+			if ( progress && progress.stage === 'action_complete' ) {
+				return {
+					...state,
+					actionProgress: progress,
+					completedSteps: [
+						...state.completedSteps,
+						{
+							action: progress.action,
+							index: progress.index,
+							total: progress.total,
+							success: ! progress.error,
+							error: progress.error || null,
+						},
+					],
+				};
+			}
+			return { ...state, actionProgress: progress };
+		}
 
 		case ACTION_TYPES.CLEAR_ACTION_PROGRESS:
-			return { ...state, actionProgress: null };
+			return { ...state, actionProgress: null, completedSteps: [] };
 
 		default:
 			return state;
