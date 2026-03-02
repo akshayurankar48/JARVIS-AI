@@ -186,8 +186,12 @@ class Plugin_Loader {
 		$registry->register( new Actions\Activate_Plugin() );
 		$registry->register( new Actions\List_Plugins() );
 
-		// User & system actions.
+		// Plugin lifecycle actions.
 		$registry->register( new Actions\Deactivate_Plugin() );
+		$registry->register( new Actions\Update_Plugin() );
+		$registry->register( new Actions\Delete_Plugin() );
+
+		// User & system actions.
 		$registry->register( new Actions\Create_User() );
 		$registry->register( new Actions\Manage_Users() );
 		$registry->register( new Actions\List_Users() );
@@ -251,6 +255,15 @@ class Plugin_Loader {
 
 		// Content migration.
 		$registry->register( new Actions\Import_Content() );
+
+		// Revision management.
+		$registry->register( new Actions\Manage_Revisions() );
+
+		// User session management.
+		$registry->register( new Actions\Manage_Sessions() );
+
+		// Diagnostics.
+		$registry->register( new Actions\Read_Debug_Log() );
 
 		// Additional quick wins.
 		$registry->register( new Actions\Manage_Rewrite_Rules() );
