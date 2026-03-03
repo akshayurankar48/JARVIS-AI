@@ -119,6 +119,62 @@ class History_Controller {
 				),
 			)
 		);
+
+		// DELETE /history/<id> — delete a single conversation.
+		register_rest_route(
+			self::NAMESPACE,
+			self::ROUTE . '/(?P<id>\d+)',
+			array(
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => array( $this, 'delete_conversation' ),
+				'permission_callback' => array( $this, 'check_permissions' ),
+				'args'                => array(
+					'id' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+
+		// POST /history/bulk-delete — delete multiple conversations.
+		register_rest_route(
+			self::NAMESPACE,
+			self::ROUTE . '/bulk-delete',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'bulk_delete_conversations' ),
+				'permission_callback' => array( $this, 'check_permissions' ),
+				'args'                => array(
+					'ids' => array(
+						'required'          => true,
+						'type'              => 'array',
+						'items'             => array( 'type' => 'integer' ),
+						'validate_callback' => function ( $value ) {
+							if ( ! is_array( $value ) || empty( $value ) ) {
+								return new \WP_Error(
+									'invalid_ids',
+									__( 'IDs must be a non-empty array.', 'jarvis-ai' ),
+									array( 'status' => 400 )
+								);
+							}
+							if ( count( $value ) > 50 ) {
+								return new \WP_Error(
+									'too_many_ids',
+									__( 'Cannot delete more than 50 conversations at once.', 'jarvis-ai' ),
+									array( 'status' => 400 )
+								);
+							}
+							return true;
+						},
+						'sanitize_callback' => function ( $value ) {
+							return array_map( 'absint', $value );
+						},
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -374,6 +430,141 @@ class History_Controller {
 			array(
 				'id'    => $conversation_id,
 				'title' => $title,
+			)
+		);
+	}
+
+	/**
+	 * DELETE /jarvis-ai/v1/history/<id>
+	 *
+	 * Deletes a single conversation and its messages. Verifies ownership.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param \WP_REST_Request $request The request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function delete_conversation( $request ) {
+		global $wpdb;
+
+		$tables          = Database::get_table_names();
+		$conversation_id = (int) $request->get_param( 'id' );
+		$user_id         = get_current_user_id();
+
+		// Verify ownership.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$owner_id = $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT user_id FROM {$tables['conversations']} WHERE id = %d LIMIT 1",
+				$conversation_id
+			)
+		);
+
+		if ( null === $owner_id ) {
+			return new \WP_Error(
+				'not_found',
+				__( 'Conversation not found.', 'jarvis-ai' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( (int) $owner_id !== $user_id ) {
+			return new \WP_Error(
+				'forbidden',
+				__( 'You do not have access to this conversation.', 'jarvis-ai' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		// Delete messages first, then conversation.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->delete(
+			$tables['messages'],
+			array( 'conversation_id' => $conversation_id ),
+			array( '%d' )
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->delete(
+			$tables['conversations'],
+			array(
+				'id'      => $conversation_id,
+				'user_id' => $user_id,
+			),
+			array( '%d', '%d' )
+		);
+
+		return rest_ensure_response(
+			array(
+				'deleted' => true,
+				'id'      => $conversation_id,
+			)
+		);
+	}
+
+	/**
+	 * POST /jarvis-ai/v1/history/bulk-delete
+	 *
+	 * Deletes multiple conversations and their messages. Verifies ownership of all IDs.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param \WP_REST_Request $request The request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function bulk_delete_conversations( $request ) {
+		global $wpdb;
+
+		$tables  = Database::get_table_names();
+		$ids     = $request->get_param( 'ids' );
+		$user_id = get_current_user_id();
+
+		// Build safe placeholders for IN clause.
+		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+		// Verify all IDs belong to current user.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$owned_count = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT COUNT(*) FROM {$tables['conversations']} WHERE id IN ({$placeholders}) AND user_id = %d",
+				array_merge( $ids, array( $user_id ) )
+			)
+		);
+
+		if ( count( $ids ) !== $owned_count ) {
+			return new \WP_Error(
+				'forbidden',
+				__( 'One or more conversations do not belong to you.', 'jarvis-ai' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		// Delete messages for all conversations.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+				"DELETE FROM {$tables['messages']} WHERE conversation_id IN ({$placeholders})",
+				$ids
+			)
+		);
+
+		// Delete conversations.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"DELETE FROM {$tables['conversations']} WHERE id IN ({$placeholders}) AND user_id = %d",
+				array_merge( $ids, array( $user_id ) )
+			)
+		);
+
+		return rest_ensure_response(
+			array(
+				'deleted' => true,
+				'count'   => count( $ids ),
 			)
 		);
 	}

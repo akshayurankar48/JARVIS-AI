@@ -23,7 +23,7 @@ import PageHeader from '../components/ui/PageHeader';
 import EmptyState from '../components/ui/EmptyState';
 import { STORE_NAME } from '../store/constants';
 
-function ConversationRow( { conversation, onResume, onRename, onDelete } ) {
+function ConversationRow( { conversation, onResume, onRename, onDelete, isSelected, onToggleSelect } ) {
 	const [ editing, setEditing ] = useState( false );
 	const [ editTitle, setEditTitle ] = useState( '' );
 	const [ saving, setSaving ] = useState( false );
@@ -77,9 +77,18 @@ function ConversationRow( { conversation, onResume, onRename, onDelete } ) {
 
 	return (
 		<tr
-			className="group border-b border-solid border-border-subtle last:border-b-0 hover:bg-background-secondary/40 transition-colors duration-150 cursor-pointer"
+			className={ `group border-b border-solid border-border-subtle last:border-b-0 hover:bg-background-secondary/40 transition-colors duration-150 cursor-pointer${ isSelected ? ' bg-background-secondary/30' : '' }` }
 			onClick={ () => ! editing && onResume( conversation.id ) }
 		>
+			<td className="py-3 px-4 w-10">
+				<input
+					type="checkbox"
+					checked={ isSelected }
+					onChange={ () => onToggleSelect( conversation.id ) }
+					onClick={ ( e ) => e.stopPropagation() }
+					className="size-3.5 rounded border-border-subtle accent-brand-primary-600 cursor-pointer"
+				/>
+			</td>
 			<td className="py-3 px-4">
 				<div className="flex items-center gap-3">
 					<div className="flex items-center justify-center size-8 rounded-lg bg-background-secondary shrink-0">
@@ -201,6 +210,8 @@ export default function History() {
 	const [ loading, setLoading ] = useState( true );
 	const [ page, setPage ] = useState( 1 );
 	const [ search, setSearch ] = useState( '' );
+	const [ selected, setSelected ] = useState( () => new Set() );
+	const [ deleting, setDeleting ] = useState( false );
 	const { loadConversation } = useDispatch( STORE_NAME );
 
 	const handleResume = useCallback( ( id ) => {
@@ -226,6 +237,14 @@ export default function History() {
 					conversations: prev.conversations.filter( ( c ) => c.id !== id ),
 					total: prev.total - 1,
 				};
+			} );
+			setSelected( ( prev ) => {
+				if ( ! prev.has( id ) ) {
+					return prev;
+				}
+				const next = new Set( prev );
+				next.delete( id );
+				return next;
 			} );
 		} catch {
 			// Silently fail.
@@ -255,6 +274,62 @@ export default function History() {
 		}
 	}, [] );
 
+	const handleToggleSelect = useCallback( ( id ) => {
+		setSelected( ( prev ) => {
+			const next = new Set( prev );
+			if ( next.has( id ) ) {
+				next.delete( id );
+			} else {
+				next.add( id );
+			}
+			return next;
+		} );
+	}, [] );
+
+	const handleSelectAll = useCallback( ( visibleIds ) => {
+		setSelected( ( prev ) => {
+			const allSelected = visibleIds.every( ( id ) => prev.has( id ) );
+			if ( allSelected ) {
+				return new Set();
+			}
+			return new Set( visibleIds );
+		} );
+	}, [] );
+
+	const handleBulkDelete = useCallback( async () => {
+		if ( selected.size === 0 ) {
+			return;
+		}
+		const count = selected.size;
+		if ( ! window.confirm( `Delete ${ count } conversation${ count !== 1 ? 's' : '' }? This cannot be undone.` ) ) {
+			return;
+		}
+		setDeleting( true );
+		try {
+			await apiFetch( {
+				path: '/jarvis-ai/v1/history/bulk-delete',
+				method: 'POST',
+				data: { ids: Array.from( selected ) },
+			} );
+			setData( ( prev ) => {
+				if ( ! prev ) {
+					return prev;
+				}
+				const remaining = prev.conversations.filter( ( c ) => ! selected.has( c.id ) );
+				return {
+					...prev,
+					conversations: remaining,
+					total: prev.total - count,
+				};
+			} );
+			setSelected( new Set() );
+		} catch {
+			// Silently fail.
+		} finally {
+			setDeleting( false );
+		}
+	}, [ selected ] );
+
 	const fetchHistory = useCallback( async ( p ) => {
 		try {
 			setLoading( true );
@@ -270,6 +345,7 @@ export default function History() {
 	}, [] );
 
 	useEffect( () => {
+		setSelected( new Set() );
 		fetchHistory( page );
 	}, [ fetchHistory, page ] );
 
@@ -317,6 +393,31 @@ export default function History() {
 				}
 			/>
 
+			{ selected.size > 0 && (
+				<div className="flex items-center gap-3 px-4 py-2.5 rounded-lg border border-solid border-border-subtle bg-background-secondary">
+					<span className="text-sm font-medium text-text-primary">
+						{ selected.size } selected
+					</span>
+					<Button
+						variant="ghost"
+						size="xs"
+						onClick={ handleBulkDelete }
+						disabled={ deleting }
+						className="text-support-error hover:text-support-error hover:bg-support-error/10"
+						icon={ <Trash2 size={ 14 } /> }
+					>
+						{ deleting ? 'Deleting...' : 'Delete Selected' }
+					</Button>
+					<Button
+						variant="ghost"
+						size="xs"
+						onClick={ () => setSelected( new Set() ) }
+					>
+						Clear
+					</Button>
+				</div>
+			) }
+
 			{ loading ? (
 				<TableSkeleton />
 			) : conversations.length === 0 ? (
@@ -334,6 +435,14 @@ export default function History() {
 							<table className="w-full text-left border-collapse">
 								<thead>
 									<tr className="border-b border-solid border-border-subtle bg-background-secondary">
+										<th className="py-3 px-4 w-10">
+											<input
+												type="checkbox"
+												checked={ conversations.length > 0 && conversations.every( ( c ) => selected.has( c.id ) ) }
+												onChange={ () => handleSelectAll( conversations.map( ( c ) => c.id ) ) }
+												className="size-3.5 rounded border-border-subtle accent-brand-primary-600 cursor-pointer"
+											/>
+										</th>
 										<TableHeader icon={ MessageSquare } label="Conversation" />
 										<TableHeader icon={ CircleDot } label="Status" />
 										<TableHeader icon={ Cpu } label="Model" />
@@ -344,7 +453,7 @@ export default function History() {
 								</thead>
 								<tbody>
 									{ conversations.map( ( conv ) => (
-										<ConversationRow key={ conv.id } conversation={ conv } onResume={ handleResume } onRename={ handleRename } onDelete={ handleDelete } />
+										<ConversationRow key={ conv.id } conversation={ conv } onResume={ handleResume } onRename={ handleRename } onDelete={ handleDelete } isSelected={ selected.has( conv.id ) } onToggleSelect={ handleToggleSelect } />
 									) ) }
 								</tbody>
 							</table>
